@@ -8,7 +8,12 @@ const (
 	ValUnknown = -200
 
 	// Logic errors
-	LogicUnknown = -300
+	LogicUnknown                   = -300
+	LogicEntryNotFound             = -301
+	LogicEntryTypeNotFound         = -302
+	LogicEntryActivityNotFound     = -303
+	LogicEntryTimeIntervalInvalid  = -304
+	LogicEntryBreakDurationTooLong = -305
 
 	// System errors
 	SysUnknown             = -400

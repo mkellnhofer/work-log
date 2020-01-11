@@ -11,5 +11,12 @@ const (
 	LogicUnknown = -300
 
 	// System errors
-	SysUnknown = -400
+	SysUnknown             = -400
+	SysDbUnknown           = -401
+	SysDbConnectionFailed  = -402
+	SysDbTransactionFailed = -403
+	SysDbQueryFailed       = -404
+	SysDbInsertFailed      = -405
+	SysDbUpdateFailed      = -406
+	SysDbDeleteFailed      = -407
 )

@@ -3,6 +3,7 @@ package main
 import (
 	"kellnhofer.com/work-log/config"
 	"kellnhofer.com/work-log/db"
+	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/service"
 )
 
@@ -15,6 +16,8 @@ type Initializer struct {
 	entryServ *service.EntryService
 	sessServ  *service.SessionService
 	userServ  *service.UserService
+
+	errMidw *middleware.ErrorMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -56,4 +59,14 @@ func (i *Initializer) GetUserService() *service.UserService {
 		i.userServ = service.NewUserService(i.GetDb().GetUserRepo())
 	}
 	return i.userServ
+}
+
+// --- Middleware functions ---
+
+// GetErrorMiddleware returns a initialized API auth middleware object.
+func (i *Initializer) GetErrorMiddleware() *middleware.ErrorMiddleware {
+	if i.errMidw == nil {
+		i.errMidw = middleware.NewErrorMiddleware()
+	}
+	return i.errMidw
 }

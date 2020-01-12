@@ -2,6 +2,7 @@ package main
 
 import (
 	"kellnhofer.com/work-log/config"
+	"kellnhofer.com/work-log/controller"
 	"kellnhofer.com/work-log/db"
 	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/service"
@@ -16,6 +17,8 @@ type Initializer struct {
 	entryServ *service.EntryService
 	sessServ  *service.SessionService
 	userServ  *service.UserService
+
+	errCtrl *controller.ErrorController
 
 	errMidw  *middleware.ErrorMiddleware
 	sessMidw *middleware.SessionMiddleware
@@ -61,6 +64,16 @@ func (i *Initializer) GetUserService() *service.UserService {
 		i.userServ = service.NewUserService(i.GetDb().GetUserRepo())
 	}
 	return i.userServ
+}
+
+// --- Controller functions ---
+
+// GetErrorController returns a initialized error controller object.
+func (i *Initializer) GetErrorController() *controller.ErrorController {
+	if i.errCtrl == nil {
+		i.errCtrl = controller.NewErrorController()
+	}
+	return i.errCtrl
 }
 
 // --- Middleware functions ---

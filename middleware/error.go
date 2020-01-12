@@ -43,5 +43,5 @@ func (m *ErrorMiddleware) handleError(w http.ResponseWriter, r *http.Request, er
 		ec = error.SysUnknown
 	}
 
-	http.Redirect(w, r, fmt.Sprintf("/error?code=%d", ec), http.StatusFound)
+	http.Redirect(w, r, fmt.Sprintf("/error?error=%d", ec), http.StatusFound)
 }

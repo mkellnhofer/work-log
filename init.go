@@ -17,7 +17,8 @@ type Initializer struct {
 	sessServ  *service.SessionService
 	userServ  *service.UserService
 
-	errMidw *middleware.ErrorMiddleware
+	errMidw  *middleware.ErrorMiddleware
+	sessMidw *middleware.SessionMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -63,10 +64,18 @@ func (i *Initializer) GetUserService() *service.UserService {
 
 // --- Middleware functions ---
 
-// GetErrorMiddleware returns a initialized API auth middleware object.
+// GetErrorMiddleware returns a initialized error middleware object.
 func (i *Initializer) GetErrorMiddleware() *middleware.ErrorMiddleware {
 	if i.errMidw == nil {
 		i.errMidw = middleware.NewErrorMiddleware()
 	}
 	return i.errMidw
+}
+
+// GetSessionMiddleware returns a initialized session middleware object.
+func (i *Initializer) GetSessionMiddleware() *middleware.SessionMiddleware {
+	if i.sessMidw == nil {
+		i.sessMidw = middleware.NewSessionMiddleware(i.GetSessionService())
+	}
+	return i.sessMidw
 }

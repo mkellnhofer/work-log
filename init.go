@@ -19,6 +19,7 @@ type Initializer struct {
 
 	errMidw  *middleware.ErrorMiddleware
 	sessMidw *middleware.SessionMiddleware
+	authMidw *middleware.AuthMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -78,4 +79,12 @@ func (i *Initializer) GetSessionMiddleware() *middleware.SessionMiddleware {
 		i.sessMidw = middleware.NewSessionMiddleware(i.GetSessionService())
 	}
 	return i.sessMidw
+}
+
+// GetAuthMiddleware returns a initialized auth middleware object.
+func (i *Initializer) GetAuthMiddleware() *middleware.AuthMiddleware {
+	if i.authMidw == nil {
+		i.authMidw = middleware.NewAuthMiddleware(i.GetSessionService())
+	}
+	return i.authMidw
 }

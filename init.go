@@ -18,7 +18,8 @@ type Initializer struct {
 	sessServ  *service.SessionService
 	userServ  *service.UserService
 
-	errCtrl *controller.ErrorController
+	errCtrl  *controller.ErrorController
+	authCtrl *controller.AuthController
 
 	errMidw  *middleware.ErrorMiddleware
 	sessMidw *middleware.SessionMiddleware
@@ -74,6 +75,14 @@ func (i *Initializer) GetErrorController() *controller.ErrorController {
 		i.errCtrl = controller.NewErrorController()
 	}
 	return i.errCtrl
+}
+
+// GetAuthController returns a initialized auth controller object.
+func (i *Initializer) GetAuthController() *controller.AuthController {
+	if i.authCtrl == nil {
+		i.authCtrl = controller.NewAuthController(i.GetUserService(), i.GetSessionService())
+	}
+	return i.authCtrl
 }
 
 // --- Middleware functions ---

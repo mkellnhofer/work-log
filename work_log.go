@@ -45,8 +45,11 @@ func main() {
 
 	// Add public endpoints
 	addEndpoint(router, pubRoute, "GET", "/error", init.GetErrorController().GetErrorHandler())
+	addEndpoint(router, pubRoute, "GET", "/login", init.GetAuthController().GetLoginHandler())
+	addEndpoint(router, pubRoute, "POST", "/login", init.GetAuthController().PostLoginHandler())
 	// TODO!!!
 	// Add protected endpoints
+	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
 	// TODO!!!
 	// Add resource endpoints
 	// TODO!!!

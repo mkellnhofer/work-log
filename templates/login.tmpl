@@ -1,0 +1,17 @@
+{{template "header" .}}
+<h1>Anmelden</h1>
+{{if ne .ErrorMessage "" -}}
+<p>{{.ErrorMessage}}</p>
+{{end -}}
+<form action="/login" method="POST">
+  <div>
+    <label for="username">Benutzername:</label>
+    <input name="username" type="text">
+  </div>
+  <div>
+    <label for="password">Passwort:</label>
+    <input name="password" type="password">
+  </div>
+  <button type="submit">Anmelden</button>
+</form>
+{{template "footer" .}}

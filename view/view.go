@@ -8,11 +8,16 @@ import (
 )
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
-	"templates/error.tmpl"))
+	"templates/error.tmpl", "templates/login.tmpl"))
 
 // RenderErrorTemplate renders the error page.
 func RenderErrorTemplate(w http.ResponseWriter, model *model.Error) {
 	renderTemplate(w, "error", model)
+}
+
+// RenderLoginTemplate renders the login page.
+func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
+	renderTemplate(w, "login", model)
 }
 
 // --- Helper methods ---

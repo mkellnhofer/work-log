@@ -2,7 +2,8 @@ package error
 
 const (
 	// Authentication errors
-	AuthUnknown = -100
+	AuthUnknown            = -100
+	AuthInvalidCredentials = -101
 
 	// Validation erros
 	ValUnknown = -200

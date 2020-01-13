@@ -10,7 +10,8 @@ import (
 
 var errorMessages = map[int]string{
 	// Authentication errors
-	e.AuthUnknown: "Ein unbekannter Authentifizierungsfehler trat auf.",
+	e.AuthUnknown:            "Ein unbekannter Authentifizierungsfehler trat auf.",
+	e.AuthInvalidCredentials: "Falscher Benutzername oder Passwort.",
 
 	// Validation erros
 	e.ValUnknown: "Ein unbekannter Validierungsfehler trat auf.",

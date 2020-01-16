@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"fmt"
 
 	"kellnhofer.com/work-log/db/repo"
@@ -22,22 +21,40 @@ func NewEntryService(er *repo.EntryRepo) *EntryService {
 
 // --- Work entry functions ---
 
+// GetDateEntries gets all work entries (over date).
+func (s *EntryService) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, int,
+	*e.Error) {
+	// Get work entries
+	entries, err := s.eRepo.GetDateEntries(userId, offset, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Count all available work entries
+	cnt, err := s.eRepo.CountDateEntries(userId)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entries, cnt, nil
+}
+
 // GetEntries gets all work entries.
-func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.Entry, int, int, int,
+func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.Entry, int,
 	*e.Error) {
 	// Get work entries
 	entries, err := s.eRepo.GetEntries(userId, offset, limit)
 	if err != nil {
-		return nil, 0, 0, 0, err
+		return nil, 0, err
 	}
 
 	// Count all available work entries
 	cnt, err := s.eRepo.CountEntries(userId)
 	if err != nil {
-		return nil, 0, 0, 0, err
+		return nil, 0, err
 	}
 
-	return entries, offset, limit, cnt, nil
+	return entries, cnt, nil
 }
 
 // GetEntryById gets a work entry by its ID.
@@ -144,7 +161,7 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 // --- Work entry type functions ---
 
 // GetEntryTypes gets all work entry types.
-func (s *EntryService) GetEntryTypes(ctx context.Context) ([]*model.EntryType, *e.Error) {
+func (s *EntryService) GetEntryTypes() ([]*model.EntryType, *e.Error) {
 	return s.eRepo.GetEntryTypes()
 }
 

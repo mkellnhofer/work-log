@@ -32,6 +32,51 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 
 // --- Work entry functions ---
 
+// CountDateEntries counts all work entries (over date).
+func (r *EntryRepo) CountDateEntries(userId int) (int, *e.Error) {
+	q := "SELECT COUNT(DISTINCT(DATE(start_time))) FROM entry WHERE user_id = ?"
+
+	sr, qErr := r.queryRow(&scanIntHelper{}, q, userId)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries (over date) in database.",
+			qErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+
+	return sr.(int), nil
+}
+
+// GetDateEntries retrieves all work entries (over date).
+func (r *EntryRepo) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, *e.Error) {
+	ql := createQueryLimitString(offset, limit)
+
+	dq := "SELECT DISTINCT(DATE(start_time)) AS date " +
+		"FROM entry " +
+		"ORDER BY date DESC" +
+		ql
+
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
+		"e.activity_id, e.description " +
+		"FROM (SELECT id, user_id, type_id, DATE(start_time) AS date, start_time, end_time, " +
+		"break_duration, activity_id, description FROM entry) e " +
+		"INNER JOIN (" + dq + ") AS d ON e.date = d.date " +
+		"WHERE user_id = ? " +
+		"ORDER BY e.date DESC, e.start_time DESC, e.end_time DESC"
+
+	sr, qErr := r.query(&scanEntryHelper{}, q, userId)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries (over date) from "+
+			"database.", qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	entries := sr.([]*model.Entry)
+
+	return entries, nil
+}
+
 // CountEntries counts all work entries.
 func (r *EntryRepo) CountEntries(userId int) (int, *e.Error) {
 	q := "SELECT COUNT(*) FROM entry WHERE user_id = ?"

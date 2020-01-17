@@ -165,6 +165,23 @@ func (s *EntryService) GetEntryTypes() ([]*model.EntryType, *e.Error) {
 	return s.eRepo.GetEntryTypes()
 }
 
+// GetEntryTypesMap gets a map of all work entry types.
+func (s *EntryService) GetEntryTypesMap() (map[int]*model.EntryType, *e.Error) {
+	// Get entry types
+	entryTypes, err := s.eRepo.GetEntryTypes()
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert into map
+	m := make(map[int]*model.EntryType)
+	for _, entryType := range entryTypes {
+		m[entryType.Id] = entryType
+	}
+
+	return m, nil
+}
+
 func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 	exist, err := s.eRepo.ExistsEntryTypeById(id)
 	if err != nil {
@@ -184,6 +201,23 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 // GetEntryActivities gets all work entry activities.
 func (s *EntryService) GetEntryActivities() ([]*model.EntryActivity, *e.Error) {
 	return s.eRepo.GetEntryActivities()
+}
+
+// GetEntryActivitiesMap gets a map of all work entry activities.
+func (s *EntryService) GetEntryActivitiesMap() (map[int]*model.EntryActivity, *e.Error) {
+	// Get entry activities
+	entryActivities, err := s.eRepo.GetEntryActivities()
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert into map
+	m := make(map[int]*model.EntryActivity)
+	for _, entryActivity := range entryActivities {
+		m[entryActivity.Id] = entryActivity
+	}
+
+	return m, nil
 }
 
 func (s *EntryService) checkIfEntryActivityExists(id int) *e.Error {

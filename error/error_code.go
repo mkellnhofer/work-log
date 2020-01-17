@@ -6,7 +6,9 @@ const (
 	AuthInvalidCredentials = -101
 
 	// Validation erros
-	ValUnknown = -200
+	ValUnknown           = -200
+	ValPageNumberInvalid = -201
+	ValIdInvalid         = -202
 
 	// Logic errors
 	LogicUnknown                   = -300

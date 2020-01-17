@@ -50,6 +50,7 @@ func main() {
 	// TODO!!!
 	// Add protected endpoints
 	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
+	addEndpoint(router, proRoute, "GET", "/list/{page}", init.GetEntryController().GetListHandler())
 	// TODO!!!
 	// Add resource endpoints
 	// TODO!!!

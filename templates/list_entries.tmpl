@@ -1,0 +1,38 @@
+{{template "header" .}}
+<h1>Einträge</h1>
+{{range .Days -}}
+<p>{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</p>
+<table>
+  <thead>
+    <tr>
+      <th scope="col">Art</th>
+      <th scope="col">Start</th>
+      <th scope="col">Ende</th>
+      <th scope="col">Pause</th>
+      <th scope="col">Netto</th>
+      <th scope="col">Tätigkeit</th>
+      <th scope="col">Beschreibung</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .Entries -}}
+    <tr>
+      <td>{{.EntryType}}</td>
+      <td>{{.StartTime}}</td>
+      <td>{{.EndTime}}</td>
+      <td>{{.BreakDuration}}</td>
+      <td>{{.WorkDuration}}</td>
+      <td>{{.EntryActivity}}</td>
+      <td>{{.Description}}</td>
+    </tr>
+    {{end -}}
+  </tbody>
+</table>
+{{end -}}
+{{if .HasPrevPage -}}
+<a href="{{.PrevPageNum}}">Vorherige</p>
+{{end -}}
+{{if .HasNextPage -}}
+<a href="{{.NextPageNum}}">Nächste</p>
+{{end -}}
+{{template "footer" .}}

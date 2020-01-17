@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 )
@@ -14,7 +16,9 @@ var errorMessages = map[int]string{
 	e.AuthInvalidCredentials: "Falscher Benutzername oder Passwort.",
 
 	// Validation erros
-	e.ValUnknown: "Ein unbekannter Validierungsfehler trat auf.",
+	e.ValUnknown:           "Ein unbekannter Validierungsfehler trat auf.",
+	e.ValPageNumberInvalid: "Ungültige Seitennummer. (Seitennummer muss numerisch und positiv sein.)",
+	e.ValIdInvalid:         "Ungültige ID. (ID muss numerisch und positiv sein.)",
 
 	// Logic errors
 	e.LogicUnknown:                   "Ein unbekannter Logikfehler trat auf.",
@@ -42,6 +46,61 @@ func getErrorMessage(errorCode int) string {
 		return errorMessages[e.SysUnknown]
 	}
 	return em
+}
+
+func getStringPathVar(r *http.Request, n string) (string, bool) {
+	vs := mux.Vars(r)
+	v, ok := vs[n]
+	return v, ok
+}
+
+func getPageNumberPathVar(r *http.Request) int {
+	v, ok := getStringPathVar(r, "page")
+	if !ok {
+		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible missing.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	page, pErr := strconv.Atoi(v)
+	if pErr != nil {
+		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be numeric.)",
+			pErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	if page <= 0 {
+		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be positive.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	return page
+}
+
+func getIdPathVar(r *http.Request) int {
+	v, ok := getStringPathVar(r, "id")
+	if !ok {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Varible missing.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	id, pErr := strconv.Atoi(v)
+	if pErr != nil {
+		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (Varible must be numeric.)", pErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	if id <= 0 {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Varible must be positive.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	return id
 }
 
 func getStringQueryParam(r *http.Request, n string) string {

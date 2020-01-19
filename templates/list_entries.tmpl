@@ -1,6 +1,6 @@
 {{template "header" .}}
 <h1>Einträge</h1>
-{{range .Days -}}
+{{range .ListDays -}}
 <p>{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</p>
 <table>
   <thead>
@@ -15,7 +15,7 @@
     </tr>
   </thead>
   <tbody>
-    {{range .Entries -}}
+    {{range .ListEntries -}}
     <tr>
       <td>{{.EntryType}}</td>
       <td>{{.StartTime}}</td>

@@ -53,6 +53,8 @@ func main() {
 	addEndpoint(router, proRoute, "GET", "/list/{page}", init.GetEntryController().GetListHandler())
 	addEndpoint(router, proRoute, "GET", "/create", init.GetEntryController().GetCreateHandler())
 	addEndpoint(router, proRoute, "POST", "/create", init.GetEntryController().PostCreateHandler())
+	addEndpoint(router, proRoute, "GET", "/edit/{id}", init.GetEntryController().GetEditHandler())
+	addEndpoint(router, proRoute, "POST", "/edit/{id}", init.GetEntryController().PostEditHandler())
 	// TODO!!!
 	// Add resource endpoints
 	// TODO!!!

@@ -18,7 +18,18 @@ import (
 const pageSize = 7
 
 const dateFormat = "2006-01-02"
+const timeFormat = "15:04"
 const dateTimeFormat = "2006-01-02 15:04"
+
+type formInput struct {
+	typeId        string
+	date          string
+	startTime     string
+	endTime       string
+	breakDuration string
+	activityId    string
+	description   string
+}
 
 // EntryController handles requests for entry endpoints.
 type EntryController struct {
@@ -53,6 +64,22 @@ func (c *EntryController) PostCreateHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Verb("Handle POST /create.")
 		c.handleExecuteCreate(w, r)
+	}
+}
+
+// GetEditHandler returns a handler for "GET /edit/{id}".
+func (c *EntryController) GetEditHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle GET /edit.")
+		c.handleShowEdit(w, r)
+	}
+}
+
+// PostEditHandler returns a handler for "POST /edit/{id}".
+func (c *EntryController) PostEditHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle POST /edit.")
+		c.handleExecuteEdit(w, r)
 	}
 }
 
@@ -94,6 +121,153 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	view.RenderListEntriesTemplate(w, model)
 }
 
+// --- Create handler functions ---
+
+func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Request) {
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	entryTypeId := 0
+	if len(entryTypes) > 0 {
+		entryTypeId = entryTypes[0].Id
+	}
+	model := c.createCreateViewModel("", entryTypeId, getDateString(time.Now()), "00:00", "00:00",
+		"0", 0, "", entryTypes, entryActivities)
+
+	// Render
+	view.RenderCreateEntryTemplate(w, model)
+}
+
+func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get form inputs
+	input := c.getFormInput(r)
+
+	// Create model
+	entry, cemErr := c.createEntryModel(0, userId, input)
+	if cemErr != nil {
+		c.handleCreateError(w, r, cemErr, input)
+	}
+
+	// Create work entry
+	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
+		c.handleCreateError(w, r, ceErr, input)
+	}
+
+	c.handleCreateSuccess(w, r)
+}
+
+func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/list/1", http.StatusFound)
+}
+
+func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
+	input *formInput) {
+	// Get error message
+	em := getErrorMessage(err.Code)
+
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	entryTypeId, _ := strconv.Atoi(input.typeId)
+	entryActivityId, _ := strconv.Atoi(input.activityId)
+	model := c.createCreateViewModel(em, entryTypeId, input.date, input.startTime, input.endTime,
+		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+
+	// Render
+	view.RenderCreateEntryTemplate(w, model)
+}
+
+// --- Edit handler functions ---
+
+func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get ID
+	entryId := getIdPathVar(r)
+
+	// Get work entry
+	entry := c.getEntry(entryId, userId)
+
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	model := c.createEditViewModel("", entry.Id, entry.TypeId, getDateString(entry.StartTime),
+		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getDurationString(
+			entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes, entryActivities)
+
+	// Render
+	view.RenderEditEntryTemplate(w, model)
+}
+
+func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get ID
+	entryId := getIdPathVar(r)
+
+	// Get form inputs
+	input := c.getFormInput(r)
+
+	// Create model
+	entry, cemErr := c.createEntryModel(entryId, userId, input)
+	if cemErr != nil {
+		c.handleEditError(w, r, cemErr, entryId, input)
+	}
+
+	// Update work entry
+	if ueErr := c.eServ.UpdateEntry(entry, userId); ueErr != nil {
+		c.handleEditError(w, r, ueErr, entryId, input)
+	}
+
+	c.handleEditSuccess(w, r)
+}
+
+func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/list/1", http.StatusFound)
+}
+
+func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
+	id int, input *formInput) {
+	// Get error message
+	em := getErrorMessage(err.Code)
+
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	entryTypeId, _ := strconv.Atoi(input.typeId)
+	entryActivityId, _ := strconv.Atoi(input.activityId)
+	model := c.createEditViewModel(em, id, entryTypeId, input.date, input.startTime, input.endTime,
+		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+
+	// Render
+	view.RenderEditEntryTemplate(w, model)
+}
+
+// --- Viem model converter functions ---
+
 func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity) *vm.
 	ListEntries {
@@ -106,8 +280,8 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create work entries
-	dsvm := make([]*vm.Day, 0, pageSize)
-	var dvm *vm.Day
+	ldsvm := make([]*vm.ListDay, 0, pageSize)
+	var ldvm *vm.ListDay
 	prevDate := ""
 	var totalNetWorkDuration time.Duration
 	for _, entry := range entries {
@@ -121,11 +295,11 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 			totalNetWorkDuration = 0
 
 			// Create and add new work day
-			dvm = vm.NewDay()
-			dvm.Date = view.FormatDate(entry.StartTime)
-			dvm.Weekday = view.FormatWeekday(entry.StartTime)
-			dvm.Entries = make([]*vm.Entry, 0, 10)
-			dsvm = append(dsvm, dvm)
+			ldvm = vm.NewListDay()
+			ldvm.Date = view.FormatDate(entry.StartTime)
+			ldvm.Weekday = view.FormatWeekday(entry.StartTime)
+			ldvm.ListEntries = make([]*vm.ListEntry, 0, 10)
+			ldsvm = append(ldsvm, ldvm)
 		}
 
 		// Calculate work duration
@@ -134,19 +308,19 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
 
 		// Create and add new work entry
-		evm := vm.NewEntry()
-		evm.Id = entry.Id
-		evm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-		evm.StartTime = view.FormatTime(entry.StartTime)
-		evm.EndTime = view.FormatTime(entry.EndTime)
-		evm.BreakDuration = view.FormatHours(entry.BreakDuration)
-		evm.WorkDuration = view.FormatHours(netWorkDuration)
-		evm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
-		evm.Description = entry.Description
-		dvm.Entries = append(dvm.Entries, evm)
-		dvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
+		levm := vm.NewListEntry()
+		levm.Id = entry.Id
+		levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
+		levm.StartTime = view.FormatTime(entry.StartTime)
+		levm.EndTime = view.FormatTime(entry.EndTime)
+		levm.BreakDuration = view.FormatHours(entry.BreakDuration)
+		levm.WorkDuration = view.FormatHours(netWorkDuration)
+		levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
+		levm.Description = entry.Description
+		ldvm.ListEntries = append(ldvm.ListEntries, levm)
+		ldvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
 	}
-	lesvm.Days = dsvm
+	lesvm.ListDays = ldsvm
 
 	return lesvm
 }
@@ -169,187 +343,43 @@ func (c *EntryController) getEntryActivityDescription(entryActivitiesMap map[int
 	return ""
 }
 
-// --- Create handler functions ---
-
-func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Request) {
-	// Get work entry types
-	entryTypes, getsErr := c.eServ.GetEntryTypes()
-	if getsErr != nil {
-		panic(getsErr)
-	}
-	// Get work entry activities
-	entryActivities, geasErr := c.eServ.GetEntryActivities()
-	if geasErr != nil {
-		panic(geasErr)
-	}
-
-	// Create view model
-	entryTypeId := 0
-	if len(entryTypes) > 0 {
-		entryTypeId = entryTypes[0].Id
-	}
-	model := c.createCreateViewModel("", entryTypeId, entryTypes, getDateString(time.Now()),
-		"00:00", "00:00", "0", 0, entryActivities, "")
-
-	// Render
-	view.RenderCreateEntryTemplate(w, model)
-}
-
-func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Request) {
-	// Get current session from context
-	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
-	// Get current user ID
-	userId := sess.UserId
-
-	// Get form inputs
-	dateVal := r.FormValue("date")
-	typeIdVal := r.FormValue("type")
-	startTimeVal := r.FormValue("start-time")
-	endTimeVal := r.FormValue("end-time")
-	breakDurationVal := r.FormValue("break-duration")
-	activityIdVal := r.FormValue("activity")
-	descriptionVal := r.FormValue("description")
-
-	// Create model
-	entry, viErr := c.createEntryModel(0, userId, typeIdVal, dateVal, startTimeVal, endTimeVal,
-		breakDurationVal, activityIdVal, descriptionVal)
-	if viErr != nil {
-		c.handleCreateError(w, r, viErr, typeIdVal, dateVal, startTimeVal, endTimeVal,
-			breakDurationVal, activityIdVal, descriptionVal)
-	}
-
-	// Create work entry
-	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
-		c.handleCreateError(w, r, ceErr, typeIdVal, dateVal, startTimeVal, endTimeVal,
-			breakDurationVal, activityIdVal, descriptionVal)
-	}
-
-	c.handleCreateSuccess(w, r)
-}
-
-func (c *EntryController) createEntryModel(id int, userId int, typeIdVal string, dateVal string,
-	startTimeVal string, endTimeVal string, breakDurationVal string, activityIdVal string,
-	descriptionVal string) (*model.Entry, *e.Error) {
-	entry := model.NewEntry()
-	entry.Id = id
-	entry.UserId = userId
-
-	// Validate type ID
-	typeId, ptidErr := strconv.Atoi(typeIdVal)
-	if ptidErr != nil {
-		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", ptidErr)
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-	entry.TypeId = typeId
-
-	// Validate date
-	_, pdErr := parseDateTimeString(dateVal, "00:00")
-	if pdErr != nil {
-		err := e.WrapError(e.ValEntryDateInvalid, fmt.Sprintf("Could not parse date %s.", dateVal),
-			pdErr)
-		log.Debug(err.StackTrace())
-		return nil, err
-	}
-
-	// Validate start time
-	st, pstErr := parseDateTimeString(dateVal, startTimeVal)
-	if pstErr != nil {
-		err := e.WrapError(e.ValEntryStartTimeInvalid, fmt.Sprintf("Could not parse start time %s.",
-			startTimeVal), pstErr)
-		log.Debug(err.StackTrace())
-		return nil, err
-	}
-	entry.StartTime = st
-
-	// Validate end time
-	et, petErr := parseDateTimeString(dateVal, endTimeVal)
-	if petErr != nil {
-		err := e.WrapError(e.ValEntryEndTimeInvalid, fmt.Sprintf("Could not parse end time %s.",
-			endTimeVal), petErr)
-		log.Debug(err.StackTrace())
-		return nil, err
-	}
-	entry.EndTime = et
-
-	// Validate break duration
-	bd, pbdErr := parseDurationString(breakDurationVal)
-	if pbdErr != nil {
-		err := e.WrapError(e.ValEntryBreakDurationInvalid, fmt.Sprintf("Could not parse break "+
-			"duration %s.", breakDurationVal), pbdErr)
-		log.Debug(err.StackTrace())
-		return nil, err
-	}
-	entry.BreakDuration = bd
-
-	// Validate activity ID
-	activityId, paidErr := strconv.Atoi(activityIdVal)
-	if paidErr != nil {
-		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", paidErr)
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-	entry.ActivityId = activityId
-
-	// Validate description
-	if len(descriptionVal) >= 200 {
-		err := e.NewError(e.ValEntryDescriptionTooLong, "Description too long. (Must be < 200 "+
-			"characters.)")
-		log.Debug(err.StackTrace())
-		return nil, err
-	}
-	entry.Description = descriptionVal
-
-	return entry, nil
-}
-
-func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/list/1", http.StatusFound)
-}
-
-func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
-	typeIdVal string, dateVal string, startTimeVal string, endTimeVal string, breakDurationVal string,
-	activityIdVal string, descriptionVal string) {
-	// Get error message
-	em := getErrorMessage(err.Code)
-
-	// Get work entry types
-	entryTypes, getsErr := c.eServ.GetEntryTypes()
-	if getsErr != nil {
-		panic(getsErr)
-	}
-	// Get work entry activities
-	entryActivities, geasErr := c.eServ.GetEntryActivities()
-	if geasErr != nil {
-		panic(geasErr)
-	}
-
-	// Create view model
-	entryTypeId, _ := strconv.Atoi(typeIdVal)
-	entryActivityId, _ := strconv.Atoi(activityIdVal)
-	model := c.createCreateViewModel(em, entryTypeId, entryTypes, dateVal, startTimeVal, endTimeVal,
-		breakDurationVal, entryActivityId, entryActivities, descriptionVal)
-
-	// Render
-	view.RenderCreateEntryTemplate(w, model)
-}
-
-func (c *EntryController) createCreateViewModel(errorMessage string, entryTypeId int,
-	entryTypes []*model.EntryType, date string, startTime string, endTime string,
-	breakDuration string, entryActivityId int, entryActivities []*model.EntryActivity,
-	description string) *vm.CreateEntry {
+func (c *EntryController) createCreateViewModel(errorMessage string, entryTypeId int, date string,
+	startTime string, endTime string, breakDuration string, entryActivityId int, description string,
+	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
 	cevm.ErrorMessage = errorMessage
-	cevm.EntryTypeId = entryTypeId
+	cevm.Entry = c.createEntryViewModel(0, entryTypeId, date, startTime, endTime, breakDuration,
+		entryActivityId, description)
 	cevm.EntryTypes = c.createEntryTypesViewModel(entryTypes)
-	cevm.Date = date
-	cevm.StartTime = startTime
-	cevm.EndTime = endTime
-	cevm.BreakDuration = breakDuration
-	cevm.EntryActivityId = entryActivityId
 	cevm.EntryActivities = c.createEntryActivitiesViewModel(entryActivities)
-	cevm.Description = description
 	return cevm
+}
+
+func (c *EntryController) createEditViewModel(errorMessage string, entryId int, entryTypeId int,
+	date string, startTime string, endTime string, breakDuration string, entryActivityId int,
+	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
+	EditEntry {
+	eevm := vm.NewEditEntry()
+	eevm.ErrorMessage = errorMessage
+	eevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
+		breakDuration, entryActivityId, description)
+	eevm.EntryTypes = c.createEntryTypesViewModel(entryTypes)
+	eevm.EntryActivities = c.createEntryActivitiesViewModel(entryActivities)
+	return eevm
+}
+
+func (c *EntryController) createEntryViewModel(id int, typeId int, date string, startTime string,
+	endTime string, breakDuration string, activityId int, description string) *vm.Entry {
+	evm := vm.NewEntry()
+	evm.Id = id
+	evm.TypeId = typeId
+	evm.Date = date
+	evm.StartTime = startTime
+	evm.EndTime = endTime
+	evm.BreakDuration = breakDuration
+	evm.ActivityId = activityId
+	evm.Description = description
+	return evm
 }
 
 func (c *EntryController) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
@@ -379,10 +409,139 @@ func (c *EntryController) createEntryActivityViewModel(id int, description strin
 	return vm.NewEntryActivity(id, description)
 }
 
+// --- Form input retrieval functions ---
+
+func (c *EntryController) getFormInput(r *http.Request) *formInput {
+	i := formInput{}
+	i.typeId = r.FormValue("type")
+	i.date = r.FormValue("date")
+	i.startTime = r.FormValue("start-time")
+	i.endTime = r.FormValue("end-time")
+	i.breakDuration = r.FormValue("break-duration")
+	i.activityId = r.FormValue("activity")
+	i.description = r.FormValue("description")
+	return &i
+}
+
+// --- Model converter functions ---
+
+func (c *EntryController) createEntryModel(id int, userId int, input *formInput) (
+	*model.Entry, *e.Error) {
+	entry := model.NewEntry()
+	entry.Id = id
+	entry.UserId = userId
+
+	// Validate type ID
+	typeId, ptidErr := strconv.Atoi(input.typeId)
+	if ptidErr != nil {
+		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", ptidErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	entry.TypeId = typeId
+
+	// Validate date
+	_, pdErr := parseDateTimeString(input.date, "00:00")
+	if pdErr != nil {
+		err := e.WrapError(e.ValEntryDateInvalid, fmt.Sprintf("Could not parse date %s.", input.date),
+			pdErr)
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+
+	// Validate start time
+	st, pstErr := parseDateTimeString(input.date, input.startTime)
+	if pstErr != nil {
+		err := e.WrapError(e.ValEntryStartTimeInvalid, fmt.Sprintf("Could not parse start time %s.",
+			input.startTime), pstErr)
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+	entry.StartTime = st
+
+	// Validate end time
+	et, petErr := parseDateTimeString(input.date, input.endTime)
+	if petErr != nil {
+		err := e.WrapError(e.ValEntryEndTimeInvalid, fmt.Sprintf("Could not parse end time %s.",
+			input.endTime), petErr)
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+	entry.EndTime = et
+
+	// Validate break duration
+	bd, pbdErr := parseDurationString(input.breakDuration)
+	if pbdErr != nil {
+		err := e.WrapError(e.ValEntryBreakDurationInvalid, fmt.Sprintf("Could not parse break "+
+			"duration %s.", input.breakDuration), pbdErr)
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+	entry.BreakDuration = bd
+
+	// Validate activity ID
+	activityId, paidErr := strconv.Atoi(input.activityId)
+	if paidErr != nil {
+		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", paidErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	entry.ActivityId = activityId
+
+	// Validate description
+	if len(input.description) >= 200 {
+		err := e.NewError(e.ValEntryDescriptionTooLong, "Description too long. (Must be < 200 "+
+			"characters.)")
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+	entry.Description = input.description
+
+	return entry, nil
+}
+
 // --- Helper functions ---
+
+func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
+	entry, geErr := c.eServ.GetEntryById(entryId, userId)
+	if geErr != nil {
+		panic(geErr)
+	}
+	if entry == nil {
+		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find work entry %d.", entryId))
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	return entry
+}
+
+func (c *EntryController) getEntryTypes() []*model.EntryType {
+	entryTypes, getsErr := c.eServ.GetEntryTypes()
+	if getsErr != nil {
+		panic(getsErr)
+	}
+	return entryTypes
+}
+
+func (c *EntryController) getEntryActivities() []*model.EntryActivity {
+	entryActivities, geasErr := c.eServ.GetEntryActivities()
+	if geasErr != nil {
+		panic(geasErr)
+	}
+	return entryActivities
+}
 
 func getDateString(t time.Time) string {
 	return t.Format(dateFormat)
+}
+
+func getTimeString(t time.Time) string {
+	return t.Format(timeFormat)
+}
+
+func getDurationString(d time.Duration) string {
+	md := d.Round(time.Minute)
+	return fmt.Sprintf("%d", int(md.Minutes()))
 }
 
 func parseDateTimeString(dat string, tim string) (time.Time, error) {

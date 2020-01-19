@@ -29,7 +29,7 @@ var printer = message.NewPrinter(language.German)
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
 	"templates/error.tmpl", "templates/login.tmpl", "templates/list_entries.tmpl",
-	"templates/create_entry.tmpl"))
+	"templates/entry_form.tmpl", "templates/create_entry.tmpl", "templates/edit_entry.tmpl"))
 
 // --- Render functions ---
 
@@ -51,6 +51,11 @@ func RenderListEntriesTemplate(w http.ResponseWriter, model *model.ListEntries) 
 // RenderCreateEntryTemplate renders the page to create a work entry.
 func RenderCreateEntryTemplate(w http.ResponseWriter, model *model.CreateEntry) {
 	renderTemplate(w, "create_entry", model)
+}
+
+// RenderEditEntryTemplate renders the page to edit a work entry.
+func RenderEditEntryTemplate(w http.ResponseWriter, model *model.EditEntry) {
+	renderTemplate(w, "edit_entry", model)
 }
 
 // --- Time formatting functions ---

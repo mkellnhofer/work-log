@@ -1,9 +1,9 @@
 {{template "header" .}}
-<h1>Erstellen</h1>
+<h1>Bearbeiten</h1>
 {{if ne .ErrorMessage "" -}}
 <p>{{.ErrorMessage}}</p>
 {{end -}}
-<form action="/create" method="POST">
+<form action="/edit/{{.Entry.Id}}" method="POST">
   {{template "entry_form" .}}
   <button type="submit">Speichern</button>
 </form>

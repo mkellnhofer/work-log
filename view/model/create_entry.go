@@ -3,15 +3,9 @@ package model
 // CreateEntry stores view data for creating a work entry.
 type CreateEntry struct {
 	ErrorMessage    string
-	EntryTypeId     int
+	Entry           *Entry
 	EntryTypes      []*EntryType
-	Date            string
-	StartTime       string
-	EndTime         string
-	BreakDuration   string
-	EntryActivityId int
 	EntryActivities []*EntryActivity
-	Description     string
 }
 
 // NewCreateEntry creates a new CreateEntry view model.

@@ -16,9 +16,14 @@ var errorMessages = map[int]string{
 	e.AuthInvalidCredentials: "Falscher Benutzername oder Passwort.",
 
 	// Validation erros
-	e.ValUnknown:           "Ein unbekannter Validierungsfehler trat auf.",
-	e.ValPageNumberInvalid: "Ungültige Seitennummer. (Seitennummer muss numerisch und positiv sein.)",
-	e.ValIdInvalid:         "Ungültige ID. (ID muss numerisch und positiv sein.)",
+	e.ValUnknown:                   "Ein unbekannter Validierungsfehler trat auf.",
+	e.ValPageNumberInvalid:         "Seitennummer ungültig. (Seitennummer muss numerisch und positiv sein.)",
+	e.ValIdInvalid:                 "ID ungültig. (ID muss numerisch und positiv sein.)",
+	e.ValEntryDateInvalid:          "Datum ungültig!",
+	e.ValEntryStartTimeInvalid:     "Startzeit ungültig!",
+	e.ValEntryEndTimeInvalid:       "Endzeit ungültig!",
+	e.ValEntryBreakDurationInvalid: "Pausendauer ungültig!",
+	e.ValEntryDescriptionTooLong:   "Beschreibung darf nicht länger als 200 Zeichen sein!",
 
 	// Logic errors
 	e.LogicUnknown:                   "Ein unbekannter Logikfehler trat auf.",

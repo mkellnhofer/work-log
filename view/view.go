@@ -28,7 +28,8 @@ var weekdays = map[int]string{
 var printer = message.NewPrinter(language.German)
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
-	"templates/error.tmpl", "templates/login.tmpl", "templates/list_entries.tmpl"))
+	"templates/error.tmpl", "templates/login.tmpl", "templates/list_entries.tmpl",
+	"templates/create_entry.tmpl"))
 
 // --- Render functions ---
 
@@ -45,6 +46,11 @@ func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
 // RenderListEntriesTemplate renders the page to list work entries.
 func RenderListEntriesTemplate(w http.ResponseWriter, model *model.ListEntries) {
 	renderTemplate(w, "list_entries", model)
+}
+
+// RenderCreateEntryTemplate renders the page to create a work entry.
+func RenderCreateEntryTemplate(w http.ResponseWriter, model *model.CreateEntry) {
+	renderTemplate(w, "create_entry", model)
 }
 
 // --- Time formatting functions ---

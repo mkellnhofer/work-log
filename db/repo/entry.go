@@ -151,8 +151,8 @@ func (r *EntryRepo) CreateEntry(entry *model.Entry) *e.Error {
 	q := "INSERT INTO entry (user_id, type_id, start_time, end_time, break_duration, activity_id, " +
 		"description) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
-	id, cErr := r.insert(q, etr.userId, etr.startTime, etr.endTime, etr.breakDuration, etr.typeId,
-		etr.description)
+	id, cErr := r.insert(q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.breakDuration,
+		etr.activityId, etr.description)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, "Could not create work entry in database.", cErr)
 		log.Error(err.StackTrace())

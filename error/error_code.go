@@ -6,9 +6,14 @@ const (
 	AuthInvalidCredentials = -101
 
 	// Validation erros
-	ValUnknown           = -200
-	ValPageNumberInvalid = -201
-	ValIdInvalid         = -202
+	ValUnknown                   = -200
+	ValPageNumberInvalid         = -201
+	ValIdInvalid                 = -202
+	ValEntryDateInvalid          = -203
+	ValEntryStartTimeInvalid     = -204
+	ValEntryEndTimeInvalid       = -205
+	ValEntryBreakDurationInvalid = -206
+	ValEntryDescriptionTooLong   = -207
 
 	// Logic errors
 	LogicUnknown                   = -300

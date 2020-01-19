@@ -1,0 +1,41 @@
+{{template "header" .}}
+<h1>Erstellen</h1>
+{{if ne .ErrorMessage "" -}}
+<p>{{.ErrorMessage}}</p>
+{{end -}}
+<form action="/create" method="POST">
+  <div>
+    <label for="type">Art:</label>
+    <select name="type">
+      {{range .EntryTypes -}}
+      <option value="{{.Id}}" {{if eq .Id $.EntryTypeId}}selected{{end}}>{{.Description}}</option>
+      {{end -}}
+    </select>
+  </div>
+  <div>
+    <label for="date">Datum:</label>
+    <input name="date" type="date" value="{{.Date}}">
+  </div>
+  <div>
+    <label for="start-time">Start:</label>
+    <input name="start-time" type="time" value="{{.StartTime}}">
+    <label for="end-time">Ende:</label>
+    <input name="end-time" type="time" value="{{.EndTime}}">
+    <label for="break-duration">Pause:</label>
+    <input name="break-duration" type="number" min="0" value="{{.BreakDuration}}">
+  </div>
+  <div>
+    <label for="activity">Tätigkeit:</label>
+    <select name="activity">
+      {{range .EntryActivities -}}
+      <option value="{{.Id}}" {{if eq .Id $.EntryActivityId}}selected{{end}}>{{.Description}}</option>
+      {{end -}}
+    </select>
+  </div>
+  <div>
+    <label for="description">Beschreibung:</label>
+    <input name="description" type="text" value="{{.Description}}">
+  </div>
+  <button type="submit">Speichern</button>
+</form>
+{{template "footer" .}}

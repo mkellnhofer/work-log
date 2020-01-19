@@ -83,6 +83,22 @@ func (c *EntryController) PostEditHandler() http.HandlerFunc {
 	}
 }
 
+// GetCopyHandler returns a handler for "GET /copy/{id}".
+func (c *EntryController) GetCopyHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle GET /copy.")
+		c.handleShowCopy(w, r)
+	}
+}
+
+// PostCopyHandler returns a handler for "POST /copy/{id}".
+func (c *EntryController) PostCopyHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle POST /copy.")
+		c.handleExecuteCopy(w, r)
+	}
+}
+
 // --- List handler functions ---
 
 func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
@@ -266,6 +282,85 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 	view.RenderEditEntryTemplate(w, model)
 }
 
+// --- Copy handler functions ---
+
+func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get ID
+	entryId := getIdPathVar(r)
+
+	// Get work entry
+	entry := c.getEntry(entryId, userId)
+
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	model := c.createCopyViewModel("", entry.Id, entry.TypeId, getDateString(entry.StartTime),
+		getTimeString(entry.StartTime), getTimeString(entry.EndTime),
+		getDurationString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
+		entryActivities)
+
+	// Render
+	view.RenderCopyEntryTemplate(w, model)
+}
+
+func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get ID
+	entryId := getIdPathVar(r)
+
+	// Get form inputs
+	input := c.getFormInput(r)
+
+	// Create model
+	entry, cemErr := c.createEntryModel(0, userId, input)
+	if cemErr != nil {
+		c.handleCopyError(w, r, cemErr, entryId, input)
+	}
+
+	// Create work entry
+	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
+		c.handleCopyError(w, r, ceErr, entryId, input)
+	}
+
+	c.handleCopySuccess(w, r)
+}
+
+func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/list/1", http.StatusFound)
+}
+
+func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
+	id int, input *formInput) {
+	// Get error message
+	em := getErrorMessage(err.Code)
+
+	// Get work entry types
+	entryTypes := c.getEntryTypes()
+	// Get work entry activities
+	entryActivities := c.getEntryActivities()
+
+	// Create view model
+	entryTypeId, _ := strconv.Atoi(input.typeId)
+	entryActivityId, _ := strconv.Atoi(input.activityId)
+	model := c.createCopyViewModel(em, id, entryTypeId, input.date, input.startTime, input.endTime,
+		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+
+	// Render
+	view.RenderCopyEntryTemplate(w, model)
+}
+
 // --- Viem model converter functions ---
 
 func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries []*model.Entry,
@@ -366,6 +461,19 @@ func (c *EntryController) createEditViewModel(errorMessage string, entryId int, 
 	eevm.EntryTypes = c.createEntryTypesViewModel(entryTypes)
 	eevm.EntryActivities = c.createEntryActivitiesViewModel(entryActivities)
 	return eevm
+}
+
+func (c *EntryController) createCopyViewModel(errorMessage string, entryId int, entryTypeId int,
+	date string, startTime string, endTime string, breakDuration string, entryActivityId int,
+	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
+	CopyEntry {
+	cevm := vm.NewCopyEntry()
+	cevm.ErrorMessage = errorMessage
+	cevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
+		breakDuration, entryActivityId, description)
+	cevm.EntryTypes = c.createEntryTypesViewModel(entryTypes)
+	cevm.EntryActivities = c.createEntryActivitiesViewModel(entryActivities)
+	return cevm
 }
 
 func (c *EntryController) createEntryViewModel(id int, typeId int, date string, startTime string,

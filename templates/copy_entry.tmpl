@@ -1,0 +1,10 @@
+{{template "header" .}}
+<h1>Kopieren</h1>
+{{if ne .ErrorMessage "" -}}
+<p>{{.ErrorMessage}}</p>
+{{end -}}
+<form action="/copy/{{.Entry.Id}}" method="POST">
+  {{template "entry_form" .}}
+  <button type="submit">Speichern</button>
+</form>
+{{template "footer" .}}

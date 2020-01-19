@@ -55,6 +55,8 @@ func main() {
 	addEndpoint(router, proRoute, "POST", "/create", init.GetEntryController().PostCreateHandler())
 	addEndpoint(router, proRoute, "GET", "/edit/{id}", init.GetEntryController().GetEditHandler())
 	addEndpoint(router, proRoute, "POST", "/edit/{id}", init.GetEntryController().PostEditHandler())
+	addEndpoint(router, proRoute, "GET", "/copy/{id}", init.GetEntryController().GetCopyHandler())
+	addEndpoint(router, proRoute, "POST", "/copy/{id}", init.GetEntryController().PostCopyHandler())
 	// TODO!!!
 	// Add resource endpoints
 	// TODO!!!

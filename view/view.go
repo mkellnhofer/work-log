@@ -29,7 +29,8 @@ var printer = message.NewPrinter(language.German)
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
 	"templates/error.tmpl", "templates/login.tmpl", "templates/list_entries.tmpl",
-	"templates/entry_form.tmpl", "templates/create_entry.tmpl", "templates/edit_entry.tmpl"))
+	"templates/entry_form.tmpl", "templates/create_entry.tmpl", "templates/edit_entry.tmpl",
+	"templates/copy_entry.tmpl"))
 
 // --- Render functions ---
 
@@ -56,6 +57,11 @@ func RenderCreateEntryTemplate(w http.ResponseWriter, model *model.CreateEntry) 
 // RenderEditEntryTemplate renders the page to edit a work entry.
 func RenderEditEntryTemplate(w http.ResponseWriter, model *model.EditEntry) {
 	renderTemplate(w, "edit_entry", model)
+}
+
+// RenderCopyEntryTemplate renders the page to copy a work entry.
+func RenderCopyEntryTemplate(w http.ResponseWriter, model *model.CopyEntry) {
+	renderTemplate(w, "copy_entry", model)
 }
 
 // --- Time formatting functions ---

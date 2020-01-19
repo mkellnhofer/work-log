@@ -1,4 +1,8 @@
 {{template "header" .}}
+<div>
+  <a href="../create">Erstellen</a>
+  <a href="../logout">Abmelden</a>
+</div>
 <h1>Einträge</h1>
 {{range .ListDays -}}
 <p>{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</p>
@@ -12,6 +16,9 @@
       <th scope="col">Netto</th>
       <th scope="col">Tätigkeit</th>
       <th scope="col">Beschreibung</th>
+      <th scope="col"></th>
+      <th scope="col"></th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
@@ -24,6 +31,9 @@
       <td>{{.WorkDuration}}</td>
       <td>{{.EntryActivity}}</td>
       <td>{{.Description}}</td>
+      <td><a href="../edit/{{.Id}}">Bearbeiten</td>
+      <td><a href="../copy/{{.Id}}">Kopieren</td>
+      <td><form action="../delete/{{.Id}}" method="POST"><button type="submit">Löschen</button></form></td>
     </tr>
     {{end -}}
   </tbody>

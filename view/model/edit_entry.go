@@ -2,6 +2,7 @@ package model
 
 // EditEntry stores view data for editing a work entry.
 type EditEntry struct {
+	PreviousUrl     string
 	ErrorMessage    string
 	Entry           *Entry
 	EntryTypes      []*EntryType

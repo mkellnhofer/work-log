@@ -473,6 +473,7 @@ func (c *EntryController) createCreateViewModel(errorMessage string, entryTypeId
 	startTime string, endTime string, breakDuration string, entryActivityId int, description string,
 	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
+	cevm.PreviousUrl = constant.PathListFirstPage
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(0, entryTypeId, date, startTime, endTime, breakDuration,
 		entryActivityId, description)
@@ -486,6 +487,7 @@ func (c *EntryController) createEditViewModel(errorMessage string, entryId int, 
 	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
 	EditEntry {
 	eevm := vm.NewEditEntry()
+	eevm.PreviousUrl = constant.PathListFirstPage
 	eevm.ErrorMessage = errorMessage
 	eevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
 		breakDuration, entryActivityId, description)
@@ -499,6 +501,7 @@ func (c *EntryController) createCopyViewModel(errorMessage string, entryId int, 
 	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
 	CopyEntry {
 	cevm := vm.NewCopyEntry()
+	cevm.PreviousUrl = constant.PathListFirstPage
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
 		breakDuration, entryActivityId, description)

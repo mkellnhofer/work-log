@@ -44,12 +44,14 @@ func main() {
 	proRoute.Use(init.GetAuthMiddleware())
 
 	// Add public endpoints
+	addEndpoint(router, pubRoute, "GET", "/", getRootHandler())
 	addEndpoint(router, pubRoute, "GET", "/error", init.GetErrorController().GetErrorHandler())
 	addEndpoint(router, pubRoute, "GET", "/login", init.GetAuthController().GetLoginHandler())
 	addEndpoint(router, pubRoute, "POST", "/login", init.GetAuthController().PostLoginHandler())
 	// TODO!!!
 	// Add protected endpoints
 	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
+	addEndpoint(router, proRoute, "GET", "/list", getListHandler())
 	addEndpoint(router, proRoute, "GET", "/list/{page}", init.GetEntryController().GetListHandler())
 	addEndpoint(router, proRoute, "GET", "/create", init.GetEntryController().GetCreateHandler())
 	addEndpoint(router, proRoute, "POST", "/create", init.GetEntryController().PostCreateHandler())
@@ -81,4 +83,16 @@ func createHandler(r *negroni.Negroni, h http.HandlerFunc) http.Handler {
 	nr := r.With()
 	nr.UseHandlerFunc(h)
 	return nr
+}
+
+func getRootHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+	}
+}
+
+func getListHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
+	}
 }

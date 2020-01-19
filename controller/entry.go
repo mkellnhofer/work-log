@@ -189,7 +189,7 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/list/1", http.StatusFound)
+	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
 }
 
 func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -267,7 +267,7 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/list/1", http.StatusFound)
+	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
 }
 
 func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -346,7 +346,7 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/list/1", http.StatusFound)
+	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
 }
 
 func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -389,7 +389,7 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/list/1", http.StatusFound)
+	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
 }
 
 // --- Viem model converter functions ---

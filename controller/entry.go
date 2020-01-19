@@ -99,6 +99,14 @@ func (c *EntryController) PostCopyHandler() http.HandlerFunc {
 	}
 }
 
+// PostDeleteHandler returns a handler for "POST /delete/{id}".
+func (c *EntryController) PostDeleteHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle POST /delete.")
+		c.handleExecuteDelete(w, r)
+	}
+}
+
 // --- List handler functions ---
 
 func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
@@ -359,6 +367,29 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 
 	// Render
 	view.RenderCopyEntryTemplate(w, model)
+}
+
+// --- Delete handler functions ---
+
+func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Request) {
+	// Get current session from context
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get current user ID
+	userId := sess.UserId
+
+	// Get ID
+	entryId := getIdPathVar(r)
+
+	// Delete work entry
+	if deErr := c.eServ.DeleteEntryById(entryId, userId); deErr != nil {
+		panic(deErr)
+	}
+
+	c.handleDeleteSuccess(w, r)
+}
+
+func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/list/1", http.StatusFound)
 }
 
 // --- Viem model converter functions ---

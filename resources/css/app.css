@@ -1,3 +1,19 @@
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+
+@media (min-width: 700px) and (min-height: 700px) {
+  body {
+    transform: scale(.9);
+    -webkit-transform: scale(.9);
+    -moz-transform: scale(.9);
+  }
+}
+
 h1 {
   font-size: 2em;
 }
@@ -6,11 +22,18 @@ h2 {
   font-size: 1.5em;
 }
 
-h3 {
-  font-size: 1.17em;
+.wl-login-container {
+  height: 100%;
+  display: flex;
+  padding: 20px;
 }
 
-html,
-body {
-  height: 100%;
+.wl-login-form {
+  width: 100%;
+  max-width: 400px;
+  margin: auto;
+}
+
+.wl-login-form button {
+  margin-top: 10px;
 }

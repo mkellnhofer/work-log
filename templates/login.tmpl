@@ -1,17 +1,19 @@
 {{template "header" .}}
-<h1>Anmelden</h1>
-{{if ne .ErrorMessage "" -}}
-<p>{{.ErrorMessage}}</p>
-{{end -}}
-<form action="/login" method="POST">
-  <div>
-    <label for="username">Benutzername:</label>
-    <input name="username" type="text">
-  </div>
-  <div>
-    <label for="password">Passwort:</label>
-    <input name="password" type="password">
-  </div>
-  <button type="submit">Anmelden</button>
-</form>
+<div class="wl-login-container">
+  <form class="wl-login-form" action="/login" method="POST">
+    <h1>Anmelden</h1>
+    {{if ne .ErrorMessage "" -}}
+    <p class="alert alert-danger">{{.ErrorMessage}}</p>
+    {{end -}}
+    <div class="form-group">
+      <label for="username">Benutzername:</label>
+      <input class="form-control" name="username" type="text">
+    </div>
+    <div class="form-group">
+      <label for="password">Passwort:</label>
+      <input class="form-control" name="password" type="password">
+    </div>
+    <button class="btn btn-primary" type="submit">Anmelden</button>
+  </form>
+</div>
 {{template "footer" .}}

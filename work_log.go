@@ -48,7 +48,6 @@ func main() {
 	addEndpoint(router, pubRoute, "GET", "/error", init.GetErrorController().GetErrorHandler())
 	addEndpoint(router, pubRoute, "GET", "/login", init.GetAuthController().GetLoginHandler())
 	addEndpoint(router, pubRoute, "POST", "/login", init.GetAuthController().PostLoginHandler())
-	// TODO!!!
 	// Add protected endpoints
 	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
 	addEndpoint(router, proRoute, "GET", "/list", getListHandler())
@@ -60,9 +59,12 @@ func main() {
 	addEndpoint(router, proRoute, "GET", "/copy/{id}", init.GetEntryController().GetCopyHandler())
 	addEndpoint(router, proRoute, "POST", "/copy/{id}", init.GetEntryController().PostCopyHandler())
 	addEndpoint(router, proRoute, "POST", "/delete/{id}", init.GetEntryController().PostDeleteHandler())
-	// TODO!!!
 	// Add resource endpoints
-	// TODO!!!
+	fileSrv := http.FileServer(http.Dir("./resources"))
+	router.Handle("/css/{name}", fileSrv).Methods("GET")
+	router.Handle("/img/{name}", fileSrv).Methods("GET")
+	router.Handle("/font/{name}", fileSrv).Methods("GET")
+	router.Handle("/js/{name}", fileSrv).Methods("GET")
 
 	// Register router
 	http.Handle("/", router)

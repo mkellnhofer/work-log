@@ -1,48 +1,60 @@
 {{template "header" .}}
-<div>
-  <a href="../create">Erstellen</a>
-  <a href="../logout">Abmelden</a>
-</div>
-<h1>Einträge</h1>
-{{range .ListDays -}}
-<p>{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</p>
-<table>
-  <thead>
-    <tr>
-      <th scope="col">Art</th>
-      <th scope="col">Start</th>
-      <th scope="col">Ende</th>
-      <th scope="col">Pause</th>
-      <th scope="col">Netto</th>
-      <th scope="col">Tätigkeit</th>
-      <th scope="col">Beschreibung</th>
-      <th scope="col"></th>
-      <th scope="col"></th>
-      <th scope="col"></th>
-    </tr>
-  </thead>
-  <tbody>
-    {{range .ListEntries -}}
-    <tr>
-      <td>{{.EntryType}}</td>
-      <td>{{.StartTime}}</td>
-      <td>{{.EndTime}}</td>
-      <td>{{.BreakDuration}}</td>
-      <td>{{.WorkDuration}}</td>
-      <td>{{.EntryActivity}}</td>
-      <td>{{.Description}}</td>
-      <td><a href="../edit/{{.Id}}">Bearbeiten</td>
-      <td><a href="../copy/{{.Id}}">Kopieren</td>
-      <td><form action="../delete/{{.Id}}" method="POST"><button type="submit">Löschen</button></form></td>
-    </tr>
+<div class="wl-container">
+  <div class="wl-list-header">
+    <h1>Einträge</h1>
+    <div class="wl-list-header-buttons">
+      <a class="btn btn-primary wl-list-header-button" href="../create">Erstellen</a>
+      <a class="btn btn-light wl-list-header-button" href="../logout">Abmelden</a>
+    </div>
+  </div>
+  {{range .ListDays -}}
+  <h2 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</h2>
+  <div class="table-responsive table-responsive-xl wl-list-table">
+    <table class="table table-sm">
+      <thead>
+        <tr class="wl-list-table-head">
+          <th class="wl-list-table-column-buttons" scope="col"></th>
+          <th class="wl-list-table-column-type" scope="col">Art</th>
+          <th class="wl-list-table-column-time" scope="col">Start</th>
+          <th class="wl-list-table-column-time" scope="col">Ende</th>
+          <th class="wl-list-table-column-time" scope="col">Pause</th>
+          <th class="wl-list-table-column-time" scope="col">Netto</th>
+          <th class="wl-list-table-column-activity" scope="col">Tätigkeit</th>
+          <th class="wl-list-table-column-description" scope="col">Beschreibung</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .ListEntries -}}
+        <tr>
+          <td>
+            <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><img src="/img/ic_edit.svg" alt="Bearbeiten"></a>
+            <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><img src="/img/ic_copy.svg" alt="Kopieren"></a>
+            <form class="inline" action="../delete/{{.Id}}" method="POST"><button class="btn btn-link wl-list-table-button" type="submit"><img src="/img/ic_delete.svg" alt="Löschen"></button></form>
+          </td>
+          <td class="wl-list-table-text">{{.EntryType}}</td>
+          <td class="wl-list-table-text">{{.StartTime}}</td>
+          <td class="wl-list-table-text">{{.EndTime}}</td>
+          <td class="wl-list-table-text">{{.BreakDuration}}</td>
+          <td class="wl-list-table-text">{{.WorkDuration}}</td>
+          <td class="wl-list-table-text">{{.EntryActivity}}</td>
+          <td class="wl-list-table-text">{{.Description}}</td>
+        </tr>
+        {{end -}}
+      </tbody>
+    </table>
+  </div>
+  {{end -}}
+  <div class="wl-list-page-buttons">
+    {{if .HasPrevPage -}}
+    <div class="wl-list-page-button-prev">
+      <a class="btn btn-light" href="{{.PrevPageNum}}">Vorherige</a>
+    </div>
     {{end -}}
-  </tbody>
-</table>
-{{end -}}
-{{if .HasPrevPage -}}
-<a href="{{.PrevPageNum}}">Vorherige</p>
-{{end -}}
-{{if .HasNextPage -}}
-<a href="{{.NextPageNum}}">Nächste</p>
-{{end -}}
+    {{if .HasNextPage -}}
+    <div class="wl-list-page-button-next">
+      <a class="btn btn-light" href="{{.NextPageNum}}">Nächste</a>
+    </div>
+    {{end -}}
+  </div>
+</div>
 {{template "footer" .}}

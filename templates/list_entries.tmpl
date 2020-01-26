@@ -29,7 +29,7 @@
           <td>
             <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><img src="/img/ic_edit.svg" alt="Bearbeiten"></a>
             <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><img src="/img/ic_copy.svg" alt="Kopieren"></a>
-            <form class="inline" action="../delete/{{.Id}}" method="POST"><button class="btn btn-link wl-list-table-button" type="submit"><img src="/img/ic_delete.svg" alt="Löschen"></button></form>
+            <form class="inline" action="../delete/{{.Id}}" method="POST" onsubmit="return approveDeletion()"><button class="btn btn-link wl-list-table-button" type="submit"><img src="/img/ic_delete.svg" alt="Löschen"></button></form>
           </td>
           <td class="wl-list-table-text">{{.EntryType}}</td>
           <td class="wl-list-table-text">{{.StartTime}}</td>
@@ -57,4 +57,9 @@
     {{end -}}
   </div>
 </div>
+<script>
+  function approveDeletion() {
+    return confirm("Wollen Sie den Eintrag wirklich löschen?");
+  }
+</script>
 {{template "footer" .}}

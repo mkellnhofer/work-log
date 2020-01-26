@@ -26,6 +26,16 @@ h2 {
   display: inline-block;
 }
 
+.form-row {
+  margin-right: -10px;
+  margin-left: -10px;
+}
+
+.form-row>.col, .form-row>[class*=col-] {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .wl-login-container {
   height: 100%;
   display: flex;
@@ -140,4 +150,31 @@ h2 {
 .wl-list-page-button-next {
   position: absolute;
   right: 0;
+}
+
+.wl-credcp-header {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.wl-credcp-header h1 {
+  display:inline;
+}
+
+.wl-credcp-header-button img {
+  width: 28px;
+  height: 28px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 12px;
+  vertical-align: top;
+}
+
+.wl-credcp-form-buttons {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.wl-credcp-form-button {
+  margin-right: 10px;
 }

@@ -3,6 +3,7 @@ package repo
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
@@ -95,6 +96,20 @@ func (r *SessionRepo) DeleteSessionById(id string) *e.Error {
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete session %s from "+
 			"database.", id), dErr)
+		log.Error(err.StackTrace())
+	}
+
+	return nil
+}
+
+// DeleteExpiredSessions deletes expired sessions.
+func (r *SessionRepo) DeleteExpiredSessions() *e.Error {
+	now := time.Now()
+	n := *formatTimestamp(&now)
+	dErr := r.exec("DELETE FROM session WHERE expire_at < ?", n)
+	if dErr != nil {
+		err := e.WrapError(e.SysDbDeleteFailed, "Could not delete expired sessions from database.",
+			dErr)
 		log.Error(err.StackTrace())
 	}
 

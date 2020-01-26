@@ -32,4 +32,5 @@ const (
 	SysDbInsertFailed      = -405
 	SysDbUpdateFailed      = -406
 	SysDbDeleteFailed      = -407
+	SysJobFailed           = -408
 )

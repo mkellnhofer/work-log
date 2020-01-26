@@ -17,6 +17,7 @@ type Initializer struct {
 	entryServ *service.EntryService
 	sessServ  *service.SessionService
 	userServ  *service.UserService
+	jobServ   *service.JobService
 
 	errCtrl   *controller.ErrorController
 	authCtrl  *controller.AuthController
@@ -66,6 +67,14 @@ func (i *Initializer) GetUserService() *service.UserService {
 		i.userServ = service.NewUserService(i.GetDb().GetUserRepo())
 	}
 	return i.userServ
+}
+
+// GetJobService returns a initialized job service object.
+func (i *Initializer) GetJobService() *service.JobService {
+	if i.jobServ == nil {
+		i.jobServ = service.NewJobService(i.GetSessionService())
+	}
+	return i.jobServ
 }
 
 // --- Controller functions ---

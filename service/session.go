@@ -62,3 +62,8 @@ func (s *SessionService) RefreshSession(session *model.Session) *e.Error {
 func (s *SessionService) DeleteSession(id string) *e.Error {
 	return s.sRepo.DeleteSessionById(id)
 }
+
+// DeleteExpiredSessions deletes expired sessions.
+func (s *SessionService) DeleteExpiredSessions() *e.Error {
+	return s.sRepo.DeleteExpiredSessions()
+}

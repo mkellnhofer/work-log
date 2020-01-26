@@ -30,6 +30,9 @@ func main() {
 	defer db.CloseDb()
 	db.UpdateDb()
 
+	// Schedule jobs
+	init.GetJobService().ScheduleJobs()
+
 	// Create router
 	router := mux.NewRouter().StrictSlash(true)
 

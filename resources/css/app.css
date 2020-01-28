@@ -121,6 +121,14 @@ h2 {
   min-width: 250px;
 }
 
+.wl-list-table-row-missing {
+  background-color: #ffe871;
+}
+
+.wl-list-table-row-overlapping {
+  background-color: #ffbda8;
+}
+
 .wl-list-table-button {
   padding: 0;
 }

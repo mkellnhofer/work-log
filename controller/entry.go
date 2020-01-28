@@ -409,6 +409,7 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 	ldsvm := make([]*vm.ListDay, 0, pageSize)
 	var ldvm *vm.ListDay
 	prevDate := ""
+	var prevStartTime *time.Time
 	var totalNetWorkDuration time.Duration
 	var totalBreakDuration time.Duration
 	for _, entry := range entries {
@@ -417,6 +418,7 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		// If new day: Create and add new work day
 		if prevDate != currDate {
 			prevDate = currDate
+			prevStartTime = nil
 
 			// Reset total work and break duration
 			totalNetWorkDuration = 0
@@ -435,6 +437,18 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		netWorkDuration := workDuration - entry.BreakDuration
 		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
 		totalBreakDuration = totalBreakDuration + entry.BreakDuration
+
+		// Check for missing or overlapping work entry
+		if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
+			levm := vm.NewListEntry()
+			levm.IsMissing = true
+			ldvm.ListEntries = append(ldvm.ListEntries, levm)
+		} else if prevStartTime != nil && prevStartTime.Before(entry.EndTime) {
+			levm := vm.NewListEntry()
+			levm.IsOverlapping = true
+			ldvm.ListEntries = append(ldvm.ListEntries, levm)
+		}
+		prevStartTime = &entry.StartTime
 
 		// Create and add new work entry
 		levm := vm.NewListEntry()

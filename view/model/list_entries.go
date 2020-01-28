@@ -30,6 +30,8 @@ func NewListDay() *ListDay {
 
 // ListEntry stores view data for a work entry.
 type ListEntry struct {
+	IsMissing     bool
+	IsOverlapping bool
 	Id            int
 	EntryType     string
 	StartTime     string

@@ -26,6 +26,11 @@
       <tbody>
         {{range .ListEntries -}}
         <tr>
+          {{if .IsMissing -}}
+          <td class="wl-list-table-row-missing" colspan="8"></td>
+          {{else if .IsOverlapping -}}
+          <td class="wl-list-table-row-overlapping" colspan="8"></td>
+          {{else -}}
           <td>
             <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><img src="/img/ic_edit.svg" alt="Bearbeiten"></a>
             <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><img src="/img/ic_copy.svg" alt="Kopieren"></a>
@@ -38,6 +43,7 @@
           <td class="wl-list-table-text">{{.WorkDuration}}</td>
           <td class="wl-list-table-text">{{.EntryActivity}}</td>
           <td class="wl-list-table-text">{{.Description}}</td>
+          {{end -}}
         </tr>
         {{end -}}
       </tbody>

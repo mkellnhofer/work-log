@@ -410,6 +410,7 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 	var ldvm *vm.ListDay
 	prevDate := ""
 	var totalNetWorkDuration time.Duration
+	var totalBreakDuration time.Duration
 	for _, entry := range entries {
 		currDate := getDateString(entry.StartTime)
 
@@ -417,8 +418,9 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		if prevDate != currDate {
 			prevDate = currDate
 
-			// Reset work duration
+			// Reset total work and break duration
 			totalNetWorkDuration = 0
+			totalBreakDuration = 0
 
 			// Create and add new work day
 			ldvm = vm.NewListDay()
@@ -432,6 +434,7 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		workDuration := entry.EndTime.Sub(entry.StartTime)
 		netWorkDuration := workDuration - entry.BreakDuration
 		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
+		totalBreakDuration = totalBreakDuration + entry.BreakDuration
 
 		// Create and add new work entry
 		levm := vm.NewListEntry()
@@ -445,6 +448,7 @@ func (c *EntryController) createShowListViewModel(pageNum int, cnt int, entries 
 		levm.Description = entry.Description
 		ldvm.ListEntries = append(ldvm.ListEntries, levm)
 		ldvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
+		ldvm.BreakDuration = view.FormatHours(totalBreakDuration)
 	}
 	lesvm.ListDays = ldsvm
 

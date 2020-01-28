@@ -8,7 +8,7 @@
     </div>
   </div>
   {{range .ListDays -}}
-  <h2 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - {{.WorkDuration}}</h2>
+  <h2 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - {{.WorkDuration}} ({{.BreakDuration}} Pause)</h2>
   <div class="table-responsive table-responsive-xl wl-list-table">
     <table class="table table-sm">
       <thead>

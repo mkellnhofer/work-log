@@ -53,8 +53,7 @@ func main() {
 	addEndpoint(router, pubRoute, "POST", "/login", init.GetAuthController().PostLoginHandler())
 	// Add protected endpoints
 	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
-	addEndpoint(router, proRoute, "GET", "/list", getListHandler())
-	addEndpoint(router, proRoute, "GET", "/list/{page}", init.GetEntryController().GetListHandler())
+	addEndpoint(router, proRoute, "GET", "/list", init.GetEntryController().GetListHandler())
 	addEndpoint(router, proRoute, "GET", "/create", init.GetEntryController().GetCreateHandler())
 	addEndpoint(router, proRoute, "POST", "/create", init.GetEntryController().PostCreateHandler())
 	addEndpoint(router, proRoute, "GET", "/edit/{id}", init.GetEntryController().GetEditHandler())
@@ -93,11 +92,5 @@ func createHandler(r *negroni.Negroni, h http.HandlerFunc) http.Handler {
 func getRootHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, constant.PathDefault, http.StatusFound)
-	}
-}
-
-func getListHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
 	}
 }

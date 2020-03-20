@@ -59,31 +59,6 @@ func getStringPathVar(r *http.Request, n string) (string, bool) {
 	return v, ok
 }
 
-func getPageNumberPathVar(r *http.Request) int {
-	v, ok := getStringPathVar(r, "page")
-	if !ok {
-		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible missing.)")
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-
-	page, pErr := strconv.Atoi(v)
-	if pErr != nil {
-		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be numeric.)",
-			pErr)
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-
-	if page <= 0 {
-		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be positive.)")
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-
-	return page
-}
-
 func getIdPathVar(r *http.Request) int {
 	v, ok := getStringPathVar(r, "id")
 	if !ok {
@@ -108,15 +83,48 @@ func getIdPathVar(r *http.Request) int {
 	return id
 }
 
-func getStringQueryParam(r *http.Request, n string) string {
+func getStringQueryParam(r *http.Request, n string) (string, bool) {
 	qvs := r.URL.Query()
-	return qvs.Get(n)
+	qv := qvs.Get(n)
+	if qv == "" {
+		return qv, false
+	}
+	return qv, true
 }
 
-func getIntQueryParam(r *http.Request, n string) (int, error) {
-	qv := getStringQueryParam(r, n)
-	if qv == "" {
-		return 0, nil
+func getErrorCodeQueryParam(r *http.Request) *int {
+	v, ok := getStringQueryParam(r, "error")
+	if !ok {
+		return nil
 	}
-	return strconv.Atoi(qv)
+
+	ec, err := strconv.Atoi(v)
+	if err != nil {
+		panic(err)
+	}
+
+	return &ec
+}
+
+func getPageNumberQueryParam(r *http.Request) *int {
+	v, ok := getStringQueryParam(r, "page")
+	if !ok {
+		return nil
+	}
+
+	page, err := strconv.Atoi(v)
+	if err != nil {
+		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be numeric.)",
+			err)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	if page <= 0 {
+		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be positive.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	return &page
 }

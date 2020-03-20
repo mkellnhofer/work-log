@@ -53,12 +53,12 @@
   <div class="wl-list-page-buttons">
     {{if .HasPrevPage -}}
     <div class="wl-list-page-button-prev">
-      <a class="btn btn-light" href="{{.PrevPageNum}}">Vorherige</a>
+      <a class="btn btn-light" href="list?page={{.PrevPageNum}}">Vorherige</a>
     </div>
     {{end -}}
     {{if .HasNextPage -}}
     <div class="wl-list-page-button-next">
-      <a class="btn btn-light" href="{{.NextPageNum}}">Nächste</a>
+      <a class="btn btn-light" href="list?page={{.NextPageNum}}">Nächste</a>
     </div>
     {{end -}}
   </div>

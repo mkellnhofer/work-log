@@ -43,7 +43,7 @@ func NewEntryController(eServ *service.EntryService) *EntryController {
 
 // --- Endpoints ---
 
-// GetListHandler returns a handler for "GET /list/{page}".
+// GetListHandler returns a handler for "GET /list".
 func (c *EntryController) GetListHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Verb("Handle GET /list.")
@@ -70,7 +70,7 @@ func (c *EntryController) PostCreateHandler() http.HandlerFunc {
 // GetEditHandler returns a handler for "GET /edit/{id}".
 func (c *EntryController) GetEditHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Verb("Handle GET /edit.")
+		log.Verb("Handle GET /edit/{id}.")
 		c.handleShowEdit(w, r)
 	}
 }
@@ -78,7 +78,7 @@ func (c *EntryController) GetEditHandler() http.HandlerFunc {
 // PostEditHandler returns a handler for "POST /edit/{id}".
 func (c *EntryController) PostEditHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Verb("Handle POST /edit.")
+		log.Verb("Handle POST /edit/{id}.")
 		c.handleExecuteEdit(w, r)
 	}
 }
@@ -86,7 +86,7 @@ func (c *EntryController) PostEditHandler() http.HandlerFunc {
 // GetCopyHandler returns a handler for "GET /copy/{id}".
 func (c *EntryController) GetCopyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Verb("Handle GET /copy.")
+		log.Verb("Handle GET /copy/{id}.")
 		c.handleShowCopy(w, r)
 	}
 }
@@ -94,7 +94,7 @@ func (c *EntryController) GetCopyHandler() http.HandlerFunc {
 // PostCopyHandler returns a handler for "POST /copy/{id}".
 func (c *EntryController) PostCopyHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Verb("Handle POST /copy.")
+		log.Verb("Handle POST /copy/{id}.")
 		c.handleExecuteCopy(w, r)
 	}
 }
@@ -102,7 +102,7 @@ func (c *EntryController) PostCopyHandler() http.HandlerFunc {
 // PostDeleteHandler returns a handler for "POST /delete/{id}".
 func (c *EntryController) PostDeleteHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Verb("Handle POST /delete.")
+		log.Verb("Handle POST /delete/{id}.")
 		c.handleExecuteDelete(w, r)
 	}
 }
@@ -116,7 +116,11 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	userId := sess.UserId
 
 	// Get page number
-	pageNum := getPageNumberPathVar(r)
+	pnqp := getPageNumberQueryParam(r)
+	pageNum := 1
+	if pnqp != nil {
+		pageNum = *pnqp
+	}
 
 	// Calculate offset and limit
 	offset := (pageNum - 1) * pageSize
@@ -189,7 +193,7 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
+	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
 }
 
 func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -267,7 +271,7 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
+	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
 }
 
 func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -346,7 +350,7 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
+	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
 }
 
 func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -389,7 +393,7 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathListFirstPage, http.StatusFound)
+	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
 }
 
 // --- Viem model converter functions ---
@@ -491,7 +495,7 @@ func (c *EntryController) createCreateViewModel(errorMessage string, entryTypeId
 	startTime string, endTime string, breakDuration string, entryActivityId int, description string,
 	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
-	cevm.PreviousUrl = constant.PathListFirstPage
+	cevm.PreviousUrl = constant.PathDefault
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(0, entryTypeId, date, startTime, endTime, breakDuration,
 		entryActivityId, description)
@@ -505,7 +509,7 @@ func (c *EntryController) createEditViewModel(errorMessage string, entryId int, 
 	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
 	EditEntry {
 	eevm := vm.NewEditEntry()
-	eevm.PreviousUrl = constant.PathListFirstPage
+	eevm.PreviousUrl = constant.PathDefault
 	eevm.ErrorMessage = errorMessage
 	eevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
 		breakDuration, entryActivityId, description)
@@ -519,7 +523,7 @@ func (c *EntryController) createCopyViewModel(errorMessage string, entryId int, 
 	description string, entryTypes []*model.EntryType, entryActivities []*model.EntryActivity) *vm.
 	CopyEntry {
 	cevm := vm.NewCopyEntry()
-	cevm.PreviousUrl = constant.PathListFirstPage
+	cevm.PreviousUrl = constant.PathDefault
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(entryId, entryTypeId, date, startTime, endTime,
 		breakDuration, entryActivityId, description)

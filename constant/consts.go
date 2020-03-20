@@ -14,8 +14,7 @@ const (
 
 	ContextKeySession contextKey = contextKey("session")
 
-	PathDefault       string = "/list"
-	PathListFirstPage string = "/list/1"
+	PathDefault string = "/list"
 
 	EntryTypeWork     int = 1
 	EntryTypeTravel   int = 2

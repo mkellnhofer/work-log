@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/view"
 	vm "kellnhofer.com/work-log/view/model"
@@ -31,9 +32,10 @@ func (c *ErrorController) GetErrorHandler() http.HandlerFunc {
 
 func (c *ErrorController) handleShowError(w http.ResponseWriter, r *http.Request) {
 	// Get error code
-	ec, err := getIntQueryParam(r, "error")
-	if err != nil {
-		panic(err)
+	ecqp := getErrorCodeQueryParam(r)
+	ec := e.SysUnknown
+	if ecqp != nil {
+		ec = *ecqp
 	}
 
 	// Create view model

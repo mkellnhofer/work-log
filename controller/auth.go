@@ -56,9 +56,10 @@ func (c *AuthController) GetLogoutHandler() http.HandlerFunc {
 
 func (c *AuthController) handleShowLogin(w http.ResponseWriter, r *http.Request) {
 	// Get error code
-	ec, err := getIntQueryParam(r, "error")
-	if err != nil {
-		panic(err)
+	ecqp := getErrorCodeQueryParam(r)
+	ec := 0
+	if ecqp != nil {
+		ec = *ecqp
 	}
 
 	// Create view model

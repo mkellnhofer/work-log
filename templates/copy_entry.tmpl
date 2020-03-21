@@ -1,17 +1,17 @@
 {{template "header" .}}
 <div class="wl-container">
-  <div class="wl-credcp-header">
-    <a class="wl-credcp-header-button" href="{{.PreviousUrl}}"><img src="/img/ic_back.svg" alt="Zurück"></a>
+  <div class="wl-header">
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><img src="/img/ic_back.svg" alt="Zurück"></a>
     <h1>Kopieren</h1>
   </div>
   {{if ne .ErrorMessage "" -}}
   <p class="alert alert-danger">{{.ErrorMessage}}</p>
   {{end -}}
-  <form class="wl-credcp-form" action="/copy/{{.Entry.Id}}" method="POST">
+  <form action="/copy/{{.Entry.Id}}" method="POST">
     {{template "entry_form" .}}
-    <div class="wl-credcp-form-buttons">
-      <a class="btn btn-light wl-credcp-form-button" href="{{.PreviousUrl}}">Abbrechen</a>
-      <button class="btn btn-primary wl-credcp-form-button" type="submit">Speichern</button>
+    <div class="wl-form-buttons">
+      <a class="btn btn-light wl-form-button" href="{{.PreviousUrl}}">Abbrechen</a>
+      <button class="btn btn-primary wl-form-button" type="submit">Speichern</button>
     </div>
   </form>
 </div>

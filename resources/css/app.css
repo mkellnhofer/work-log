@@ -71,19 +71,41 @@ h2 {
   }
 }
 
-.wl-list-header {
+.wl-header {
   position: relative;
   margin-bottom: 30px;
 }
 
-.wl-list-header-buttons {
+.wl-header-back-button img {
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 12px;
+  vertical-align: top;
+}
+
+.wl-header h1 {
+  display:inline;
+}
+
+.wl-header-action-buttons {
   position: absolute;
   top: 0;
   right: 0;
 }
 
-.wl-list-header-button {
+.wl-header-action-button {
   margin-left: 10px;
+}
+
+.wl-form-buttons {
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.wl-form-button {
+  margin-right: 10px;
 }
 
 .wl-list-day-title {
@@ -158,31 +180,4 @@ h2 {
 .wl-list-page-button-next {
   position: absolute;
   right: 0;
-}
-
-.wl-credcp-header {
-  position: relative;
-  margin-bottom: 30px;
-}
-
-.wl-credcp-header h1 {
-  display:inline;
-}
-
-.wl-credcp-header-button img {
-  width: 28px;
-  height: 28px;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  margin-right: 12px;
-  vertical-align: top;
-}
-
-.wl-credcp-form-buttons {
-  margin-top: 20px;
-  margin-bottom: 30px;
-}
-
-.wl-credcp-form-button {
-  margin-right: 10px;
 }

@@ -1,10 +1,10 @@
 {{template "header" .}}
 <div class="wl-container">
-  <div class="wl-list-header">
+  <div class="wl-header">
     <h1>Einträge</h1>
-    <div class="wl-list-header-buttons">
-      <a class="btn btn-primary wl-list-header-button" href="../create">Erstellen</a>
-      <a class="btn btn-light wl-list-header-button" href="../logout">Abmelden</a>
+    <div class="wl-header-action-buttons">
+      <a class="btn btn-primary wl-header-action-button" href="../create">Erstellen</a>
+      <a class="btn btn-light wl-header-action-button" href="../logout">Abmelden</a>
     </div>
   </div>
   {{range .ListDays -}}

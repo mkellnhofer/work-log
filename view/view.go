@@ -28,9 +28,10 @@ var weekdays = map[int]string{
 var printer = message.NewPrinter(language.German)
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
-	"templates/error.tmpl", "templates/login.tmpl", "templates/list_entries.tmpl",
-	"templates/entry_form.tmpl", "templates/create_entry.tmpl", "templates/edit_entry.tmpl",
-	"templates/copy_entry.tmpl"))
+	"templates/error.tmpl", "templates/login.tmpl", "templates/entries_list.tmpl",
+	"templates/list_entries.tmpl", "templates/entry_form.tmpl", "templates/create_entry.tmpl",
+	"templates/edit_entry.tmpl", "templates/copy_entry.tmpl", "templates/search_entries.tmpl",
+	"templates/list_search_entries.tmpl"))
 
 // --- Render functions ---
 
@@ -44,7 +45,7 @@ func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
 	renderTemplate(w, "login", model)
 }
 
-// RenderListEntriesTemplate renders the page to list work entries.
+// RenderListEntriesTemplate renders a page of work entries.
 func RenderListEntriesTemplate(w http.ResponseWriter, model *model.ListEntries) {
 	renderTemplate(w, "list_entries", model)
 }
@@ -62,6 +63,16 @@ func RenderEditEntryTemplate(w http.ResponseWriter, model *model.EditEntry) {
 // RenderCopyEntryTemplate renders the page to copy a work entry.
 func RenderCopyEntryTemplate(w http.ResponseWriter, model *model.CopyEntry) {
 	renderTemplate(w, "copy_entry", model)
+}
+
+// RenderSearchEntriesTemplate renders the page to search work entries.
+func RenderSearchEntriesTemplate(w http.ResponseWriter, model *model.SearchEntries) {
+	renderTemplate(w, "search_entries", model)
+}
+
+// RenderListSearchEntriesTemplate renders a page with searched work entries.
+func RenderListSearchEntriesTemplate(w http.ResponseWriter, model *model.ListSearchEntries) {
+	renderTemplate(w, "list_search_entries", model)
 }
 
 // --- Time formatting functions ---

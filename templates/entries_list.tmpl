@@ -1,0 +1,45 @@
+{{define "entries_list" -}}
+{{range .ListDays -}}
+<h2 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - {{.WorkDuration}} ({{.BreakDuration}} Pause)</h2>
+<div class="table-responsive table-responsive-xl wl-list-table">
+  <table class="table table-sm">
+    <thead>
+      <tr class="wl-list-table-head">
+        <th class="wl-list-table-column-buttons" scope="col"></th>
+        <th class="wl-list-table-column-type" scope="col">Art</th>
+        <th class="wl-list-table-column-time" scope="col">Start</th>
+        <th class="wl-list-table-column-time" scope="col">Ende</th>
+        <th class="wl-list-table-column-time" scope="col">Pause</th>
+        <th class="wl-list-table-column-time" scope="col">Netto</th>
+        <th class="wl-list-table-column-activity" scope="col">Tätigkeit</th>
+        <th class="wl-list-table-column-description" scope="col">Beschreibung</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .ListEntries -}}
+      <tr>
+        {{if .IsMissing -}}
+        <td class="wl-list-table-row-missing" colspan="8"></td>
+        {{else if .IsOverlapping -}}
+        <td class="wl-list-table-row-overlapping" colspan="8"></td>
+        {{else -}}
+        <td>
+          <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><img src="/img/ic_edit.svg" alt="Bearbeiten"></a>
+          <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><img src="/img/ic_copy.svg" alt="Kopieren"></a>
+          <form class="inline" action="../delete/{{.Id}}" method="POST" onsubmit="return approveDeletion()"><button class="btn btn-link wl-list-table-button" type="submit"><img src="/img/ic_delete.svg" alt="Löschen"></button></form>
+        </td>
+        <td class="wl-list-table-text">{{.EntryType}}</td>
+        <td class="wl-list-table-text">{{.StartTime}}</td>
+        <td class="wl-list-table-text">{{.EndTime}}</td>
+        <td class="wl-list-table-text">{{.BreakDuration}}</td>
+        <td class="wl-list-table-text">{{.WorkDuration}}</td>
+        <td class="wl-list-table-text">{{.EntryActivity}}</td>
+        <td class="wl-list-table-text">{{.Description}}</td>
+        {{end -}}
+      </tr>
+      {{end -}}
+    </tbody>
+  </table>
+</div>
+{{end -}}
+{{end -}}

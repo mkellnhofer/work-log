@@ -1,0 +1,30 @@
+{{template "header" .}}
+<div class="wl-container">
+  <div class="wl-header">
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><img src="/img/ic_back.svg" alt="Zurück"></a>
+    <h1>Suche</h1>
+  </div>
+  {{if gt (len .Days) 0 -}}
+  {{template "entries_list" .}}
+  {{else -}}
+  <p class="wl-list-no-entries-label">keine Einträge gefunden</p>
+  {{end -}}
+  <div class="wl-list-page-buttons">
+    {{if .HasPrevPage -}}
+    <div class="wl-list-page-button-prev">
+      <a class="btn btn-light" href="search?page={{.PrevPageNum}}&query={{.Query}}">Vorherige</a>
+    </div>
+    {{end -}}
+    {{if .HasNextPage -}}
+    <div class="wl-list-page-button-next">
+      <a class="btn btn-light" href="search?page={{.NextPageNum}}&query={{.Query}}">Nächste</a>
+    </div>
+    {{end -}}
+  </div>
+</div>
+<script>
+  function approveDeletion() {
+    return confirm("Wollen Sie den Eintrag wirklich löschen?");
+  }
+</script>
+{{template "footer" .}}

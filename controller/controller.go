@@ -6,8 +6,10 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	"kellnhofer.com/work-log/model"
 )
 
 var errorMessages = map[int]string{
@@ -16,22 +18,27 @@ var errorMessages = map[int]string{
 	e.AuthInvalidCredentials: "Falscher Benutzername oder Passwort.",
 
 	// Validation erros
-	e.ValUnknown:                   "Ein unbekannter Validierungsfehler trat auf.",
-	e.ValPageNumberInvalid:         "Seitennummer ungültig. (Seitennummer muss numerisch und positiv sein.)",
-	e.ValIdInvalid:                 "ID ungültig. (ID muss numerisch und positiv sein.)",
-	e.ValEntryDateInvalid:          "Datum ungültig!",
-	e.ValEntryStartTimeInvalid:     "Startzeit ungültig!",
-	e.ValEntryEndTimeInvalid:       "Endzeit ungültig!",
-	e.ValEntryBreakDurationInvalid: "Pausendauer ungültig!",
-	e.ValEntryDescriptionTooLong:   "Beschreibung darf nicht länger als 200 Zeichen sein!",
+	e.ValUnknown:              "Ein unbekannter Validierungsfehler trat auf.",
+	e.ValPageNumberInvalid:    "Seitennummer ungültig. (Seitennummer muss numerisch und positiv sein.)",
+	e.ValIdInvalid:            "ID ungültig. (ID muss numerisch und positiv sein.)",
+	e.ValDateInvalid:          "Datum ungültig!",
+	e.ValStartDateInvalid:     "Startdatum ungültig!",
+	e.ValEndDateInvalid:       "Enddatum ungültig!",
+	e.ValStartTimeInvalid:     "Startzeit ungültig!",
+	e.ValEndTimeInvalid:       "Endzeit ungültig!",
+	e.ValBreakDurationInvalid: "Pausendauer ungültig!",
+	e.ValDescriptionTooLong:   "Beschreibung darf nicht länger als 200 Zeichen sein!",
+	e.ValSearchInvalid:        "Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)",
+	e.ValSearchQueryInvalid:   "Suchabfrage ungültig!",
 
 	// Logic errors
-	e.LogicUnknown:                   "Ein unbekannter Logikfehler trat auf.",
-	e.LogicEntryNotFound:             "Der Eintrag konnte nicht gefunden werden.",
-	e.LogicEntryTypeNotFound:         "Der Eintragstyp konnte nicht gefunden werden.",
-	e.LogicEntryActivityNotFound:     "Die Eintragstätigkeit konnte nicht gefunden werden.",
-	e.LogicEntryTimeIntervalInvalid:  "Startzeit-Endzeit-Interval ungültig!",
-	e.LogicEntryBreakDurationTooLong: "Pausendauer zu lang!",
+	e.LogicUnknown:                        "Ein unbekannter Logikfehler trat auf.",
+	e.LogicEntryNotFound:                  "Der Eintrag konnte nicht gefunden werden.",
+	e.LogicEntryTypeNotFound:              "Der Eintragstyp konnte nicht gefunden werden.",
+	e.LogicEntryActivityNotFound:          "Die Eintragstätigkeit konnte nicht gefunden werden.",
+	e.LogicEntryTimeIntervalInvalid:       "Startzeit-Endzeit-Interval ungültig!",
+	e.LogicEntryBreakDurationTooLong:      "Pausendauer zu lang!",
+	e.LogicEntrySearchDateIntervalInvalid: "Suchzeitraum ungültig!",
 
 	// System errors
 	e.SysUnknown:             "Ein unbekannter Systemfehler trat auf.",
@@ -127,4 +134,18 @@ func getPageNumberQueryParam(r *http.Request) *int {
 	}
 
 	return &page
+}
+
+func getSearchQueryParam(r *http.Request) *string {
+	v, ok := getStringQueryParam(r, "query")
+	if !ok {
+		return nil
+	}
+
+	return &v
+}
+
+func getCurrentUserId(r *http.Request) int {
+	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	return sess.UserId
 }

@@ -6,22 +6,27 @@ const (
 	AuthInvalidCredentials = -101
 
 	// Validation erros
-	ValUnknown                   = -200
-	ValPageNumberInvalid         = -201
-	ValIdInvalid                 = -202
-	ValEntryDateInvalid          = -203
-	ValEntryStartTimeInvalid     = -204
-	ValEntryEndTimeInvalid       = -205
-	ValEntryBreakDurationInvalid = -206
-	ValEntryDescriptionTooLong   = -207
+	ValUnknown              = -200
+	ValPageNumberInvalid    = -201
+	ValIdInvalid            = -202
+	ValDateInvalid          = -203
+	ValStartDateInvalid     = -204
+	ValEndDateInvalid       = -205
+	ValStartTimeInvalid     = -206
+	ValEndTimeInvalid       = -207
+	ValBreakDurationInvalid = -208
+	ValDescriptionTooLong   = -209
+	ValSearchInvalid        = -210
+	ValSearchQueryInvalid   = -211
 
 	// Logic errors
-	LogicUnknown                   = -300
-	LogicEntryNotFound             = -301
-	LogicEntryTypeNotFound         = -302
-	LogicEntryActivityNotFound     = -303
-	LogicEntryTimeIntervalInvalid  = -304
-	LogicEntryBreakDurationTooLong = -305
+	LogicUnknown                        = -300
+	LogicEntryNotFound                  = -301
+	LogicEntryTypeNotFound              = -302
+	LogicEntryActivityNotFound          = -303
+	LogicEntryTimeIntervalInvalid       = -304
+	LogicEntryBreakDurationTooLong      = -305
+	LogicEntrySearchDateIntervalInvalid = -306
 
 	// System errors
 	SysUnknown             = -400

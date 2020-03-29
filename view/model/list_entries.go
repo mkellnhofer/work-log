@@ -13,36 +13,3 @@ type ListEntries struct {
 func NewListEntries() *ListEntries {
 	return &ListEntries{}
 }
-
-// ListDay stores view data for a work day.
-type ListDay struct {
-	Date          string
-	Weekday       string
-	ListEntries   []*ListEntry
-	WorkDuration  string
-	BreakDuration string
-}
-
-// NewListDay creates a new ListDay view model.
-func NewListDay() *ListDay {
-	return &ListDay{}
-}
-
-// ListEntry stores view data for a work entry.
-type ListEntry struct {
-	IsMissing     bool
-	IsOverlapping bool
-	Id            int
-	EntryType     string
-	StartTime     string
-	EndTime       string
-	BreakDuration string
-	WorkDuration  string
-	EntryActivity string
-	Description   string
-}
-
-// NewListEntry creates a new ListEntry view model.
-func NewListEntry() *ListEntry {
-	return &ListEntry{}
-}

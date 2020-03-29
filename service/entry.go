@@ -130,6 +130,24 @@ func (s *EntryService) DeleteEntryById(id int, userId int) *e.Error {
 	return s.eRepo.DeleteEntryById(id)
 }
 
+// SearchEntries searches work entries (over date).
+func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntriesParams, offset int,
+	limit int) ([]*model.Entry, int, *e.Error) {
+	// Get work entries
+	entries, err := s.eRepo.SearchDateEntries(userId, params, offset, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Count all available work entries
+	cnt, err := s.eRepo.CountSearchDateEntries(userId, params)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entries, cnt, nil
+}
+
 func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
 	if entry == nil {
 		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find work entry %d.", id))

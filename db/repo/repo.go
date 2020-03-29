@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"kellnhofer.com/work-log/constant"
@@ -34,7 +35,7 @@ func createQueryLimitString(offset int, limit int) string {
 	} else {
 		lim = strconv.Itoa(defaultPageSize)
 	}
-	return " LIMIT " + off + ", " + lim
+	return "LIMIT " + off + ", " + lim
 }
 
 // --- Scan helper functions ---
@@ -203,6 +204,27 @@ func execInternal(db database, query string, args ...interface{}) error {
 
 // --- Helper functions ---
 
+func parseDate(ts *string) *time.Time {
+	if ts == nil {
+		return nil
+	}
+
+	t, err := time.Parse(constant.DbDateFormat, *ts)
+	if err != nil {
+		return nil
+	}
+	return &t
+}
+
+func formatDate(t *time.Time) *string {
+	if t == nil {
+		return nil
+	}
+
+	ts := t.Format(constant.DbDateFormat)
+	return &ts
+}
+
 func parseTimestamp(ts *string) *time.Time {
 	if ts == nil {
 		return nil
@@ -244,4 +266,8 @@ func formatDuration(d *time.Duration) *int {
 	md := d.Round(time.Minute)
 	min := int(md.Minutes())
 	return &min
+}
+
+func escapeRestrictionString(s string) string {
+	return strings.NewReplacer("%", "\\%", "_", "\\_").Replace(s)
 }

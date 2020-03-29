@@ -3,6 +3,8 @@ package repo
 import (
 	"database/sql"
 	"fmt"
+	"strings"
+	"time"
 
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
@@ -34,9 +36,9 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 
 // CountDateEntries counts all work entries (over date).
 func (r *EntryRepo) CountDateEntries(userId int) (int, *e.Error) {
-	q := "SELECT COUNT(DISTINCT(DATE(start_time))) FROM entry WHERE user_id = ?"
+	q, qa := r.buildCountDateEntriesQuery(userId)
 
-	sr, qErr := r.queryRow(&scanIntHelper{}, q, userId)
+	sr, qErr := r.queryRow(&scanIntHelper{}, q, qa...)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries (over date) in database.",
 			qErr)
@@ -47,24 +49,34 @@ func (r *EntryRepo) CountDateEntries(userId int) (int, *e.Error) {
 	return sr.(int), nil
 }
 
+func (r *EntryRepo) buildCountDateEntriesQuery(userId int) (string, []interface{}) {
+	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
+		"FROM entry e " +
+		"WHERE e.user_id = ?"
+
+	qa := []interface{}{userId}
+
+	return q, qa
+}
+
 // GetDateEntries retrieves all work entries (over date).
 func (r *EntryRepo) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, *e.Error) {
-	ql := createQueryLimitString(offset, limit)
+	qr, qra := r.buildGetDateEntriesRangeQuery(userId, offset, limit)
 
-	dq := "SELECT DISTINCT(DATE(start_time)) AS date " +
-		"FROM entry " +
-		"ORDER BY date DESC" +
-		ql
+	start, end, qrErr := r.getDateRange(qr, qra...)
+	if qrErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for work entries (over "+
+			"date) from database.", qrErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+	if start == "" || end == "" {
+		return make([]*model.Entry, 0), nil
+	}
 
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
-		"e.activity_id, e.description " +
-		"FROM (SELECT id, user_id, type_id, DATE(start_time) AS date, start_time, end_time, " +
-		"break_duration, activity_id, description FROM entry) e " +
-		"INNER JOIN (" + dq + ") AS d ON e.date = d.date " +
-		"WHERE user_id = ? " +
-		"ORDER BY e.date DESC, e.start_time DESC, e.end_time DESC"
+	q, qa := r.buildGetDateEntriesQuery(userId, start, end)
 
-	sr, qErr := r.query(&scanEntryHelper{}, q, userId)
+	sr, qErr := r.query(&scanEntryHelper{}, q, qa...)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries (over date) from "+
 			"database.", qErr)
@@ -75,6 +87,33 @@ func (r *EntryRepo) GetDateEntries(userId int, offset int, limit int) ([]*model.
 	entries := sr.([]*model.Entry)
 
 	return entries, nil
+}
+
+func (r *EntryRepo) buildGetDateEntriesRangeQuery(userId int, offset int, limit int) (string,
+	[]interface{}) {
+	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? " +
+		"ORDER BY date DESC " +
+		createQueryLimitString(offset, limit)
+
+	qa := []interface{}{userId}
+
+	return q, qa
+}
+
+func (r *EntryRepo) buildGetDateEntriesQuery(userId int, start string, end string) (string,
+	[]interface{}) {
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
+		"e.activity_id, e.description " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? " +
+		"AND e.start_time BETWEEN ? AND ? " +
+		"ORDER BY e.start_time DESC, e.end_time DESC"
+
+	qa := []interface{}{userId, start, end}
+
+	return q, qa
 }
 
 // CountEntries counts all work entries.
@@ -98,7 +137,7 @@ func (r *EntryRepo) GetEntries(userId int, offset int, limit int) ([]*model.Entr
 
 	ql := createQueryLimitString(offset, limit)
 
-	sr, qErr := r.query(&scanEntryHelper{}, q+ql, userId)
+	sr, qErr := r.query(&scanEntryHelper{}, q+" "+ql, userId)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries from database.", qErr)
 		log.Error(err.StackTrace())
@@ -196,6 +235,126 @@ func (r *EntryRepo) DeleteEntryById(id int) *e.Error {
 	}
 
 	return nil
+}
+
+// CountSearchDateEntries counts work entries of a search (over date).
+func (r *EntryRepo) CountSearchDateEntries(userId int, params *model.SearchEntriesParams) (int,
+	*e.Error) {
+	q, qa := r.buildCountSearchDateEntriesQuery(userId, params)
+
+	sr, qErr := r.queryRow(&scanIntHelper{}, q, qa...)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries (over date) in database.",
+			qErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+
+	return sr.(int), nil
+}
+
+func (r *EntryRepo) buildCountSearchDateEntriesQuery(userId int, params *model.SearchEntriesParams) (
+	string, []interface{}) {
+	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
+
+	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? AND " + sq
+
+	qa := []interface{}{userId}
+	qa = append(qa, sqa...)
+
+	return q, qa
+}
+
+// SearchDateEntries retrieves work entries of a search (over date).
+func (r *EntryRepo) SearchDateEntries(userId int, params *model.SearchEntriesParams, offset int,
+	limit int) ([]*model.Entry, *e.Error) {
+	qr, qra := r.buildSearchDateEntriesRangeQuery(userId, params, offset, limit)
+
+	start, end, qrErr := r.getDateRange(qr, qra...)
+	if qrErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for work entries (over "+
+			"date) from database.", qrErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+	if start == "" || end == "" {
+		return make([]*model.Entry, 0), nil
+	}
+
+	q, qa := r.buildSearchDateEntriesQuery(userId, params, start, end)
+
+	sr, qErr := r.query(&scanEntryHelper{}, q, qa...)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries (over date) from "+
+			"database.", qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	entries := sr.([]*model.Entry)
+
+	return entries, nil
+}
+
+func (r *EntryRepo) buildSearchDateEntriesRangeQuery(userId int, params *model.SearchEntriesParams,
+	offset int, limit int) (string, []interface{}) {
+	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
+
+	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? AND " + sq + " " +
+		"ORDER BY date DESC " +
+		createQueryLimitString(offset, limit)
+
+	qa := []interface{}{userId}
+	qa = append(qa, sqa...)
+
+	return q, qa
+}
+
+func (r *EntryRepo) buildSearchDateEntriesQuery(userId int, params *model.SearchEntriesParams,
+	start string, end string) (string, []interface{}) {
+	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
+
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
+		"e.activity_id, e.description " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? AND " + sq + " " +
+		"AND e.start_time BETWEEN ? AND ? " +
+		"ORDER BY e.start_time DESC, e.end_time DESC"
+
+	qa := []interface{}{userId}
+	qa = append(qa, sqa...)
+	qa = append(qa, start, end)
+
+	return q, qa
+}
+
+func (r *EntryRepo) buildSearchDateEntriesQueryRestriction(params *model.SearchEntriesParams) (
+	string, []interface{}) {
+	var qrs []string
+	var qas []interface{}
+	if params.ByType {
+		qrs = append(qrs, fmt.Sprintf("e.type_id = %d", params.TypeId))
+	}
+	if params.ByTime {
+		qrs = append(qrs, fmt.Sprintf("(e.start_time BETWEEN '%s' AND '%s')",
+			*formatTimestamp(&params.StartTime), *formatTimestamp(&params.EndTime)))
+	}
+	if params.ByActivity {
+		if params.ActivityId == 0 {
+			qrs = append(qrs, "e.activity_id IS NULL")
+		} else {
+			qrs = append(qrs, fmt.Sprintf("e.activity_id = %d", params.ActivityId))
+		}
+	}
+	if params.ByDescription {
+		qrs = append(qrs, "e.description LIKE ?")
+		qas = append(qas, "%"+escapeRestrictionString(params.Description)+"%")
+	}
+	return strings.Join(qrs[:], " AND "), qas
 }
 
 // --- Work entry type functions ---
@@ -386,6 +545,45 @@ func (r *EntryRepo) DeleteEntryActivityById(id int) *e.Error {
 	}
 
 	return nil
+}
+
+// --- Date range helper functions ---
+
+func (r *EntryRepo) getDateRange(query string, args ...interface{}) (string, string, error) {
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return "", "", err
+	}
+	defer rows.Close()
+
+	noRows := true
+	min := time.Date(9999, time.January, 1, 0, 0, 0, 0, time.Local)
+	max := time.Date(1000, time.January, 1, 0, 0, 0, 0, time.Local)
+	for rows.Next() {
+		noRows = false
+		var s string
+		if err := rows.Scan(&s); err != nil {
+			return "", "", err
+		}
+		d := *parseDate(&s)
+		if d.Before(min) {
+			min = d
+		}
+		if d.After(max) {
+			max = d
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return "", "", err
+	}
+	if noRows {
+		return "", "", nil
+	}
+
+	start := *formatDate(&min)
+	end := *formatDate(&max)
+
+	return start + " 00:00:00", end + " 23:59:59", nil
 }
 
 // --- Helper functions ---

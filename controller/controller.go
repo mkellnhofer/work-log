@@ -150,3 +150,25 @@ func getCurrentUserId(r *http.Request) int {
 	s := sh.Get()
 	return s.UserId
 }
+
+func saveCurrentUrl(r *http.Request) {
+	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	s := sh.Get()
+	path := r.URL.EscapedPath()
+	query := r.URL.RawQuery
+	req := path
+	if query != "" {
+		req = req + "?" + query
+	}
+	s.PreviousUrl = req
+}
+
+func getPreviousUrl(r *http.Request) string {
+	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	s := sh.Get()
+	if s.PreviousUrl != "" {
+		return s.PreviousUrl
+	} else {
+		return constant.PathDefault
+	}
+}

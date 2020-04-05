@@ -33,7 +33,7 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 	} else {
 		log.Debugf("User must authenticate. (Session: '%s')", sess.Id)
 
-		// Get current request
+		// Get requested URL
 		path := r.URL.EscapedPath()
 		query := r.URL.RawQuery
 		req := path
@@ -41,7 +41,7 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 			req = req + "?" + query
 		}
 
-		// Save current request in session
+		// Save requested URL in session
 		sess.PreviousUrl = req
 
 		// Redirect to login page

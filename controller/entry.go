@@ -168,6 +168,9 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	// Create view model
 	model := c.createListViewModel(pageNum, cnt, entries, entryTypesMap, entryActivitiesMap)
 
+	// Save current URL to be able to used later for back navigation
+	saveCurrentUrl(r)
+
 	// Render
 	view.RenderListEntriesTemplate(w, model)
 }
@@ -181,12 +184,13 @@ func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Reques
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
 	}
-	model := c.createCreateViewModel("", entryTypeId, getDateString(time.Now()), "00:00", "00:00",
-		"0", 0, "", entryTypes, entryActivities)
+	model := c.createCreateViewModel(prevUrl, "", entryTypeId, getDateString(time.Now()), "00:00",
+		"00:00", "0", 0, "", entryTypes, entryActivities)
 
 	// Render
 	view.RenderCreateEntryTemplate(w, model)
@@ -214,7 +218,8 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+	prevUrl := getPreviousUrl(r)
+	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -228,10 +233,12 @@ func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Reque
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	model := c.createCreateViewModel(em, entryTypeId, input.date, input.startTime, input.endTime,
-		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+	model := c.createCreateViewModel(prevUrl, em, entryTypeId, input.date, input.startTime,
+		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		entryActivities)
 
 	// Render
 	view.RenderCreateEntryTemplate(w, model)
@@ -255,7 +262,8 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
-	model := c.createEditViewModel("", entry.Id, entry.TypeId, getDateString(entry.StartTime),
+	prevUrl := getPreviousUrl(r)
+	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
 		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getDurationString(
 			entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
@@ -288,7 +296,8 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+	prevUrl := getPreviousUrl(r)
+	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -302,10 +311,12 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	model := c.createEditViewModel(em, id, entryTypeId, input.date, input.startTime, input.endTime,
-		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+	model := c.createEditViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
+		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		entryActivities)
 
 	// Render
 	view.RenderEditEntryTemplate(w, model)
@@ -329,7 +340,8 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
-	model := c.createCopyViewModel("", entry.Id, entry.TypeId, getDateString(entry.StartTime),
+	prevUrl := getPreviousUrl(r)
+	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
 		getTimeString(entry.StartTime), getTimeString(entry.EndTime),
 		getDurationString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
 		entryActivities)
@@ -363,7 +375,8 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+	prevUrl := getPreviousUrl(r)
+	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -377,10 +390,12 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	model := c.createCopyViewModel(em, id, entryTypeId, input.date, input.startTime, input.endTime,
-		input.breakDuration, entryActivityId, input.description, entryTypes, entryActivities)
+	model := c.createCopyViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
+		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		entryActivities)
 
 	// Render
 	view.RenderCopyEntryTemplate(w, model)
@@ -404,7 +419,8 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+	prevUrl := getPreviousUrl(r)
+	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 // --- Search handler functions ---
@@ -416,11 +432,12 @@ func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Reques
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
 	}
-	model := c.createSearchViewModel("", false, entryTypeId, false, getDateString(time.Now()),
+	model := c.createSearchViewModel(prevUrl, "", false, entryTypeId, false, getDateString(time.Now()),
 		getDateString(time.Now()), false, 0, false, "", entryTypes, entryActivities)
 
 	// Render
@@ -448,8 +465,11 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
-	model := c.createListSearchViewModel(query, pageNum, cnt, entries, entryTypesMap,
-		entryActivitiesMap)
+	model := c.createListSearchViewModel(constant.PathDefault, query, pageNum, cnt, entries,
+		entryTypesMap, entryActivitiesMap)
+
+	// Save current URL to be able to used later for back navigation
+	saveCurrentUrl(r)
 
 	// Render
 	view.RenderListSearchEntriesTemplate(w, model)
@@ -465,10 +485,10 @@ func (c *EntryController) handleExecuteSearch(w http.ResponseWriter, r *http.Req
 		c.handleSearchError(w, r, cmErr, input)
 	}
 
-	c.handleSeachSuccess(w, r, params)
+	c.handleSearchSuccess(w, r, params)
 }
 
-func (c *EntryController) handleSeachSuccess(w http.ResponseWriter, r *http.Request,
+func (c *EntryController) handleSearchSuccess(w http.ResponseWriter, r *http.Request,
 	params *model.SearchEntriesParams) {
 	http.Redirect(w, r, "/search?query="+c.buildSearchQueryString(params), http.StatusFound)
 }
@@ -484,15 +504,16 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
+	prevUrl := getPreviousUrl(r)
 	byEntryType, _ := strconv.ParseBool(input.byType)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	byEntryDate, _ := strconv.ParseBool(input.byDate)
 	byEntryActivity, _ := strconv.ParseBool(input.byActivity)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	byEntryDescription, _ := strconv.ParseBool(input.byDescription)
-	model := c.createSearchViewModel(em, byEntryType, entryTypeId, byEntryDate, input.startDate,
-		input.endDate, byEntryActivity, entryActivityId, byEntryDescription, input.description,
-		entryTypes, entryActivities)
+	model := c.createSearchViewModel(prevUrl, em, byEntryType, entryTypeId, byEntryDate,
+		input.startDate, input.endDate, byEntryActivity, entryActivityId, byEntryDescription,
+		input.description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderSearchEntriesTemplate(w, model)
@@ -535,11 +556,11 @@ func (c *EntryController) getEntryActivityDescription(entryActivitiesMap map[int
 	return ""
 }
 
-func (c *EntryController) createCreateViewModel(errorMessage string, typeId int, date string,
-	startTime string, endTime string, breakDuration string, activityId int, description string,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
+func (c *EntryController) createCreateViewModel(prevUrl string, errorMessage string, typeId int,
+	date string, startTime string, endTime string, breakDuration string, activityId int,
+	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
-	cevm.PreviousUrl = constant.PathDefault
+	cevm.PreviousUrl = prevUrl
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(0, typeId, date, startTime, endTime, breakDuration,
 		activityId, description)
@@ -548,11 +569,11 @@ func (c *EntryController) createCreateViewModel(errorMessage string, typeId int,
 	return cevm
 }
 
-func (c *EntryController) createEditViewModel(errorMessage string, id int, typeId int, date string,
-	startTime string, endTime string, breakDuration string, activityId int, description string,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
+func (c *EntryController) createEditViewModel(prevUrl string, errorMessage string, id int,
+	typeId int, date string, startTime string, endTime string, breakDuration string, activityId int,
+	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
 	eevm := vm.NewEditEntry()
-	eevm.PreviousUrl = constant.PathDefault
+	eevm.PreviousUrl = prevUrl
 	eevm.ErrorMessage = errorMessage
 	eevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, breakDuration,
 		activityId, description)
@@ -561,11 +582,11 @@ func (c *EntryController) createEditViewModel(errorMessage string, id int, typeI
 	return eevm
 }
 
-func (c *EntryController) createCopyViewModel(errorMessage string, id int, typeId int, date string,
-	startTime string, endTime string, breakDuration string, activityId int, description string,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
+func (c *EntryController) createCopyViewModel(prevUrl string, errorMessage string, id int,
+	typeId int, date string, startTime string, endTime string, breakDuration string, activityId int,
+	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
 	cevm := vm.NewCopyEntry()
-	cevm.PreviousUrl = constant.PathDefault
+	cevm.PreviousUrl = prevUrl
 	cevm.ErrorMessage = errorMessage
 	cevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, breakDuration,
 		activityId, description)
@@ -574,12 +595,12 @@ func (c *EntryController) createCopyViewModel(errorMessage string, id int, typeI
 	return cevm
 }
 
-func (c *EntryController) createSearchViewModel(errorMessage string, byType bool, typeId int,
-	byDate bool, startDate string, endDate string, byActivity bool, activityId int,
+func (c *EntryController) createSearchViewModel(prevUrl string, errorMessage string, byType bool,
+	typeId int, byDate bool, startDate string, endDate string, byActivity bool, activityId int,
 	byDescription bool, description string, types []*model.EntryType,
 	activities []*model.EntryActivity) *vm.SearchEntries {
 	sevm := vm.NewSearchEntries()
-	sevm.PreviousUrl = constant.PathDefault
+	sevm.PreviousUrl = prevUrl
 	sevm.ErrorMessage = errorMessage
 	sevm.ByType = byType
 	sevm.TypeId = typeId
@@ -595,11 +616,11 @@ func (c *EntryController) createSearchViewModel(errorMessage string, byType bool
 	return sevm
 }
 
-func (c *EntryController) createListSearchViewModel(query string, pageNum int, cnt int,
-	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+func (c *EntryController) createListSearchViewModel(prevUrl string, query string, pageNum int,
+	cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListSearchEntries {
 	lesvm := vm.NewListSearchEntries()
-	lesvm.PreviousUrl = constant.PathDefault
+	lesvm.PreviousUrl = prevUrl
 	lesvm.Query = query
 
 	// Calculate previous/next page numbers

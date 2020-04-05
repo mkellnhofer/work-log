@@ -90,7 +90,7 @@ func (i *Initializer) GetErrorController() *controller.ErrorController {
 // GetAuthController returns a initialized auth controller object.
 func (i *Initializer) GetAuthController() *controller.AuthController {
 	if i.authCtrl == nil {
-		i.authCtrl = controller.NewAuthController(i.GetUserService(), i.GetSessionService())
+		i.authCtrl = controller.NewAuthController(i.GetUserService())
 	}
 	return i.authCtrl
 }
@@ -124,7 +124,7 @@ func (i *Initializer) GetSessionMiddleware() *middleware.SessionMiddleware {
 // GetAuthMiddleware returns a initialized auth middleware object.
 func (i *Initializer) GetAuthMiddleware() *middleware.AuthMiddleware {
 	if i.authMidw == nil {
-		i.authMidw = middleware.NewAuthMiddleware(i.GetSessionService())
+		i.authMidw = middleware.NewAuthMiddleware()
 	}
 	return i.authMidw
 }

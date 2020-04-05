@@ -9,6 +9,7 @@ import (
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
 	"kellnhofer.com/work-log/view"
@@ -18,12 +19,11 @@ import (
 // AuthController handles requests for login/logout endpoints.
 type AuthController struct {
 	uServ *service.UserService
-	sServ *service.SessionService
 }
 
 // NewAuthController creates a new auth controller.
-func NewAuthController(uServ *service.UserService, sServ *service.SessionService) *AuthController {
-	return &AuthController{uServ, sServ}
+func NewAuthController(uServ *service.UserService) *AuthController {
+	return &AuthController{uServ}
 }
 
 // --- Endpoints ---
@@ -103,29 +103,23 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Get current session from context
-	preSess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get session holder from context
+	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 
-	// Delete current session
-	if dsErr := c.sServ.DeleteSession(preSess.Id); dsErr != nil {
-		panic(dsErr)
-	}
+	// Get current session
+	preSess := sessHolder.Get()
 
 	// Create new session
-	newSessId := c.sServ.NewSessionId()
-	newSess := model.NewSession(newSessId)
+	newSess := model.NewSession()
 	newSess.UserId = user.Id
 
-	// Save new session
-	if ssErr := c.sServ.SaveSession(newSess); ssErr != nil {
-		panic(ssErr)
-	}
-	log.Debugf("New session '%s' was created.", newSessId)
+	// Set new session
+	sessHolder.Set(newSess)
 
-	// Update session cookie
-	newSessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSessId, Path: "/",
+	// Set session cookie
+	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.Id, Path: "/",
 		HttpOnly: true}
-	http.SetCookie(w, newSessCookie)
+	http.SetCookie(w, sessCookie)
 
 	// Was a previous request stored?
 	if preSess != nil && preSess.PreviousUrl != "" {
@@ -148,15 +142,11 @@ func (c *AuthController) handleLoginError(w http.ResponseWriter, r *http.Request
 // --- Logout handler functions ---
 
 func (c *AuthController) handleExecuteLogout(w http.ResponseWriter, r *http.Request) {
-	// Get current session from context
-	preSess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	// Get session holder from context
+	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 
 	// Close session
-	if dsErr := c.sServ.DeleteSession(preSess.Id); dsErr != nil {
-		panic(dsErr)
-	}
-
-	log.Debugf("Session '%s' was closed.", preSess.Id)
+	sessHolder.Clear()
 
 	// Redirect to login page
 	c.handleLogoutSuccess(w, r)

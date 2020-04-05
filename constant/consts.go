@@ -13,7 +13,7 @@ const (
 	SessionCookieName string        = "session"
 	SessionValidity   time.Duration = 1 * time.Hour
 
-	ContextKeySession contextKey = contextKey("session")
+	ContextKeySessionHolder contextKey = contextKey("session-holder")
 
 	PathDefault string = "/list"
 

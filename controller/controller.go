@@ -9,7 +9,7 @@ import (
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/model"
+	"kellnhofer.com/work-log/middleware"
 )
 
 var errorMessages = map[int]string{
@@ -146,6 +146,7 @@ func getSearchQueryParam(r *http.Request) *string {
 }
 
 func getCurrentUserId(r *http.Request) int {
-	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
-	return sess.UserId
+	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	s := sh.Get()
+	return s.UserId
 }

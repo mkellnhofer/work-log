@@ -5,18 +5,15 @@ import (
 
 	"kellnhofer.com/work-log/constant"
 	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/model"
-	"kellnhofer.com/work-log/service"
 )
 
 // AuthMiddleware creates/restores the session.
 type AuthMiddleware struct {
-	sServ *service.SessionService
 }
 
 // NewAuthMiddleware create a new session middleware.
-func NewAuthMiddleware(sServ *service.SessionService) *AuthMiddleware {
-	return &AuthMiddleware{sServ}
+func NewAuthMiddleware() *AuthMiddleware {
+	return &AuthMiddleware{}
 }
 
 // ServeHTTP processes requests.
@@ -24,7 +21,8 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 	log.Verb("Before auth check.")
 
 	// Get session from context
-	sess := r.Context().Value(constant.ContextKeySession).(*model.Session)
+	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
+	sess := sessHolder.Get()
 
 	// Authenticated?
 	if sess.UserId != 0 {
@@ -45,10 +43,6 @@ func (m *AuthMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next 
 
 		// Save current request in session
 		sess.PreviousUrl = req
-		ssErr := m.sServ.SaveSession(sess)
-		if ssErr != nil {
-			panic(ssErr)
-		}
 
 		// Redirect to login page
 		log.Debug("Redirecting to login page ...")

@@ -1,6 +1,9 @@
 package model
 
 import (
+	"crypto/rand"
+	"encoding/base64"
+	"io"
 	"time"
 
 	"kellnhofer.com/work-log/constant"
@@ -15,7 +18,8 @@ type Session struct {
 }
 
 // NewSession creates a new Session model.
-func NewSession(id string) *Session {
+func NewSession() *Session {
+	id := newSessionId()
 	expAt := now().Add(constant.SessionValidity)
 	return &Session{id, 0, expAt, ""}
 }
@@ -28,6 +32,14 @@ func (s *Session) IsExpired() bool {
 // Renew renews the session's expire time.
 func (s *Session) Renew() {
 	s.ExpireAt = now().Add(constant.SessionValidity)
+}
+
+// --- Helper functions ---
+
+func newSessionId() string {
+	b := make([]byte, 24)
+	io.ReadFull(rand.Reader, b)
+	return base64.URLEncoding.EncodeToString(b)
 }
 
 func now() time.Time {

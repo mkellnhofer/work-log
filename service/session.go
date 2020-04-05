@@ -1,10 +1,6 @@
 package service
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"io"
-
 	"kellnhofer.com/work-log/db/repo"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/model"
@@ -21,13 +17,6 @@ func NewSessionService(sr *repo.SessionRepo) *SessionService {
 }
 
 // --- Session functions ---
-
-// NewSessionId creates a new session ID.
-func (s *SessionService) NewSessionId() string {
-	b := make([]byte, 24)
-	io.ReadFull(rand.Reader, b)
-	return base64.URLEncoding.EncodeToString(b)
-}
 
 // GetSession gets a session.
 func (s *SessionService) GetSession(id string) (*model.Session, *e.Error) {
@@ -50,12 +39,6 @@ func (s *SessionService) SaveSession(session *model.Session) *e.Error {
 		// Create session
 		return s.sRepo.CreateSession(session)
 	}
-}
-
-// RefreshSession renews a session's expire time.
-func (s *SessionService) RefreshSession(session *model.Session) *e.Error {
-	session.Renew()
-	return s.sRepo.UpdateSession(session)
 }
 
 // DeleteSession deletes a session.

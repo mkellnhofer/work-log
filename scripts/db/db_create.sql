@@ -15,6 +15,19 @@ CREATE TABLE user (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE user_contract (
+  user_id INT NOT NULL,
+  daily_working_duration INT NOT NULL,
+  annual_vacation_days FLOAT NOT NULL,
+  init_overtime_duration INT NOT NULL,
+  init_vacation_days FLOAT NOT NULL,
+  first_work_day TIMESTAMP NOT NULL,
+  PRIMARY KEY (user_id),
+  KEY fk_usercontract_user (user_id),
+  CONSTRAINT fk_usercontract_user FOREIGN KEY (user_id)
+    REFERENCES user (id) ON DELETE CASCADE ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE session (
   id VARCHAR(32) NOT NULL,
   user_id INT,

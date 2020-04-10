@@ -9,6 +9,14 @@ import (
 	"kellnhofer.com/work-log/model"
 )
 
+type dbUserContract struct {
+	dailyWorkingDuration int
+	annualVacationDays   float32
+	initOvertimeDuration int
+	initVacationDays     float32
+	firstWorkDay         string
+}
+
 // UserRepo retrieves and stores user and role records.
 type UserRepo struct {
 	repo
@@ -130,6 +138,65 @@ func (r *UserRepo) DeleteUserById(id int) *e.Error {
 	return nil
 }
 
+// --- User contract functions ---
+
+// GetUserContractByUserId retrieves the contract information of a user by its ID.
+func (r *UserRepo) GetUserContractByUserId(userId int) (*model.UserContract, *e.Error) {
+	q := "SELECT daily_working_duration, annual_vacation_days, init_overtime_duration, " +
+		"init_vacation_days, first_work_day FROM user_contract WHERE user_id = ?"
+
+	sr, qErr := r.queryRow(&scanUserContractHelper{}, q, userId)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user contract for user "+
+			"%d from database.", userId), qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	if sr == nil {
+		return nil, nil
+	}
+	return sr.(*model.UserContract), nil
+}
+
+// CreateUserContract creates the contract information of a user.
+func (r *UserRepo) CreateUserContract(userId int, userContract *model.UserContract) *e.Error {
+	uc := toDbUserContract(userContract)
+
+	q := "INSERT INTO user_contract (user_id, daily_working_duration, annual_vacation_days, " +
+		"init_overtime_duration, init_vacation_days, first_work_day) VALUES (?, ?, ?, ?, ?, ?)"
+
+	_, cErr := r.insert(q, userId, uc.dailyWorkingDuration, uc.annualVacationDays,
+		uc.initOvertimeDuration, uc.initVacationDays, uc.firstWorkDay)
+	if cErr != nil {
+		err := e.WrapError(e.SysDbInsertFailed, fmt.Sprintf("Could not create user contract for "+
+			"user %d from database.", userId), cErr)
+		log.Error(err.StackTrace())
+		return err
+	}
+
+	return nil
+}
+
+// UpdateUserContract updates the contract information of a user.
+func (r *UserRepo) UpdateUserContract(userId int, userContract *model.UserContract) *e.Error {
+	uc := toDbUserContract(userContract)
+
+	q := "UPDATE user_contract SET daily_working_duration = ?, annual_vacation_days = ?, " +
+		"init_overtime_duration = ?, init_vacation_days = ?, first_work_day = ? WHERE user_id = ?"
+
+	uErr := r.exec(q, uc.dailyWorkingDuration, uc.annualVacationDays, uc.initOvertimeDuration,
+		uc.initVacationDays, uc.firstWorkDay, userId)
+	if uErr != nil {
+		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user contract for "+
+			"user %d in database.", userId), uErr)
+		log.Error(err.StackTrace())
+		return err
+	}
+
+	return nil
+}
+
 // --- Helper functions ---
 
 type scanUserHelper struct {
@@ -152,4 +219,49 @@ func (h *scanUserHelper) scan(s scanner) (interface{}, error) {
 
 func (h *scanUserHelper) appendSlice(items interface{}, item interface{}) interface{} {
 	return append(items.([]*model.User), item.(*model.User))
+}
+
+type scanUserContractHelper struct {
+}
+
+func (h *scanUserContractHelper) makeSlice() interface{} {
+	return make([]*model.UserContract, 0, 10)
+}
+
+func (h *scanUserContractHelper) scan(s scanner) (interface{}, error) {
+	var dbUc dbUserContract
+
+	err := s.Scan(&dbUc.dailyWorkingDuration, &dbUc.annualVacationDays, &dbUc.initOvertimeDuration,
+		&dbUc.initVacationDays, &dbUc.firstWorkDay)
+	if err != nil {
+		return nil, err
+	}
+
+	uc := fromDbUserContract(&dbUc)
+
+	return uc, nil
+}
+
+func (h *scanUserContractHelper) appendSlice(items interface{}, item interface{}) interface{} {
+	return append(items.([]*model.UserContract), item.(*model.UserContract))
+}
+
+func toDbUserContract(in *model.UserContract) *dbUserContract {
+	var out dbUserContract
+	out.dailyWorkingDuration = *formatDuration(&in.DailyWorkingDuration)
+	out.annualVacationDays = in.AnnualVacationDays
+	out.initOvertimeDuration = *formatDuration(&in.InitOvertimeDuration)
+	out.initVacationDays = in.InitVacationDays
+	out.firstWorkDay = *formatTimestamp(&in.FirstWorkDay)
+	return &out
+}
+
+func fromDbUserContract(in *dbUserContract) *model.UserContract {
+	var out model.UserContract
+	out.DailyWorkingDuration = *parseDuration(&in.dailyWorkingDuration)
+	out.AnnualVacationDays = in.annualVacationDays
+	out.InitOvertimeDuration = *parseDuration(&in.initOvertimeDuration)
+	out.InitVacationDays = in.initVacationDays
+	out.FirstWorkDay = *parseTimestamp(&in.firstWorkDay)
+	return &out
 }

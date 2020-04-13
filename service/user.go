@@ -27,3 +27,10 @@ func (s *UserService) GetUserById(id int) (*model.User, *e.Error) {
 func (s *UserService) GetUserByUsername(username string) (*model.User, *e.Error) {
 	return s.uRepo.GetUserByUsername(username)
 }
+
+// --- User contract functions ---
+
+// GetUserContractByUserId gets the contract information of a user by its ID.
+func (s *UserService) GetUserContractByUserId(userId int) (*model.UserContract, *e.Error) {
+	return s.uRepo.GetUserContractByUserId(userId)
+}

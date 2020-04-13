@@ -98,7 +98,7 @@ func (i *Initializer) GetAuthController() *controller.AuthController {
 // GetEntryController returns a initialized entry controller object.
 func (i *Initializer) GetEntryController() *controller.EntryController {
 	if i.entryCtrl == nil {
-		i.entryCtrl = controller.NewEntryController(i.GetEntryService())
+		i.entryCtrl = controller.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.entryCtrl
 }

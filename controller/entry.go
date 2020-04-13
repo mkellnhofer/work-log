@@ -50,12 +50,13 @@ type searchEntriesFormInput struct {
 
 // EntryController handles requests for entry endpoints.
 type EntryController struct {
+	uServ *service.UserService
 	eServ *service.EntryService
 }
 
 // NewEntryController creates a new entry controller.
-func NewEntryController(eServ *service.EntryService) *EntryController {
-	return &EntryController{eServ}
+func NewEntryController(uServ *service.UserService, eServ *service.EntryService) *EntryController {
+	return &EntryController{uServ, eServ}
 }
 
 // --- Endpoints ---
@@ -151,6 +152,8 @@ func (c *EntryController) PostSearchHandler() http.HandlerFunc {
 func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
 	// Get current user ID from session
 	userId := getCurrentUserId(r)
+	// Get user contract
+	userContract := c.getUserContract(userId)
 
 	// Get page number, offset and limit
 	pageNum, offset, limit := c.getListPagingParams(r)
@@ -166,7 +169,8 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
-	model := c.createListViewModel(pageNum, cnt, entries, entryTypesMap, entryActivitiesMap)
+	model := c.createListViewModel(userContract, pageNum, cnt, entries, entryTypesMap,
+		entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
 	saveCurrentUrl(r)
@@ -521,9 +525,9 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 
 // --- Viem model converter functions ---
 
-func (c *EntryController) createListViewModel(pageNum int, cnt int, entries []*model.Entry,
-	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity) *vm.
-	ListEntries {
+func (c *EntryController) createListViewModel(userContract *model.UserContract, pageNum int, cnt int,
+	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
 	lesvm := vm.NewListEntries()
 
 	// Calculate previous/next page numbers
@@ -533,7 +537,8 @@ func (c *EntryController) createListViewModel(pageNum int, cnt int, entries []*m
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create work entries
-	lesvm.ListDays = c.createEntriesViewModel(entries, entryTypesMap, entryActivitiesMap, false)
+	lesvm.ListDays = c.createEntriesViewModel(userContract, entries, entryTypesMap, entryActivitiesMap,
+		true)
 
 	return lesvm
 }
@@ -630,21 +635,31 @@ func (c *EntryController) createListSearchViewModel(prevUrl string, query string
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create work entries
-	lesvm.ListDays = c.createEntriesViewModel(entries, entryTypesMap, entryActivitiesMap, true)
+	lesvm.ListDays = c.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)
 
 	return lesvm
 }
 
-func (c *EntryController) createEntriesViewModel(entries []*model.Entry,
-	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
-	ignoreMissingOrOverlapping bool) []*vm.ListDay {
+func (c *EntryController) createEntriesViewModel(userContract *model.UserContract,
+	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity, checkMissingOrOverlapping bool) []*vm.ListDay {
 	ldsvm := make([]*vm.ListDay, 0, pageSize)
+
+	var calcTargetWorkDurationReached bool
+	var targetWorkDuration time.Duration
+
+	// If no user contract was provided: Skip target calculation
+	if userContract != nil {
+		calcTargetWorkDurationReached = true
+		targetWorkDuration = userContract.DailyWorkingDuration
+	}
 
 	var ldvm *vm.ListDay
 	prevDate := ""
 	var prevStartTime *time.Time
 	var totalNetWorkDuration time.Duration
 	var totalBreakDuration time.Duration
+	var wasTargetWorkDurationReached string
 
 	// Create work entries
 	for _, entry := range entries {
@@ -658,6 +673,7 @@ func (c *EntryController) createEntriesViewModel(entries []*model.Entry,
 			// Reset total work and break duration
 			totalNetWorkDuration = 0
 			totalBreakDuration = 0
+			wasTargetWorkDurationReached = ""
 
 			// Create and add new work day
 			ldvm = vm.NewListDay()
@@ -672,9 +688,13 @@ func (c *EntryController) createEntriesViewModel(entries []*model.Entry,
 		netWorkDuration := workDuration - entry.BreakDuration
 		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
 		totalBreakDuration = totalBreakDuration + entry.BreakDuration
+		if calcTargetWorkDurationReached {
+			reached := (totalNetWorkDuration - targetWorkDuration) >= 0
+			wasTargetWorkDurationReached = strconv.FormatBool(reached)
+		}
 
 		// Check for missing or overlapping work entry
-		if !ignoreMissingOrOverlapping {
+		if checkMissingOrOverlapping {
 			if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
 				levm := vm.NewListEntry()
 				levm.IsMissing = true
@@ -700,6 +720,7 @@ func (c *EntryController) createEntriesViewModel(entries []*model.Entry,
 		ldvm.ListEntries = append(ldvm.ListEntries, levm)
 		ldvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
 		ldvm.BreakDuration = view.FormatHours(totalBreakDuration)
+		ldvm.WasTargetWorkDurationReached = wasTargetWorkDurationReached
 	}
 
 	return ldsvm
@@ -1038,6 +1059,14 @@ func parseSearchDate(d string) (time.Time, error) {
 }
 
 // --- Helper functions ---
+
+func (c *EntryController) getUserContract(userId int) *model.UserContract {
+	userContract, gucErr := c.uServ.GetUserContractByUserId(userId)
+	if gucErr != nil {
+		panic(gucErr)
+	}
+	return userContract
+}
 
 func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
 	entry, geErr := c.eServ.GetEntryById(entryId, userId)

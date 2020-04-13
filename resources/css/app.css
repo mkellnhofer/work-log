@@ -120,6 +120,13 @@ h2 {
   margin-bottom: 10px;
 }
 
+.wl-list-day-target-achieved {
+}
+
+.wl-list-day-target-not-achieved {
+  color: #e8ad1e;
+}
+
 .wl-list-table {
   margin-bottom: 30px;
 }

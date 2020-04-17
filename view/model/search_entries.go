@@ -1,6 +1,6 @@
 package model
 
-// SearchEntries stores view data for searching work entries.
+// SearchEntries stores data for the search entries view.
 type SearchEntries struct {
 	PreviousUrl     string
 	ErrorMessage    string

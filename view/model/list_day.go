@@ -1,6 +1,6 @@
 package model
 
-// ListDay stores view data for a work day.
+// ListDay stores view data for a day.
 type ListDay struct {
 	Date                         string
 	Weekday                      string

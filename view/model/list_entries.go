@@ -1,6 +1,6 @@
 package model
 
-// ListEntries stores view data for listing work entries.
+// ListEntries stores data for the list entries view.
 type ListEntries struct {
 	HasPrevPage bool
 	HasNextPage bool

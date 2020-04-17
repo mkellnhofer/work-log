@@ -1,6 +1,6 @@
 package model
 
-// ListSearchEntries stores view data for listing searched work entries.
+// ListSearchEntries stores data for the list search entries view.
 type ListSearchEntries struct {
 	PreviousUrl string
 	Query       string

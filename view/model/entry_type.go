@@ -1,6 +1,6 @@
 package model
 
-// EntryType stores view data for a work entry type.
+// EntryType stores view data for a entry type.
 type EntryType struct {
 	Id          int
 	Description string

@@ -1,6 +1,6 @@
 package model
 
-// CreateEntry stores view data for creating a work entry.
+// CreateEntry stores data for the create entry view.
 type CreateEntry struct {
 	PreviousUrl     string
 	ErrorMessage    string

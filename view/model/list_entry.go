@@ -1,6 +1,6 @@
 package model
 
-// ListEntry stores view data for a work entry.
+// ListEntry stores view data for a entry.
 type ListEntry struct {
 	IsMissing     bool
 	IsOverlapping bool

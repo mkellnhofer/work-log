@@ -1,6 +1,6 @@
 package model
 
-// Entry stores view data of a work entry.
+// Entry stores view data of a entry.
 type Entry struct {
 	Id            int
 	TypeId        int

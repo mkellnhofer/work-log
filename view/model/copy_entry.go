@@ -1,6 +1,6 @@
 package model
 
-// CopyEntry stores view data for copying a work entry.
+// CopyEntry stores data for the copy entry view.
 type CopyEntry struct {
 	PreviousUrl     string
 	ErrorMessage    string

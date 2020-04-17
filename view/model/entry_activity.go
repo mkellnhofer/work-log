@@ -1,6 +1,6 @@
 package model
 
-// EntryActivity stores view data for a work entry activity.
+// EntryActivity stores view data for a entry activity.
 type EntryActivity struct {
 	Id          int
 	Description string

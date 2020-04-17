@@ -1,6 +1,6 @@
 package model
 
-// Login stores login view data.
+// Login stores data for the login view.
 type Login struct {
 	ErrorMessage string
 }

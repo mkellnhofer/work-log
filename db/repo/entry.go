@@ -22,6 +22,12 @@ type dbEntry struct {
 	description   sql.NullString
 }
 
+type dbWorkDuration struct {
+	typeId        int
+	workDuration  int
+	breakDuration int
+}
+
 // EntryRepo retrieves and stores work entry and work entry type records.
 type EntryRepo struct {
 	repo
@@ -547,6 +553,36 @@ func (r *EntryRepo) DeleteEntryActivityById(id int) *e.Error {
 	return nil
 }
 
+// --- Work summary functions ---
+
+// GetWorkSummary gets the work summary for a specific period.
+func (r *EntryRepo) GetWorkSummary(userId int, start time.Time, end time.Time) (*model.WorkSummary,
+	*e.Error) {
+	q := "SELECT type_id, SUM(TIMESTAMPDIFF(MINUTE, start_time , end_time)), SUM(break_duration) " +
+		"FROM entry " +
+		"WHERE user_id = ? " +
+		"AND start_time >= ? AND end_time <= ? " +
+		"GROUP BY type_id"
+
+	sr, qErr := r.query(&scanWorkDurationHelper{}, q, userId, *formatTimestamp(&start),
+		*formatTimestamp(&end))
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query work durations from database.", qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	workDurations := sr.([]*model.WorkDuration)
+
+	workSummary := model.NewWorkSummary()
+	workSummary.UserId = userId
+	workSummary.StartTime = start
+	workSummary.EndTime = end
+	workSummary.WorkDurations = workDurations
+
+	return workSummary, nil
+}
+
 // --- Date range helper functions ---
 
 func (r *EntryRepo) getDateRange(query string, args ...interface{}) (string, string, error) {
@@ -657,6 +693,30 @@ func (h *scanEntryActivityHelper) appendSlice(items interface{}, item interface{
 	return append(items.([]*model.EntryActivity), item.(*model.EntryActivity))
 }
 
+type scanWorkDurationHelper struct {
+}
+
+func (h *scanWorkDurationHelper) makeSlice() interface{} {
+	return make([]*model.WorkDuration, 0, 10)
+}
+
+func (h *scanWorkDurationHelper) scan(s scanner) (interface{}, error) {
+	var dbWd dbWorkDuration
+
+	err := s.Scan(&dbWd.typeId, &dbWd.workDuration, &dbWd.breakDuration)
+	if err != nil {
+		return nil, err
+	}
+
+	workDuration := fromDbWorkDuration(&dbWd)
+
+	return workDuration, nil
+}
+
+func (h *scanWorkDurationHelper) appendSlice(items interface{}, item interface{}) interface{} {
+	return append(items.([]*model.WorkDuration), item.(*model.WorkDuration))
+}
+
 func toDbEntry(in *model.Entry) *dbEntry {
 	var out dbEntry
 	out.id = in.Id
@@ -696,5 +756,21 @@ func fromDbEntry(in *dbEntry) *model.Entry {
 	} else {
 		out.Description = ""
 	}
+	return &out
+}
+
+func toDbWorkDuration(in *model.WorkDuration) *dbWorkDuration {
+	var out dbWorkDuration
+	out.typeId = in.TypeId
+	out.workDuration = *formatDuration(&in.WorkDuration)
+	out.breakDuration = *formatDuration(&in.BreakDuration)
+	return &out
+}
+
+func fromDbWorkDuration(in *dbWorkDuration) *model.WorkDuration {
+	var out model.WorkDuration
+	out.TypeId = in.typeId
+	out.WorkDuration = *parseDuration(&in.workDuration)
+	out.BreakDuration = *parseDuration(&in.breakDuration)
 	return &out
 }

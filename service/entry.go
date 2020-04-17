@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"kellnhofer.com/work-log/db/repo"
 	e "kellnhofer.com/work-log/error"
@@ -253,4 +254,14 @@ func (s *EntryService) checkIfEntryActivityExists(id int) *e.Error {
 		return err
 	}
 	return nil
+}
+
+// --- Work summary functions ---
+
+// GetTotalWorkSummary gets the total work summary.
+func (s *EntryService) GetTotalWorkSummary(userId int) (*model.WorkSummary, *e.Error) {
+	start := time.Time{}
+	now := time.Now()
+	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	return s.eRepo.GetWorkSummary(userId, start, end)
 }

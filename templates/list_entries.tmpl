@@ -8,6 +8,13 @@
       <a class="btn btn-light wl-header-action-button" href="../logout">Abmelden</a>
     </div>
   </div>
+  {{if .Summary -}}
+  <div class="alert alert-primary alert-dismissible wl-list-alert" role="alert">
+    <h2>Arbeitszeitkonto:</h2>
+    <p><span class="nowrap">Überstunden: {{.Summary.OvertimeHours}} Stunden</span> - <span class="nowrap">Resturlaubstage: {{.Summary.RemainingVacationDays}} Tage</span></p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Schließen"><span aria-hidden="true">×</span></button>
+  </div>
+  {{end -}}
   {{if gt (len .Days) 0 -}}
   {{template "entries_list" .}}
   {{else -}}

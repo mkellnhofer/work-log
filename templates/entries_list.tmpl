@@ -1,6 +1,6 @@
 {{define "entries_list" -}}
 {{range .ListDays -}}
-<h2 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - <span {{if eq .WasTargetWorkDurationReached "true" -}}class="wl-list-day-target-achieved"{{else if eq .WasTargetWorkDurationReached "false" -}}class="wl-list-day-target-not-achieved"{{end -}}>{{.WorkDuration}}</span> ({{.BreakDuration}} Pause)</h2>
+<h3 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - <span {{if eq .WasTargetWorkDurationReached "true" -}}class="wl-list-day-target-achieved"{{else if eq .WasTargetWorkDurationReached "false" -}}class="wl-list-day-target-not-achieved"{{end -}}>{{.WorkDuration}}</span> ({{.BreakDuration}} Pause)</h3>
 <div class="table-responsive table-responsive-xl wl-list-table">
   <table class="table table-sm">
     <thead>

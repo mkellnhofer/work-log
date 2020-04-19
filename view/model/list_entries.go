@@ -2,6 +2,7 @@ package model
 
 // ListEntries stores data for the list entries view.
 type ListEntries struct {
+	Summary     *ListEntriesSummary
 	HasPrevPage bool
 	HasNextPage bool
 	PrevPageNum int

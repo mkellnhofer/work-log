@@ -158,6 +158,16 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	// Get page number, offset and limit
 	pageNum, offset, limit := c.getListPagingParams(r)
 
+	// Get work summary (only for first page)
+	var workSummary *model.WorkSummary
+	if pageNum == 1 {
+		var gwsErr *e.Error
+		workSummary, gwsErr = c.eServ.GetTotalWorkSummary(userId)
+		if gwsErr != nil {
+			panic(gwsErr)
+		}
+	}
+
 	// Get work entries
 	entries, cnt, gesErr := c.eServ.GetDateEntries(userId, offset, limit)
 	if gesErr != nil {
@@ -169,7 +179,7 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
-	model := c.createListViewModel(userContract, pageNum, cnt, entries, entryTypesMap,
+	model := c.createListViewModel(userContract, workSummary, pageNum, cnt, entries, entryTypesMap,
 		entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
@@ -268,7 +278,7 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 	// Create view model
 	prevUrl := getPreviousUrl(r)
 	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
-		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getDurationString(
+		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getMinutesString(
 			entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
@@ -347,7 +357,7 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 	prevUrl := getPreviousUrl(r)
 	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
 		getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		getDurationString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
+		getMinutesString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -525,10 +535,14 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 
 // --- Viem model converter functions ---
 
-func (c *EntryController) createListViewModel(userContract *model.UserContract, pageNum int, cnt int,
-	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
+func (c *EntryController) createListViewModel(userContract *model.UserContract,
+	workSummary *model.WorkSummary, pageNum int, cnt int, entries []*model.Entry,
+	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity) *vm.
+	ListEntries {
 	lesvm := vm.NewListEntries()
+
+	// Calculate summary
+	lesvm.Summary = c.createListSummaryViewModel(userContract, workSummary)
 
 	// Calculate previous/next page numbers
 	lesvm.HasPrevPage = pageNum > 1
@@ -541,6 +555,71 @@ func (c *EntryController) createListViewModel(userContract *model.UserContract, 
 		true)
 
 	return lesvm
+}
+
+func (c *EntryController) createListSummaryViewModel(userContract *model.UserContract,
+	workSummary *model.WorkSummary) *vm.ListEntriesSummary {
+	// If no user contract or work summary was provided: Skip calculation
+	if userContract == nil || workSummary == nil {
+		return nil
+	}
+
+	// Calulate durations
+	overtime := c.calculateOvertimeDuration(userContract, workSummary)
+	remainingVacation := c.calculateRemainingVacationDuration(userContract, workSummary)
+
+	// Create summary
+	lessvm := vm.NewListEntriesSummary()
+	lessvm.OvertimeHours = getHoursString(overtime)
+	lessvm.RemainingVacationDays = getDaysString(remainingVacation, userContract.DailyWorkingDuration)
+	return lessvm
+}
+
+func (c *EntryController) calculateOvertimeDuration(userContract *model.UserContract,
+	workSummary *model.WorkSummary) time.Duration {
+	// Calculate work days since first work day
+	start := userContract.FirstWorkDay
+	end := time.Now()
+	workDays := util.CalculateWorkingDays(start, end)
+	log.Verbf("Work days: %s - %s: %d", getDateString(start), getDateString(end), workDays)
+
+	// Calculate target duration
+	targetDuration := time.Duration(workDays) * userContract.DailyWorkingDuration
+	log.Verbf("Target work duration: %.0f min", targetDuration.Minutes())
+
+	// Calculate actual duration
+	var actualDuration time.Duration
+	for _, workDuration := range workSummary.WorkDurations {
+		actualDuration = actualDuration + workDuration.WorkDuration - workDuration.BreakDuration
+	}
+	log.Verbf("Actual work duration: %.0f min", actualDuration.Minutes())
+
+	// Calculate overtime
+	return userContract.InitOvertimeDuration + actualDuration - targetDuration
+}
+
+func (c *EntryController) calculateRemainingVacationDuration(userContract *model.UserContract,
+	workSummary *model.WorkSummary) time.Duration {
+	// Calculate years since first work day
+	years := time.Now().Year() - userContract.FirstWorkDay.Year() + 1
+	log.Verbf("Years: %d", years)
+
+	// Calculate total vacation
+	totalVacationDays := float32(years)*userContract.AnnualVacationDays + userContract.InitVacationDays
+	totalVacation := time.Duration(totalVacationDays) * userContract.DailyWorkingDuration
+	log.Verbf("Total vacation hours: %.0f", totalVacation.Hours())
+
+	// Calculate taken vacation
+	var takenVacation time.Duration
+	for _, workDuration := range workSummary.WorkDurations {
+		if workDuration.TypeId == constant.EntryTypeVacation {
+			takenVacation = takenVacation + workDuration.WorkDuration - workDuration.BreakDuration
+		}
+	}
+	log.Verbf("Taken vacation hours: %.0f", takenVacation.Hours())
+
+	// Calculate remaining vacation
+	return totalVacation - takenVacation
 }
 
 func (c *EntryController) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType,
@@ -1121,7 +1200,22 @@ func getTimeString(t time.Time) string {
 	return t.Format(timeFormat)
 }
 
-func getDurationString(d time.Duration) string {
-	md := d.Round(time.Minute)
-	return fmt.Sprintf("%d", int(md.Minutes()))
+func getMinutesString(d time.Duration) string {
+	rd := d.Round(time.Minute)
+	return fmt.Sprintf("%d", int(rd.Minutes()))
+}
+
+func getHoursString(d time.Duration) string {
+	rd := d.Round(time.Minute)
+	s := fmt.Sprintf("%.2f", rd.Hours())
+	return strings.ReplaceAll(s, ".", ",")
+}
+
+func getDaysString(d time.Duration, wd time.Duration) string {
+	rd := d.Round(time.Hour)
+	h := int(rd.Hours())
+	wh := int(wd.Hours())
+	days := float32(h) / float32(wh)
+	s := fmt.Sprintf("%.1f", days)
+	return strings.ReplaceAll(s, ".", ",")
 }

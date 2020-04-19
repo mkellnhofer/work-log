@@ -19,11 +19,29 @@ h1 {
 }
 
 h2 {
+  font-size: 1.2em;
+}
+
+h3 {
   font-size: 1.0em;
+}
+
+.nowrap {
+  white-space: nowrap;
 }
 
 .inline {
   display: inline-block;
+}
+
+.alert>p {
+  margin-bottom: 2px;
+}
+
+.alert-primary {
+  color: #000000;
+  background-color: transparent;
+  border-color: #d0d0d0;
 }
 
 .form-row {
@@ -106,6 +124,10 @@ h2 {
 
 .wl-form-button {
   margin-right: 10px;
+}
+
+.wl-list-alert {
+  margin-bottom: 25px;
 }
 
 .wl-list-no-entries-label {

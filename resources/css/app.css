@@ -26,6 +26,10 @@ h3 {
   font-size: 1.0em;
 }
 
+.icon {
+  color: #000000;
+}
+
 .nowrap {
   white-space: nowrap;
 }
@@ -94,13 +98,12 @@ h3 {
   margin-bottom: 30px;
 }
 
-.wl-header-back-button img {
-  width: 28px;
-  height: 28px;
-  margin-top: 2px;
-  margin-bottom: 2px;
+.wl-header-back-button {
   margin-right: 12px;
-  vertical-align: top;
+}
+
+.wl-header-back-button i {
+  font-size: 2.0em;
 }
 
 .wl-header h1 {
@@ -188,12 +191,11 @@ h3 {
 }
 
 .wl-list-table-button {
-  padding: 0;
+  padding: 2px 4px;
 }
 
-.wl-list-table-button img {
-  width: 18px;
-  height: 18px;
+.wl-list-table-button i {
+  font-size: 1.2em;
 }
 
 .wl-list-table-text {

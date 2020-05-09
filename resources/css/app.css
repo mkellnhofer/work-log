@@ -67,10 +67,30 @@ h3 {
   padding: 20px;
 }
 
+.wl-login-app-logo {
+  height: 70px;
+  display: block;
+  margin: 0 auto 18px auto;
+}
+
+.wl-login-app-name {
+  display: block;
+  margin: 0 auto 60px auto;
+  text-align: center;
+  font-size: 2.9em;
+  font-weight: 350;
+  letter-spacing: 0.03em;
+}
+
 .wl-login-form {
   width: 100%;
   max-width: 400px;
   margin: auto;
+}
+
+.wl-login-form-title {
+  font-size: 1.8em;
+  font-weight: 400;
 }
 
 .wl-login-form button {

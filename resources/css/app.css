@@ -143,6 +143,17 @@ h3 {
   margin-left: 10px;
 }
 
+.wl-header-action-more {
+  display: inline-block;
+}
+
+.wl-header-action-more>div {
+  top: 45px !important;
+  left: auto !important;
+  right: 0px !important;
+  transform: none !important;
+}
+
 .wl-form-buttons {
   margin-top: 20px;
   margin-bottom: 30px;

@@ -4,8 +4,15 @@
     <h1>Einträge</h1>
     <div class="wl-header-action-buttons">
       <a class="btn btn-primary wl-header-action-button" href="../create">Erstellen</a>
-      <a class="btn btn-light wl-header-action-button" href="../search">Suchen</a>
-      <a class="btn btn-light wl-header-action-button" href="../logout">Abmelden</a>
+      <a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../search">Suchen</a>
+      <a class="btn btn-light wl-header-action-button d-none d-md-inline-block" href="../logout">Abmelden</a>
+      <div class="wl-header-action-more">
+        <button class="btn dropdown-toggle d-md-none" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item d-inline-block d-sm-none" href="../search">Suchen</a>
+          <a class="dropdown-item d-inline-block d-md-none" href="../logout">Abmelden</a>
+        </div>
+      </div>
     </div>
   </div>
   {{if .Summary -}}

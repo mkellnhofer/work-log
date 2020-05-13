@@ -363,6 +363,28 @@ func (r *EntryRepo) buildSearchDateEntriesQueryRestriction(params *model.SearchE
 	return strings.Join(qrs[:], " AND "), qas
 }
 
+// GetMonthEntries retrieves all work entries of a month.
+func (r *EntryRepo) GetMonthEntries(userId int, year int, month int) ([]*model.Entry, *e.Error) {
+	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
+		"description " +
+		"FROM entry " +
+		"WHERE user_id = ? " +
+		"AND YEAR(start_time) = ? AND MONTH(start_time) = ? " +
+		"ORDER BY start_time ASC, end_time ASC"
+
+	sr, qErr := r.query(&scanEntryHelper{}, q, userId, year, month)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query month work entries from database.",
+			qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	entries := sr.([]*model.Entry)
+
+	return entries, nil
+}
+
 // --- Work entry type functions ---
 
 // GetEntryTypes retrieves all work entry types.

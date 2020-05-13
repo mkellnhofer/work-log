@@ -149,6 +149,11 @@ func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntries
 	return entries, cnt, nil
 }
 
+// GetMonthEntries gets all work entries of a month.
+func (s *EntryService) GetMonthEntries(userId int, year int, month int) ([]*model.Entry, *e.Error) {
+	return s.eRepo.GetMonthEntries(userId, year, month)
+}
+
 func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
 	if entry == nil {
 		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find work entry %d.", id))

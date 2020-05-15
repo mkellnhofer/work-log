@@ -8,7 +8,7 @@ type ListSearchEntries struct {
 	HasNextPage bool
 	PrevPageNum int
 	NextPageNum int
-	ListDays    []*ListDay
+	Days        []*ListEntriesDay
 }
 
 // NewListSearchEntries creates a new ListSearchEntries view model.

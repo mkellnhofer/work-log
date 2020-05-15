@@ -1,5 +1,5 @@
 {{define "entries_list" -}}
-{{range .ListDays -}}
+{{range .Days -}}
 <h3 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - <span {{if eq .WasTargetWorkDurationReached "true" -}}class="wl-list-day-target-achieved"{{else if eq .WasTargetWorkDurationReached "false" -}}class="wl-list-day-target-not-achieved"{{end -}}>{{.WorkDuration}}</span> ({{.BreakDuration}} Pause)</h3>
 <div class="table-responsive table-responsive-xl wl-list-table">
   <table class="table table-sm">
@@ -16,7 +16,7 @@
       </tr>
     </thead>
     <tbody>
-      {{range .ListEntries -}}
+      {{range .Entries -}}
       <tr>
         {{if .IsMissing -}}
         <td class="wl-list-table-row-missing" colspan="8"></td>

@@ -551,7 +551,7 @@ func (c *EntryController) createListViewModel(userContract *model.UserContract,
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create work entries
-	lesvm.ListDays = c.createEntriesViewModel(userContract, entries, entryTypesMap, entryActivitiesMap,
+	lesvm.Days = c.createEntriesViewModel(userContract, entries, entryTypesMap, entryActivitiesMap,
 		true)
 
 	return lesvm
@@ -714,15 +714,16 @@ func (c *EntryController) createListSearchViewModel(prevUrl string, query string
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create work entries
-	lesvm.ListDays = c.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)
+	lesvm.Days = c.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)
 
 	return lesvm
 }
 
 func (c *EntryController) createEntriesViewModel(userContract *model.UserContract,
 	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity, checkMissingOrOverlapping bool) []*vm.ListDay {
-	ldsvm := make([]*vm.ListDay, 0, pageSize)
+	entryActivitiesMap map[int]*model.EntryActivity,
+	checkMissingOrOverlapping bool) []*vm.ListEntriesDay {
+	ldsvm := make([]*vm.ListEntriesDay, 0, pageSize)
 
 	var calcTargetWorkDurationReached bool
 	var targetWorkDuration time.Duration
@@ -733,7 +734,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 		targetWorkDuration = userContract.DailyWorkingDuration
 	}
 
-	var ldvm *vm.ListDay
+	var ldvm *vm.ListEntriesDay
 	prevDate := ""
 	var prevStartTime *time.Time
 	var totalNetWorkDuration time.Duration
@@ -755,10 +756,10 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			wasTargetWorkDurationReached = ""
 
 			// Create and add new work day
-			ldvm = vm.NewListDay()
+			ldvm = vm.NewListEntriesDay()
 			ldvm.Date = view.FormatDate(entry.StartTime)
 			ldvm.Weekday = view.FormatWeekday(entry.StartTime)
-			ldvm.ListEntries = make([]*vm.ListEntry, 0, 10)
+			ldvm.Entries = make([]*vm.ListEntry, 0, 10)
 			ldsvm = append(ldsvm, ldvm)
 		}
 
@@ -777,11 +778,11 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
 				levm := vm.NewListEntry()
 				levm.IsMissing = true
-				ldvm.ListEntries = append(ldvm.ListEntries, levm)
+				ldvm.Entries = append(ldvm.Entries, levm)
 			} else if prevStartTime != nil && prevStartTime.Before(entry.EndTime) {
 				levm := vm.NewListEntry()
 				levm.IsOverlapping = true
-				ldvm.ListEntries = append(ldvm.ListEntries, levm)
+				ldvm.Entries = append(ldvm.Entries, levm)
 			}
 		}
 		prevStartTime = &entry.StartTime
@@ -796,7 +797,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 		levm.WorkDuration = view.FormatHours(netWorkDuration)
 		levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
 		levm.Description = entry.Description
-		ldvm.ListEntries = append(ldvm.ListEntries, levm)
+		ldvm.Entries = append(ldvm.Entries, levm)
 		ldvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
 		ldvm.BreakDuration = view.FormatHours(totalBreakDuration)
 		ldvm.WasTargetWorkDurationReached = wasTargetWorkDurationReached

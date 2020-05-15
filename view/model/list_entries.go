@@ -7,7 +7,7 @@ type ListEntries struct {
 	HasNextPage bool
 	PrevPageNum int
 	NextPageNum int
-	ListDays    []*ListDay
+	Days        []*ListEntriesDay
 }
 
 // NewListEntries creates a new ListEntries view model.

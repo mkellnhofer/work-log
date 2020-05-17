@@ -18,6 +18,7 @@ const (
 	ValDescriptionTooLong   = -209
 	ValSearchInvalid        = -210
 	ValSearchQueryInvalid   = -211
+	ValMonthInvalid         = -212
 
 	// Logic errors
 	LogicUnknown                        = -300

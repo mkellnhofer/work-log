@@ -30,6 +30,7 @@ var errorMessages = map[int]string{
 	e.ValDescriptionTooLong:   "Beschreibung darf nicht länger als 200 Zeichen sein!",
 	e.ValSearchInvalid:        "Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)",
 	e.ValSearchQueryInvalid:   "Suchabfrage ungültig!",
+	e.ValMonthInvalid:         "Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)",
 
 	// Logic errors
 	e.LogicUnknown:                        "Ein unbekannter Logikfehler trat auf.",
@@ -69,20 +70,20 @@ func getStringPathVar(r *http.Request, n string) (string, bool) {
 func getIdPathVar(r *http.Request) int {
 	v, ok := getStringPathVar(r, "id")
 	if !ok {
-		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Varible missing.)")
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Variable missing.)")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
 
 	id, pErr := strconv.Atoi(v)
 	if pErr != nil {
-		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (Varible must be numeric.)", pErr)
+		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (Variable must be numeric.)", pErr)
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
 
 	if id <= 0 {
-		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Varible must be positive.)")
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Variable must be positive.)")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
@@ -121,14 +122,14 @@ func getPageNumberQueryParam(r *http.Request) *int {
 
 	page, err := strconv.Atoi(v)
 	if err != nil {
-		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be numeric.)",
+		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Variable must be numeric.)",
 			err)
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
 
 	if page <= 0 {
-		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Varible must be positive.)")
+		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Variable must be positive.)")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
@@ -143,6 +144,37 @@ func getSearchQueryParam(r *http.Request) *string {
 	}
 
 	return &v
+}
+
+func getMonthQueryParam(r *http.Request) (*int, *int) {
+	v, ok := getStringQueryParam(r, "month")
+	if !ok {
+		return nil, nil
+	}
+
+	if len(v) != 6 {
+		err := e.NewError(e.ValMonthInvalid, "Invalid month. (Variable must have length of 6.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	ys := v[0:4]
+	ms := v[4:6]
+
+	y, err := strconv.Atoi(ys)
+	if err != nil {
+		err := e.NewError(e.ValMonthInvalid, "Invalid month. (Year part is invalid.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	m, err := strconv.Atoi(ms)
+	if err != nil || m <= 0 || m > 12 {
+		err := e.NewError(e.ValMonthInvalid, "Invalid month. (Month part invalid.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	return &y, &m
 }
 
 func getCurrentUserId(r *http.Request) int {

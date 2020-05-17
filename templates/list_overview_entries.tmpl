@@ -1,0 +1,74 @@
+{{template "header" .}}
+<div class="wl-container">
+  <div class="wl-header">
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="Zurück"></i></a>
+    <h1>Übersicht</h1>
+  </div>
+  <div class="wl-overview-month-buttons">
+    <a class="btn btn-light" href="overview?month={{.PrevMonth}}">&lt;</a>
+    <span class="wl-overview-month-title">{{.CurrentMonth}}</span>
+    <a class="btn btn-light" href="overview?month={{.NextMonth}}">&gt;</a>
+  </div>
+  <div class="table-responsive table-responsive-xl wl-overview-table">
+    <table class="table table-sm">
+      <thead>
+        <tr class="wl-overview-table-head">
+          <th class="wl-overview-table-column-date" scope="col">Datum</th>
+          <th class="wl-overview-table-column-type" scope="col">Art</th>
+          <th class="wl-overview-table-column-time" scope="col">Start</th>
+          <th class="wl-overview-table-column-time" scope="col">Ende</th>
+          <th class="wl-overview-table-column-time" scope="col">Pause</th>
+          <th class="wl-overview-table-column-time" scope="col">Gesamt</th>
+          <th class="wl-overview-table-column-activity" scope="col">Tätigkeit</th>
+          <th class="wl-overview-table-column-description" scope="col">Beschreibung</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range $di, $day := .Days -}}
+        {{if eq (len $day.Entries) 0 -}}
+        <tr {{if $day.IsWeekendDay}}class="wl-overview-table-row-weekend"{{end}}>
+          <td class="wl-overview-table-text">{{$day.Weekday}} {{$day.Date}}</td>
+          <td class="wl-overview-table-text">-</td>
+          <td class="wl-overview-table-text">-</td>
+          <td class="wl-overview-table-text">-</td>
+          <td class="wl-overview-table-text">-</td>
+          <td class="wl-overview-table-text">-</td>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text"></td>
+        </tr>
+        {{else -}}
+        {{range $ei, $entry := $day.Entries -}}
+        <tr {{if $day.IsWeekendDay}}class="wl-overview-table-row-weekend"{{end}}>
+          {{if eq $ei 0 -}}
+          <td class="wl-overview-table-text">{{$day.Weekday}} {{$day.Date}}</td>
+          {{else -}}
+          <td class="wl-overview-table-text"></td>
+          {{end -}}
+          <td class="wl-overview-table-text">{{$entry.EntryType}}</td>
+          <td class="wl-overview-table-text">{{$entry.StartTime}}</td>
+          <td class="wl-overview-table-text">{{$entry.EndTime}}</td>
+          <td class="wl-overview-table-text">{{$entry.BreakDuration}}</td>
+          <td class="wl-overview-table-text">{{$entry.WorkDuration}}</td>
+          <td class="wl-overview-table-text">{{$entry.EntryActivity}}</td>
+          <td class="wl-overview-table-text">{{$entry.Description}}</td>
+        </tr>
+        {{end -}}
+        {{end -}}
+        {{if gt (len $day.Entries) 1 -}}
+        <tr {{if $day.IsWeekendDay}}class="wl-overview-table-row-weekend"{{end}}>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text">{{$day.BreakDuration}}</td>
+          <td class="wl-overview-table-text">{{$day.WorkDuration}}</td>
+          <td class="wl-overview-table-text"></td>
+          <td class="wl-overview-table-text"></td>
+        </tr>
+        {{end -}}
+        {{end -}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{template "footer" .}}

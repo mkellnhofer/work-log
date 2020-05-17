@@ -1,6 +1,7 @@
 package view
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
@@ -13,6 +14,7 @@ import (
 )
 
 const dateFormat = "02.01.2006"
+const dateFormatShort = "02.01."
 const timeFormat = "15:04"
 
 var weekdays = map[int]string{
@@ -25,13 +27,28 @@ var weekdays = map[int]string{
 	6: "Samstag",
 }
 
+var months = map[int]string{
+	1:  "Januar",
+	2:  "Februar",
+	3:  "März",
+	4:  "April",
+	5:  "Mai",
+	6:  "Juni",
+	7:  "Juli",
+	8:  "August",
+	9:  "September",
+	10: "Oktober",
+	11: "November",
+	12: "Dezember",
+}
+
 var printer = message.NewPrinter(language.German)
 
 var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
 	"templates/error.tmpl", "templates/login.tmpl", "templates/entries_list.tmpl",
 	"templates/list_entries.tmpl", "templates/entry_form.tmpl", "templates/create_entry.tmpl",
 	"templates/edit_entry.tmpl", "templates/copy_entry.tmpl", "templates/search_entries.tmpl",
-	"templates/list_search_entries.tmpl"))
+	"templates/list_search_entries.tmpl", "templates/list_overview_entries.tmpl"))
 
 // --- Render functions ---
 
@@ -75,11 +92,21 @@ func RenderListSearchEntriesTemplate(w http.ResponseWriter, model *model.ListSea
 	renderTemplate(w, "list_search_entries", model)
 }
 
+// RenderListOverviewEntriesTemplate renders the page to overview work entries.
+func RenderListOverviewEntriesTemplate(w http.ResponseWriter, model *model.ListOverviewEntries) {
+	renderTemplate(w, "list_overview_entries", model)
+}
+
 // --- Time formatting functions ---
 
 // FormatDate returns the date string for a time.
 func FormatDate(t time.Time) string {
 	return t.Format(dateFormat)
+}
+
+// FormatShortDate returns the short date string for a time.
+func FormatShortDate(t time.Time) string {
+	return t.Format(dateFormatShort)
 }
 
 // FormatTime returns the time string for a time.
@@ -93,10 +120,22 @@ func FormatWeekday(t time.Time) string {
 	return weekdays[int(wd)]
 }
 
+// FormatShortWeekday returns the shortend weekday string for a time.
+func FormatShortWeekday(t time.Time) string {
+	wd := t.Weekday()
+	d := weekdays[int(wd)]
+	return fmt.Sprintf("%s.", d[0:2])
+}
+
 // FormatHours returns the hours string for a duration.
 func FormatHours(d time.Duration) string {
 	h := d.Hours()
 	return printer.Sprintf("%.2f", h)
+}
+
+// GetMonthName returns the name of a month.
+func GetMonthName(m int) string {
+	return months[m]
 }
 
 // --- Helper functions ---

@@ -147,6 +147,14 @@ func (c *EntryController) PostSearchHandler() http.HandlerFunc {
 	}
 }
 
+// GetOverviewHandler returns a handler for "GET /overview".
+func (c *EntryController) GetOverviewHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle GET /overview.")
+		c.handleShowOverview(w, r)
+	}
+}
+
 // --- List handler functions ---
 
 func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
@@ -533,6 +541,49 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 	view.RenderSearchEntriesTemplate(w, model)
 }
 
+// --- Overview handler functions ---
+
+func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Request) {
+	// Get current user ID from session
+	userId := getCurrentUserId(r)
+
+	// Get year and month
+	year, month := c.getOverviewParams(r)
+
+	// Get work entries
+	entries, gesErr := c.eServ.GetMonthEntries(userId, year, month)
+	if gesErr != nil {
+		panic(gesErr)
+	}
+	// Get work entry types
+	entryTypesMap := c.getEntryTypesMap()
+	// Get work entry activities
+	entryActivitiesMap := c.getEntryActivitiesMap()
+
+	// Create view model
+	prevUrl := getPreviousUrl(r)
+	model := c.createListOverviewViewModel(prevUrl, year, month, entries, entryTypesMap,
+		entryActivitiesMap)
+
+	// Render
+	view.RenderListOverviewEntriesTemplate(w, model)
+}
+
+func (c *EntryController) getOverviewParams(r *http.Request) (int, int) {
+	// Get year and month
+	y, m := getMonthQueryParam(r)
+
+	// Was a year and month provided?
+	if y != nil && m != nil {
+		// Use these
+		return *y, *m
+	} else {
+		// Get current year/month
+		t := time.Now()
+		return t.Year(), int(t.Month())
+	}
+}
+
 // --- Viem model converter functions ---
 
 func (c *EntryController) createListViewModel(userContract *model.UserContract,
@@ -741,11 +792,11 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 	var totalBreakDuration time.Duration
 	var wasTargetWorkDurationReached string
 
-	// Create work entries
+	// Create entries
 	for _, entry := range entries {
 		currDate := getDateString(entry.StartTime)
 
-		// If new day: Create and add new work day
+		// If new day: Create and add new day
 		if prevDate != currDate {
 			prevDate = currDate
 			prevStartTime = nil
@@ -755,7 +806,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			totalBreakDuration = 0
 			wasTargetWorkDurationReached = ""
 
-			// Create and add new work day
+			// Create and add new day
 			ldvm = vm.NewListEntriesDay()
 			ldvm.Date = view.FormatDate(entry.StartTime)
 			ldvm.Weekday = view.FormatWeekday(entry.StartTime)
@@ -773,7 +824,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			wasTargetWorkDurationReached = strconv.FormatBool(reached)
 		}
 
-		// Check for missing or overlapping work entry
+		// Check for missing or overlapping entry
 		if checkMissingOrOverlapping {
 			if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
 				levm := vm.NewListEntry()
@@ -787,7 +838,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 		}
 		prevStartTime = &entry.StartTime
 
-		// Create and add new work entry
+		// Create and add new entry
 		levm := vm.NewListEntry()
 		levm.Id = entry.Id
 		levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
@@ -845,6 +896,112 @@ func (c *EntryController) createEntryActivitiesViewModel(entryActivities []*mode
 
 func (c *EntryController) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
 	return vm.NewEntryActivity(id, description)
+}
+
+func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, month int,
+	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListOverviewEntries {
+	lesvm := vm.NewListOverviewEntries()
+	lesvm.PreviousUrl = prevUrl
+
+	// Get current month name
+	lesvm.CurrentMonth = fmt.Sprintf("%s %d", view.GetMonthName(month), year)
+
+	// Calculate previous/next month
+	var py, pm, ny, nm int
+	if month == 1 {
+		py = year - 1
+		pm = 12
+		ny = year
+		nm = month + 1
+	} else if month == 12 {
+		py = year
+		pm = month - 1
+		ny = year + 1
+		nm = 1
+	} else {
+		py = year
+		pm = month - 1
+		ny = year
+		nm = month + 1
+	}
+	lesvm.PrevMonth = fmt.Sprintf("%d%02d", py, pm)
+	lesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
+
+	// Create work entries
+	lesvm.Days = c.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
+		entryActivitiesMap)
+
+	return lesvm
+}
+
+func (c *EntryController) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,
+	entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) []*vm.ListOverviewEntriesDay {
+	ldsvm := make([]*vm.ListOverviewEntriesDay, 0, 31)
+
+	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+
+	// Create days
+	entryIndex := 0
+	for {
+		// Create and add new day
+		ldvm := vm.NewListOverviewEntriesDay()
+		ldvm.Date = view.FormatShortDate(curDate)
+		ldvm.Weekday = view.FormatShortWeekday(curDate)
+		ldvm.IsWeekendDay = curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday
+		ldvm.Entries = make([]*vm.ListOverviewEntry, 0, 10)
+		ldsvm = append(ldsvm, ldvm)
+
+		// Create entries
+		var dailyBreakDuration, dailyNetWorkDuration time.Duration
+		for {
+			// If there are no entries: Abort (No entries exist for this day)
+			if len(entries) == 0 || len(entries) == entryIndex {
+				break
+			}
+			// Get entry
+			entry := entries[entryIndex]
+			entryDate := entry.StartTime
+			// If entry does not match: Abort (All enties have been added for this day)
+			_, _, cd := curDate.Date()
+			_, _, ed := entryDate.Date()
+			if cd != ed {
+				break
+			}
+
+			// Calculate work duration
+			workDuration := entry.EndTime.Sub(entry.StartTime)
+			netWorkDuration := workDuration - entry.BreakDuration
+			dailyNetWorkDuration = dailyNetWorkDuration + netWorkDuration
+			dailyBreakDuration = dailyBreakDuration + entry.BreakDuration
+
+			// Create and add new entry
+			levm := vm.NewListOverviewEntry()
+			levm.Id = entry.Id
+			levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
+			levm.StartTime = view.FormatTime(entry.StartTime)
+			levm.EndTime = view.FormatTime(entry.EndTime)
+			levm.BreakDuration = view.FormatHours(entry.BreakDuration)
+			levm.WorkDuration = view.FormatHours(netWorkDuration)
+			levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
+			levm.Description = entry.Description
+			ldvm.Entries = append(ldvm.Entries, levm)
+
+			// Update entry index
+			entryIndex++
+		}
+		ldvm.BreakDuration = view.FormatHours(dailyBreakDuration)
+		ldvm.WorkDuration = view.FormatHours(dailyNetWorkDuration)
+
+		// If next month is reached: Abort
+		curDate = curDate.Add(24 * time.Hour)
+		if curDate.Month() != time.Month(month) {
+			break
+		}
+	}
+
+	return ldsvm
 }
 
 // --- Paging functions ---

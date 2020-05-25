@@ -9,6 +9,52 @@
     <span class="wl-overview-month-title">{{.CurrentMonth}}</span>
     <a class="btn btn-light" href="overview?month={{.NextMonth}}">&gt;</a>
   </div>
+  <h2 class="wl-overview-summary-table-title">Zusammenfassung:</h2>
+  <div class="table-responsive table-responsive-xl wl-overview-summary-table">
+    <table class="table table-sm">
+      <tr>
+        <th class="wl-overview-summary-table-label">Soll:</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.TargetHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">Ist:</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">Saldo:</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.BalanceHours}} Stunden</td>
+      </tr>
+    </table>
+  </div>
+  <div class="table-responsive table-responsive-xl wl-overview-summary-table">
+    <table class="table table-sm">
+      <tr>
+        <th class="wl-overview-summary-table-label">{{.Summary.WorkDescription}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualWorkHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">{{.Summary.TravelDescription}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualTravelHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">{{.Summary.VacationDescription}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualVacationHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">{{.Summary.HolidayDescription}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHolidayHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label">{{.Summary.IllnessDescription}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualIllnessHours}} Stunden</td>
+      </tr>
+      <tr>
+        <th class="wl-overview-summary-table-label"></th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}} Stunden</td>
+      </tr>
+    </table>
+  </div>
+  <h2 class="wl-overview-table-title">Einträge:</h2>
   <div class="table-responsive table-responsive-xl wl-overview-table">
     <table class="table table-sm">
       <thead>
@@ -18,7 +64,7 @@
           <th class="wl-overview-table-column-time" scope="col">Start</th>
           <th class="wl-overview-table-column-time" scope="col">Ende</th>
           <th class="wl-overview-table-column-time" scope="col">Pause</th>
-          <th class="wl-overview-table-column-time" scope="col">Gesamt</th>
+          <th class="wl-overview-table-column-time" scope="col">Netto</th>
           <th class="wl-overview-table-column-activity" scope="col">Tätigkeit</th>
           <th class="wl-overview-table-column-description" scope="col">Beschreibung</th>
         </tr>

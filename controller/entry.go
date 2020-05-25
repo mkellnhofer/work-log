@@ -546,6 +546,8 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Request) {
 	// Get current user ID from session
 	userId := getCurrentUserId(r)
+	// Get user contract
+	userContract := c.getUserContract(userId)
 
 	// Get year and month
 	year, month := c.getOverviewParams(r)
@@ -562,8 +564,8 @@ func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Requ
 
 	// Create view model
 	prevUrl := getPreviousUrl(r)
-	model := c.createListOverviewViewModel(prevUrl, year, month, entries, entryTypesMap,
-		entryActivitiesMap)
+	model := c.createListOverviewViewModel(prevUrl, year, month, userContract, entries,
+		entryTypesMap, entryActivitiesMap)
 
 	// Render
 	view.RenderListOverviewEntriesTemplate(w, model)
@@ -899,7 +901,7 @@ func (c *EntryController) createEntryActivityViewModel(id int, description strin
 }
 
 func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, month int,
-	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	userContract *model.UserContract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListOverviewEntries {
 	lesvm := vm.NewListOverviewEntries()
 	lesvm.PreviousUrl = prevUrl
@@ -928,11 +930,67 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 	lesvm.PrevMonth = fmt.Sprintf("%d%02d", py, pm)
 	lesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
 
+	// Calculate summary
+	lesvm.Summary = c.createOverviewSummaryViewModel(year, month, userContract, entries,
+		entryTypesMap)
+
 	// Create work entries
 	lesvm.Days = c.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
 		entryActivitiesMap)
 
 	return lesvm
+}
+
+func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
+	userContract *model.UserContract, entries []*model.Entry,
+	entryTypesMap map[int]*model.EntryType) *vm.ListOverviewEntriesSummary {
+
+	// Calculate type durations
+	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
+	for _, entry := range entries {
+		workDuration := entry.EndTime.Sub(entry.StartTime)
+		netWorkDuration := workDuration - entry.BreakDuration
+
+		switch entry.TypeId {
+		case constant.EntryTypeWork:
+			actWork = actWork + netWorkDuration
+		case constant.EntryTypeTravel:
+			actTrav = actTrav + netWorkDuration
+		case constant.EntryTypeVacation:
+			actVaca = actVaca + netWorkDuration
+		case constant.EntryTypeHoliday:
+			actHoli = actHoli + netWorkDuration
+		case constant.EntryTypeIllness:
+			actIlln = actIlln + netWorkDuration
+		}
+	}
+
+	// Calculate days
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+	end := start.AddDate(0, 1, 0)
+	workDays := util.CalculateWorkingDays(start, end)
+
+	// Calculate target, actual and balance durations
+	var tar time.Duration = time.Duration(workDays) * userContract.DailyWorkingDuration
+	var act time.Duration = actWork + actTrav + actVaca + actHoli + actIlln
+	var bal time.Duration = act - tar
+
+	// Create summary
+	lessvm := vm.NewListOverviewEntriesSummary()
+	lessvm.WorkDescription = entryTypesMap[constant.EntryTypeWork].Description
+	lessvm.TravelDescription = entryTypesMap[constant.EntryTypeTravel].Description
+	lessvm.VacationDescription = entryTypesMap[constant.EntryTypeVacation].Description
+	lessvm.HolidayDescription = entryTypesMap[constant.EntryTypeHoliday].Description
+	lessvm.IllnessDescription = entryTypesMap[constant.EntryTypeIllness].Description
+	lessvm.ActualWorkHours = getHoursString(actWork)
+	lessvm.ActualTravelHours = getHoursString(actTrav)
+	lessvm.ActualVacationHours = getHoursString(actVaca)
+	lessvm.ActualHolidayHours = getHoursString(actHoli)
+	lessvm.ActualIllnessHours = getHoursString(actIlln)
+	lessvm.TargetHours = getHoursString(tar)
+	lessvm.ActualHours = getHoursString(act)
+	lessvm.BalanceHours = getHoursString(bal)
+	return lessvm
 }
 
 func (c *EntryController) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,

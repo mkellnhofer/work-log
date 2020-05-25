@@ -6,6 +6,7 @@ type ListOverviewEntries struct {
 	CurrentMonth string
 	PrevMonth    string
 	NextMonth    string
+	Summary      *ListOverviewEntriesSummary
 	Days         []*ListOverviewEntriesDay
 }
 

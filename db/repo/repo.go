@@ -167,6 +167,18 @@ func queryRowInternal(db database, sh scanHelper, query string, args ...interfac
 	return sr, nil
 }
 
+func (r *repo) queryValue(value interface{}, query string, args ...interface{}) error {
+	return queryValueInternal(r.db, value, query, args...)
+}
+
+func (r *repo) queryValueWithTx(tx *sql.Tx, value interface{}, query string, args ...interface{}) error {
+	return queryValueInternal(tx, value, query, args...)
+}
+
+func queryValueInternal(db database, value interface{}, query string, args ...interface{}) error {
+	return db.QueryRow(query, args...).Scan(value)
+}
+
 func (r *repo) insert(query string, args ...interface{}) (int, error) {
 	return insertInternal(r.db, query, args...)
 }

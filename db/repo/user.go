@@ -3,6 +3,7 @@ package repo
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
@@ -135,6 +136,119 @@ func (r *UserRepo) DeleteUserById(id int) *e.Error {
 		return err
 	}
 
+	return nil
+}
+
+// --- User settings functions ---
+
+// GetUserIntSetting retrieves a integer setting of a user.
+func (r *UserRepo) GetUserIntSetting(userId int, key string) (int, *e.Error) {
+	v, qErr := r.GetUserStringSetting(userId, key)
+	if qErr != nil {
+		return 0, qErr
+	}
+
+	value, cErr := strconv.Atoi(v)
+	if cErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user setting '%s' for "+
+			"user %d from database.", key, userId), cErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+	return value, nil
+}
+
+// CreateUserIntSetting creates a integer setting for a user.
+func (r *UserRepo) CreateUserIntSetting(userId int, key string, value int) *e.Error {
+	return r.CreateUserStringSetting(userId, key, strconv.Itoa(value))
+}
+
+// UpdateUserIntSetting updates a integer setting of a user.
+func (r *UserRepo) UpdateUserIntSetting(userId int, key string, value int) *e.Error {
+	return r.UpdateUserStringSetting(userId, key, strconv.Itoa(value))
+}
+
+// GetUserBoolSetting retrieves a boolean setting of a user.
+func (r *UserRepo) GetUserBoolSetting(userId int, key string) (bool, *e.Error) {
+	v, qErr := r.GetUserStringSetting(userId, key)
+	if qErr != nil {
+		return false, qErr
+	}
+	if v == "true" {
+		return true, nil
+	} else if v == "false" {
+		return false, nil
+	} else {
+		err := e.NewError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user setting '%s' for "+
+			"user %d from database.", key, userId))
+		log.Error(err.StackTrace())
+		return false, err
+	}
+}
+
+// CreateUserBoolSetting creates a boolean setting for a user.
+func (r *UserRepo) CreateUserBoolSetting(userId int, key string, value bool) *e.Error {
+	var v string
+	if value {
+		v = "true"
+	} else {
+		v = "false"
+	}
+	return r.CreateUserStringSetting(userId, key, v)
+}
+
+// UpdateUserBoolSetting updates a boolean setting of a user.
+func (r *UserRepo) UpdateUserBoolSetting(userId int, key string, value bool) *e.Error {
+	var v string
+	if value {
+		v = "true"
+	} else {
+		v = "false"
+	}
+	return r.UpdateUserStringSetting(userId, key, v)
+}
+
+// GetUserStringSetting retrieves a string setting of a user.
+func (r *UserRepo) GetUserStringSetting(userId int, key string) (string, *e.Error) {
+	q := "SELECT setting_value FROM user_setting WHERE user_id = ? AND " +
+		"setting_key = ?"
+
+	var value string
+	qErr := r.queryValue(&value, q, userId, key)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user setting '%s' for "+
+			"user %d from database.", key, userId), qErr)
+		log.Error(err.StackTrace())
+		return "", err
+	}
+	return value, nil
+}
+
+// CreateUserStringSetting creates a string setting for a user.
+func (r *UserRepo) CreateUserStringSetting(userId int, key string, value string) *e.Error {
+	q := "INSERT INTO user_setting (user_id, setting_key, setting_value) VALUES (?, ?, ?)"
+
+	_, cErr := r.insert(q, userId, key, value)
+	if cErr != nil {
+		err := e.WrapError(e.SysDbInsertFailed, fmt.Sprintf("Could not create user setting '%s' "+
+			"for user %d in database.", key, userId), cErr)
+		log.Error(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+// UpdateUserStringSetting updates a string setting of a user.
+func (r *UserRepo) UpdateUserStringSetting(userId int, key string, value string) *e.Error {
+	q := "UPDATE user_setting SET setting_value = ? WHERE user_id = ? AND setting_key = ?"
+
+	uErr := r.exec(q, value, userId, key)
+	if uErr != nil {
+		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user setting '%s' "+
+			"for user %d in database.", key, userId), uErr)
+		log.Error(err.StackTrace())
+		return err
+	}
 	return nil
 }
 

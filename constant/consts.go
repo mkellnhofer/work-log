@@ -17,6 +17,8 @@ const (
 
 	PathDefault string = "/list"
 
+	SettingKeyShowOverviewDetails string = "show_overview_details"
+
 	EntryTypeWork     int = 1
 	EntryTypeTravel   int = 2
 	EntryTypeVacation int = 3

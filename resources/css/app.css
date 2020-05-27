@@ -61,6 +61,16 @@ h3 {
   padding-right: 10px;
 }
 
+.checkbox {
+  width: 16px;
+  height: 16px;
+}
+
+.checkbox-label {
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
 .wl-login-container {
   height: 100%;
   display: flex;

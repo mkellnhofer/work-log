@@ -10,7 +10,7 @@
   <form action="/search" method="POST">
     <div class="form-row">
       <div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
-        <input type="checkbox" name="by-type" {{if .ByType}}checked{{end}}>
+        <input class="checkbox" name="by-type" type="checkbox" {{if .ByType}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-4 col-md-3 col-xl-3">
         <label for="type">Art:</label>
@@ -23,7 +23,7 @@
     </div>
     <div class="form-row">
       <div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
-        <input type="checkbox" name="by-date" {{if .ByDate}}checked{{end}}>
+        <input class="checkbox" name="by-date" type="checkbox" {{if .ByDate}}checked{{end}}>
       </div>
       <div class="form-group col-5 col-sm-4 col-md-3 col-xl-3">
         <label for="start-date">Von:</label>
@@ -36,7 +36,7 @@
     </div>
     <div class="form-row">
       <div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
-        <input type="checkbox" name="by-activity" {{if .ByActivity}}checked{{end}}>
+        <input class="checkbox" name="by-activity" type="checkbox" {{if .ByActivity}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-4 col-md-3 col-xl-3">
         <label for="activity">Tätigkeit:</label>
@@ -49,7 +49,7 @@
     </div>
     <div class="form-row">
       <div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
-        <input type="checkbox" name="by-description" {{if .ByDescription}}checked{{end}}>
+        <input class="checkbox" name="by-description" type="checkbox" {{if .ByDescription}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-87 col-md-9 col-xl-9">
         <label for="description">Beschreibung:</label>

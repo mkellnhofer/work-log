@@ -75,6 +75,10 @@ func getIdPathVar(r *http.Request) int {
 		panic(err)
 	}
 
+	return parseIdParam(v)
+}
+
+func parseIdParam(v string) int {
 	id, pErr := strconv.Atoi(v)
 	if pErr != nil {
 		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (Variable must be numeric.)", pErr)
@@ -106,6 +110,10 @@ func getErrorCodeQueryParam(r *http.Request) *int {
 		return nil
 	}
 
+	return parseErrorCodeParam(v)
+}
+
+func parseErrorCodeParam(v string) *int {
 	ec, err := strconv.Atoi(v)
 	if err != nil {
 		panic(err)
@@ -120,6 +128,10 @@ func getPageNumberQueryParam(r *http.Request) *int {
 		return nil
 	}
 
+	return parsePageNumberParam(v)
+}
+
+func parsePageNumberParam(v string) *int {
 	page, err := strconv.Atoi(v)
 	if err != nil {
 		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Variable must be numeric.)",
@@ -152,6 +164,10 @@ func getMonthQueryParam(r *http.Request) (*int, *int) {
 		return nil, nil
 	}
 
+	return parseMonthParam(v)
+}
+
+func parseMonthParam(v string) (*int, *int) {
 	if len(v) != 6 {
 		err := e.NewError(e.ValMonthInvalid, "Invalid month. (Variable must have length of 6.)")
 		log.Debug(err.StackTrace())

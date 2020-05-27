@@ -307,7 +307,18 @@ h3 {
 }
 
 .wl-overview-table-title {
-  margin-bottom: 20px;
+  position: relative;
+  margin-bottom: 50px;
+}
+
+.wl-overview-table-title h2 {
+  position: absolute;
+  left: 0;
+}
+
+.wl-overview-table-title form {
+  position: absolute;
+  right: 0;
 }
 
 .wl-overview-table {

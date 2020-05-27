@@ -48,6 +48,11 @@ type searchEntriesFormInput struct {
 	description   string
 }
 
+type overviewFormInput struct {
+	month       string
+	showDetails string
+}
+
 // EntryController handles requests for entry endpoints.
 type EntryController struct {
 	uServ *service.UserService
@@ -152,6 +157,14 @@ func (c *EntryController) GetOverviewHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Verb("Handle GET /overview.")
 		c.handleShowOverview(w, r)
+	}
+}
+
+// PostOverviewHandler returns a handler for "POST /overview".
+func (c *EntryController) PostOverviewHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle POST /overview.")
+		c.handleExecuteOverviewChange(w, r)
 	}
 }
 
@@ -549,6 +562,12 @@ func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Requ
 	// Get user contract
 	userContract := c.getUserContract(userId)
 
+	// Get user setting
+	showDetails, gusErr := c.uServ.GetSettingShowOverviewDetails(userId)
+	if gusErr != nil {
+		panic(gusErr)
+	}
+
 	// Get year and month
 	year, month := c.getOverviewParams(r)
 
@@ -565,7 +584,7 @@ func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Requ
 	// Create view model
 	prevUrl := getPreviousUrl(r)
 	model := c.createListOverviewViewModel(prevUrl, year, month, userContract, entries,
-		entryTypesMap, entryActivitiesMap)
+		entryTypesMap, entryActivitiesMap, showDetails)
 
 	// Render
 	view.RenderListOverviewEntriesTemplate(w, model)
@@ -584,6 +603,24 @@ func (c *EntryController) getOverviewParams(r *http.Request) (int, int) {
 		t := time.Now()
 		return t.Year(), int(t.Month())
 	}
+}
+
+func (c *EntryController) handleExecuteOverviewChange(w http.ResponseWriter, r *http.Request) {
+	// Get current user ID from session
+	userId := getCurrentUserId(r)
+
+	// Get form inputs
+	input := c.getOverviewFormInput(r)
+
+	// Validate month param
+	parseMonthParam(input.month)
+
+	// Update user setting
+	showDetails := input.showDetails == "on"
+	c.uServ.UpdateSettingShowOverviewDetails(userId, showDetails)
+
+	// Redirect
+	http.Redirect(w, r, "/overview?month="+input.month, http.StatusFound)
 }
 
 // --- Viem model converter functions ---
@@ -902,12 +939,12 @@ func (c *EntryController) createEntryActivityViewModel(id int, description strin
 
 func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, month int,
 	userContract *model.UserContract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListOverviewEntries {
+	entryActivitiesMap map[int]*model.EntryActivity, showDetails bool) *vm.ListOverviewEntries {
 	lesvm := vm.NewListOverviewEntries()
 	lesvm.PreviousUrl = prevUrl
 
 	// Get current month name
-	lesvm.CurrentMonth = fmt.Sprintf("%s %d", view.GetMonthName(month), year)
+	lesvm.CurrMonthName = fmt.Sprintf("%s %d", view.GetMonthName(month), year)
 
 	// Calculate previous/next month
 	var py, pm, ny, nm int
@@ -927,6 +964,7 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 		ny = year
 		nm = month + 1
 	}
+	lesvm.CurrMonth = fmt.Sprintf("%d%02d", year, month)
 	lesvm.PrevMonth = fmt.Sprintf("%d%02d", py, pm)
 	lesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
 
@@ -935,8 +973,9 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 		entryTypesMap)
 
 	// Create work entries
+	lesvm.ShowDetails = showDetails
 	lesvm.Days = c.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
-		entryActivitiesMap)
+		entryActivitiesMap, showDetails)
 
 	return lesvm
 }
@@ -994,8 +1033,8 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 }
 
 func (c *EntryController) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,
-	entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) []*vm.ListOverviewEntriesDay {
+	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
+	showDetails bool) []*vm.ListOverviewEntriesDay {
 	ldsvm := make([]*vm.ListOverviewEntriesDay, 0, 31)
 
 	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
@@ -1012,7 +1051,10 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 		ldsvm = append(ldsvm, ldvm)
 
 		// Create entries
+		var colBreakDuration, colNetWorkDuration time.Duration
 		var dailyBreakDuration, dailyNetWorkDuration time.Duration
+		preEntryTypeId := 0
+		var levm *vm.ListOverviewEntry
 		for {
 			// If there are no entries: Abort (No entries exist for this day)
 			if len(entries) == 0 || len(entries) == entryIndex {
@@ -1021,30 +1063,57 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 			// Get entry
 			entry := entries[entryIndex]
 			entryDate := entry.StartTime
-			// If entry does not match: Abort (All enties have been added for this day)
+			// If entry date does not match: Abort (All enties have been added for this day)
 			_, _, cd := curDate.Date()
 			_, _, ed := entryDate.Date()
 			if cd != ed {
+				colBreakDuration = 0
+				colNetWorkDuration = 0
+				preEntryTypeId = 0
 				break
+			}
+
+			// Reset collected break and net work duration
+			if entry.TypeId != preEntryTypeId {
+				colBreakDuration = 0
+				colNetWorkDuration = 0
 			}
 
 			// Calculate work duration
 			workDuration := entry.EndTime.Sub(entry.StartTime)
 			netWorkDuration := workDuration - entry.BreakDuration
-			dailyNetWorkDuration = dailyNetWorkDuration + netWorkDuration
+			colBreakDuration = colBreakDuration + entry.BreakDuration
+			colNetWorkDuration = colNetWorkDuration + netWorkDuration
 			dailyBreakDuration = dailyBreakDuration + entry.BreakDuration
+			dailyNetWorkDuration = dailyNetWorkDuration + netWorkDuration
 
 			// Create and add new entry
-			levm := vm.NewListOverviewEntry()
-			levm.Id = entry.Id
-			levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-			levm.StartTime = view.FormatTime(entry.StartTime)
-			levm.EndTime = view.FormatTime(entry.EndTime)
-			levm.BreakDuration = view.FormatHours(entry.BreakDuration)
-			levm.WorkDuration = view.FormatHours(netWorkDuration)
-			levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
-			levm.Description = entry.Description
-			ldvm.Entries = append(ldvm.Entries, levm)
+			if showDetails {
+				levm = vm.NewListOverviewEntry()
+				levm.Id = entry.Id
+				levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
+				levm.StartTime = view.FormatTime(entry.StartTime)
+				levm.EndTime = view.FormatTime(entry.EndTime)
+				levm.BreakDuration = view.FormatHours(entry.BreakDuration)
+				levm.WorkDuration = view.FormatHours(netWorkDuration)
+				levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
+				levm.Description = entry.Description
+				ldvm.Entries = append(ldvm.Entries, levm)
+			} else {
+				if entry.TypeId != preEntryTypeId {
+					levm = vm.NewListOverviewEntry()
+					levm.Id = entry.Id
+					levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
+					levm.StartTime = view.FormatTime(entry.StartTime)
+					ldvm.Entries = append(ldvm.Entries, levm)
+				}
+				levm.EndTime = view.FormatTime(entry.EndTime)
+				levm.BreakDuration = view.FormatHours(colBreakDuration)
+				levm.WorkDuration = view.FormatHours(colNetWorkDuration)
+			}
+
+			// Update previous entry type ID
+			preEntryTypeId = entry.TypeId
 
 			// Update entry index
 			entryIndex++
@@ -1104,6 +1173,13 @@ func (c *EntryController) getSearchEntriesFormInput(r *http.Request) *searchEntr
 	i.activityId = r.FormValue("activity")
 	i.byDescription = r.FormValue("by-description")
 	i.description = r.FormValue("description")
+	return &i
+}
+
+func (c *EntryController) getOverviewFormInput(r *http.Request) *overviewFormInput {
+	i := overviewFormInput{}
+	i.month = r.FormValue("month")
+	i.showDetails = r.FormValue("show-details")
 	return &i
 }
 

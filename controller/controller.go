@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -218,5 +220,21 @@ func getPreviousUrl(r *http.Request) string {
 		return s.PreviousUrl
 	} else {
 		return constant.PathDefault
+	}
+}
+
+func writeFile(w http.ResponseWriter, fileName string, wt io.WriterTo) {
+	// Write header
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Transfer-Encoding", "binary")
+	w.Header().Set("Expires", "0")
+
+	// Write body
+	_, wErr := wt.WriteTo(w)
+	if wErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not write response.", wErr)
+		log.Debug(err.StackTrace())
+		panic(err)
 	}
 }

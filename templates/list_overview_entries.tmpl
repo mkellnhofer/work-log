@@ -3,6 +3,9 @@
   <div class="wl-header">
     <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="Zurück"></i></a>
     <h1>Übersicht</h1>
+    <div class="wl-header-action-buttons">
+      <a class="btn btn-primary wl-header-action-button" href="overview/export?month={{.CurrMonth}}">Exportieren</a>
+    </div>
   </div>
   <div class="wl-overview-month-buttons">
     <a class="btn btn-light" href="overview?month={{.PrevMonth}}">&lt;</a>

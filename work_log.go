@@ -65,6 +65,8 @@ func main() {
 	addEndpoint(router, proRoute, "POST", "/search", init.GetEntryController().PostSearchHandler())
 	addEndpoint(router, proRoute, "GET", "/overview", init.GetEntryController().GetOverviewHandler())
 	addEndpoint(router, proRoute, "POST", "/overview", init.GetEntryController().PostOverviewHandler())
+	addEndpoint(router, proRoute, "GET", "/overview/export",
+		init.GetEntryController().GetOverviewExportHandler())
 	// Add resource endpoints
 	fileSrv := http.FileServer(http.Dir("./resources"))
 	router.Handle("/css/{name}", fileSrv).Methods("GET")

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/360EntSecGroup-Skylar/excelize/v2"
+
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
@@ -165,6 +167,14 @@ func (c *EntryController) PostOverviewHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Verb("Handle POST /overview.")
 		c.handleExecuteOverviewChange(w, r)
+	}
+}
+
+// GetOverviewExportHandler returns a handler for "GET /overview/export".
+func (c *EntryController) GetOverviewExportHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Verb("Handle GET /overview/export.")
+		c.handleExportOverview(w, r)
 	}
 }
 
@@ -557,6 +567,26 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 // --- Overview handler functions ---
 
 func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Request) {
+	// Get view data
+	model := c.getOverviewViewData(r)
+
+	// Render
+	view.RenderListOverviewEntriesTemplate(w, model)
+}
+
+func (c *EntryController) handleExportOverview(w http.ResponseWriter, r *http.Request) {
+	// Get view data
+	model := c.getOverviewViewData(r)
+
+	// Create file
+	fileName := fmt.Sprintf("work-log-export-%s.xlsx", model.CurrMonth)
+	file := exportOverviewEntries(model)
+
+	// Write file
+	writeFile(w, fileName, file)
+}
+
+func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewEntries {
 	// Get current user ID from session
 	userId := getCurrentUserId(r)
 	// Get user contract
@@ -586,8 +616,7 @@ func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Requ
 	model := c.createListOverviewViewModel(prevUrl, year, month, userContract, entries,
 		entryTypesMap, entryActivitiesMap, showDetails)
 
-	// Render
-	view.RenderListOverviewEntriesTemplate(w, model)
+	return model
 }
 
 func (c *EntryController) getOverviewParams(r *http.Request) (int, int) {
@@ -1427,6 +1456,179 @@ func formatSearchDate(d time.Time) string {
 
 func parseSearchDate(d string) (time.Time, error) {
 	return time.Parse(searchDateTimeFormat, d)
+}
+
+// --- Export functions ---
+
+func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.File {
+	f := excelize.NewFile()
+
+	// Configure work book
+	now := time.Now()
+	f.SetDocProps(&excelize.DocProperties{
+		Created:        now.Format(time.RFC3339),
+		Creator:        "Work Log",
+		Modified:       now.Format(time.RFC3339),
+		LastModifiedBy: "Work Log",
+		Title:          "Work Log Export - " + overviewEntries.CurrMonthName,
+		Description:    "This file created by Work Log.",
+		Language:       "de-DE",
+	})
+
+	sheet := "Sheet1"
+
+	// Create default style
+	styleDefault, _ := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Vertical: "top", Horizontal: "left", WrapText: true},
+		Font:      &excelize.Font{Size: 10},
+	})
+
+	// Create text styles
+	styleTitle, _ := f.NewStyle(&excelize.Style{Font: &excelize.Font{Size: 14, Bold: true}})
+	styleTextBold, _ := f.NewStyle(&excelize.Style{Font: &excelize.Font{Size: 10, Bold: true}})
+
+	// Creat tables styles
+	borderLeft := excelize.Border{Type: "left", Style: 1, Color: "000000"}
+	borderRight := excelize.Border{Type: "right", Style: 1, Color: "000000"}
+	borderTop := excelize.Border{Type: "top", Style: 1, Color: "000000"}
+	borderBottom := excelize.Border{Type: "bottom", Style: 1, Color: "000000"}
+	fill := excelize.Fill{Type: "pattern", Pattern: 1, Color: []string{"EFEFEF"}}
+	styleTableHeader, _ := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Vertical: "top", Horizontal: "left", WrapText: true},
+		Font:      &excelize.Font{Size: 10, Bold: true},
+		Border:    []excelize.Border{borderLeft, borderRight, borderTop, borderBottom},
+		Fill:      fill,
+	})
+	styleTableBody, _ := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Vertical: "top", Horizontal: "left", WrapText: true},
+		Font:      &excelize.Font{Size: 10},
+		Border:    []excelize.Border{borderLeft, borderRight, borderTop, borderBottom},
+	})
+	styleTableBodyAlignmentRight, _ := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{Vertical: "top", Horizontal: "right", WrapText: true},
+		Font:      &excelize.Font{Size: 10},
+		Border:    []excelize.Border{borderLeft, borderRight, borderTop, borderBottom},
+	})
+
+	// Configure work sheet
+	f.SetColWidth(sheet, "A", "A", 12)
+	f.SetColWidth(sheet, "B", "B", 10.5)
+	f.SetColWidth(sheet, "C", "F", 7.5)
+	f.SetColWidth(sheet, "G", "G", 16.5)
+	f.SetColWidth(sheet, "H", "H", 42)
+	f.SetColStyle(sheet, "A:H", styleDefault)
+
+	// Write title
+	f.MergeCell(sheet, "A1", "H1")
+	f.MergeCell(sheet, "A2", "H2")
+	f.MergeCell(sheet, "A3", "H3")
+	f.SetCellValue(sheet, "A1", "Work Log Export")
+	f.SetCellValue(sheet, "A2", overviewEntries.CurrMonthName)
+	f.SetCellStyle(sheet, "A1", "A1", styleTitle)
+	f.SetCellStyle(sheet, "A2", "A2", styleTextBold)
+
+	// Write summary
+	f.MergeCell(sheet, "A4", "H4")
+	f.MergeCell(sheet, "B5", "C5")
+	f.MergeCell(sheet, "E5", "F5")
+	f.MergeCell(sheet, "B6", "C6")
+	f.MergeCell(sheet, "E6", "F6")
+	f.MergeCell(sheet, "B7", "C7")
+	f.MergeCell(sheet, "E7", "F7")
+	f.MergeCell(sheet, "B8", "C8")
+	f.MergeCell(sheet, "E8", "F8")
+	f.MergeCell(sheet, "B9", "C9")
+	f.MergeCell(sheet, "E9", "F9")
+	f.MergeCell(sheet, "B10", "C10")
+	f.MergeCell(sheet, "E10", "F10")
+	f.MergeCell(sheet, "A11", "H11")
+	f.MergeCell(sheet, "E11", "F11")
+	// Create heading
+	f.SetCellValue(sheet, "A4", "Zusammenfassung:")
+	f.SetCellStyle(sheet, "A4", "A4", styleTextBold)
+	// Create target/actual table
+	f.SetCellValue(sheet, "A5", "Soll:")
+	f.SetCellValue(sheet, "A6", "Ist:")
+	f.SetCellValue(sheet, "A7", "Saldo:")
+	f.SetCellValue(sheet, "B5", overviewEntries.Summary.TargetHours+" Stunden")
+	f.SetCellValue(sheet, "B6", overviewEntries.Summary.ActualHours+" Stunden")
+	f.SetCellValue(sheet, "B7", overviewEntries.Summary.BalanceHours+" Stunden")
+	f.SetCellStyle(sheet, "A5", "A10", styleTableHeader)
+	f.SetCellStyle(sheet, "B5", "C10", styleTableBodyAlignmentRight)
+	// Create types table
+	f.SetCellValue(sheet, "E5", overviewEntries.Summary.WorkDescription)
+	f.SetCellValue(sheet, "E6", overviewEntries.Summary.TravelDescription)
+	f.SetCellValue(sheet, "E7", overviewEntries.Summary.VacationDescription)
+	f.SetCellValue(sheet, "E8", overviewEntries.Summary.HolidayDescription)
+	f.SetCellValue(sheet, "E9", overviewEntries.Summary.IllnessDescription)
+	f.SetCellValue(sheet, "G5", overviewEntries.Summary.ActualWorkHours+" Stunden")
+	f.SetCellValue(sheet, "G6", overviewEntries.Summary.ActualTravelHours+" Stunden")
+	f.SetCellValue(sheet, "G7", overviewEntries.Summary.ActualVacationHours+" Stunden")
+	f.SetCellValue(sheet, "G8", overviewEntries.Summary.ActualHolidayHours+" Stunden")
+	f.SetCellValue(sheet, "G9", overviewEntries.Summary.ActualIllnessHours+" Stunden")
+	f.SetCellValue(sheet, "G10", overviewEntries.Summary.ActualHours+" Stunden")
+	f.SetCellStyle(sheet, "E5", "E10", styleTableHeader)
+	f.SetCellStyle(sheet, "G5", "G10", styleTableBodyAlignmentRight)
+
+	// Write entries
+	// Create heading
+	f.MergeCell(sheet, "A12", "H12")
+	f.SetCellValue(sheet, "A12", "Einträge:")
+	f.SetCellStyle(sheet, "A12", "A12", styleTextBold)
+	// Create table header
+	f.SetCellValue(sheet, "A13", "Datum")
+	f.SetCellValue(sheet, "B13", "Art")
+	f.SetCellValue(sheet, "C13", "Start")
+	f.SetCellValue(sheet, "D13", "Ende")
+	f.SetCellValue(sheet, "E13", "Pause")
+	f.SetCellValue(sheet, "F13", "Netto")
+	if overviewEntries.ShowDetails {
+		f.SetCellValue(sheet, "G13", "Tätigkeit")
+		f.SetCellValue(sheet, "H13", "Beschreibung")
+	}
+	f.SetCellStyle(sheet, "A13", "F13", styleTableHeader)
+	if overviewEntries.ShowDetails {
+		f.SetCellStyle(sheet, "G13", "H13", styleTableHeader)
+	}
+	// Create table body
+	row := 14
+	for _, day := range overviewEntries.Days {
+		f.SetCellValue(sheet, getCellName("A", row), day.Weekday+" "+day.Date)
+		if len(day.Entries) == 0 {
+			f.SetCellValue(sheet, getCellName("B", row), "-")
+			f.SetCellValue(sheet, getCellName("C", row), "-")
+			f.SetCellValue(sheet, getCellName("D", row), "-")
+			f.SetCellValue(sheet, getCellName("E", row), "-")
+			f.SetCellValue(sheet, getCellName("F", row), "-")
+			row++
+		} else {
+			for _, entry := range day.Entries {
+				f.SetCellValue(sheet, getCellName("B", row), entry.EntryType)
+				f.SetCellValue(sheet, getCellName("C", row), entry.StartTime)
+				f.SetCellValue(sheet, getCellName("D", row), entry.EndTime)
+				f.SetCellValue(sheet, getCellName("E", row), entry.BreakDuration)
+				f.SetCellValue(sheet, getCellName("F", row), entry.WorkDuration)
+				f.SetCellValue(sheet, getCellName("G", row), entry.EntryActivity)
+				f.SetCellValue(sheet, getCellName("H", row), entry.Description)
+				row++
+			}
+		}
+		if len(day.Entries) > 1 {
+			f.SetCellValue(sheet, getCellName("E", row), day.BreakDuration)
+			f.SetCellValue(sheet, getCellName("F", row), day.WorkDuration)
+			row++
+		}
+	}
+	f.SetCellStyle(sheet, "A14", getCellName("F", row-1), styleTableBody)
+	if overviewEntries.ShowDetails {
+		f.SetCellStyle(sheet, "G14", getCellName("H", row-1), styleTableBody)
+	}
+
+	return f
+}
+
+func getCellName(col string, row int) string {
+	return col + strconv.Itoa(row)
 }
 
 // --- Helper functions ---

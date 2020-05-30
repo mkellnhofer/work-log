@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"kellnhofer.com/work-log/constant"
+	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/log"
 )
 
 const defaultPageSize = 100
@@ -221,9 +223,11 @@ func parseDate(ts *string) *time.Time {
 		return nil
 	}
 
-	t, err := time.Parse(constant.DbDateFormat, *ts)
-	if err != nil {
-		return nil
+	t, pErr := time.Parse(constant.DbDateFormat, *ts)
+	if pErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not parse date.", pErr)
+		log.Error(err.StackTrace())
+		panic(err)
 	}
 	return &t
 }
@@ -242,9 +246,11 @@ func parseTimestamp(ts *string) *time.Time {
 		return nil
 	}
 
-	t, err := time.Parse(constant.DbTimestampFormat, *ts)
-	if err != nil {
-		return nil
+	t, pErr := time.Parse(constant.DbTimestampFormat, *ts)
+	if pErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not parse timestamp.", pErr)
+		log.Error(err.StackTrace())
+		panic(err)
 	}
 	return &t
 }
@@ -263,8 +269,10 @@ func parseDuration(min *int) *time.Duration {
 		return nil
 	}
 
-	d, err := time.ParseDuration(fmt.Sprintf("%dm", *min))
-	if err != nil {
+	d, pErr := time.ParseDuration(fmt.Sprintf("%dm", *min))
+	if pErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not parse duration.", pErr)
+		log.Error(err.StackTrace())
 		panic(err)
 	}
 	return &d

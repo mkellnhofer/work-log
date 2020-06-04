@@ -2,49 +2,49 @@
 <div class="wl-container">
   <div class="wl-header">
     <a class="wl-header-logo" href="list"><img src="img/app-logo.png"></a>
-    <a class="text-reset" href="list"><h1>Einträge</h1></a>
+    <a class="text-reset" href="list"><h1>{{text "listTitle"}}</h1></a>
     <div class="wl-header-action-buttons">
-      <a class="btn btn-primary wl-header-action-button" href="../create">Erstellen</a>
-      <a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../search">Suchen</a>
-      <a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../overview">Übersicht</a>
+      <a class="btn btn-primary wl-header-action-button" href="../create">{{text "listActionCreate"}}</a>
+      <a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../search">{{text "listActionSearch"}}</a>
+      <a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../overview">{{text "listActionShowOverview"}}</a>
       <div class="wl-header-action-more">
         <button class="btn dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
         <div class="dropdown-menu">
-          <a class="dropdown-item d-inline-block d-sm-none" href="../search">Suchen</a>
-          <a class="dropdown-item d-inline-block d-sm-none" href="../overview">Übersicht</a>
-          <a class="dropdown-item d-inline-block" href="../logout">Abmelden</a>
+          <a class="dropdown-item d-inline-block d-sm-none" href="../search">{{text "listActionSearch"}}</a>
+          <a class="dropdown-item d-inline-block d-sm-none" href="../overview">{{text "listActionShowOverview"}}</a>
+          <a class="dropdown-item d-inline-block" href="../logout">{{text "listActionLogout"}}</a>
         </div>
       </div>
     </div>
   </div>
   {{if .Summary -}}
   <div class="alert alert-primary alert-dismissible wl-list-alert" role="alert">
-    <h2>Arbeitszeitkonto:</h2>
-    <p><span class="nowrap">Überstunden: {{.Summary.OvertimeHours}} Stunden</span> - <span class="nowrap">Resturlaubstage: {{.Summary.RemainingVacationDays}} Tage</span></p>
-    <button type="button" class="close" data-dismiss="alert" aria-label="Schließen"><span aria-hidden="true">×</span></button>
+    <h2>{{text "listSummaryHeading"}}</h2>
+    <p><span class="nowrap">{{text "listSummaryLabelOvertimeHours"}} {{.Summary.OvertimeHours}}</span> - <span class="nowrap">{{text "listSummaryLabelRemainingVacationDays"}} {{.Summary.RemainingVacationDays}}</span></p>
+    <button type="button" class="close" data-dismiss="alert" aria-label="{{text "listSummaryActionClose"}}"><span aria-hidden="true">×</span></button>
   </div>
   {{end -}}
   {{if gt (len .Days) 0 -}}
   {{template "entries_list" .}}
   {{else -}}
-  <p class="wl-list-no-entries-label">keine Einträge vorhanden</p>
+  <p class="wl-list-no-entries-label">{{text "listLabelNoEntries"}}</p>
   {{end -}}
   <div class="wl-list-page-buttons">
     {{if .HasPrevPage -}}
     <div class="wl-list-page-button-prev">
-      <a class="btn btn-light" href="list?page={{.PrevPageNum}}">Vorherige</a>
+      <a class="btn btn-light" href="list?page={{.PrevPageNum}}">{{text "actionPrevious"}}</a>
     </div>
     {{end -}}
     {{if .HasNextPage -}}
     <div class="wl-list-page-button-next">
-      <a class="btn btn-light" href="list?page={{.NextPageNum}}">Nächste</a>
+      <a class="btn btn-light" href="list?page={{.NextPageNum}}">{{text "actionNext"}}</a>
     </div>
     {{end -}}
   </div>
 </div>
 <script>
   function approveDeletion() {
-    return confirm("Wollen Sie den Eintrag wirklich löschen?");
+    return confirm("{{text "listDialogMessageDelete"}}");
   }
 </script>
 {{template "footer" .}}

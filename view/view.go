@@ -3,12 +3,15 @@ package view
 import (
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"net/http"
+	"path/filepath"
 	"time"
 
-	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 
+	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/view/model"
 )
@@ -17,38 +20,89 @@ const dateFormat = "02.01.2006"
 const dateFormatShort = "02.01."
 const timeFormat = "15:04"
 
-var weekdays = map[int]string{
-	0: "Sonntag",
-	1: "Montag",
-	2: "Dienstag",
-	3: "Mittwoch",
-	4: "Donnerstag",
-	5: "Freitag",
-	6: "Samstag",
+var weekdayKeys = map[int]string{
+	0: "weekdaySun",
+	1: "weekdayMon",
+	2: "weekdayTue",
+	3: "weekdayWed",
+	4: "weekdayThu",
+	5: "weekdayFri",
+	6: "weekdaySat",
 }
 
-var months = map[int]string{
-	1:  "Januar",
-	2:  "Februar",
-	3:  "März",
-	4:  "April",
-	5:  "Mai",
-	6:  "Juni",
-	7:  "Juli",
-	8:  "August",
-	9:  "September",
-	10: "Oktober",
-	11: "November",
-	12: "Dezember",
+var monthKeys = map[int]string{
+	1:  "monthJan",
+	2:  "monthFeb",
+	3:  "monthMar",
+	4:  "monthApr",
+	5:  "monthMay",
+	6:  "monthJun",
+	7:  "monthJul",
+	8:  "monthAug",
+	9:  "monthSep",
+	10: "monthOct",
+	11: "monthNov",
+	12: "monthDec",
 }
 
-var printer = message.NewPrinter(language.German)
+// --- Template loading functions ---
 
-var templates = template.Must(template.ParseFiles("templates/header.tmpl", "templates/footer.tmpl",
+var templates = loadTemplates("templates/header.tmpl", "templates/footer.tmpl",
 	"templates/error.tmpl", "templates/login.tmpl", "templates/entries_list.tmpl",
 	"templates/list_entries.tmpl", "templates/entry_form.tmpl", "templates/create_entry.tmpl",
 	"templates/edit_entry.tmpl", "templates/copy_entry.tmpl", "templates/search_entries.tmpl",
-	"templates/list_search_entries.tmpl", "templates/list_overview_entries.tmpl"))
+	"templates/list_search_entries.tmpl", "templates/list_overview_entries.tmpl")
+
+func loadTemplates(filenames ...string) *template.Template {
+	var t *template.Template
+	for _, filename := range filenames {
+		t = loadTemplate(t, filename)
+	}
+	return t
+}
+
+func loadTemplate(t *template.Template, filename string) *template.Template {
+	// Read template
+	b, rErr := ioutil.ReadFile(filename)
+	if rErr != nil {
+		err := e.WrapError(e.SysUnknown, fmt.Sprintf("Could load template '%s'.", filename), rErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	s := string(b)
+	name := filepath.Base(filename)
+
+	// Register template
+	var tmpl *template.Template
+	if t == nil {
+		t = template.New(name)
+		tmpl = t
+	} else {
+		tmpl = t.New(name)
+	}
+
+	// Add functions
+	tmpl.Funcs(templateFuncs)
+
+	// Parse template
+	_, pErr := tmpl.Parse(s)
+	if pErr != nil {
+		err := e.WrapError(e.SysUnknown, fmt.Sprintf("Could parse template '%s'.", filename), pErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+
+	return t
+}
+
+// --- Template functions ---
+
+var templateFuncs = template.FuncMap{"text": getText}
+
+func getText(key string) string {
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf(key)
+}
 
 // --- Render functions ---
 
@@ -114,28 +168,30 @@ func FormatTime(t time.Time) string {
 	return t.Format(timeFormat)
 }
 
-// FormatWeekday returns the weekday string for a time.
-func FormatWeekday(t time.Time) string {
-	wd := t.Weekday()
-	return weekdays[int(wd)]
-}
-
-// FormatShortWeekday returns the shortend weekday string for a time.
-func FormatShortWeekday(t time.Time) string {
-	wd := t.Weekday()
-	d := weekdays[int(wd)]
-	return fmt.Sprintf("%s.", d[0:2])
-}
-
 // FormatHours returns the hours string for a duration.
 func FormatHours(d time.Duration) string {
 	h := d.Hours()
+	printer := message.NewPrinter(loc.LngTag)
 	return printer.Sprintf("%.2f", h)
+}
+
+// GetWeekdayName returns the weekday string for a time.
+func GetWeekdayName(t time.Time) string {
+	wd := t.Weekday()
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf(weekdayKeys[int(wd)])
+}
+
+// GetShortWeekdayName returns the shortend weekday string for a time.
+func GetShortWeekdayName(t time.Time) string {
+	d := GetWeekdayName(t)
+	return fmt.Sprintf("%s.", d[0:2])
 }
 
 // GetMonthName returns the name of a month.
 func GetMonthName(m int) string {
-	return months[m]
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf(monthKeys[m])
 }
 
 // --- Helper functions ---

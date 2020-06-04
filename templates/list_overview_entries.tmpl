@@ -1,85 +1,85 @@
 {{template "header" .}}
 <div class="wl-container">
   <div class="wl-header">
-    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="Zurück"></i></a>
-    <h1>Übersicht</h1>
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="{{text "actionBack"}}"></i></a>
+    <h1>{{text "overviewTitle"}}</h1>
     <div class="wl-header-action-buttons">
-      <a class="btn btn-primary wl-header-action-button" href="overview/export?month={{.CurrMonth}}">Exportieren</a>
+      <a class="btn btn-primary wl-header-action-button" href="overview/export?month={{.CurrMonth}}">{{text "overviewActionExport"}}</a>
     </div>
   </div>
   <div class="wl-overview-month-buttons">
-    <a class="btn btn-light" href="overview?month={{.PrevMonth}}">&lt;</a>
+    <a class="btn btn-light" href="overview?month={{.PrevMonth}}" aria-label="{{text "actionPrevious"}}">&lt;</a>
     <span class="wl-overview-month-title">{{.CurrMonthName}}</span>
-    <a class="btn btn-light" href="overview?month={{.NextMonth}}">&gt;</a>
+    <a class="btn btn-light" href="overview?month={{.NextMonth}}" aria-label="{{text "actionNext"}}">&gt;</a>
   </div>
   <div class="wl-overview-summary-table-title">
-    <h2>Zusammenfassung:</h2>
+    <h2>{{text "overviewHeadingSummary"}}</h2>
   </div>
   <div class="table-responsive table-responsive-xl wl-overview-summary-table">
     <table class="table table-sm">
       <tr>
-        <th class="wl-overview-summary-table-label">Soll:</td>
-        <td class="wl-overview-summary-table-hours">{{.Summary.TargetHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "overviewSummaryLabelTargetHours"}}</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.TargetHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">Ist:</td>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "overviewSummaryLabelActualHours"}}</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">Saldo:</td>
-        <td class="wl-overview-summary-table-hours">{{.Summary.BalanceHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "overviewSummaryLabelBalanceHours"}}</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.BalanceHours}}</td>
       </tr>
     </table>
   </div>
   <div class="table-responsive table-responsive-xl wl-overview-summary-table">
     <table class="table table-sm">
       <tr>
-        <th class="wl-overview-summary-table-label">{{.Summary.WorkDescription}}:</th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualWorkHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "entryTypeWork"}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualWorkHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">{{.Summary.TravelDescription}}:</th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualTravelHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "entryTypeTravel"}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualTravelHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">{{.Summary.VacationDescription}}:</th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualVacationHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "entryTypeVacation"}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualVacationHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">{{.Summary.HolidayDescription}}:</th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHolidayHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "entryTypeHoliday"}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHolidayHours}}</td>
       </tr>
       <tr>
-        <th class="wl-overview-summary-table-label">{{.Summary.IllnessDescription}}:</th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualIllnessHours}} Stunden</td>
+        <th class="wl-overview-summary-table-label">{{text "entryTypeIllness"}}:</th>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualIllnessHours}}</td>
       </tr>
       <tr>
         <th class="wl-overview-summary-table-label"></th>
-        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}} Stunden</td>
+        <td class="wl-overview-summary-table-hours">{{.Summary.ActualHours}}</td>
       </tr>
     </table>
   </div>
   <div class="wl-overview-table-title">
-    <h2>Einträge:</h2>
+    <h2>{{text "overviewHeadingEntries"}}</h2>
     <form action="overview" method="POST">
       <input name="month" type="hidden" value="{{.CurrMonth}}">
       <input class="checkbox" name="show-details" type="checkbox" {{if .ShowDetails}}checked{{end}} onChange="this.form.submit()">
-      <label class="checkbox-label" for="show-details">zeige Tätigkeiten</label>
+      <label class="checkbox-label" for="show-details">{{text "overviewActionShowActivities"}}</label>
     </form>
   </div>
   <div class="table-responsive table-responsive-xl wl-overview-table">
     <table class="table table-sm">
       <thead>
         <tr class="wl-overview-table-head">
-          <th class="wl-overview-table-column-date" scope="col">Datum</th>
-          <th class="wl-overview-table-column-type" scope="col">Art</th>
-          <th class="wl-overview-table-column-time" scope="col">Start</th>
-          <th class="wl-overview-table-column-time" scope="col">Ende</th>
-          <th class="wl-overview-table-column-time" scope="col">Pause</th>
-          <th class="wl-overview-table-column-time" scope="col">Netto</th>
+          <th class="wl-overview-table-column-date" scope="col">{{text "tableColDate"}}</th>
+          <th class="wl-overview-table-column-type" scope="col">{{text "tableColType"}}</th>
+          <th class="wl-overview-table-column-time" scope="col">{{text "tableColStart"}}</th>
+          <th class="wl-overview-table-column-time" scope="col">{{text "tableColEnd"}}</th>
+          <th class="wl-overview-table-column-time" scope="col">{{text "tableColBreak"}}</th>
+          <th class="wl-overview-table-column-time" scope="col">{{text "tableColNet"}}</th>
           {{if $.ShowDetails -}}
-          <th class="wl-overview-table-column-activity" scope="col">Tätigkeit</th>
-          <th class="wl-overview-table-column-description" scope="col">Beschreibung</th>
+          <th class="wl-overview-table-column-activity" scope="col">{{text "tableColActivity"}}</th>
+          <th class="wl-overview-table-column-description" scope="col">{{text "tableColDescription"}}</th>
           {{else -}}
           <th scope="col"></th>
           <th scope="col"></th>

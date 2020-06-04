@@ -9,6 +9,7 @@ import (
 
 	"kellnhofer.com/work-log/config"
 	"kellnhofer.com/work-log/constant"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 )
 
@@ -18,6 +19,9 @@ func main() {
 
 	// Set logging level
 	log.SetLevel(conf.LogLevel)
+
+	// Load localization
+	loc.LoadLocalization(conf.LocLanguage)
 
 	log.Infof("Starting Work Log server %s.", constant.AppVersion)
 

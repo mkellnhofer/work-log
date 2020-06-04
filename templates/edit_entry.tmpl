@@ -1,8 +1,8 @@
 {{template "header" .}}
 <div class="wl-container">
   <div class="wl-header">
-    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="Zurück"></i></a>
-    <h1>Bearbeiten</h1>
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="{{text "actionBack"}}"></i></a>
+    <h1>{{text "editTitle"}}</h1>
   </div>
   {{if ne .ErrorMessage "" -}}
   <p class="alert alert-danger">{{.ErrorMessage}}</p>
@@ -10,8 +10,8 @@
   <form action="/edit/{{.Entry.Id}}" method="POST">
     {{template "entry_form" .}}
     <div class="wl-form-buttons">
-      <a class="btn btn-light wl-form-button" href="{{.PreviousUrl}}">Abbrechen</a>
-      <button class="btn btn-primary wl-form-button" type="submit">Speichern</button>
+      <a class="btn btn-light wl-form-button" href="{{.PreviousUrl}}">{{text "actionCancel"}}</a>
+      <button class="btn btn-primary wl-form-button" type="submit">{{text "actionSave"}}</button>
     </div>
   </form>
 </div>

@@ -10,3 +10,6 @@ port = 3306
 scheme = work_log
 username = work_log_un
 password = work_log_pw
+
+[localization]
+language = en

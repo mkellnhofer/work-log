@@ -1,8 +1,8 @@
 {{template "header" .}}
 <div class="wl-container">
   <div class="wl-header">
-    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="Zurück"></i></a>
-    <h1>Suchen</h1>
+    <a class="wl-header-back-button" href="{{.PreviousUrl}}"><i class="icon icon-back" aria-label="{{text "actionBack"}}"></i></a>
+    <h1>{{text "searchTitle"}}</h1>
   </div>
   {{if ne .ErrorMessage "" -}}
   <p class="alert alert-danger">{{.ErrorMessage}}</p>
@@ -13,7 +13,7 @@
         <input class="checkbox" name="by-type" type="checkbox" {{if .ByType}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-4 col-md-3 col-xl-3">
-        <label for="type">Art:</label>
+        <label for="type">{{text "formLabelType"}}</label>
         <select class="form-control" name="type">
           {{range .EntryTypes -}}
           <option value="{{.Id}}" {{if eq .Id $.TypeId}}selected{{end}}>{{.Description}}</option>
@@ -26,11 +26,11 @@
         <input class="checkbox" name="by-date" type="checkbox" {{if .ByDate}}checked{{end}}>
       </div>
       <div class="form-group col-5 col-sm-4 col-md-3 col-xl-3">
-        <label for="start-date">Von:</label>
+        <label for="start-date">{{text "formLabelFrom"}}</label>
         <input class="form-control" name="start-date" type="date" value="{{.StartDate}}">
       </div>
       <div class="form-group col-5 col-sm-4 col-md-3 col-xl-3">
-        <label for="end-date">Bis:</label>
+        <label for="end-date">{{text "formLabelTo"}}</label>
         <input class="form-control" name="end-date" type="date" value="{{.EndDate}}">
       </div>
     </div>
@@ -39,7 +39,7 @@
         <input class="checkbox" name="by-activity" type="checkbox" {{if .ByActivity}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-4 col-md-3 col-xl-3">
-        <label for="activity">Tätigkeit:</label>
+        <label for="activity">{{text "formLabelActivity"}}</label>
         <select class="form-control" name="activity">
           {{range .EntryActivities -}}
           <option value="{{.Id}}" {{if eq .Id $.ActivityId}}selected{{end}}>{{.Description}}</option>
@@ -52,13 +52,13 @@
         <input class="checkbox" name="by-description" type="checkbox" {{if .ByDescription}}checked{{end}}>
       </div>
       <div class="form-group col-10 col-sm-87 col-md-9 col-xl-9">
-        <label for="description">Beschreibung:</label>
+        <label for="description">{{text "formLabelDescription"}}</label>
         <input class="form-control" name="description" type="text" value="{{.Description}}">
       </div>
     </div>
     <div class="wl-form-buttons">
-      <a class="btn btn-light wl-form-button" href="{{.PreviousUrl}}">Abbrechen</a>
-      <button class="btn btn-primary wl-form-button" type="submit">Suchen</button>
+      <a class="btn btn-light wl-form-button" href="{{.PreviousUrl}}">{{text "actionCancel"}}</a>
+      <button class="btn btn-primary wl-form-button" type="submit">{{text "searchActionSearch"}}</button>
     </div>
   </form>
 </div>

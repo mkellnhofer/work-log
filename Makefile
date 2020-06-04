@@ -23,6 +23,7 @@ package:
 	zip work-log.zip \
 		work-log \
 		config/config.ini.example \
+		config/localizations/*.* \
 		resources/css/*.* \
 		resources/font/*.* \
 		resources/img/*.* \

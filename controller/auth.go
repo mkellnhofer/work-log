@@ -8,6 +8,7 @@ import (
 
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/model"
@@ -72,7 +73,7 @@ func (c *AuthController) handleShowLogin(w http.ResponseWriter, r *http.Request)
 func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
 	lvm := vm.NewLogin()
 	if ec != 0 {
-		lvm.ErrorMessage = getErrorMessage(ec)
+		lvm.ErrorMessage = loc.GetErrorMessageString(ec)
 	}
 	return lvm
 }

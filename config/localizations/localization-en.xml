@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<localization language="en-US">
+    <!-- General -->
+    <message key="appName"><text>Work Log</text></message>
+
+    <!-- Common actions -->
+    <message key="actionBack"><text>Back</text></message>
+    <message key="actionPrevious"><text>Previous</text></message>
+    <message key="actionNext"><text>Next</text></message>
+    <message key="actionCancel"><text>Cancel</text></message>
+    <message key="actionSave"><text>Save</text></message>
+
+    <!-- Login view -->
+    <message key="loginTitle"><text>Login</text></message>
+    <message key="loginLabelUsername"><text>Username:</text></message>
+    <message key="loginLabelPassword"><text>Password:</text></message>
+    <message key="loginActionLogin"><text>Login</text></message>
+
+    <!-- List view -->
+    <message key="listTitle"><text>Entries</text></message>
+    <message key="listActionCreate"><text>Create</text></message>
+    <message key="listActionEdit"><text>Edit</text></message>
+    <message key="listActionCopy"><text>Copy</text></message>
+    <message key="listActionDelete"><text>Delete</text></message>
+    <message key="listActionSearch"><text>Search</text></message>
+    <message key="listActionShowOverview"><text>Overview</text></message>
+    <message key="listActionLogout"><text>Logout</text></message>
+    <message key="listSummaryHeading"><text>Working time account:</text></message>
+    <message key="listSummaryLabelOvertimeHours"><text>Overtime hours:</text></message>
+    <message key="listSummaryLabelRemainingVacationDays"><text>Remaining vacation days:</text></message>
+    <message key="listSummaryActionClose"><text>Close</text></message>
+    <message key="listLabelNoEntries"><text>no entries exist</text></message>
+    <message key="listLabelBreak"><text>Break</text></message>
+    <message key="listDialogMessageDelete"><text>Do you really want to delete the entry?</text></message>
+
+    <!-- Create/edit/copy view -->
+    <message key="createTitle"><text>Create</text></message>
+    <message key="editTitle"><text>Edit</text></message>
+    <message key="copyTitle"><text>Copy</text></message>
+
+    <!-- Search view -->
+    <message key="searchTitle"><text>Search</text></message>
+    <message key="searchActionSearch"><text>Search</text></message>
+    <message key="searchListTitle"><text>Search Result</text></message>
+    <message key="searchListLabelNoEntries"><text>no entries found</text></message>
+
+    <!-- Overview view -->
+    <message key="overviewTitle"><text>Overview</text></message>
+    <message key="overviewActionExport"><text>Export</text></message>
+    <message key="overviewActionShowActivities"><text>Show activities</text></message>
+    <message key="overviewHeadingSummary"><text>Summary:</text></message>
+    <message key="overviewHeadingEntries"><text>Entries:</text></message>
+    <message key="overviewSummaryLabelTargetHours"><text>Target:</text></message>
+    <message key="overviewSummaryLabelActualHours"><text>Actual:</text></message>
+    <message key="overviewSummaryLabelBalanceHours"><text>Balance:</text></message>
+    <message key="exportTitle"><text>%s Export</text></message>
+    <message key="exportPropTitle"><text>%s Export - %s</text></message>
+    <message key="exportPropDescription"><text>This file created by %s.</text></message>
+
+    <!-- Error view -->
+    <message key="errorTitle"><text>Error!</text></message>
+
+    <!-- Entry form -->
+    <message key="formLabelType"><text>Type:</text></message>
+    <message key="formLabelDate"><text>Date:</text></message>
+    <message key="formLabelStart"><text>Start:</text></message>
+    <message key="formLabelEnd"><text>End:</text></message>
+    <message key="formLabelBreak"><text>Break: (Minutes)</text></message>
+    <message key="formLabelFrom"><text>From:</text></message>
+    <message key="formLabelTo"><text>To:</text></message>
+    <message key="formLabelActivity"><text>Activity:</text></message>
+    <message key="formLabelDescription"><text>Description:</text></message>
+
+    <!-- Entries table -->
+    <message key="tableColDate"><text>Date</text></message>
+    <message key="tableColType"><text>Type</text></message>
+    <message key="tableColStart"><text>Start</text></message>
+    <message key="tableColEnd"><text>End</text></message>
+    <message key="tableColBreak"><text>Break</text></message>
+    <message key="tableColNet"><text>Net</text></message>
+    <message key="tableColActivity"><text>Activity</text></message>
+    <message key="tableColDescription"><text>Description</text></message>
+    
+    <!-- Entry types -->
+    <message key="entryTypeWork"><text>Work</text></message>
+    <message key="entryTypeTravel"><text>Travel</text></message>
+    <message key="entryTypeVacation"><text>Vacation</text></message>
+    <message key="entryTypeHoliday"><text>Holiday</text></message>
+    <message key="entryTypeIllness"><text>Illness</text></message>
+
+    <!-- Date/time -->
+    <message key="daysValue"><text>%.1f days</text></message>
+    <message key="hoursValue"><text>%.2f hours</text></message>
+    <message key="weekdaySun"><text>Sunday</text></message>
+    <message key="weekdayMon"><text>Monday</text></message>
+    <message key="weekdayTue"><text>Tuesday</text></message>
+    <message key="weekdayWed"><text>Wednesday</text></message>
+    <message key="weekdayThu"><text>Thursday</text></message>
+    <message key="weekdayFri"><text>Friday</text></message>
+    <message key="weekdaySat"><text>Saturday</text></message>
+    <message key="monthJan"><text>January</text></message>
+    <message key="monthFeb"><text>February</text></message>
+    <message key="monthMar"><text>March</text></message>
+    <message key="monthApr"><text>April</text></message>
+    <message key="monthMay"><text>May</text></message>
+    <message key="monthJun"><text>June</text></message>
+    <message key="monthJul"><text>July</text></message>
+    <message key="monthAug"><text>August</text></message>
+    <message key="monthSep"><text>September</text></message>
+    <message key="monthOct"><text>October</text></message>
+    <message key="monthNov"><text>November</text></message>
+    <message key="monthDec"><text>December</text></message>
+
+    <!-- Errors -->
+    <message key="errAuthUnknown"><text>An unknown authentication error occurred.</text></message>
+    <message key="errAuthInvalidCredentials"><text>Wrong username or password.</text></message>
+    <message key="errValUnknown"><text>An unknown validation error occurred.</text></message>
+    <message key="errValPageNumberInvalid"><text>Page number invalid. (Page number must be numeric and positive.)</text></message>
+    <message key="errValIdInvalid"><text>ID invalid. (ID must be numeric and positive.)</text></message>
+    <message key="errValDateInvalid"><text>Date invalid!</text></message>
+    <message key="errValStartDateInvalid"><text>Start date invalid!</text></message>
+    <message key="errValEndDateInvalid"><text>End date invalid!</text></message>
+    <message key="errValStartTimeInvalid"><text>Start time invalid!</text></message>
+    <message key="errValEndTimeInvalid"><text>End time invalid!</text></message>
+    <message key="errValBreakDurationInvalid"><text>Break time invalid!</text></message>
+    <message key="errValDescriptionTooLong"><text>Description cannot be longer than 200 characters!</text></message>
+    <message key="errValSearchInvalid"><text>Search invalid! (At least one characteristic must be selected.)</text></message>
+    <message key="errValSearchQueryInvalid"><text>Search query invalid!</text></message>
+    <message key="errValMonthInvalid"><text>Month invalid! (Month must be in \"YYYYMM\" format.)</text></message>
+    <message key="errLogicUnknown"><text>An unknown logic error occurred.</text></message>
+    <message key="errLogicEntryNotFound">​​<text>The entry could not be found.</text></message>
+    <message key="errLogicEntryTypeNotFound">​​<text>The entry type could not be found.</text></message>
+    <message key="errLogicEntryActivityNotFound">​​<text>The entry activity could not be found.</text></message>
+    <message key="errLogicEntryTimeIntervalInvalid"><text>Start end time interval invalid!</text></message>
+    <message key="errLogicEntryBreakDurationTooLong"><text>Break too long!</text></message>
+    <message key="errLogicEntrySearchDateIntervalInvalid"><text>Search period invalid!</text></message>
+    <message key="errSysUnknown"><text>An unknown system error occurred.</text></message>
+    <message key="errSysDbUnknown"><text>An unknown database error occurred.</text></message>
+    <message key="errSysDbConnectionFailed"><text>The connection to the database was interrupted.</text></message>
+    <message key="errSysDbTransactionFailed"><text>The database transaction failed.</text></message>
+    <message key="errSysDbQueryFailed"><text>The database query failed.</text></message>
+    <message key="errSysDbInsertFailed"><text>A database entry could not be created.</text></message>
+    <message key="errSysDbUpdateFailed"><text>A database entry could not be changed.</text></message>
+    <message key="errSysDbDeleteFailed"><text>A database entry could not be deleted.</text></message>
+</localization>

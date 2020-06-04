@@ -12,6 +12,7 @@ import (
 
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
@@ -270,7 +271,7 @@ func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Req
 func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	input *entryFormInput) {
 	// Get error message
-	em := getErrorMessage(err.Code)
+	em := loc.GetErrorMessageString(err.Code)
 
 	// Get work entry types
 	entryTypes := c.getEntryTypes()
@@ -348,7 +349,7 @@ func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Reque
 func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	id int, input *entryFormInput) {
 	// Get error message
-	em := getErrorMessage(err.Code)
+	em := loc.GetErrorMessageString(err.Code)
 
 	// Get work entry types
 	entryTypes := c.getEntryTypes()
@@ -427,7 +428,7 @@ func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Reque
 func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	id int, input *entryFormInput) {
 	// Get error message
-	em := getErrorMessage(err.Code)
+	em := loc.GetErrorMessageString(err.Code)
 
 	// Get work entry types
 	entryTypes := c.getEntryTypes()
@@ -541,7 +542,7 @@ func (c *EntryController) handleSearchSuccess(w http.ResponseWriter, r *http.Req
 func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	input *searchEntriesFormInput) {
 	// Get error message
-	em := getErrorMessage(err.Code)
+	em := loc.GetErrorMessageString(err.Code)
 
 	// Get work entry types
 	entryTypes := c.getEntryTypes()
@@ -877,7 +878,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			// Create and add new day
 			ldvm = vm.NewListEntriesDay()
 			ldvm.Date = view.FormatDate(entry.StartTime)
-			ldvm.Weekday = view.FormatWeekday(entry.StartTime)
+			ldvm.Weekday = view.GetWeekdayName(entry.StartTime)
 			ldvm.Entries = make([]*vm.ListEntry, 0, 10)
 			ldsvm = append(ldsvm, ldvm)
 		}
@@ -998,8 +999,7 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 	lesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
 
 	// Calculate summary
-	lesvm.Summary = c.createOverviewSummaryViewModel(year, month, userContract, entries,
-		entryTypesMap)
+	lesvm.Summary = c.createOverviewSummaryViewModel(year, month, userContract, entries)
 
 	// Create work entries
 	lesvm.ShowDetails = showDetails
@@ -1010,8 +1010,7 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 }
 
 func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
-	userContract *model.UserContract, entries []*model.Entry,
-	entryTypesMap map[int]*model.EntryType) *vm.ListOverviewEntriesSummary {
+	userContract *model.UserContract, entries []*model.Entry) *vm.ListOverviewEntriesSummary {
 
 	// Calculate type durations
 	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
@@ -1045,11 +1044,6 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 
 	// Create summary
 	lessvm := vm.NewListOverviewEntriesSummary()
-	lessvm.WorkDescription = entryTypesMap[constant.EntryTypeWork].Description
-	lessvm.TravelDescription = entryTypesMap[constant.EntryTypeTravel].Description
-	lessvm.VacationDescription = entryTypesMap[constant.EntryTypeVacation].Description
-	lessvm.HolidayDescription = entryTypesMap[constant.EntryTypeHoliday].Description
-	lessvm.IllnessDescription = entryTypesMap[constant.EntryTypeIllness].Description
 	lessvm.ActualWorkHours = getHoursString(actWork)
 	lessvm.ActualTravelHours = getHoursString(actTrav)
 	lessvm.ActualVacationHours = getHoursString(actVaca)
@@ -1074,7 +1068,7 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 		// Create and add new day
 		ldvm := vm.NewListOverviewEntriesDay()
 		ldvm.Date = view.FormatShortDate(curDate)
-		ldvm.Weekday = view.FormatShortWeekday(curDate)
+		ldvm.Weekday = view.GetShortWeekdayName(curDate)
 		ldvm.IsWeekendDay = curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday
 		ldvm.Entries = make([]*vm.ListOverviewEntry, 0, 10)
 		ldsvm = append(ldsvm, ldvm)
@@ -1467,12 +1461,13 @@ func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.Fi
 	now := time.Now()
 	f.SetDocProps(&excelize.DocProperties{
 		Created:        now.Format(time.RFC3339),
-		Creator:        "Work Log",
+		Creator:        loc.CreateString("appName"),
 		Modified:       now.Format(time.RFC3339),
-		LastModifiedBy: "Work Log",
-		Title:          "Work Log Export - " + overviewEntries.CurrMonthName,
-		Description:    "This file created by Work Log.",
-		Language:       "de-DE",
+		LastModifiedBy: loc.CreateString("appName"),
+		Title: loc.CreateString("exportPropTitle", loc.CreateString("appName"),
+			overviewEntries.CurrMonthName),
+		Description: loc.CreateString("exportPropDescription", loc.CreateString("appName")),
+		Language:    loc.LngTag.String(),
 	})
 
 	sheet := "Sheet1"
@@ -1522,7 +1517,7 @@ func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.Fi
 	f.MergeCell(sheet, "A1", "H1")
 	f.MergeCell(sheet, "A2", "H2")
 	f.MergeCell(sheet, "A3", "H3")
-	f.SetCellValue(sheet, "A1", "Work Log Export")
+	f.SetCellValue(sheet, "A1", loc.CreateString("exportTitle", loc.CreateString("appName")))
 	f.SetCellValue(sheet, "A2", overviewEntries.CurrMonthName)
 	f.SetCellStyle(sheet, "A1", "A1", styleTitle)
 	f.SetCellStyle(sheet, "A2", "A2", styleTextBold)
@@ -1544,47 +1539,47 @@ func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.Fi
 	f.MergeCell(sheet, "A11", "H11")
 	f.MergeCell(sheet, "E11", "F11")
 	// Create heading
-	f.SetCellValue(sheet, "A4", "Zusammenfassung:")
+	f.SetCellValue(sheet, "A4", loc.CreateString("overviewHeadingSummary"))
 	f.SetCellStyle(sheet, "A4", "A4", styleTextBold)
 	// Create target/actual table
-	f.SetCellValue(sheet, "A5", "Soll:")
-	f.SetCellValue(sheet, "A6", "Ist:")
-	f.SetCellValue(sheet, "A7", "Saldo:")
-	f.SetCellValue(sheet, "B5", overviewEntries.Summary.TargetHours+" Stunden")
-	f.SetCellValue(sheet, "B6", overviewEntries.Summary.ActualHours+" Stunden")
-	f.SetCellValue(sheet, "B7", overviewEntries.Summary.BalanceHours+" Stunden")
+	f.SetCellValue(sheet, "A5", loc.CreateString("overviewSummaryLabelTargetHours"))
+	f.SetCellValue(sheet, "A6", loc.CreateString("overviewSummaryLabelActualHours"))
+	f.SetCellValue(sheet, "A7", loc.CreateString("overviewSummaryLabelBalanceHours"))
+	f.SetCellValue(sheet, "B5", overviewEntries.Summary.TargetHours)
+	f.SetCellValue(sheet, "B6", overviewEntries.Summary.ActualHours)
+	f.SetCellValue(sheet, "B7", overviewEntries.Summary.BalanceHours)
 	f.SetCellStyle(sheet, "A5", "A10", styleTableHeader)
 	f.SetCellStyle(sheet, "B5", "C10", styleTableBodyAlignmentRight)
 	// Create types table
-	f.SetCellValue(sheet, "E5", overviewEntries.Summary.WorkDescription)
-	f.SetCellValue(sheet, "E6", overviewEntries.Summary.TravelDescription)
-	f.SetCellValue(sheet, "E7", overviewEntries.Summary.VacationDescription)
-	f.SetCellValue(sheet, "E8", overviewEntries.Summary.HolidayDescription)
-	f.SetCellValue(sheet, "E9", overviewEntries.Summary.IllnessDescription)
-	f.SetCellValue(sheet, "G5", overviewEntries.Summary.ActualWorkHours+" Stunden")
-	f.SetCellValue(sheet, "G6", overviewEntries.Summary.ActualTravelHours+" Stunden")
-	f.SetCellValue(sheet, "G7", overviewEntries.Summary.ActualVacationHours+" Stunden")
-	f.SetCellValue(sheet, "G8", overviewEntries.Summary.ActualHolidayHours+" Stunden")
-	f.SetCellValue(sheet, "G9", overviewEntries.Summary.ActualIllnessHours+" Stunden")
-	f.SetCellValue(sheet, "G10", overviewEntries.Summary.ActualHours+" Stunden")
+	f.SetCellValue(sheet, "E5", loc.CreateString("entryTypeWork"))
+	f.SetCellValue(sheet, "E6", loc.CreateString("entryTypeTravel"))
+	f.SetCellValue(sheet, "E7", loc.CreateString("entryTypeVacation"))
+	f.SetCellValue(sheet, "E8", loc.CreateString("entryTypeHoliday"))
+	f.SetCellValue(sheet, "E9", loc.CreateString("entryTypeIllness"))
+	f.SetCellValue(sheet, "G5", overviewEntries.Summary.ActualWorkHours)
+	f.SetCellValue(sheet, "G6", overviewEntries.Summary.ActualTravelHours)
+	f.SetCellValue(sheet, "G7", overviewEntries.Summary.ActualVacationHours)
+	f.SetCellValue(sheet, "G8", overviewEntries.Summary.ActualHolidayHours)
+	f.SetCellValue(sheet, "G9", overviewEntries.Summary.ActualIllnessHours)
+	f.SetCellValue(sheet, "G10", overviewEntries.Summary.ActualHours)
 	f.SetCellStyle(sheet, "E5", "E10", styleTableHeader)
 	f.SetCellStyle(sheet, "G5", "G10", styleTableBodyAlignmentRight)
 
 	// Write entries
 	// Create heading
 	f.MergeCell(sheet, "A12", "H12")
-	f.SetCellValue(sheet, "A12", "Einträge:")
+	f.SetCellValue(sheet, "A12", loc.CreateString("overviewHeadingEntries"))
 	f.SetCellStyle(sheet, "A12", "A12", styleTextBold)
 	// Create table header
-	f.SetCellValue(sheet, "A13", "Datum")
-	f.SetCellValue(sheet, "B13", "Art")
-	f.SetCellValue(sheet, "C13", "Start")
-	f.SetCellValue(sheet, "D13", "Ende")
-	f.SetCellValue(sheet, "E13", "Pause")
-	f.SetCellValue(sheet, "F13", "Netto")
+	f.SetCellValue(sheet, "A13", loc.CreateString("tableColDate"))
+	f.SetCellValue(sheet, "B13", loc.CreateString("tableColType"))
+	f.SetCellValue(sheet, "C13", loc.CreateString("tableColStart"))
+	f.SetCellValue(sheet, "D13", loc.CreateString("tableColEnd"))
+	f.SetCellValue(sheet, "E13", loc.CreateString("tableColBreak"))
+	f.SetCellValue(sheet, "F13", loc.CreateString("tableColNet"))
 	if overviewEntries.ShowDetails {
-		f.SetCellValue(sheet, "G13", "Tätigkeit")
-		f.SetCellValue(sheet, "H13", "Beschreibung")
+		f.SetCellValue(sheet, "G13", loc.CreateString("tableColActivity"))
+		f.SetCellValue(sheet, "H13", loc.CreateString("tableColDescription"))
 	}
 	f.SetCellStyle(sheet, "A13", "F13", styleTableHeader)
 	if overviewEntries.ShowDetails {
@@ -1694,22 +1689,20 @@ func getTimeString(t time.Time) string {
 	return t.Format(timeFormat)
 }
 
-func getMinutesString(d time.Duration) string {
-	rd := d.Round(time.Minute)
-	return fmt.Sprintf("%d", int(rd.Minutes()))
-}
-
-func getHoursString(d time.Duration) string {
-	rd := d.Round(time.Minute)
-	s := fmt.Sprintf("%.2f", rd.Hours())
-	return strings.ReplaceAll(s, ".", ",")
-}
-
 func getDaysString(d time.Duration, wd time.Duration) string {
 	rd := d.Round(time.Hour)
 	h := int(rd.Hours())
 	wh := int(wd.Hours())
 	days := float32(h) / float32(wh)
-	s := fmt.Sprintf("%.1f", days)
-	return strings.ReplaceAll(s, ".", ",")
+	return loc.CreateString("daysValue", days)
+}
+
+func getHoursString(d time.Duration) string {
+	rd := d.Round(time.Minute)
+	return loc.CreateString("hoursValue", rd.Hours())
+}
+
+func getMinutesString(d time.Duration) string {
+	rd := d.Round(time.Minute)
+	return fmt.Sprintf("%d", int(rd.Minutes()))
 }

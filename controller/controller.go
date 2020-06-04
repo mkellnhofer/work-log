@@ -14,55 +14,6 @@ import (
 	"kellnhofer.com/work-log/middleware"
 )
 
-var errorMessages = map[int]string{
-	// Authentication errors
-	e.AuthUnknown:            "Ein unbekannter Authentifizierungsfehler trat auf.",
-	e.AuthInvalidCredentials: "Falscher Benutzername oder Passwort.",
-
-	// Validation erros
-	e.ValUnknown:              "Ein unbekannter Validierungsfehler trat auf.",
-	e.ValPageNumberInvalid:    "Seitennummer ungültig. (Seitennummer muss numerisch und positiv sein.)",
-	e.ValIdInvalid:            "ID ungültig. (ID muss numerisch und positiv sein.)",
-	e.ValDateInvalid:          "Datum ungültig!",
-	e.ValStartDateInvalid:     "Startdatum ungültig!",
-	e.ValEndDateInvalid:       "Enddatum ungültig!",
-	e.ValStartTimeInvalid:     "Startzeit ungültig!",
-	e.ValEndTimeInvalid:       "Endzeit ungültig!",
-	e.ValBreakDurationInvalid: "Pausendauer ungültig!",
-	e.ValDescriptionTooLong:   "Beschreibung darf nicht länger als 200 Zeichen sein!",
-	e.ValSearchInvalid:        "Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)",
-	e.ValSearchQueryInvalid:   "Suchabfrage ungültig!",
-	e.ValMonthInvalid:         "Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)",
-
-	// Logic errors
-	e.LogicUnknown:                        "Ein unbekannter Logikfehler trat auf.",
-	e.LogicEntryNotFound:                  "Der Eintrag konnte nicht gefunden werden.",
-	e.LogicEntryTypeNotFound:              "Der Eintragstyp konnte nicht gefunden werden.",
-	e.LogicEntryActivityNotFound:          "Die Eintragstätigkeit konnte nicht gefunden werden.",
-	e.LogicEntryTimeIntervalInvalid:       "Startzeit-Endzeit-Interval ungültig!",
-	e.LogicEntryBreakDurationTooLong:      "Pausendauer zu lang!",
-	e.LogicEntrySearchDateIntervalInvalid: "Suchzeitraum ungültig!",
-
-	// System errors
-	e.SysUnknown:             "Ein unbekannter Systemfehler trat auf.",
-	e.SysDbUnknown:           "Ein unbekannter Datenbankfehler trat auf.",
-	e.SysDbConnectionFailed:  "Die Verbindung zur Datenbank wurde unterbrochen.",
-	e.SysDbTransactionFailed: "Die Datenbanktransaktion schlug fehl.",
-	e.SysDbQueryFailed:       "Die Datenbankabfrage schlug fehl.",
-	e.SysDbInsertFailed:      "Ein Datenbankeintrag konnte nicht erstellt werden.",
-	e.SysDbUpdateFailed:      "Ein Datenbankeintrag konnte nicht geändert werden.",
-	e.SysDbDeleteFailed:      "Ein Datenbankeintrag konnte nicht gelöscht werden.",
-}
-
-func getErrorMessage(errorCode int) string {
-	em, ok := errorMessages[errorCode]
-	if !ok {
-		log.Debugf("Unexpected error code %d. Using fallback error message.", errorCode)
-		return errorMessages[e.SysUnknown]
-	}
-	return em
-}
-
 func getStringPathVar(r *http.Request, n string) (string, bool) {
 	vs := mux.Vars(r)
 	v, ok := vs[n]

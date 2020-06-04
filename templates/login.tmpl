@@ -3,21 +3,21 @@
   <form class="wl-login-form" action="/login" method="POST">
     <div>
       <img class="wl-login-app-logo" src="img/app-logo.png">
-      <h1 class="wl-login-app-name">Work Log</h1>
+      <h1 class="wl-login-app-name">{{text "appName"}}</h1>
     </div>
-    <h2 class="wl-login-form-title">Anmelden</h2>
+    <h2 class="wl-login-form-title">{{text "loginTitle"}}</h2>
     {{if ne .ErrorMessage "" -}}
     <p class="alert alert-danger">{{.ErrorMessage}}</p>
     {{end -}}
     <div class="form-group">
-      <label for="username">Benutzername:</label>
+      <label for="username">{{text "loginLabelUsername"}}</label>
       <input class="form-control" name="username" type="text">
     </div>
     <div class="form-group">
-      <label for="password">Passwort:</label>
+      <label for="password">{{text "loginLabelPassword"}}</label>
       <input class="form-control" name="password" type="password">
     </div>
-    <button class="btn btn-primary" type="submit">Anmelden</button>
+    <button class="btn btn-primary" type="submit">{{text "loginActionLogin"}}</button>
   </form>
 </div>
 {{template "footer" .}}

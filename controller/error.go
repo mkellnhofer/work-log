@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/view"
 	vm "kellnhofer.com/work-log/view/model"
@@ -39,7 +40,7 @@ func (c *ErrorController) handleShowError(w http.ResponseWriter, r *http.Request
 	}
 
 	// Create view model
-	em := getErrorMessage(ec)
+	em := loc.GetErrorMessageString(ec)
 	model := vm.NewError(em)
 
 	// Render

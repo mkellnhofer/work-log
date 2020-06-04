@@ -1,18 +1,18 @@
 {{define "entries_list" -}}
 {{range .Days -}}
-<h3 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - <span {{if eq .WasTargetWorkDurationReached "true" -}}class="wl-list-day-target-achieved"{{else if eq .WasTargetWorkDurationReached "false" -}}class="wl-list-day-target-not-achieved"{{end -}}>{{.WorkDuration}}</span> ({{.BreakDuration}} Pause)</h3>
+<h3 class="wl-list-day-title">{{.Date}} - {{.Weekday}} - <span {{if eq .WasTargetWorkDurationReached "true" -}}class="wl-list-day-target-achieved"{{else if eq .WasTargetWorkDurationReached "false" -}}class="wl-list-day-target-not-achieved"{{end -}}>{{.WorkDuration}}</span> ({{.BreakDuration}} {{text "listLabelBreak"}})</h3>
 <div class="table-responsive table-responsive-xl wl-list-table">
   <table class="table table-sm">
     <thead>
       <tr class="wl-list-table-head">
         <th class="wl-list-table-column-buttons" scope="col"></th>
-        <th class="wl-list-table-column-type" scope="col">Art</th>
-        <th class="wl-list-table-column-time" scope="col">Start</th>
-        <th class="wl-list-table-column-time" scope="col">Ende</th>
-        <th class="wl-list-table-column-time" scope="col">Pause</th>
-        <th class="wl-list-table-column-time" scope="col">Netto</th>
-        <th class="wl-list-table-column-activity" scope="col">Tätigkeit</th>
-        <th class="wl-list-table-column-description" scope="col">Beschreibung</th>
+        <th class="wl-list-table-column-type" scope="col">{{text "tableColType"}}</th>
+        <th class="wl-list-table-column-time" scope="col">{{text "tableColStart"}}</th>
+        <th class="wl-list-table-column-time" scope="col">{{text "tableColEnd"}}</th>
+        <th class="wl-list-table-column-time" scope="col">{{text "tableColBreak"}}</th>
+        <th class="wl-list-table-column-time" scope="col">{{text "tableColNet"}}</th>
+        <th class="wl-list-table-column-activity" scope="col">{{text "tableColActivity"}}</th>
+        <th class="wl-list-table-column-description" scope="col">{{text "tableColDescription"}}</th>
       </tr>
     </thead>
     <tbody>
@@ -24,9 +24,9 @@
         <td class="wl-list-table-row-overlapping" colspan="8"></td>
         {{else -}}
         <td>
-          <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><i class="icon icon-edit" aria-label="Bearbeiten"></i></a>
-          <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><i class="icon icon-copy" aria-label="Kopieren"></i></a>
-          <form class="inline" action="../delete/{{.Id}}" method="POST" onsubmit="return approveDeletion()"><button class="btn btn-link wl-list-table-button" type="submit"><i class="icon icon-delete" aria-label="Löschen"></i></button></form>
+          <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><i class="icon icon-edit" aria-label="{{text "listActionEdit"}}"></i></a>
+          <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><i class="icon icon-copy" aria-label="{{text "listActionCopy"}}"></i></a>
+          <form class="inline" action="../delete/{{.Id}}" method="POST" onsubmit="return approveDeletion()"><button class="btn btn-link wl-list-table-button" type="submit"><i class="icon icon-delete" aria-label="{{text "listActionDelete"}}"></i></button></form>
         </td>
         <td class="wl-list-table-text">{{.EntryType}}</td>
         <td class="wl-list-table-text">{{.StartTime}}</td>

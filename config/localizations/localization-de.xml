@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<localization language="de-DE">
+    <!-- General -->
+    <message key="appName"><text>Work Log</text></message>
+
+    <!-- Common actions -->
+    <message key="actionBack"><text>Zurück</text></message>
+    <message key="actionPrevious"><text>Vorherige</text></message>
+    <message key="actionNext"><text>Nächste</text></message>
+    <message key="actionCancel"><text>Abbrechen</text></message>
+    <message key="actionSave"><text>Speichern</text></message>
+
+    <!-- Login view -->
+    <message key="loginTitle"><text>Anmelden</text></message>
+    <message key="loginLabelUsername"><text>Benutzername:</text></message>
+    <message key="loginLabelPassword"><text>Passwort:</text></message>
+    <message key="loginActionLogin"><text>Anmelden</text></message>
+
+    <!-- List view -->
+    <message key="listTitle"><text>Einträge</text></message>
+    <message key="listActionCreate"><text>Erstellen</text></message>
+    <message key="listActionEdit"><text>Bearbeiten</text></message>
+    <message key="listActionCopy"><text>Kopieren</text></message>
+    <message key="listActionDelete"><text>Löschen</text></message>
+    <message key="listActionSearch"><text>Suchen</text></message>
+    <message key="listActionShowOverview"><text>Übersicht</text></message>
+    <message key="listActionLogout"><text>Abmelden</text></message>
+    <message key="listSummaryHeading"><text>Arbeitszeitkonto:</text></message>
+    <message key="listSummaryLabelOvertimeHours"><text>Überstunden:</text></message>
+    <message key="listSummaryLabelRemainingVacationDays"><text>Resturlaubstage:</text></message>
+    <message key="listSummaryActionClose"><text>Schließen</text></message>
+    <message key="listLabelNoEntries"><text>keine Einträge vorhanden</text></message>
+    <message key="listLabelBreak"><text>Pause</text></message>
+    <message key="listDialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
+
+    <!-- Create/edit/copy view -->
+    <message key="createTitle"><text>Erstellen</text></message>
+    <message key="editTitle"><text>Bearbeiten</text></message>
+    <message key="copyTitle"><text>Kopieren</text></message>
+
+    <!-- Search view -->
+    <message key="searchTitle"><text>Suchen</text></message>
+    <message key="searchActionSearch"><text>Suchen</text></message>
+    <message key="searchListTitle"><text>Suchergebnis</text></message>
+    <message key="searchListLabelNoEntries"><text>keine Einträge gefunden</text></message>
+
+    <!-- Overview view -->
+    <message key="overviewTitle"><text>Übersicht</text></message>
+    <message key="overviewActionExport"><text>Exportieren</text></message>
+    <message key="overviewActionShowActivities"><text>zeige Tätigkeiten</text></message>
+    <message key="overviewHeadingSummary"><text>Zusammenfassung:</text></message>
+    <message key="overviewHeadingEntries"><text>Einträge:</text></message>
+    <message key="overviewSummaryLabelTargetHours"><text>Soll:</text></message>
+    <message key="overviewSummaryLabelActualHours"><text>Ist:</text></message>
+    <message key="overviewSummaryLabelBalanceHours"><text>Saldo:</text></message>
+    <message key="exportTitle"><text>%s Export</text></message>
+    <message key="exportPropTitle"><text>%s Export - %s</text></message>
+    <message key="exportPropDescription"><text>This file created by %s.</text></message>
+
+    <!-- Error view -->
+    <message key="errorTitle"><text>Fehler!</text></message>
+
+    <!-- Entry form -->
+    <message key="formLabelType"><text>Art:</text></message>
+    <message key="formLabelDate"><text>Datum:</text></message>
+    <message key="formLabelStart"><text>Start:</text></message>
+    <message key="formLabelEnd"><text>Ende:</text></message>
+    <message key="formLabelBreak"><text>Pause: (Minuten)</text></message>
+    <message key="formLabelFrom"><text>Von:</text></message>
+    <message key="formLabelTo"><text>Bis:</text></message>
+    <message key="formLabelActivity"><text>Tätigkeit:</text></message>
+    <message key="formLabelDescription"><text>Beschreibung:</text></message>
+
+    <!-- Entries table -->
+    <message key="tableColDate"><text>Datum</text></message>
+    <message key="tableColType"><text>Art</text></message>
+    <message key="tableColStart"><text>Start</text></message>
+    <message key="tableColEnd"><text>Ende</text></message>
+    <message key="tableColBreak"><text>Pause</text></message>
+    <message key="tableColNet"><text>Netto</text></message>
+    <message key="tableColActivity"><text>Tätigkeit</text></message>
+    <message key="tableColDescription"><text>Beschreibung</text></message>
+    
+    <!-- Entry types -->
+    <message key="entryTypeWork"><text>Arbeit</text></message>
+    <message key="entryTypeTravel"><text>Reise</text></message>
+    <message key="entryTypeVacation"><text>Urlaub</text></message>
+    <message key="entryTypeHoliday"><text>Feiertag</text></message>
+    <message key="entryTypeIllness"><text>Krankheit</text></message>
+
+    <!-- Date/time -->
+    <message key="daysValue"><text>%.1f Tage</text></message>
+    <message key="hoursValue"><text>%.2f Stunden</text></message>
+    <message key="weekdaySun"><text>Sonntag</text></message>
+    <message key="weekdayMon"><text>Montag</text></message>
+    <message key="weekdayTue"><text>Dienstag</text></message>
+    <message key="weekdayWed"><text>Mittwoch</text></message>
+    <message key="weekdayThu"><text>Donnerstag</text></message>
+    <message key="weekdayFri"><text>Freitag</text></message>
+    <message key="weekdaySat"><text>Samstag</text></message>
+    <message key="monthJan"><text>Januar</text></message>
+    <message key="monthFeb"><text>Februar</text></message>
+    <message key="monthMar"><text>März</text></message>
+    <message key="monthApr"><text>April</text></message>
+    <message key="monthMay"><text>Mai</text></message>
+    <message key="monthJun"><text>Juni</text></message>
+    <message key="monthJul"><text>Juli</text></message>
+    <message key="monthAug"><text>August</text></message>
+    <message key="monthSep"><text>September</text></message>
+    <message key="monthOct"><text>Oktober</text></message>
+    <message key="monthNov"><text>November</text></message>
+    <message key="monthDec"><text>Dezember</text></message>
+
+    <!-- Errors -->
+    <message key="errAuthUnknown"><text>Ein unbekannter Authentifizierungsfehler trat auf.</text></message>
+    <message key="errAuthInvalidCredentials"><text>Falscher Benutzername oder Passwort.</text></message>
+    <message key="errValUnknown"><text>Ein unbekannter Validierungsfehler trat auf.</text></message>
+    <message key="errValPageNumberInvalid"><text>Seitennummer ungültig. (Seitennummer muss numerisch und positiv sein.)</text></message>
+    <message key="errValIdInvalid"><text>ID ungültig. (ID muss numerisch und positiv sein.)</text></message>
+    <message key="errValDateInvalid"><text>Datum ungültig!</text></message>
+    <message key="errValStartDateInvalid"><text>Startdatum ungültig!</text></message>
+    <message key="errValEndDateInvalid"><text>Enddatum ungültig!</text></message>
+    <message key="errValStartTimeInvalid"><text>Startzeit ungültig!</text></message>
+    <message key="errValEndTimeInvalid"><text>Endzeit ungültig!</text></message>
+    <message key="errValBreakDurationInvalid"><text>Pausendauer ungültig!</text></message>
+    <message key="errValDescriptionTooLong"><text>Beschreibung darf nicht länger als 200 Zeichen sein!</text></message>
+    <message key="errValSearchInvalid"><text>Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)</text></message>
+    <message key="errValSearchQueryInvalid"><text>Suchabfrage ungültig!</text></message>
+    <message key="errValMonthInvalid"><text>Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)</text></message>
+    <message key="errLogicUnknown"><text>Ein unbekannter Logikfehler trat auf.</text></message>
+    <message key="errLogicEntryNotFound"><text>Der Eintrag konnte nicht gefunden werden.</text></message>
+    <message key="errLogicEntryTypeNotFound"><text>Der Eintragstyp konnte nicht gefunden werden.</text></message>
+    <message key="errLogicEntryActivityNotFound"><text>Die Eintragstätigkeit konnte nicht gefunden werden.</text></message>
+    <message key="errLogicEntryTimeIntervalInvalid"><text>Startzeit-Endzeit-Interval ungültig!</text></message>
+    <message key="errLogicEntryBreakDurationTooLong"><text>Pausendauer zu lang!</text></message>
+    <message key="errLogicEntrySearchDateIntervalInvalid"><text>Suchzeitraum ungültig!</text></message>
+    <message key="errSysUnknown"><text>Ein unbekannter Systemfehler trat auf.</text></message>
+    <message key="errSysDbUnknown"><text>Ein unbekannter Datenbankfehler trat auf.</text></message>
+    <message key="errSysDbConnectionFailed"><text>Die Verbindung zur Datenbank wurde unterbrochen.</text></message>
+    <message key="errSysDbTransactionFailed"><text>Die Datenbanktransaktion schlug fehl.</text></message>
+    <message key="errSysDbQueryFailed"><text>Die Datenbankabfrage schlug fehl.</text></message>
+    <message key="errSysDbInsertFailed"><text>Ein Datenbankeintrag konnte nicht erstellt werden.</text></message>
+    <message key="errSysDbUpdateFailed"><text>Ein Datenbankeintrag konnte nicht geändert werden.</text></message>
+    <message key="errSysDbDeleteFailed"><text>Ein Datenbankeintrag konnte nicht gelöscht werden.</text></message>
+</localization>

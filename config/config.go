@@ -8,13 +8,14 @@ import (
 
 // Config stores the application's configuration.
 type Config struct {
-	ServerPort int
-	LogLevel   string
-	DbHost     string
-	DbPort     int
-	DbScheme   string
-	DbUsername string
-	DbPassword string
+	ServerPort  int
+	LogLevel    string
+	DbHost      string
+	DbPort      int
+	DbScheme    string
+	DbUsername  string
+	DbPassword  string
+	LocLanguage string
 }
 
 // LoadConfig loads the configuration from "/config/config.ini".
@@ -43,7 +44,10 @@ func loadConfig(name string) *Config {
 	dbUsername := getStringValue(cfg, "database", "username")
 	dbPassword := getStringValue(cfg, "database", "password")
 
-	return &Config{serverPort, logLevel, dbHost, dbPort, dbScheme, dbUsername, dbPassword}
+	locLanguage := getStringValue(cfg, "localization", "language")
+
+	return &Config{serverPort, logLevel, dbHost, dbPort, dbScheme, dbUsername, dbPassword,
+		locLanguage}
 }
 
 func getStringValue(file *ini.File, secName string, keyName string) string {

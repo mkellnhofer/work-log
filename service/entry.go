@@ -11,28 +11,28 @@ import (
 	"kellnhofer.com/work-log/model"
 )
 
-// EntryService contains work entry related logic.
+// EntryService contains entry related logic.
 type EntryService struct {
 	eRepo *repo.EntryRepo
 }
 
-// NewEntryService create a new work entry service.
+// NewEntryService create a new entry service.
 func NewEntryService(er *repo.EntryRepo) *EntryService {
 	return &EntryService{er}
 }
 
-// --- Work entry functions ---
+// --- Entry functions ---
 
-// GetDateEntries gets all work entries (over date).
+// GetDateEntries gets all entries (over date).
 func (s *EntryService) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, int,
 	*e.Error) {
-	// Get work entries
+	// Get entries
 	entries, err := s.eRepo.GetDateEntries(userId, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Count all available work entries
+	// Count all available entries
 	cnt, err := s.eRepo.CountDateEntries(userId)
 	if err != nil {
 		return nil, 0, err
@@ -41,16 +41,16 @@ func (s *EntryService) GetDateEntries(userId int, offset int, limit int) ([]*mod
 	return entries, cnt, nil
 }
 
-// GetEntries gets all work entries.
+// GetEntries gets all entries.
 func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.Entry, int,
 	*e.Error) {
-	// Get work entries
+	// Get entries
 	entries, err := s.eRepo.GetEntries(userId, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Count all available work entries
+	// Count all available entries
 	cnt, err := s.eRepo.CountEntries(userId)
 	if err != nil {
 		return nil, 0, err
@@ -59,89 +59,89 @@ func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.E
 	return entries, cnt, nil
 }
 
-// GetEntryById gets a work entry by its ID.
+// GetEntryById gets a entry by its ID.
 func (s *EntryService) GetEntryById(id int, userId int) (*model.Entry, *e.Error) {
 	return s.eRepo.GetEntryById(id, userId)
 }
 
-// CreateEntry creates a new work entry.
+// CreateEntry creates a new entry.
 func (s *EntryService) CreateEntry(entry *model.Entry) *e.Error {
-	// Check if work entry type exists
+	// Check if entry type exists
 	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
 		return err
 	}
-	// Check if work entry activity exists
+	// Check if entry activity exists
 	if err := s.checkIfEntryActivityExists(entry.ActivityId); err != nil {
 		return err
 	}
 
-	// Check work entry
+	// Check entry
 	if err := s.checkEntry(entry); err != nil {
 		return err
 	}
 
-	// Create work entry
+	// Create entry
 	return s.eRepo.CreateEntry(entry)
 }
 
-// UpdateEntry updates a work entry.
+// UpdateEntry updates a entry.
 func (s *EntryService) UpdateEntry(entry *model.Entry, userId int) *e.Error {
-	// Get existing work entry
+	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryById(entry.Id, userId)
 	if err != nil {
 		return err
 	}
 
-	// Check if work entry exists
+	// Check if entry exists
 	if err := s.checkIfEntryExists(entry.Id, existingEntry); err != nil {
 		return err
 	}
 
-	// Check if work entry type exists
+	// Check if entry type exists
 	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
 		return err
 	}
-	// Check if work entry activity exists
+	// Check if entry activity exists
 	if err := s.checkIfEntryActivityExists(entry.ActivityId); err != nil {
 		return err
 	}
 
-	// Check work entry
+	// Check entry
 	if err := s.checkEntry(entry); err != nil {
 		return err
 	}
 
-	// Update work entry
+	// Update entry
 	return s.eRepo.UpdateEntry(entry)
 }
 
-// DeleteEntryById deletes a work entry by its ID.
+// DeleteEntryById deletes a entry by its ID.
 func (s *EntryService) DeleteEntryById(id int, userId int) *e.Error {
-	// Get existing work entry
+	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryById(id, userId)
 	if err != nil {
 		return err
 	}
 
-	// Check if work entry exists
+	// Check if entry exists
 	if err := s.checkIfEntryExists(id, existingEntry); err != nil {
 		return err
 	}
 
-	// Delete work entry
+	// Delete entry
 	return s.eRepo.DeleteEntryById(id)
 }
 
-// SearchEntries searches work entries (over date).
+// SearchEntries searches entries (over date).
 func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntriesParams, offset int,
 	limit int) ([]*model.Entry, int, *e.Error) {
-	// Get work entries
+	// Get entries
 	entries, err := s.eRepo.SearchDateEntries(userId, params, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	// Count all available work entries
+	// Count all available entries
 	cnt, err := s.eRepo.CountSearchDateEntries(userId, params)
 	if err != nil {
 		return nil, 0, err
@@ -150,14 +150,14 @@ func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntries
 	return entries, cnt, nil
 }
 
-// GetMonthEntries gets all work entries of a month.
+// GetMonthEntries gets all entries of a month.
 func (s *EntryService) GetMonthEntries(userId int, year int, month int) ([]*model.Entry, *e.Error) {
 	return s.eRepo.GetMonthEntries(userId, year, month)
 }
 
 func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
 	if entry == nil {
-		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find work entry %d.", id))
+		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
 		log.Debug(err.StackTrace())
 		return err
 	}
@@ -183,9 +183,9 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 	return nil
 }
 
-// --- Work entry type functions ---
+// --- Entry type functions ---
 
-// GetEntryTypes gets all work entry types.
+// GetEntryTypes gets all entry types.
 func (s *EntryService) GetEntryTypes() []*model.EntryType {
 	return []*model.EntryType{
 		model.NewEntryType(model.EntryTypeIdWork, loc.CreateString("entryTypeWork")),
@@ -196,7 +196,7 @@ func (s *EntryService) GetEntryTypes() []*model.EntryType {
 	}
 }
 
-// GetEntryTypesMap gets a map of all work entry types.
+// GetEntryTypesMap gets a map of all entry types.
 func (s *EntryService) GetEntryTypesMap() map[int]*model.EntryType {
 	// Get entry types
 	entryTypes := s.GetEntryTypes()
@@ -215,22 +215,21 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 		id == model.EntryTypeIdVacation || id == model.EntryTypeIdHoliday ||
 		id == model.EntryTypeIdIllness
 	if !exist {
-		err := e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find work entry type %d.",
-			id))
+		err := e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find entry type %d.", id))
 		log.Debug(err.StackTrace())
 		return err
 	}
 	return nil
 }
 
-// --- Work entry activity functions ---
+// --- Entry activity functions ---
 
-// GetEntryActivities gets all work entry activities.
+// GetEntryActivities gets all entry activities.
 func (s *EntryService) GetEntryActivities() ([]*model.EntryActivity, *e.Error) {
 	return s.eRepo.GetEntryActivities()
 }
 
-// GetEntryActivitiesMap gets a map of all work entry activities.
+// GetEntryActivitiesMap gets a map of all entry activities.
 func (s *EntryService) GetEntryActivitiesMap() (map[int]*model.EntryActivity, *e.Error) {
 	// Get entry activities
 	entryActivities, err := s.eRepo.GetEntryActivities()
@@ -256,8 +255,8 @@ func (s *EntryService) checkIfEntryActivityExists(id int) *e.Error {
 		return err
 	}
 	if !exist {
-		err = e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find work entry "+
-			"activity %d.", id))
+		err = e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find entry activity "+
+			"%d.", id))
 		log.Debug(err.StackTrace())
 		return err
 	}

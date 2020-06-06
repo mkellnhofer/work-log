@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// Entry stores information about a work log entry.
+// Entry stores information about a entry.
 type Entry struct {
 	Id            int           // ID of the entry
 	UserId        int           // ID of the user

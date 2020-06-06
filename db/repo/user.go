@@ -18,7 +18,7 @@ type dbUserContract struct {
 	firstWorkDay         string
 }
 
-// UserRepo retrieves and stores user and role records.
+// UserRepo retrieves and stores user related entities.
 type UserRepo struct {
 	repo
 }

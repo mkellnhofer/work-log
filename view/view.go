@@ -116,37 +116,37 @@ func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
 	renderTemplate(w, "login", model)
 }
 
-// RenderListEntriesTemplate renders a page of work entries.
+// RenderListEntriesTemplate renders a page of entries.
 func RenderListEntriesTemplate(w http.ResponseWriter, model *model.ListEntries) {
 	renderTemplate(w, "list_entries", model)
 }
 
-// RenderCreateEntryTemplate renders the page to create a work entry.
+// RenderCreateEntryTemplate renders the page to create a entry.
 func RenderCreateEntryTemplate(w http.ResponseWriter, model *model.CreateEntry) {
 	renderTemplate(w, "create_entry", model)
 }
 
-// RenderEditEntryTemplate renders the page to edit a work entry.
+// RenderEditEntryTemplate renders the page to edit a entry.
 func RenderEditEntryTemplate(w http.ResponseWriter, model *model.EditEntry) {
 	renderTemplate(w, "edit_entry", model)
 }
 
-// RenderCopyEntryTemplate renders the page to copy a work entry.
+// RenderCopyEntryTemplate renders the page to copy a entry.
 func RenderCopyEntryTemplate(w http.ResponseWriter, model *model.CopyEntry) {
 	renderTemplate(w, "copy_entry", model)
 }
 
-// RenderSearchEntriesTemplate renders the page to search work entries.
+// RenderSearchEntriesTemplate renders the page to search entries.
 func RenderSearchEntriesTemplate(w http.ResponseWriter, model *model.SearchEntries) {
 	renderTemplate(w, "search_entries", model)
 }
 
-// RenderListSearchEntriesTemplate renders a page with searched work entries.
+// RenderListSearchEntriesTemplate renders a page with searched entries.
 func RenderListSearchEntriesTemplate(w http.ResponseWriter, model *model.ListSearchEntries) {
 	renderTemplate(w, "list_search_entries", model)
 }
 
-// RenderListOverviewEntriesTemplate renders the page to overview work entries.
+// RenderListOverviewEntriesTemplate renders the page to overview entries.
 func RenderListOverviewEntriesTemplate(w http.ResponseWriter, model *model.ListOverviewEntries) {
 	renderTemplate(w, "list_overview_entries", model)
 }

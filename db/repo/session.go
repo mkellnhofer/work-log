@@ -17,7 +17,7 @@ type dbSession struct {
 	previousUrl sql.NullString
 }
 
-// SessionRepo retrieves and stores user session records.
+// SessionRepo retrieves and stores sessions related entities.
 type SessionRepo struct {
 	repo
 }

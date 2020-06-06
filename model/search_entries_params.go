@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-// SearchEntriesParams stores parameters for a search of work log entries.
+// SearchEntriesParams stores parameters for a search of entries.
 type SearchEntriesParams struct {
 	ByType        bool      // Flag to search by entry type
 	TypeId        int       // ID of the entry type

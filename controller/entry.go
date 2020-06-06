@@ -200,14 +200,14 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	// Get work entries
+	// Get entries
 	entries, cnt, gesErr := c.eServ.GetDateEntries(userId, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
-	// Get work entry types
+	// Get entry types
 	entryTypesMap := c.getEntryTypesMap()
-	// Get work entry activities
+	// Get entry activities
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
@@ -224,9 +224,9 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 // --- Create handler functions ---
 
 func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Request) {
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -255,7 +255,7 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 		c.handleCreateError(w, r, cmErr, input)
 	}
 
-	// Create work entry
+	// Create entry
 	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
 		c.handleCreateError(w, r, ceErr, input)
 	}
@@ -273,9 +273,9 @@ func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Reque
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -299,12 +299,12 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 	// Get ID
 	entryId := getIdPathVar(r)
 
-	// Get work entry
+	// Get entry
 	entry := c.getEntry(entryId, userId)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -333,7 +333,7 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 		c.handleEditError(w, r, cmErr, entryId, input)
 	}
 
-	// Update work entry
+	// Update entry
 	if ueErr := c.eServ.UpdateEntry(entry, userId); ueErr != nil {
 		c.handleEditError(w, r, ueErr, entryId, input)
 	}
@@ -351,9 +351,9 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -377,12 +377,12 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 	// Get ID
 	entryId := getIdPathVar(r)
 
-	// Get work entry
+	// Get entry
 	entry := c.getEntry(entryId, userId)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -412,7 +412,7 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 		c.handleCopyError(w, r, cmErr, entryId, input)
 	}
 
-	// Create work entry
+	// Create entry
 	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
 		c.handleCopyError(w, r, ceErr, entryId, input)
 	}
@@ -430,9 +430,9 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -456,7 +456,7 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 	// Get ID
 	entryId := getIdPathVar(r)
 
-	// Delete work entry
+	// Delete entry
 	if deErr := c.eServ.DeleteEntryById(entryId, userId); deErr != nil {
 		panic(deErr)
 	}
@@ -472,9 +472,9 @@ func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Req
 // --- Search handler functions ---
 
 func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Request) {
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -500,14 +500,14 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 	// Create search params model from query string
 	params := c.parseSearchQueryString(query)
 
-	// Get work entries
+	// Get entries
 	entries, cnt, gesErr := c.eServ.SearchDateEntries(userId, params, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
-	// Get work entry types
+	// Get entry types
 	entryTypesMap := c.getEntryTypesMap()
-	// Get work entry activities
+	// Get entry activities
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
@@ -544,9 +544,9 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
-	// Get work entry types
+	// Get entry types
 	entryTypes := c.getEntryTypes()
-	// Get work entry activities
+	// Get entry activities
 	entryActivities := c.getEntryActivities()
 
 	// Create view model
@@ -602,14 +602,14 @@ func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewE
 	// Get year and month
 	year, month := c.getOverviewParams(r)
 
-	// Get work entries
+	// Get entries
 	entries, gesErr := c.eServ.GetMonthEntries(userId, year, month)
 	if gesErr != nil {
 		panic(gesErr)
 	}
-	// Get work entry types
+	// Get entry types
 	entryTypesMap := c.getEntryTypesMap()
-	// Get work entry activities
+	// Get entry activities
 	entryActivitiesMap := c.getEntryActivitiesMap()
 
 	// Create view model
@@ -670,7 +670,7 @@ func (c *EntryController) createListViewModel(userContract *model.UserContract,
 	lesvm.PrevPageNum = pageNum - 1
 	lesvm.NextPageNum = pageNum + 1
 
-	// Create work entries
+	// Create entries
 	lesvm.Days = c.createEntriesViewModel(userContract, entries, entryTypesMap, entryActivitiesMap,
 		true)
 
@@ -833,7 +833,7 @@ func (c *EntryController) createListSearchViewModel(prevUrl string, query string
 	lesvm.PrevPageNum = pageNum - 1
 	lesvm.NextPageNum = pageNum + 1
 
-	// Create work entries
+	// Create entries
 	lesvm.Days = c.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)
 
 	return lesvm
@@ -1001,7 +1001,7 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 	// Calculate summary
 	lesvm.Summary = c.createOverviewSummaryViewModel(year, month, userContract, entries)
 
-	// Create work entries
+	// Create entries
 	lesvm.ShowDetails = showDetails
 	lesvm.Days = c.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
 		entryActivitiesMap, showDetails)
@@ -1642,7 +1642,7 @@ func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
 		panic(geErr)
 	}
 	if entry == nil {
-		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find work entry %d.", entryId))
+		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", entryId))
 		log.Debug(err.StackTrace())
 		panic(err)
 	}

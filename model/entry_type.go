@@ -8,7 +8,7 @@ const (
 	EntryTypeIdIllness  int = 5
 )
 
-// EntryType specifies the type of a work log entry.
+// EntryType specifies the type of a entry.
 type EntryType struct {
 	Id          int    // ID of the entry type
 	Description string // Description of the entry type

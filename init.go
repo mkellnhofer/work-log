@@ -45,7 +45,7 @@ func (i *Initializer) GetDb() *db.Db {
 
 // --- Service functions ---
 
-// GetEntryService returns a initialized work entry service object.
+// GetEntryService returns a initialized entry service object.
 func (i *Initializer) GetEntryService() *service.EntryService {
 	if i.entryServ == nil {
 		i.entryServ = service.NewEntryService(i.GetDb().GetEntryRepo())

@@ -28,25 +28,25 @@ type dbWorkDuration struct {
 	breakDuration int
 }
 
-// EntryRepo retrieves and stores work entry and work entry type records.
+// EntryRepo retrieves and stores entry related entities.
 type EntryRepo struct {
 	repo
 }
 
-// NewEntryRepo creates a new work entry repository.
+// NewEntryRepo creates a new entry repository.
 func NewEntryRepo(db *sql.DB) *EntryRepo {
 	return &EntryRepo{repo{db}}
 }
 
-// --- Work entry functions ---
+// --- Entry functions ---
 
-// CountDateEntries counts all work entries (over date).
+// CountDateEntries counts all entries (over date).
 func (r *EntryRepo) CountDateEntries(userId int) (int, *e.Error) {
 	q, qa := r.buildCountDateEntriesQuery(userId)
 
 	sr, qErr := r.queryRow(&scanIntHelper{}, q, qa...)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries (over date) in database.",
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return 0, err
@@ -65,14 +65,14 @@ func (r *EntryRepo) buildCountDateEntriesQuery(userId int) (string, []interface{
 	return q, qa
 }
 
-// GetDateEntries retrieves all work entries (over date).
+// GetDateEntries retrieves all entries (over date).
 func (r *EntryRepo) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, *e.Error) {
 	qr, qra := r.buildGetDateEntriesRangeQuery(userId, offset, limit)
 
 	start, end, qrErr := r.getDateRange(qr, qra...)
 	if qrErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for work entries (over "+
-			"date) from database.", qrErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) "+
+			"from database.", qrErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -84,8 +84,8 @@ func (r *EntryRepo) GetDateEntries(userId int, offset int, limit int) ([]*model.
 
 	sr, qErr := r.query(&scanEntryHelper{}, q, qa...)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries (over date) from "+
-			"database.", qErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
+			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -122,13 +122,13 @@ func (r *EntryRepo) buildGetDateEntriesQuery(userId int, start string, end strin
 	return q, qa
 }
 
-// CountEntries counts all work entries.
+// CountEntries counts all entries.
 func (r *EntryRepo) CountEntries(userId int) (int, *e.Error) {
 	q := "SELECT COUNT(*) FROM entry WHERE user_id = ?"
 
 	sr, qErr := r.queryRow(&scanIntHelper{}, q, userId)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries in database.", qErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries in database.", qErr)
 		log.Error(err.StackTrace())
 		return 0, err
 	}
@@ -136,7 +136,7 @@ func (r *EntryRepo) CountEntries(userId int) (int, *e.Error) {
 	return sr.(int), nil
 }
 
-// GetEntries retrieves all work entries.
+// GetEntries retrieves all entries.
 func (r *EntryRepo) GetEntries(userId int, offset int, limit int) ([]*model.Entry, *e.Error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
 		"description FROM entry WHERE user_id = ? ORDER BY start_time DESC, end_time DESC"
@@ -145,7 +145,7 @@ func (r *EntryRepo) GetEntries(userId int, offset int, limit int) ([]*model.Entr
 
 	sr, qErr := r.query(&scanEntryHelper{}, q+" "+ql, userId)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries from database.", qErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -155,15 +155,15 @@ func (r *EntryRepo) GetEntries(userId int, offset int, limit int) ([]*model.Entr
 	return entries, nil
 }
 
-// GetEntryById retrieves a work entry by its ID.
+// GetEntryById retrieves a entry by its ID.
 func (r *EntryRepo) GetEntryById(id int, userId int) (*model.Entry, *e.Error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
 		"description FROM entry WHERE id = ? AND user_id = ?"
 
 	sr, qErr := r.queryRow(&scanEntryHelper{}, q, id, userId)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read work entry %d from "+
-			"database.", id), qErr)
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read entry %d from database.",
+			id), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -176,12 +176,12 @@ func (r *EntryRepo) GetEntryById(id int, userId int) (*model.Entry, *e.Error) {
 	return entry, nil
 }
 
-// ExistsEntryById checks if a work entry exists.
+// ExistsEntryById checks if a entry exists.
 func (r *EntryRepo) ExistsEntryById(id int, userId int) (bool, *e.Error) {
 	cnt, cErr := r.count("entry", "id = ? AND user_id = ?", id, userId)
 	if cErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read work entry %d from "+
-			"database.", id), cErr)
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read entry %d from database.",
+			id), cErr)
 		log.Error(err.StackTrace())
 		return false, err
 	}
@@ -189,7 +189,7 @@ func (r *EntryRepo) ExistsEntryById(id int, userId int) (bool, *e.Error) {
 	return cnt > 0, nil
 }
 
-// CreateEntry creates a new work entry.
+// CreateEntry creates a new entry.
 func (r *EntryRepo) CreateEntry(entry *model.Entry) *e.Error {
 	etr := toDbEntry(entry)
 
@@ -199,7 +199,7 @@ func (r *EntryRepo) CreateEntry(entry *model.Entry) *e.Error {
 	id, cErr := r.insert(q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.breakDuration,
 		etr.activityId, etr.description)
 	if cErr != nil {
-		err := e.WrapError(e.SysDbInsertFailed, "Could not create work entry in database.", cErr)
+		err := e.WrapError(e.SysDbInsertFailed, "Could not create entry in database.", cErr)
 		log.Error(err.StackTrace())
 		return err
 	}
@@ -209,7 +209,7 @@ func (r *EntryRepo) CreateEntry(entry *model.Entry) *e.Error {
 	return nil
 }
 
-// UpdateEntry updates a work entry.
+// UpdateEntry updates a entry.
 func (r *EntryRepo) UpdateEntry(entry *model.Entry) *e.Error {
 	etr := toDbEntry(entry)
 
@@ -219,8 +219,8 @@ func (r *EntryRepo) UpdateEntry(entry *model.Entry) *e.Error {
 	uErr := r.exec(q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.breakDuration,
 		etr.activityId, etr.description, etr.id)
 	if uErr != nil {
-		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update work entry %d in "+
-			"database.", entry.Id), uErr)
+		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry %d in database.",
+			entry.Id), uErr)
 		log.Error(err.StackTrace())
 		return err
 	}
@@ -228,13 +228,13 @@ func (r *EntryRepo) UpdateEntry(entry *model.Entry) *e.Error {
 	return nil
 }
 
-// DeleteEntryById deletes a work entry by by its ID.
+// DeleteEntryById deletes a entry by by its ID.
 func (r *EntryRepo) DeleteEntryById(id int) *e.Error {
 	q := "DELETE FROM entry WHERE id = ?"
 
 	dErr := r.exec(q, id)
 	if dErr != nil {
-		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete work entry %d from "+
+		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete entry %d from "+
 			"database.", id), dErr)
 		log.Error(err.StackTrace())
 		return err
@@ -243,14 +243,14 @@ func (r *EntryRepo) DeleteEntryById(id int) *e.Error {
 	return nil
 }
 
-// CountSearchDateEntries counts work entries of a search (over date).
+// CountSearchDateEntries counts entries of a search (over date).
 func (r *EntryRepo) CountSearchDateEntries(userId int, params *model.SearchEntriesParams) (int,
 	*e.Error) {
 	q, qa := r.buildCountSearchDateEntriesQuery(userId, params)
 
 	sr, qErr := r.queryRow(&scanIntHelper{}, q, qa...)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not count work entries (over date) in database.",
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return 0, err
@@ -273,15 +273,15 @@ func (r *EntryRepo) buildCountSearchDateEntriesQuery(userId int, params *model.S
 	return q, qa
 }
 
-// SearchDateEntries retrieves work entries of a search (over date).
+// SearchDateEntries retrieves entries of a search (over date).
 func (r *EntryRepo) SearchDateEntries(userId int, params *model.SearchEntriesParams, offset int,
 	limit int) ([]*model.Entry, *e.Error) {
 	qr, qra := r.buildSearchDateEntriesRangeQuery(userId, params, offset, limit)
 
 	start, end, qrErr := r.getDateRange(qr, qra...)
 	if qrErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for work entries (over "+
-			"date) from database.", qrErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) from "+
+			"database.", qrErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -293,8 +293,8 @@ func (r *EntryRepo) SearchDateEntries(userId int, params *model.SearchEntriesPar
 
 	sr, qErr := r.query(&scanEntryHelper{}, q, qa...)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entries (over date) from "+
-			"database.", qErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
+			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -363,7 +363,7 @@ func (r *EntryRepo) buildSearchDateEntriesQueryRestriction(params *model.SearchE
 	return strings.Join(qrs[:], " AND "), qas
 }
 
-// GetMonthEntries retrieves all work entries of a month.
+// GetMonthEntries retrieves all entries of a month.
 func (r *EntryRepo) GetMonthEntries(userId int, year int, month int) ([]*model.Entry, *e.Error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
 		"description " +
@@ -374,8 +374,7 @@ func (r *EntryRepo) GetMonthEntries(userId int, year int, month int) ([]*model.E
 
 	sr, qErr := r.query(&scanEntryHelper{}, q, userId, year, month)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query month work entries from database.",
-			qErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query month entries from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -385,15 +384,15 @@ func (r *EntryRepo) GetMonthEntries(userId int, year int, month int) ([]*model.E
 	return entries, nil
 }
 
-// --- Work entry activity functions ---
+// --- Entry activity functions ---
 
-// GetEntryActivities retrieves all work entry activities.
+// GetEntryActivities retrieves all entry activities.
 func (r *EntryRepo) GetEntryActivities() ([]*model.EntryActivity, *e.Error) {
 	q := "SELECT id, description FROM entry_activity"
 
 	sr, qErr := r.query(&scanEntryActivityHelper{}, q)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entry activities from database.",
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query entry activities from database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
@@ -402,15 +401,15 @@ func (r *EntryRepo) GetEntryActivities() ([]*model.EntryActivity, *e.Error) {
 	return sr.([]*model.EntryActivity), nil
 }
 
-// GetEntryActivityByDescription retrieves a work entry activity by its description.
+// GetEntryActivityByDescription retrieves a entry activity by its description.
 func (r *EntryRepo) GetEntryActivityByDescription(description string) (*model.EntryActivity,
 	*e.Error) {
 	q := "SELECT id, description FROM entry_activity WHERE description = ?"
 
 	sr, qErr := r.queryRow(&scanEntryActivityHelper{}, q, description)
 	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query work entry activity "+
-			"'%s' from database.", description), qErr)
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query entry activity '%s' "+
+			"from database.", description), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -421,12 +420,12 @@ func (r *EntryRepo) GetEntryActivityByDescription(description string) (*model.En
 	return sr.(*model.EntryActivity), nil
 }
 
-// ExistsEntryActivityById checks if a work entry activity exists.
+// ExistsEntryActivityById checks if a entry activity exists.
 func (r *EntryRepo) ExistsEntryActivityById(id int) (bool, *e.Error) {
 	cnt, cErr := r.count("entry_activity", "id = ?", id)
 	if cErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read work entry activity %d "+
-			"from database.", id), cErr)
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read entry activity %d from "+
+			"database.", id), cErr)
 		log.Error(err.StackTrace())
 		return false, err
 	}
@@ -434,14 +433,13 @@ func (r *EntryRepo) ExistsEntryActivityById(id int) (bool, *e.Error) {
 	return cnt > 0, nil
 }
 
-// CreateEntryActivity creates a new work entry activity.
+// CreateEntryActivity creates a new entry activity.
 func (r *EntryRepo) CreateEntryActivity(entryActivity *model.EntryActivity) *e.Error {
 	q := "INSERT INTO entry_activity (description) VALUES (?)"
 
 	id, cErr := r.insert(q, entryActivity.Description)
 	if cErr != nil {
-		err := e.WrapError(e.SysDbInsertFailed, "Could not create work entry activity in database.",
-			cErr)
+		err := e.WrapError(e.SysDbInsertFailed, "Could not create entry activity in database.", cErr)
 		log.Error(err.StackTrace())
 		return err
 	}
@@ -451,14 +449,14 @@ func (r *EntryRepo) CreateEntryActivity(entryActivity *model.EntryActivity) *e.E
 	return nil
 }
 
-// UpdateEntryActivity updates a work entry activity.
+// UpdateEntryActivity updates a entry activity.
 func (r *EntryRepo) UpdateEntryActivity(entryActivity *model.EntryActivity) *e.Error {
 	q := "UPDATE entry_activity SET description = ? WHERE id = ?"
 
 	uErr := r.exec(q, entryActivity.Description, entryActivity.Id)
 	if uErr != nil {
-		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update work entry activity "+
-			"%d in database.", entryActivity.Id), uErr)
+		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry activity %d "+
+			"in database.", entryActivity.Id), uErr)
 		log.Error(err.StackTrace())
 		return err
 	}
@@ -466,14 +464,14 @@ func (r *EntryRepo) UpdateEntryActivity(entryActivity *model.EntryActivity) *e.E
 	return nil
 }
 
-// DeleteEntryActivityById deletes a work entry activity by its ID.
+// DeleteEntryActivityById deletes a entry activity by its ID.
 func (r *EntryRepo) DeleteEntryActivityById(id int) *e.Error {
 	q := "DELETE FROM entry_activity WHERE id = ?"
 
 	dErr := r.exec(q, id)
 	if dErr != nil {
-		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete work entry activity "+
-			"%d from database.", id), dErr)
+		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete entry activity %d "+
+			"from database.", id), dErr)
 		log.Error(err.StackTrace())
 		return err
 	}

@@ -1,6 +1,6 @@
 package model
 
-// EntryActivity specifies the activity of a work log entry.
+// EntryActivity specifies the activity of a entry.
 type EntryActivity struct {
 	Id          int    // ID of the entry activity
 	Description string // Description of the entry activity

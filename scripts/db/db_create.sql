@@ -53,12 +53,12 @@ CREATE INDEX idx_session_expireat ON session(expire_at);
 
 CREATE TABLE entry_type (
   id INT NOT NULL AUTO_INCREMENT,
-  description VARCHAR(50) NOT NULL,
+  name VARCHAR(50) NOT NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO entry_type (id, description)
-  VALUES (1, 'Arbeit'), (2, 'Reise'), (3, 'Urlaub'), (4, 'Feiertag'), (5, 'Krankheit');
+INSERT INTO entry_type (id, name)
+  VALUES (1, 'work'), (2, 'travel'), (3, 'vacation'), (4, 'holiday'), (5, 'illness');
 
 CREATE TABLE entry_activity (
   id INT NOT NULL AUTO_INCREMENT,

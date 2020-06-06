@@ -6,6 +6,7 @@ import (
 
 	"kellnhofer.com/work-log/db/repo"
 	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/model"
 )
@@ -185,17 +186,20 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 // --- Work entry type functions ---
 
 // GetEntryTypes gets all work entry types.
-func (s *EntryService) GetEntryTypes() ([]*model.EntryType, *e.Error) {
-	return s.eRepo.GetEntryTypes()
+func (s *EntryService) GetEntryTypes() []*model.EntryType {
+	return []*model.EntryType{
+		model.NewEntryType(model.EntryTypeIdWork, loc.CreateString("entryTypeWork")),
+		model.NewEntryType(model.EntryTypeIdTravel, loc.CreateString("entryTypeTravel")),
+		model.NewEntryType(model.EntryTypeIdVacation, loc.CreateString("entryTypeVacation")),
+		model.NewEntryType(model.EntryTypeIdHoliday, loc.CreateString("entryTypeHoliday")),
+		model.NewEntryType(model.EntryTypeIdIllness, loc.CreateString("entryTypeIllness")),
+	}
 }
 
 // GetEntryTypesMap gets a map of all work entry types.
-func (s *EntryService) GetEntryTypesMap() (map[int]*model.EntryType, *e.Error) {
+func (s *EntryService) GetEntryTypesMap() map[int]*model.EntryType {
 	// Get entry types
-	entryTypes, err := s.eRepo.GetEntryTypes()
-	if err != nil {
-		return nil, err
-	}
+	entryTypes := s.GetEntryTypes()
 
 	// Convert into map
 	m := make(map[int]*model.EntryType)
@@ -203,16 +207,15 @@ func (s *EntryService) GetEntryTypesMap() (map[int]*model.EntryType, *e.Error) {
 		m[entryType.Id] = entryType
 	}
 
-	return m, nil
+	return m
 }
 
 func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
-	exist, err := s.eRepo.ExistsEntryTypeById(id)
-	if err != nil {
-		return err
-	}
+	exist := id == model.EntryTypeIdWork || id == model.EntryTypeIdTravel ||
+		id == model.EntryTypeIdVacation || id == model.EntryTypeIdHoliday ||
+		id == model.EntryTypeIdIllness
 	if !exist {
-		err = e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find work entry type %d.",
+		err := e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find work entry type %d.",
 			id))
 		log.Debug(err.StackTrace())
 		return err

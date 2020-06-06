@@ -385,100 +385,6 @@ func (r *EntryRepo) GetMonthEntries(userId int, year int, month int) ([]*model.E
 	return entries, nil
 }
 
-// --- Work entry type functions ---
-
-// GetEntryTypes retrieves all work entry types.
-func (r *EntryRepo) GetEntryTypes() ([]*model.EntryType, *e.Error) {
-	q := "SELECT id, description FROM entry_type"
-
-	sr, qErr := r.query(&scanEntryTypeHelper{}, q)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query work entry types from database.",
-			qErr)
-		log.Error(err.StackTrace())
-		return nil, err
-	}
-
-	return sr.([]*model.EntryType), nil
-}
-
-// GetEntryTypeByDescription retrieves a work entry type by its description.
-func (r *EntryRepo) GetEntryTypeByDescription(description string) (*model.EntryType, *e.Error) {
-	q := "SELECT id, description FROM entry_type WHERE description = ?"
-
-	sr, qErr := r.queryRow(&scanEntryTypeHelper{}, q, description)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query work entry type '%s' "+
-			"from database.", description), qErr)
-		log.Error(err.StackTrace())
-		return nil, err
-	}
-
-	if sr == nil {
-		return nil, nil
-	}
-	return sr.(*model.EntryType), nil
-}
-
-// ExistsEntryTypeById checks if a work entry type exists.
-func (r *EntryRepo) ExistsEntryTypeById(id int) (bool, *e.Error) {
-	cnt, cErr := r.count("entry_type", "id = ?", id)
-	if cErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read work entry type %d "+
-			"from database.", id), cErr)
-		log.Error(err.StackTrace())
-		return false, err
-	}
-
-	return cnt > 0, nil
-}
-
-// CreateEntryType creates a new work entry type.
-func (r *EntryRepo) CreateEntryType(entryType *model.EntryType) *e.Error {
-	q := "INSERT INTO entry_type (description) VALUES (?)"
-
-	id, cErr := r.insert(q, entryType.Description)
-	if cErr != nil {
-		err := e.WrapError(e.SysDbInsertFailed, "Could not create work entry type in database.", cErr)
-		log.Error(err.StackTrace())
-		return err
-	}
-
-	entryType.Id = id
-
-	return nil
-}
-
-// UpdateEntryType updates a work entry type.
-func (r *EntryRepo) UpdateEntryType(entryType *model.EntryType) *e.Error {
-	q := "UPDATE entry_type SET description = ? WHERE id = ?"
-
-	uErr := r.exec(q, entryType.Description, entryType.Id)
-	if uErr != nil {
-		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update work entry type %d "+
-			"in database.", entryType.Id), uErr)
-		log.Error(err.StackTrace())
-		return err
-	}
-
-	return nil
-}
-
-// DeleteEntryTypeById deletes a work entry type by its ID.
-func (r *EntryRepo) DeleteEntryTypeById(id int) *e.Error {
-	q := "DELETE FROM entry_type WHERE id = ?"
-
-	dErr := r.exec(q, id)
-	if dErr != nil {
-		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete work entry type %d "+
-			"from database.", id), dErr)
-		log.Error(err.StackTrace())
-		return err
-	}
-
-	return nil
-}
-
 // --- Work entry activity functions ---
 
 // GetEntryActivities retrieves all work entry activities.
@@ -669,28 +575,6 @@ func (h *scanEntryHelper) scan(s scanner) (interface{}, error) {
 
 func (h *scanEntryHelper) appendSlice(items interface{}, item interface{}) interface{} {
 	return append(items.([]*model.Entry), item.(*model.Entry))
-}
-
-type scanEntryTypeHelper struct {
-}
-
-func (h *scanEntryTypeHelper) makeSlice() interface{} {
-	return make([]*model.EntryType, 0, 10)
-}
-
-func (h *scanEntryTypeHelper) scan(s scanner) (interface{}, error) {
-	var et model.EntryType
-
-	err := s.Scan(&et.Id, &et.Description)
-	if err != nil {
-		return nil, err
-	}
-
-	return &et, nil
-}
-
-func (h *scanEntryTypeHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.EntryType), item.(*model.EntryType))
 }
 
 type scanEntryActivityHelper struct {

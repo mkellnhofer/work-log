@@ -732,7 +732,7 @@ func (c *EntryController) calculateRemainingVacationDuration(userContract *model
 	// Calculate taken vacation
 	var takenVacation time.Duration
 	for _, workDuration := range workSummary.WorkDurations {
-		if workDuration.TypeId == constant.EntryTypeVacation {
+		if workDuration.TypeId == model.EntryTypeIdVacation {
 			takenVacation = takenVacation + workDuration.WorkDuration - workDuration.BreakDuration
 		}
 	}
@@ -1019,15 +1019,15 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 		netWorkDuration := workDuration - entry.BreakDuration
 
 		switch entry.TypeId {
-		case constant.EntryTypeWork:
+		case model.EntryTypeIdWork:
 			actWork = actWork + netWorkDuration
-		case constant.EntryTypeTravel:
+		case model.EntryTypeIdTravel:
 			actTrav = actTrav + netWorkDuration
-		case constant.EntryTypeVacation:
+		case model.EntryTypeIdVacation:
 			actVaca = actVaca + netWorkDuration
-		case constant.EntryTypeHoliday:
+		case model.EntryTypeIdHoliday:
 			actHoli = actHoli + netWorkDuration
-		case constant.EntryTypeIllness:
+		case model.EntryTypeIdIllness:
 			actIlln = actIlln + netWorkDuration
 		}
 	}
@@ -1650,19 +1650,11 @@ func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
 }
 
 func (c *EntryController) getEntryTypes() []*model.EntryType {
-	entryTypes, getsErr := c.eServ.GetEntryTypes()
-	if getsErr != nil {
-		panic(getsErr)
-	}
-	return entryTypes
+	return c.eServ.GetEntryTypes()
 }
 
 func (c *EntryController) getEntryTypesMap() map[int]*model.EntryType {
-	entryTypesMap, getsErr := c.eServ.GetEntryTypesMap()
-	if getsErr != nil {
-		panic(getsErr)
-	}
-	return entryTypesMap
+	return c.eServ.GetEntryTypesMap()
 }
 
 func (c *EntryController) getEntryActivities() []*model.EntryActivity {

@@ -40,38 +40,42 @@ func main() {
 	// Create router
 	router := mux.NewRouter().StrictSlash(true)
 
-	// Create public middleware route
-	pubRoute := negroni.New()
-	pubRoute.Use(init.GetErrorMiddleware())
-	pubRoute.Use(init.GetSessionMiddleware())
-	// Create protected middleware route
-	proRoute := negroni.New()
-	proRoute.Use(init.GetErrorMiddleware())
-	proRoute.Use(init.GetSessionMiddleware())
-	proRoute.Use(init.GetAuthMiddleware())
+	// Create public view middleware route
+	pubVRoute := negroni.New()
+	pubVRoute.Use(init.GetErrorViewMiddleware())
+	pubVRoute.Use(init.GetSessionViewMiddleware())
+	// Create protected view middleware route
+	proVRoute := negroni.New()
+	proVRoute.Use(init.GetErrorViewMiddleware())
+	proVRoute.Use(init.GetSessionViewMiddleware())
+	proVRoute.Use(init.GetAuthViewMiddleware())
 
-	// Add public endpoints
-	addEndpoint(router, pubRoute, "GET", "/", getRootHandler())
-	addEndpoint(router, pubRoute, "GET", "/error", init.GetErrorController().GetErrorHandler())
-	addEndpoint(router, pubRoute, "GET", "/login", init.GetAuthController().GetLoginHandler())
-	addEndpoint(router, pubRoute, "POST", "/login", init.GetAuthController().PostLoginHandler())
-	// Add protected endpoints
-	addEndpoint(router, proRoute, "GET", "/logout", init.GetAuthController().GetLogoutHandler())
-	addEndpoint(router, proRoute, "GET", "/list", init.GetEntryController().GetListHandler())
-	addEndpoint(router, proRoute, "GET", "/create", init.GetEntryController().GetCreateHandler())
-	addEndpoint(router, proRoute, "POST", "/create", init.GetEntryController().PostCreateHandler())
-	addEndpoint(router, proRoute, "GET", "/edit/{id}", init.GetEntryController().GetEditHandler())
-	addEndpoint(router, proRoute, "POST", "/edit/{id}", init.GetEntryController().PostEditHandler())
-	addEndpoint(router, proRoute, "GET", "/copy/{id}", init.GetEntryController().GetCopyHandler())
-	addEndpoint(router, proRoute, "POST", "/copy/{id}", init.GetEntryController().PostCopyHandler())
-	addEndpoint(router, proRoute, "POST", "/delete/{id}", init.GetEntryController().PostDeleteHandler())
-	addEndpoint(router, proRoute, "GET", "/search", init.GetEntryController().GetSearchHandler())
-	addEndpoint(router, proRoute, "POST", "/search", init.GetEntryController().PostSearchHandler())
-	addEndpoint(router, proRoute, "GET", "/overview", init.GetEntryController().GetOverviewHandler())
-	addEndpoint(router, proRoute, "POST", "/overview", init.GetEntryController().PostOverviewHandler())
-	addEndpoint(router, proRoute, "GET", "/overview/export",
-		init.GetEntryController().GetOverviewExportHandler())
-	// Add resource endpoints
+	// Get view controllers
+	errViewCtrl := init.GetErrorViewController()
+	authViewCtrl := init.GetAuthViewController()
+	entryViewCtrl := init.GetEntryViewController()
+
+	// Add public view endpoints
+	addEndpoint(router, pubVRoute, "GET", "/", getRootHandler())
+	addEndpoint(router, pubVRoute, "GET", "/error", errViewCtrl.GetErrorHandler())
+	addEndpoint(router, pubVRoute, "GET", "/login", authViewCtrl.GetLoginHandler())
+	addEndpoint(router, pubVRoute, "POST", "/login", authViewCtrl.PostLoginHandler())
+	// Add protected view endpoints
+	addEndpoint(router, proVRoute, "GET", "/logout", authViewCtrl.GetLogoutHandler())
+	addEndpoint(router, proVRoute, "GET", "/list", entryViewCtrl.GetListHandler())
+	addEndpoint(router, proVRoute, "GET", "/create", entryViewCtrl.GetCreateHandler())
+	addEndpoint(router, proVRoute, "POST", "/create", entryViewCtrl.PostCreateHandler())
+	addEndpoint(router, proVRoute, "GET", "/edit/{id}", entryViewCtrl.GetEditHandler())
+	addEndpoint(router, proVRoute, "POST", "/edit/{id}", entryViewCtrl.PostEditHandler())
+	addEndpoint(router, proVRoute, "GET", "/copy/{id}", entryViewCtrl.GetCopyHandler())
+	addEndpoint(router, proVRoute, "POST", "/copy/{id}", entryViewCtrl.PostCopyHandler())
+	addEndpoint(router, proVRoute, "POST", "/delete/{id}", entryViewCtrl.PostDeleteHandler())
+	addEndpoint(router, proVRoute, "GET", "/search", entryViewCtrl.GetSearchHandler())
+	addEndpoint(router, proVRoute, "POST", "/search", entryViewCtrl.PostSearchHandler())
+	addEndpoint(router, proVRoute, "GET", "/overview", entryViewCtrl.GetOverviewHandler())
+	addEndpoint(router, proVRoute, "POST", "/overview", entryViewCtrl.PostOverviewHandler())
+	addEndpoint(router, proVRoute, "GET", "/overview/export", entryViewCtrl.GetOverviewExportHandler())
+	// Add view resource endpoints
 	fileSrv := http.FileServer(http.Dir("./resources"))
 	router.Handle("/css/{name}", fileSrv).Methods("GET")
 	router.Handle("/img/{name}", fileSrv).Methods("GET")

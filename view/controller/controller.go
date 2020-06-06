@@ -11,7 +11,7 @@ import (
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/middleware"
+	"kellnhofer.com/work-log/view/middleware"
 )
 
 func getStringPathVar(r *http.Request, n string) (string, bool) {

@@ -10,10 +10,10 @@ import (
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
 	"kellnhofer.com/work-log/view"
+	"kellnhofer.com/work-log/view/middleware"
 	vm "kellnhofer.com/work-log/view/model"
 )
 

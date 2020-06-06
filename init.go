@@ -2,10 +2,10 @@ package main
 
 import (
 	"kellnhofer.com/work-log/config"
-	"kellnhofer.com/work-log/controller"
 	"kellnhofer.com/work-log/db"
-	"kellnhofer.com/work-log/middleware"
 	"kellnhofer.com/work-log/service"
+	"kellnhofer.com/work-log/view/controller"
+	"kellnhofer.com/work-log/view/middleware"
 )
 
 // Initializer initializes application components.
@@ -19,13 +19,13 @@ type Initializer struct {
 	userServ  *service.UserService
 	jobServ   *service.JobService
 
-	errCtrl   *controller.ErrorController
-	authCtrl  *controller.AuthController
-	entryCtrl *controller.EntryController
+	errVCtrl   *controller.ErrorController
+	authVCtrl  *controller.AuthController
+	entryVCtrl *controller.EntryController
 
-	errMidw  *middleware.ErrorMiddleware
-	sessMidw *middleware.SessionMiddleware
-	authMidw *middleware.AuthMiddleware
+	errVMidw  *middleware.ErrorMiddleware
+	sessVMidw *middleware.SessionMiddleware
+	authVMidw *middleware.AuthMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -77,54 +77,54 @@ func (i *Initializer) GetJobService() *service.JobService {
 	return i.jobServ
 }
 
-// --- Controller functions ---
+// --- View controller functions ---
 
-// GetErrorController returns a initialized error controller object.
-func (i *Initializer) GetErrorController() *controller.ErrorController {
-	if i.errCtrl == nil {
-		i.errCtrl = controller.NewErrorController()
+// GetErrorViewController returns a initialized error view controller object.
+func (i *Initializer) GetErrorViewController() *controller.ErrorController {
+	if i.errVCtrl == nil {
+		i.errVCtrl = controller.NewErrorController()
 	}
-	return i.errCtrl
+	return i.errVCtrl
 }
 
-// GetAuthController returns a initialized auth controller object.
-func (i *Initializer) GetAuthController() *controller.AuthController {
-	if i.authCtrl == nil {
-		i.authCtrl = controller.NewAuthController(i.GetUserService())
+// GetAuthViewController returns a initialized auth view controller object.
+func (i *Initializer) GetAuthViewController() *controller.AuthController {
+	if i.authVCtrl == nil {
+		i.authVCtrl = controller.NewAuthController(i.GetUserService())
 	}
-	return i.authCtrl
+	return i.authVCtrl
 }
 
-// GetEntryController returns a initialized entry controller object.
-func (i *Initializer) GetEntryController() *controller.EntryController {
-	if i.entryCtrl == nil {
-		i.entryCtrl = controller.NewEntryController(i.GetUserService(), i.GetEntryService())
+// GetEntryViewController returns a initialized entry view controller object.
+func (i *Initializer) GetEntryViewController() *controller.EntryController {
+	if i.entryVCtrl == nil {
+		i.entryVCtrl = controller.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
-	return i.entryCtrl
+	return i.entryVCtrl
 }
 
-// --- Middleware functions ---
+// --- View middleware functions ---
 
-// GetErrorMiddleware returns a initialized error middleware object.
-func (i *Initializer) GetErrorMiddleware() *middleware.ErrorMiddleware {
-	if i.errMidw == nil {
-		i.errMidw = middleware.NewErrorMiddleware()
+// GetErrorViewMiddleware returns a initialized error view middleware object.
+func (i *Initializer) GetErrorViewMiddleware() *middleware.ErrorMiddleware {
+	if i.errVMidw == nil {
+		i.errVMidw = middleware.NewErrorMiddleware()
 	}
-	return i.errMidw
+	return i.errVMidw
 }
 
-// GetSessionMiddleware returns a initialized session middleware object.
-func (i *Initializer) GetSessionMiddleware() *middleware.SessionMiddleware {
-	if i.sessMidw == nil {
-		i.sessMidw = middleware.NewSessionMiddleware(i.GetSessionService())
+// GetSessionViewMiddleware returns a initialized session view middleware object.
+func (i *Initializer) GetSessionViewMiddleware() *middleware.SessionMiddleware {
+	if i.sessVMidw == nil {
+		i.sessVMidw = middleware.NewSessionMiddleware(i.GetSessionService())
 	}
-	return i.sessMidw
+	return i.sessVMidw
 }
 
-// GetAuthMiddleware returns a initialized auth middleware object.
-func (i *Initializer) GetAuthMiddleware() *middleware.AuthMiddleware {
-	if i.authMidw == nil {
-		i.authMidw = middleware.NewAuthMiddleware()
+// GetAuthViewMiddleware returns a initialized auth view middleware object.
+func (i *Initializer) GetAuthViewMiddleware() *middleware.AuthMiddleware {
+	if i.authVMidw == nil {
+		i.authVMidw = middleware.NewAuthMiddleware()
 	}
-	return i.authMidw
+	return i.authVMidw
 }

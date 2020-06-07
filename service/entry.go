@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -24,7 +25,8 @@ func NewEntryService(er *repo.EntryRepo) *EntryService {
 // --- Entry functions ---
 
 // GetDateEntries gets all entries (over date).
-func (s *EntryService) GetDateEntries(userId int, offset int, limit int) ([]*model.Entry, int,
+func (s *EntryService) GetDateEntries(ctx context.Context, userId int, offset int,
+	limit int) ([]*model.Entry, int,
 	*e.Error) {
 	// Get entries
 	entries, err := s.eRepo.GetDateEntries(userId, offset, limit)
@@ -42,7 +44,8 @@ func (s *EntryService) GetDateEntries(userId int, offset int, limit int) ([]*mod
 }
 
 // GetEntries gets all entries.
-func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.Entry, int,
+func (s *EntryService) GetEntries(ctx context.Context, userId int, offset int,
+	limit int) ([]*model.Entry, int,
 	*e.Error) {
 	// Get entries
 	entries, err := s.eRepo.GetEntries(userId, offset, limit)
@@ -60,12 +63,13 @@ func (s *EntryService) GetEntries(userId int, offset int, limit int) ([]*model.E
 }
 
 // GetEntryById gets a entry by its ID.
-func (s *EntryService) GetEntryById(id int, userId int) (*model.Entry, *e.Error) {
+func (s *EntryService) GetEntryById(ctx context.Context, id int, userId int) (*model.Entry,
+	*e.Error) {
 	return s.eRepo.GetEntryById(id, userId)
 }
 
 // CreateEntry creates a new entry.
-func (s *EntryService) CreateEntry(entry *model.Entry) *e.Error {
+func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.Error {
 	// Check if entry type exists
 	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
 		return err
@@ -85,7 +89,7 @@ func (s *EntryService) CreateEntry(entry *model.Entry) *e.Error {
 }
 
 // UpdateEntry updates a entry.
-func (s *EntryService) UpdateEntry(entry *model.Entry, userId int) *e.Error {
+func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry, userId int) *e.Error {
 	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryById(entry.Id, userId)
 	if err != nil {
@@ -116,7 +120,7 @@ func (s *EntryService) UpdateEntry(entry *model.Entry, userId int) *e.Error {
 }
 
 // DeleteEntryById deletes a entry by its ID.
-func (s *EntryService) DeleteEntryById(id int, userId int) *e.Error {
+func (s *EntryService) DeleteEntryById(ctx context.Context, id int, userId int) *e.Error {
 	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryById(id, userId)
 	if err != nil {
@@ -133,7 +137,8 @@ func (s *EntryService) DeleteEntryById(id int, userId int) *e.Error {
 }
 
 // SearchEntries searches entries (over date).
-func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntriesParams, offset int,
+func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
+	params *model.SearchEntriesParams, offset int,
 	limit int) ([]*model.Entry, int, *e.Error) {
 	// Get entries
 	entries, err := s.eRepo.SearchDateEntries(userId, params, offset, limit)
@@ -151,7 +156,8 @@ func (s *EntryService) SearchDateEntries(userId int, params *model.SearchEntries
 }
 
 // GetMonthEntries gets all entries of a month.
-func (s *EntryService) GetMonthEntries(userId int, year int, month int) ([]*model.Entry, *e.Error) {
+func (s *EntryService) GetMonthEntries(ctx context.Context, userId int, year int,
+	month int) ([]*model.Entry, *e.Error) {
 	return s.eRepo.GetMonthEntries(userId, year, month)
 }
 
@@ -186,7 +192,7 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 // --- Entry type functions ---
 
 // GetEntryTypes gets all entry types.
-func (s *EntryService) GetEntryTypes() []*model.EntryType {
+func (s *EntryService) GetEntryTypes(ctx context.Context) []*model.EntryType {
 	return []*model.EntryType{
 		model.NewEntryType(model.EntryTypeIdWork, loc.CreateString("entryTypeWork")),
 		model.NewEntryType(model.EntryTypeIdTravel, loc.CreateString("entryTypeTravel")),
@@ -197,9 +203,9 @@ func (s *EntryService) GetEntryTypes() []*model.EntryType {
 }
 
 // GetEntryTypesMap gets a map of all entry types.
-func (s *EntryService) GetEntryTypesMap() map[int]*model.EntryType {
+func (s *EntryService) GetEntryTypesMap(ctx context.Context) map[int]*model.EntryType {
 	// Get entry types
-	entryTypes := s.GetEntryTypes()
+	entryTypes := s.GetEntryTypes(ctx)
 
 	// Convert into map
 	m := make(map[int]*model.EntryType)
@@ -225,12 +231,13 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 // --- Entry activity functions ---
 
 // GetEntryActivities gets all entry activities.
-func (s *EntryService) GetEntryActivities() ([]*model.EntryActivity, *e.Error) {
+func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, *e.Error) {
 	return s.eRepo.GetEntryActivities()
 }
 
 // GetEntryActivitiesMap gets a map of all entry activities.
-func (s *EntryService) GetEntryActivitiesMap() (map[int]*model.EntryActivity, *e.Error) {
+func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
+	*e.Error) {
 	// Get entry activities
 	entryActivities, err := s.eRepo.GetEntryActivities()
 	if err != nil {
@@ -266,7 +273,8 @@ func (s *EntryService) checkIfEntryActivityExists(id int) *e.Error {
 // --- Work summary functions ---
 
 // GetTotalWorkSummary gets the total work summary.
-func (s *EntryService) GetTotalWorkSummary(userId int) (*model.WorkSummary, *e.Error) {
+func (s *EntryService) GetTotalWorkSummary(ctx context.Context, userId int) (*model.WorkSummary,
+	*e.Error) {
 	start := time.Time{}
 	now := time.Now()
 	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())

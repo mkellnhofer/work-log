@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -146,14 +147,14 @@ func parseMonthParam(v string) (*int, *int) {
 	return &y, &m
 }
 
-func getCurrentUserId(r *http.Request) int {
-	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+func getCurrentUserId(ctx context.Context) int {
+	sh := ctx.Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 	s := sh.Get()
 	return s.UserId
 }
 
-func saveCurrentUrl(r *http.Request) {
-	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+func saveCurrentUrl(ctx context.Context, r *http.Request) {
+	sh := ctx.Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 	s := sh.Get()
 	path := r.URL.EscapedPath()
 	query := r.URL.RawQuery
@@ -164,8 +165,8 @@ func saveCurrentUrl(r *http.Request) {
 	s.PreviousUrl = req
 }
 
-func getPreviousUrl(r *http.Request) string {
-	sh := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+func getPreviousUrl(ctx context.Context) string {
+	sh := ctx.Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 	s := sh.Get()
 	if s.PreviousUrl != "" {
 		return s.PreviousUrl

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -182,10 +183,13 @@ func (c *EntryController) GetOverviewExportHandler() http.HandlerFunc {
 // --- List handler functions ---
 
 func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 	// Get user contract
-	userContract := c.getUserContract(userId)
+	userContract := c.getUserContract(ctx, userId)
 
 	// Get page number, offset and limit
 	pageNum, offset, limit := c.getListPagingParams(r)
@@ -194,28 +198,28 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	var workSummary *model.WorkSummary
 	if pageNum == 1 {
 		var gwsErr *e.Error
-		workSummary, gwsErr = c.eServ.GetTotalWorkSummary(userId)
+		workSummary, gwsErr = c.eServ.GetTotalWorkSummary(ctx, userId)
 		if gwsErr != nil {
 			panic(gwsErr)
 		}
 	}
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.GetDateEntries(userId, offset, limit)
+	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, userId, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
 	// Get entry types
-	entryTypesMap := c.getEntryTypesMap()
+	entryTypesMap := c.getEntryTypesMap(ctx)
 	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap()
+	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
 
 	// Create view model
 	model := c.createListViewModel(userContract, workSummary, pageNum, cnt, entries, entryTypesMap,
 		entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(r)
+	saveCurrentUrl(ctx, r)
 
 	// Render
 	view.RenderListEntriesTemplate(w, model)
@@ -224,13 +228,16 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 // --- Create handler functions ---
 
 func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Request) {
+	// Get context
+	ctx := r.Context()
+
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
@@ -243,8 +250,11 @@ func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Reques
 }
 
 func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get form inputs
 	input := c.getEntryFormInput(r)
@@ -256,7 +266,7 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 	}
 
 	// Create entry
-	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
+	if ceErr := c.eServ.CreateEntry(ctx, entry); ceErr != nil {
 		c.handleCreateError(w, r, ceErr, input)
 	}
 
@@ -264,22 +274,26 @@ func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	prevUrl := getPreviousUrl(r)
+	ctx := r.Context()
+	prevUrl := getPreviousUrl(ctx)
 	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	input *entryFormInput) {
+	// Get context
+	ctx := r.Context()
+
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createCreateViewModel(prevUrl, em, entryTypeId, input.date, input.startTime,
@@ -293,22 +307,25 @@ func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Reque
 // --- Edit handler functions ---
 
 func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get ID
 	entryId := getIdPathVar(r)
 
 	// Get entry
-	entry := c.getEntry(entryId, userId)
+	entry := c.getEntry(ctx, entryId, userId)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
 		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getMinutesString(
 			entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes, entryActivities)
@@ -318,8 +335,11 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get ID
 	entryId := getIdPathVar(r)
@@ -334,7 +354,7 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Update entry
-	if ueErr := c.eServ.UpdateEntry(entry, userId); ueErr != nil {
+	if ueErr := c.eServ.UpdateEntry(ctx, entry, userId); ueErr != nil {
 		c.handleEditError(w, r, ueErr, entryId, input)
 	}
 
@@ -342,22 +362,26 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
-	prevUrl := getPreviousUrl(r)
+	ctx := r.Context()
+	prevUrl := getPreviousUrl(ctx)
 	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	id int, input *entryFormInput) {
+	// Get context
+	ctx := r.Context()
+
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createEditViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
@@ -371,22 +395,25 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 // --- Copy handler functions ---
 
 func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get ID
 	entryId := getIdPathVar(r)
 
 	// Get entry
-	entry := c.getEntry(entryId, userId)
+	entry := c.getEntry(ctx, entryId, userId)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
 		getTimeString(entry.StartTime), getTimeString(entry.EndTime),
 		getMinutesString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
@@ -397,8 +424,11 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 }
 
 func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get ID
 	entryId := getIdPathVar(r)
@@ -413,7 +443,7 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Create entry
-	if ceErr := c.eServ.CreateEntry(entry); ceErr != nil {
+	if ceErr := c.eServ.CreateEntry(ctx, entry); ceErr != nil {
 		c.handleCopyError(w, r, ceErr, entryId, input)
 	}
 
@@ -421,22 +451,26 @@ func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Reque
 }
 
 func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
-	prevUrl := getPreviousUrl(r)
+	ctx := r.Context()
+	prevUrl := getPreviousUrl(ctx)
 	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	id int, input *entryFormInput) {
+	// Get context
+	ctx := r.Context()
+
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createCopyViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
@@ -450,14 +484,17 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 // --- Delete handler functions ---
 
 func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get ID
 	entryId := getIdPathVar(r)
 
 	// Delete entry
-	if deErr := c.eServ.DeleteEntryById(entryId, userId); deErr != nil {
+	if deErr := c.eServ.DeleteEntryById(ctx, entryId, userId); deErr != nil {
 		panic(deErr)
 	}
 
@@ -465,20 +502,24 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 }
 
 func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
-	prevUrl := getPreviousUrl(r)
+	ctx := r.Context()
+	prevUrl := getPreviousUrl(ctx)
 	http.Redirect(w, r, prevUrl, http.StatusFound)
 }
 
 // --- Search handler functions ---
 
 func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Request) {
+	// Get context
+	ctx := r.Context()
+
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
@@ -491,8 +532,11 @@ func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Reques
 }
 
 func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Request, query string) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get page number, offset and limit
 	pageNum, offset, limit := c.getListPagingParams(r)
@@ -501,21 +545,21 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 	params := c.parseSearchQueryString(query)
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.SearchDateEntries(userId, params, offset, limit)
+	entries, cnt, gesErr := c.eServ.SearchDateEntries(ctx, userId, params, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
 	// Get entry types
-	entryTypesMap := c.getEntryTypesMap()
+	entryTypesMap := c.getEntryTypesMap(ctx)
 	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap()
+	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
 
 	// Create view model
 	model := c.createListSearchViewModel(constant.PathDefault, query, pageNum, cnt, entries,
 		entryTypesMap, entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(r)
+	saveCurrentUrl(ctx, r)
 
 	// Render
 	view.RenderListSearchEntriesTemplate(w, model)
@@ -541,16 +585,19 @@ func (c *EntryController) handleSearchSuccess(w http.ResponseWriter, r *http.Req
 
 func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Request, err *e.Error,
 	input *searchEntriesFormInput) {
+	// Get context
+	ctx := r.Context()
+
 	// Get error message
 	em := loc.GetErrorMessageString(err.Code)
 
 	// Get entry types
-	entryTypes := c.getEntryTypes()
+	entryTypes := c.getEntryTypes(ctx)
 	// Get entry activities
-	entryActivities := c.getEntryActivities()
+	entryActivities := c.getEntryActivities(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	byEntryType, _ := strconv.ParseBool(input.byType)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	byEntryDate, _ := strconv.ParseBool(input.byDate)
@@ -588,13 +635,16 @@ func (c *EntryController) handleExportOverview(w http.ResponseWriter, r *http.Re
 }
 
 func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewEntries {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 	// Get user contract
-	userContract := c.getUserContract(userId)
+	userContract := c.getUserContract(ctx, userId)
 
 	// Get user setting
-	showDetails, gusErr := c.uServ.GetSettingShowOverviewDetails(userId)
+	showDetails, gusErr := c.uServ.GetSettingShowOverviewDetails(ctx, userId)
 	if gusErr != nil {
 		panic(gusErr)
 	}
@@ -603,17 +653,17 @@ func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewE
 	year, month := c.getOverviewParams(r)
 
 	// Get entries
-	entries, gesErr := c.eServ.GetMonthEntries(userId, year, month)
+	entries, gesErr := c.eServ.GetMonthEntries(ctx, userId, year, month)
 	if gesErr != nil {
 		panic(gesErr)
 	}
 	// Get entry types
-	entryTypesMap := c.getEntryTypesMap()
+	entryTypesMap := c.getEntryTypesMap(ctx)
 	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap()
+	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
 
 	// Create view model
-	prevUrl := getPreviousUrl(r)
+	prevUrl := getPreviousUrl(ctx)
 	model := c.createListOverviewViewModel(prevUrl, year, month, userContract, entries,
 		entryTypesMap, entryActivitiesMap, showDetails)
 
@@ -636,8 +686,11 @@ func (c *EntryController) getOverviewParams(r *http.Request) (int, int) {
 }
 
 func (c *EntryController) handleExecuteOverviewChange(w http.ResponseWriter, r *http.Request) {
-	// Get current user ID from session
-	userId := getCurrentUserId(r)
+	// Get context
+	ctx := r.Context()
+
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
 
 	// Get form inputs
 	input := c.getOverviewFormInput(r)
@@ -647,7 +700,7 @@ func (c *EntryController) handleExecuteOverviewChange(w http.ResponseWriter, r *
 
 	// Update user setting
 	showDetails := input.showDetails == "on"
-	c.uServ.UpdateSettingShowOverviewDetails(userId, showDetails)
+	c.uServ.UpdateSettingShowOverviewDetails(ctx, userId, showDetails)
 
 	// Redirect
 	http.Redirect(w, r, "/overview?month="+input.month, http.StatusFound)
@@ -1628,16 +1681,16 @@ func getCellName(col string, row int) string {
 
 // --- Helper functions ---
 
-func (c *EntryController) getUserContract(userId int) *model.UserContract {
-	userContract, gucErr := c.uServ.GetUserContractByUserId(userId)
+func (c *EntryController) getUserContract(ctx context.Context, userId int) *model.UserContract {
+	userContract, gucErr := c.uServ.GetUserContractByUserId(ctx, userId)
 	if gucErr != nil {
 		panic(gucErr)
 	}
 	return userContract
 }
 
-func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
-	entry, geErr := c.eServ.GetEntryById(entryId, userId)
+func (c *EntryController) getEntry(ctx context.Context, entryId int, userId int) *model.Entry {
+	entry, geErr := c.eServ.GetEntryById(ctx, entryId, userId)
 	if geErr != nil {
 		panic(geErr)
 	}
@@ -1649,24 +1702,24 @@ func (c *EntryController) getEntry(entryId int, userId int) *model.Entry {
 	return entry
 }
 
-func (c *EntryController) getEntryTypes() []*model.EntryType {
-	return c.eServ.GetEntryTypes()
+func (c *EntryController) getEntryTypes(ctx context.Context) []*model.EntryType {
+	return c.eServ.GetEntryTypes(ctx)
 }
 
-func (c *EntryController) getEntryTypesMap() map[int]*model.EntryType {
-	return c.eServ.GetEntryTypesMap()
+func (c *EntryController) getEntryTypesMap(ctx context.Context) map[int]*model.EntryType {
+	return c.eServ.GetEntryTypesMap(ctx)
 }
 
-func (c *EntryController) getEntryActivities() []*model.EntryActivity {
-	entryActivities, geasErr := c.eServ.GetEntryActivities()
+func (c *EntryController) getEntryActivities(ctx context.Context) []*model.EntryActivity {
+	entryActivities, geasErr := c.eServ.GetEntryActivities(ctx)
 	if geasErr != nil {
 		panic(geasErr)
 	}
 	return entryActivities
 }
 
-func (c *EntryController) getEntryActivitiesMap() map[int]*model.EntryActivity {
-	entryActivitiesMap, geasErr := c.eServ.GetEntryActivitiesMap()
+func (c *EntryController) getEntryActivitiesMap(ctx context.Context) map[int]*model.EntryActivity {
+	entryActivitiesMap, geasErr := c.eServ.GetEntryActivitiesMap(ctx)
 	if geasErr != nil {
 		panic(geasErr)
 	}

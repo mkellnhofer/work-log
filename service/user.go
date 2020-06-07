@@ -1,6 +1,8 @@
 package service
 
 import (
+	"context"
+
 	"kellnhofer.com/work-log/constant"
 	"kellnhofer.com/work-log/db/repo"
 	e "kellnhofer.com/work-log/error"
@@ -20,30 +22,34 @@ func NewUserService(ur *repo.UserRepo) *UserService {
 // --- User functions ---
 
 // GetUserById gets a user by its ID.
-func (s *UserService) GetUserById(id int) (*model.User, *e.Error) {
+func (s *UserService) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
 	return s.uRepo.GetUserById(id)
 }
 
 // GetUserByUsername gets a user by its username.
-func (s *UserService) GetUserByUsername(username string) (*model.User, *e.Error) {
+func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*model.User,
+	*e.Error) {
 	return s.uRepo.GetUserByUsername(username)
 }
 
 // --- User settings functions ---
 
 // GetSettingShowOverviewDetails gets the setting value for the "show overview details" setting.
-func (s *UserService) GetSettingShowOverviewDetails(userId int) (bool, *e.Error) {
+func (s *UserService) GetSettingShowOverviewDetails(ctx context.Context, userId int) (bool,
+	*e.Error) {
 	return s.uRepo.GetUserBoolSetting(userId, constant.SettingKeyShowOverviewDetails)
 }
 
 // UpdateSettingShowOverviewDetails updates the setting value for the "show overview details" setting.
-func (s *UserService) UpdateSettingShowOverviewDetails(userId int, value bool) *e.Error {
+func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, userId int,
+	value bool) *e.Error {
 	return s.uRepo.UpdateUserBoolSetting(userId, constant.SettingKeyShowOverviewDetails, value)
 }
 
 // --- User contract functions ---
 
 // GetUserContractByUserId gets the contract information of a user by its ID.
-func (s *UserService) GetUserContractByUserId(userId int) (*model.UserContract, *e.Error) {
+func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (*model.UserContract,
+	*e.Error) {
 	return s.uRepo.GetUserContractByUserId(userId)
 }

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -32,13 +33,13 @@ func (s *JobService) scheduleSessionsCleanUpJob() {
 	scheduleJob("sessions clean up job", s.sServ.DeleteExpiredSessions, sessionsCleanUpInterval)
 }
 
-type jobFunc func() *e.Error
+type jobFunc func(context.Context) *e.Error
 
 func scheduleJob(jobName string, f jobFunc, interval time.Duration) {
 	go func() {
 		for true {
 			log.Infof("Starting %s ...", jobName)
-			jErr := f()
+			jErr := f(context.Background())
 			if jErr == nil {
 				log.Infof("Finished %s.", jobName)
 			} else {

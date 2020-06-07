@@ -79,12 +79,15 @@ func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
 }
 
 func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Request) {
+	// Get context
+	ctx := r.Context()
+
 	// Get form inputs
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	// Find user
-	user, guErr := c.uServ.GetUserByUsername(username)
+	user, guErr := c.uServ.GetUserByUsername(ctx, username)
 	if guErr != nil {
 		panic(guErr)
 	}

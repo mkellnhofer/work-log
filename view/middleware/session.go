@@ -44,6 +44,8 @@ func NewSessionMiddleware(sServ *service.SessionService) *SessionMiddleware {
 func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	log.Verb("Before create/restore session.")
 
+	sysCtx := r.Context()
+
 	sessCookie, _ := r.Cookie(constant.SessionCookieName)
 
 	var sessId string
@@ -54,7 +56,7 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	// Try to load session
 	var iniSess *model.Session
 	if sessId != "" {
-		iniSess = m.getSession(sessId)
+		iniSess = m.getSession(sysCtx, sessId)
 	}
 	if iniSess != nil {
 		log.Debugf("Session '%s' is still valid.", sessId)
@@ -85,18 +87,18 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	// If session was replaced/deleted: Delete old session
 	wasSessionReplaced := altSess != nil && altSess != iniSess
 	if wasSessionReplaced {
-		m.deleteSession(iniSess.Id)
+		m.deleteSession(sysCtx, iniSess.Id)
 		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.Id, altSess.Id)
 	}
 	wasSessionClosed := altSess == nil
 	if wasSessionClosed {
-		m.deleteSession(iniSess.Id)
+		m.deleteSession(sysCtx, iniSess.Id)
 		log.Debugf("Session '%s' was closed.", iniSess.Id)
 	}
 
 	// Save current session
 	if !wasSessionClosed {
-		m.saveSession(altSess)
+		m.saveSession(sysCtx, altSess)
 	}
 
 	log.Verb("After create/restore session.")
@@ -106,8 +108,8 @@ func (m *SessionMiddleware) createSession() *model.Session {
 	return model.NewSession()
 }
 
-func (m *SessionMiddleware) getSession(sessId string) *model.Session {
-	sess, err := m.sServ.GetSession(sessId)
+func (m *SessionMiddleware) getSession(ctx context.Context, sessId string) *model.Session {
+	sess, err := m.sServ.GetSession(ctx, sessId)
 	if err != nil {
 		panic(err)
 	}
@@ -119,15 +121,15 @@ func (m *SessionMiddleware) getSession(sessId string) *model.Session {
 	return sess
 }
 
-func (m *SessionMiddleware) saveSession(sess *model.Session) {
+func (m *SessionMiddleware) saveSession(ctx context.Context, sess *model.Session) {
 	sess.Renew()
-	if err := m.sServ.SaveSession(sess); err != nil {
+	if err := m.sServ.SaveSession(ctx, sess); err != nil {
 		panic(err)
 	}
 }
 
-func (m *SessionMiddleware) deleteSession(sessId string) {
-	if err := m.sServ.DeleteSession(sessId); err != nil {
+func (m *SessionMiddleware) deleteSession(ctx context.Context, sessId string) {
+	if err := m.sServ.DeleteSession(ctx, sessId); err != nil {
 		panic(err)
 	}
 }

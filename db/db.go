@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 
+	"kellnhofer.com/work-log/db/tx"
+
 	_ "github.com/go-sql-driver/mysql"
 
 	"kellnhofer.com/work-log/config"
@@ -23,6 +25,7 @@ type Db struct {
 	config *config.Config
 
 	db    *sql.DB
+	txm   *tx.TransactionManager
 	uRepo *repo.UserRepo
 	sRepo *repo.SessionRepo
 	eRepo *repo.EntryRepo
@@ -30,7 +33,7 @@ type Db struct {
 
 // NewDb creates a new Db for the supplied configuration.
 func NewDb(config *config.Config) *Db {
-	return &Db{config, nil, nil, nil, nil}
+	return &Db{config, nil, nil, nil, nil, nil}
 }
 
 // --- Public functions ---
@@ -84,6 +87,15 @@ func (db *Db) CloseDb() {
 	if err != nil {
 		log.Fatalf("Could not close database connection!\nError: %s", err)
 	}
+}
+
+// GetTransactionManager provides the TransactionManager.
+func (db *Db) GetTransactionManager() *tx.TransactionManager {
+	if db.txm == nil {
+		db.txm = tx.NewTransactionManager(db.db)
+	}
+
+	return db.txm
 }
 
 // GetUserRepo provides the UserRepo.

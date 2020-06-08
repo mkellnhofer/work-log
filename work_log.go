@@ -42,10 +42,12 @@ func main() {
 
 	// Create public view middleware route
 	pubVRoute := negroni.New()
+	pubVRoute.Use(init.GetTransactionMiddleware())
 	pubVRoute.Use(init.GetErrorViewMiddleware())
 	pubVRoute.Use(init.GetSessionViewMiddleware())
 	// Create protected view middleware route
 	proVRoute := negroni.New()
+	proVRoute.Use(init.GetTransactionMiddleware())
 	proVRoute.Use(init.GetErrorViewMiddleware())
 	proVRoute.Use(init.GetSessionViewMiddleware())
 	proVRoute.Use(init.GetAuthViewMiddleware())

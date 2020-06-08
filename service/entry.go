@@ -29,13 +29,13 @@ func (s *EntryService) GetDateEntries(ctx context.Context, userId int, offset in
 	limit int) ([]*model.Entry, int,
 	*e.Error) {
 	// Get entries
-	entries, err := s.eRepo.GetDateEntries(userId, offset, limit)
+	entries, err := s.eRepo.GetDateEntries(ctx, userId, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Count all available entries
-	cnt, err := s.eRepo.CountDateEntries(userId)
+	cnt, err := s.eRepo.CountDateEntries(ctx, userId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -48,13 +48,13 @@ func (s *EntryService) GetEntries(ctx context.Context, userId int, offset int,
 	limit int) ([]*model.Entry, int,
 	*e.Error) {
 	// Get entries
-	entries, err := s.eRepo.GetEntries(userId, offset, limit)
+	entries, err := s.eRepo.GetEntries(ctx, userId, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Count all available entries
-	cnt, err := s.eRepo.CountEntries(userId)
+	cnt, err := s.eRepo.CountEntries(ctx, userId)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -65,7 +65,7 @@ func (s *EntryService) GetEntries(ctx context.Context, userId int, offset int,
 // GetEntryById gets a entry by its ID.
 func (s *EntryService) GetEntryById(ctx context.Context, id int, userId int) (*model.Entry,
 	*e.Error) {
-	return s.eRepo.GetEntryById(id, userId)
+	return s.eRepo.GetEntryById(ctx, id, userId)
 }
 
 // CreateEntry creates a new entry.
@@ -75,7 +75,7 @@ func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.E
 		return err
 	}
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(entry.ActivityId); err != nil {
+	if err := s.checkIfEntryActivityExists(ctx, entry.ActivityId); err != nil {
 		return err
 	}
 
@@ -85,13 +85,13 @@ func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.E
 	}
 
 	// Create entry
-	return s.eRepo.CreateEntry(entry)
+	return s.eRepo.CreateEntry(ctx, entry)
 }
 
 // UpdateEntry updates a entry.
 func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry, userId int) *e.Error {
 	// Get existing entry
-	existingEntry, err := s.eRepo.GetEntryById(entry.Id, userId)
+	existingEntry, err := s.eRepo.GetEntryById(ctx, entry.Id, userId)
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry, user
 		return err
 	}
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(entry.ActivityId); err != nil {
+	if err := s.checkIfEntryActivityExists(ctx, entry.ActivityId); err != nil {
 		return err
 	}
 
@@ -116,13 +116,13 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry, user
 	}
 
 	// Update entry
-	return s.eRepo.UpdateEntry(entry)
+	return s.eRepo.UpdateEntry(ctx, entry)
 }
 
 // DeleteEntryById deletes a entry by its ID.
 func (s *EntryService) DeleteEntryById(ctx context.Context, id int, userId int) *e.Error {
 	// Get existing entry
-	existingEntry, err := s.eRepo.GetEntryById(id, userId)
+	existingEntry, err := s.eRepo.GetEntryById(ctx, id, userId)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (s *EntryService) DeleteEntryById(ctx context.Context, id int, userId int) 
 	}
 
 	// Delete entry
-	return s.eRepo.DeleteEntryById(id)
+	return s.eRepo.DeleteEntryById(ctx, id)
 }
 
 // SearchEntries searches entries (over date).
@@ -141,13 +141,13 @@ func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
 	params *model.SearchEntriesParams, offset int,
 	limit int) ([]*model.Entry, int, *e.Error) {
 	// Get entries
-	entries, err := s.eRepo.SearchDateEntries(userId, params, offset, limit)
+	entries, err := s.eRepo.SearchDateEntries(ctx, userId, params, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Count all available entries
-	cnt, err := s.eRepo.CountSearchDateEntries(userId, params)
+	cnt, err := s.eRepo.CountSearchDateEntries(ctx, userId, params)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -158,7 +158,7 @@ func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
 // GetMonthEntries gets all entries of a month.
 func (s *EntryService) GetMonthEntries(ctx context.Context, userId int, year int,
 	month int) ([]*model.Entry, *e.Error) {
-	return s.eRepo.GetMonthEntries(userId, year, month)
+	return s.eRepo.GetMonthEntries(ctx, userId, year, month)
 }
 
 func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
@@ -232,14 +232,14 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 
 // GetEntryActivities gets all entry activities.
 func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, *e.Error) {
-	return s.eRepo.GetEntryActivities()
+	return s.eRepo.GetEntryActivities(ctx)
 }
 
 // GetEntryActivitiesMap gets a map of all entry activities.
 func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
 	*e.Error) {
 	// Get entry activities
-	entryActivities, err := s.eRepo.GetEntryActivities()
+	entryActivities, err := s.eRepo.GetEntryActivities(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -253,11 +253,11 @@ func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*mode
 	return m, nil
 }
 
-func (s *EntryService) checkIfEntryActivityExists(id int) *e.Error {
+func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) *e.Error {
 	if id == 0 {
 		return nil
 	}
-	exist, err := s.eRepo.ExistsEntryActivityById(id)
+	exist, err := s.eRepo.ExistsEntryActivityById(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -278,5 +278,5 @@ func (s *EntryService) GetTotalWorkSummary(ctx context.Context, userId int) (*mo
 	start := time.Time{}
 	now := time.Now()
 	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	return s.eRepo.GetWorkSummary(userId, start, end)
+	return s.eRepo.GetWorkSummary(ctx, userId, start, end)
 }

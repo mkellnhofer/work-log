@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	"kellnhofer.com/work-log/constant"
+	"kellnhofer.com/work-log/db/tx"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 )
@@ -39,7 +41,7 @@ func scheduleJob(jobName string, f jobFunc, interval time.Duration) {
 	go func() {
 		for true {
 			log.Infof("Starting %s ...", jobName)
-			jErr := f(context.Background())
+			jErr := f(createJobContext())
 			if jErr == nil {
 				log.Infof("Finished %s.", jobName)
 			} else {
@@ -49,4 +51,10 @@ func scheduleJob(jobName string, f jobFunc, interval time.Duration) {
 			time.Sleep(interval)
 		}
 	}()
+}
+
+func createJobContext() context.Context {
+	txHolder := &tx.TransactionHolder{}
+	ctx := context.Background()
+	return context.WithValue(ctx, constant.ContextKeyTransactionHolder, txHolder)
 }

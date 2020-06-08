@@ -23,13 +23,13 @@ func NewUserService(ur *repo.UserRepo) *UserService {
 
 // GetUserById gets a user by its ID.
 func (s *UserService) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
-	return s.uRepo.GetUserById(id)
+	return s.uRepo.GetUserById(ctx, id)
 }
 
 // GetUserByUsername gets a user by its username.
 func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*model.User,
 	*e.Error) {
-	return s.uRepo.GetUserByUsername(username)
+	return s.uRepo.GetUserByUsername(ctx, username)
 }
 
 // --- User settings functions ---
@@ -37,13 +37,13 @@ func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*
 // GetSettingShowOverviewDetails gets the setting value for the "show overview details" setting.
 func (s *UserService) GetSettingShowOverviewDetails(ctx context.Context, userId int) (bool,
 	*e.Error) {
-	return s.uRepo.GetUserBoolSetting(userId, constant.SettingKeyShowOverviewDetails)
+	return s.uRepo.GetUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails)
 }
 
 // UpdateSettingShowOverviewDetails updates the setting value for the "show overview details" setting.
 func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, userId int,
 	value bool) *e.Error {
-	return s.uRepo.UpdateUserBoolSetting(userId, constant.SettingKeyShowOverviewDetails, value)
+	return s.uRepo.UpdateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
 }
 
 // --- User contract functions ---
@@ -51,5 +51,5 @@ func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, user
 // GetUserContractByUserId gets the contract information of a user by its ID.
 func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (*model.UserContract,
 	*e.Error) {
-	return s.uRepo.GetUserContractByUserId(userId)
+	return s.uRepo.GetUserContractByUserId(ctx, userId)
 }

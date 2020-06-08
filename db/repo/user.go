@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"strconv"
@@ -31,10 +32,10 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 // --- User functions ---
 
 // GetUsers retrieves all users.
-func (r *UserRepo) GetUsers() ([]*model.User, *e.Error) {
+func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
 	q := "SELECT id, name, username, password FROM user"
 
-	sr, qErr := r.query(&scanUserHelper{}, q)
+	sr, qErr := r.query(ctx, &scanUserHelper{}, q)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query users from database.", qErr)
 		log.Error(err.StackTrace())
@@ -45,10 +46,10 @@ func (r *UserRepo) GetUsers() ([]*model.User, *e.Error) {
 }
 
 // GetUserById retrieves a user by its ID.
-func (r *UserRepo) GetUserById(id int) (*model.User, *e.Error) {
+func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
 	q := "SELECT id, name, username, password FROM user WHERE id = ?"
 
-	sr, qErr := r.queryRow(&scanUserHelper{}, q, id)
+	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, id)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user %d from database.",
 			id), qErr)
@@ -63,10 +64,10 @@ func (r *UserRepo) GetUserById(id int) (*model.User, *e.Error) {
 }
 
 // GetUserByUsername retrieves a user by its username.
-func (r *UserRepo) GetUserByUsername(username string) (*model.User, *e.Error) {
+func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, *e.Error) {
 	q := "SELECT id, name, username, password FROM user WHERE username = ?"
 
-	sr, qErr := r.queryRow(&scanUserHelper{}, q, username)
+	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, username)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user '%s' from database.",
 			username), qErr)
@@ -81,8 +82,8 @@ func (r *UserRepo) GetUserByUsername(username string) (*model.User, *e.Error) {
 }
 
 // ExistsUserById checks if a user exists.
-func (r *UserRepo) ExistsUserById(id int) (bool, *e.Error) {
-	cnt, cErr := r.count("user", "id = ?", id)
+func (r *UserRepo) ExistsUserById(ctx context.Context, id int) (bool, *e.Error) {
+	cnt, cErr := r.count(ctx, "user", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user %d from database.",
 			id), cErr)
@@ -94,10 +95,10 @@ func (r *UserRepo) ExistsUserById(id int) (bool, *e.Error) {
 }
 
 // CreateUser creates a new user.
-func (r *UserRepo) CreateUser(user *model.User) *e.Error {
+func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) *e.Error {
 	q := "INSERT INTO user (name, username, password) VALUES (?, ?, ?)"
 
-	id, cErr := r.insert(q, user.Name, user.Username, user.Password)
+	id, cErr := r.insert(ctx, q, user.Name, user.Username, user.Password)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, "Could not create user in database.", cErr)
 		log.Error(err.StackTrace())
@@ -110,10 +111,10 @@ func (r *UserRepo) CreateUser(user *model.User) *e.Error {
 }
 
 // UpdateUser updates a user.
-func (r *UserRepo) UpdateUser(user *model.User) *e.Error {
+func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) *e.Error {
 	q := "UPDATE user SET name = ?, username = ?, password = ? WHERE id = ?"
 
-	uErr := r.exec(q, user.Name, user.Username, user.Password, user.Id)
+	uErr := r.exec(ctx, q, user.Name, user.Username, user.Password, user.Id)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user %d in database.",
 			user.Id), uErr)
@@ -125,10 +126,10 @@ func (r *UserRepo) UpdateUser(user *model.User) *e.Error {
 }
 
 // DeleteUserById deletes a user by its ID.
-func (r *UserRepo) DeleteUserById(id int) *e.Error {
+func (r *UserRepo) DeleteUserById(ctx context.Context, id int) *e.Error {
 	q := "DELETE FROM user WHERE id = ?"
 
-	dErr := r.exec(q, id)
+	dErr := r.exec(ctx, q, id)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete user %d from database.",
 			id), dErr)
@@ -142,8 +143,8 @@ func (r *UserRepo) DeleteUserById(id int) *e.Error {
 // --- User settings functions ---
 
 // GetUserIntSetting retrieves a integer setting of a user.
-func (r *UserRepo) GetUserIntSetting(userId int, key string) (int, *e.Error) {
-	v, qErr := r.GetUserStringSetting(userId, key)
+func (r *UserRepo) GetUserIntSetting(ctx context.Context, userId int, key string) (int, *e.Error) {
+	v, qErr := r.GetUserStringSetting(ctx, userId, key)
 	if qErr != nil {
 		return 0, qErr
 	}
@@ -159,18 +160,20 @@ func (r *UserRepo) GetUserIntSetting(userId int, key string) (int, *e.Error) {
 }
 
 // CreateUserIntSetting creates a integer setting for a user.
-func (r *UserRepo) CreateUserIntSetting(userId int, key string, value int) *e.Error {
-	return r.CreateUserStringSetting(userId, key, strconv.Itoa(value))
+func (r *UserRepo) CreateUserIntSetting(ctx context.Context, userId int, key string,
+	value int) *e.Error {
+	return r.CreateUserStringSetting(ctx, userId, key, strconv.Itoa(value))
 }
 
 // UpdateUserIntSetting updates a integer setting of a user.
-func (r *UserRepo) UpdateUserIntSetting(userId int, key string, value int) *e.Error {
-	return r.UpdateUserStringSetting(userId, key, strconv.Itoa(value))
+func (r *UserRepo) UpdateUserIntSetting(ctx context.Context, userId int, key string,
+	value int) *e.Error {
+	return r.UpdateUserStringSetting(ctx, userId, key, strconv.Itoa(value))
 }
 
 // GetUserBoolSetting retrieves a boolean setting of a user.
-func (r *UserRepo) GetUserBoolSetting(userId int, key string) (bool, *e.Error) {
-	v, qErr := r.GetUserStringSetting(userId, key)
+func (r *UserRepo) GetUserBoolSetting(ctx context.Context, userId int, key string) (bool, *e.Error) {
+	v, qErr := r.GetUserStringSetting(ctx, userId, key)
 	if qErr != nil {
 		return false, qErr
 	}
@@ -187,34 +190,37 @@ func (r *UserRepo) GetUserBoolSetting(userId int, key string) (bool, *e.Error) {
 }
 
 // CreateUserBoolSetting creates a boolean setting for a user.
-func (r *UserRepo) CreateUserBoolSetting(userId int, key string, value bool) *e.Error {
+func (r *UserRepo) CreateUserBoolSetting(ctx context.Context, userId int, key string,
+	value bool) *e.Error {
 	var v string
 	if value {
 		v = "true"
 	} else {
 		v = "false"
 	}
-	return r.CreateUserStringSetting(userId, key, v)
+	return r.CreateUserStringSetting(ctx, userId, key, v)
 }
 
 // UpdateUserBoolSetting updates a boolean setting of a user.
-func (r *UserRepo) UpdateUserBoolSetting(userId int, key string, value bool) *e.Error {
+func (r *UserRepo) UpdateUserBoolSetting(ctx context.Context, userId int, key string,
+	value bool) *e.Error {
 	var v string
 	if value {
 		v = "true"
 	} else {
 		v = "false"
 	}
-	return r.UpdateUserStringSetting(userId, key, v)
+	return r.UpdateUserStringSetting(ctx, userId, key, v)
 }
 
 // GetUserStringSetting retrieves a string setting of a user.
-func (r *UserRepo) GetUserStringSetting(userId int, key string) (string, *e.Error) {
+func (r *UserRepo) GetUserStringSetting(ctx context.Context, userId int, key string) (string,
+	*e.Error) {
 	q := "SELECT setting_value FROM user_setting WHERE user_id = ? AND " +
 		"setting_key = ?"
 
 	var value string
-	qErr := r.queryValue(&value, q, userId, key)
+	qErr := r.queryValue(ctx, &value, q, userId, key)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user setting '%s' for "+
 			"user %d from database.", key, userId), qErr)
@@ -225,10 +231,11 @@ func (r *UserRepo) GetUserStringSetting(userId int, key string) (string, *e.Erro
 }
 
 // CreateUserStringSetting creates a string setting for a user.
-func (r *UserRepo) CreateUserStringSetting(userId int, key string, value string) *e.Error {
+func (r *UserRepo) CreateUserStringSetting(ctx context.Context, userId int, key string,
+	value string) *e.Error {
 	q := "INSERT INTO user_setting (user_id, setting_key, setting_value) VALUES (?, ?, ?)"
 
-	_, cErr := r.insert(q, userId, key, value)
+	_, cErr := r.insert(ctx, q, userId, key, value)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, fmt.Sprintf("Could not create user setting '%s' "+
 			"for user %d in database.", key, userId), cErr)
@@ -239,10 +246,11 @@ func (r *UserRepo) CreateUserStringSetting(userId int, key string, value string)
 }
 
 // UpdateUserStringSetting updates a string setting of a user.
-func (r *UserRepo) UpdateUserStringSetting(userId int, key string, value string) *e.Error {
+func (r *UserRepo) UpdateUserStringSetting(ctx context.Context, userId int, key string,
+	value string) *e.Error {
 	q := "UPDATE user_setting SET setting_value = ? WHERE user_id = ? AND setting_key = ?"
 
-	uErr := r.exec(q, value, userId, key)
+	uErr := r.exec(ctx, q, value, userId, key)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user setting '%s' "+
 			"for user %d in database.", key, userId), uErr)
@@ -255,11 +263,12 @@ func (r *UserRepo) UpdateUserStringSetting(userId int, key string, value string)
 // --- User contract functions ---
 
 // GetUserContractByUserId retrieves the contract information of a user by its ID.
-func (r *UserRepo) GetUserContractByUserId(userId int) (*model.UserContract, *e.Error) {
+func (r *UserRepo) GetUserContractByUserId(ctx context.Context, userId int) (*model.UserContract,
+	*e.Error) {
 	q := "SELECT daily_working_duration, annual_vacation_days, init_overtime_duration, " +
 		"init_vacation_days, first_work_day FROM user_contract WHERE user_id = ?"
 
-	sr, qErr := r.queryRow(&scanUserContractHelper{}, q, userId)
+	sr, qErr := r.queryRow(ctx, &scanUserContractHelper{}, q, userId)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user contract for user "+
 			"%d from database.", userId), qErr)
@@ -274,13 +283,14 @@ func (r *UserRepo) GetUserContractByUserId(userId int) (*model.UserContract, *e.
 }
 
 // CreateUserContract creates the contract information of a user.
-func (r *UserRepo) CreateUserContract(userId int, userContract *model.UserContract) *e.Error {
+func (r *UserRepo) CreateUserContract(ctx context.Context, userId int,
+	userContract *model.UserContract) *e.Error {
 	uc := toDbUserContract(userContract)
 
 	q := "INSERT INTO user_contract (user_id, daily_working_duration, annual_vacation_days, " +
 		"init_overtime_duration, init_vacation_days, first_work_day) VALUES (?, ?, ?, ?, ?, ?)"
 
-	_, cErr := r.insert(q, userId, uc.dailyWorkingDuration, uc.annualVacationDays,
+	_, cErr := r.insert(ctx, q, userId, uc.dailyWorkingDuration, uc.annualVacationDays,
 		uc.initOvertimeDuration, uc.initVacationDays, uc.firstWorkDay)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, fmt.Sprintf("Could not create user contract for "+
@@ -293,13 +303,14 @@ func (r *UserRepo) CreateUserContract(userId int, userContract *model.UserContra
 }
 
 // UpdateUserContract updates the contract information of a user.
-func (r *UserRepo) UpdateUserContract(userId int, userContract *model.UserContract) *e.Error {
+func (r *UserRepo) UpdateUserContract(ctx context.Context, userId int,
+	userContract *model.UserContract) *e.Error {
 	uc := toDbUserContract(userContract)
 
 	q := "UPDATE user_contract SET daily_working_duration = ?, annual_vacation_days = ?, " +
 		"init_overtime_duration = ?, init_vacation_days = ?, first_work_day = ? WHERE user_id = ?"
 
-	uErr := r.exec(q, uc.dailyWorkingDuration, uc.annualVacationDays, uc.initOvertimeDuration,
+	uErr := r.exec(ctx, q, uc.dailyWorkingDuration, uc.annualVacationDays, uc.initOvertimeDuration,
 		uc.initVacationDays, uc.firstWorkDay, userId)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user contract for "+

@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -30,8 +31,8 @@ func NewSessionRepo(db *sql.DB) *SessionRepo {
 // --- Session functions ---
 
 // GetSessionById retrieves a session by its ID.
-func (r *SessionRepo) GetSessionById(id string) (*model.Session, *e.Error) {
-	sr, qErr := r.queryRow(&scanSessionHelper{}, "SELECT id, user_id, expire_at, previous_url "+
+func (r *SessionRepo) GetSessionById(ctx context.Context, id string) (*model.Session, *e.Error) {
+	sr, qErr := r.queryRow(ctx, &scanSessionHelper{}, "SELECT id, user_id, expire_at, previous_url "+
 		"FROM session WHERE id = ?", id)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read session %s from database.",
@@ -47,8 +48,8 @@ func (r *SessionRepo) GetSessionById(id string) (*model.Session, *e.Error) {
 }
 
 // ExistsSessionById checks if a session exists.
-func (r *SessionRepo) ExistsSessionById(id string) (bool, *e.Error) {
-	cnt, cErr := r.count("session", "id = ?", id)
+func (r *SessionRepo) ExistsSessionById(ctx context.Context, id string) (bool, *e.Error) {
+	cnt, cErr := r.count(ctx, "session", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read session %s from "+
 			"database.", id), cErr)
@@ -60,10 +61,10 @@ func (r *SessionRepo) ExistsSessionById(id string) (bool, *e.Error) {
 }
 
 // CreateSession creates a new session.
-func (r *SessionRepo) CreateSession(session *model.Session) *e.Error {
+func (r *SessionRepo) CreateSession(ctx context.Context, session *model.Session) *e.Error {
 	sess := toDbSession(session)
 
-	cErr := r.exec("INSERT INTO session (id, user_id, expire_at, previous_url) "+
+	cErr := r.exec(ctx, "INSERT INTO session (id, user_id, expire_at, previous_url) "+
 		"VALUES (?, ?, ?, ?)", sess.id, sess.userId, sess.expireAt, sess.previousUrl)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, "Could not create session in database.", cErr)
@@ -75,10 +76,10 @@ func (r *SessionRepo) CreateSession(session *model.Session) *e.Error {
 }
 
 // UpdateSession updates a session.
-func (r *SessionRepo) UpdateSession(session *model.Session) *e.Error {
+func (r *SessionRepo) UpdateSession(ctx context.Context, session *model.Session) *e.Error {
 	sess := toDbSession(session)
 
-	uErr := r.exec("UPDATE session SET user_id = ?, expire_at = ?, previous_url = ? WHERE id = ?",
+	uErr := r.exec(ctx, "UPDATE session SET user_id = ?, expire_at = ?, previous_url = ? WHERE id = ?",
 		sess.userId, sess.expireAt, sess.previousUrl, sess.id)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update session %s in database.",
@@ -91,8 +92,8 @@ func (r *SessionRepo) UpdateSession(session *model.Session) *e.Error {
 }
 
 // DeleteSessionById deletes a session by by its ID.
-func (r *SessionRepo) DeleteSessionById(id string) *e.Error {
-	dErr := r.exec("DELETE FROM session WHERE id = ?", id)
+func (r *SessionRepo) DeleteSessionById(ctx context.Context, id string) *e.Error {
+	dErr := r.exec(ctx, "DELETE FROM session WHERE id = ?", id)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete session %s from "+
 			"database.", id), dErr)
@@ -103,10 +104,10 @@ func (r *SessionRepo) DeleteSessionById(id string) *e.Error {
 }
 
 // DeleteExpiredSessions deletes expired sessions.
-func (r *SessionRepo) DeleteExpiredSessions() *e.Error {
+func (r *SessionRepo) DeleteExpiredSessions(ctx context.Context) *e.Error {
 	now := time.Now()
 	n := *formatTimestamp(&now)
-	dErr := r.exec("DELETE FROM session WHERE expire_at < ?", n)
+	dErr := r.exec(ctx, "DELETE FROM session WHERE expire_at < ?", n)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, "Could not delete expired sessions from database.",
 			dErr)

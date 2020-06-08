@@ -22,13 +22,13 @@ func NewSessionService(sr *repo.SessionRepo) *SessionService {
 
 // GetSession gets a session.
 func (s *SessionService) GetSession(ctx context.Context, id string) (*model.Session, *e.Error) {
-	return s.sRepo.GetSessionById(id)
+	return s.sRepo.GetSessionById(ctx, id)
 }
 
 // SaveSession creates/updates a session.
 func (s *SessionService) SaveSession(ctx context.Context, session *model.Session) *e.Error {
 	// Check if session exists
-	exists, err := s.sRepo.ExistsSessionById(session.Id)
+	exists, err := s.sRepo.ExistsSessionById(ctx, session.Id)
 	if err != nil {
 		return err
 	}
@@ -36,19 +36,19 @@ func (s *SessionService) SaveSession(ctx context.Context, session *model.Session
 	// Exists session?
 	if exists {
 		// Update session
-		return s.sRepo.UpdateSession(session)
+		return s.sRepo.UpdateSession(ctx, session)
 	} else {
 		// Create session
-		return s.sRepo.CreateSession(session)
+		return s.sRepo.CreateSession(ctx, session)
 	}
 }
 
 // DeleteSession deletes a session.
 func (s *SessionService) DeleteSession(ctx context.Context, id string) *e.Error {
-	return s.sRepo.DeleteSessionById(id)
+	return s.sRepo.DeleteSessionById(ctx, id)
 }
 
 // DeleteExpiredSessions deletes expired sessions.
 func (s *SessionService) DeleteExpiredSessions(ctx context.Context) *e.Error {
-	return s.sRepo.DeleteExpiredSessions()
+	return s.sRepo.DeleteExpiredSessions(ctx)
 }

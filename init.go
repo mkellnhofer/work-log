@@ -3,6 +3,7 @@ package main
 import (
 	"kellnhofer.com/work-log/config"
 	"kellnhofer.com/work-log/db"
+	"kellnhofer.com/work-log/db/tx"
 	"kellnhofer.com/work-log/service"
 	"kellnhofer.com/work-log/view/controller"
 	"kellnhofer.com/work-log/view/middleware"
@@ -23,6 +24,7 @@ type Initializer struct {
 	authVCtrl  *controller.AuthController
 	entryVCtrl *controller.EntryController
 
+	txMidw    *tx.TransactionMiddleware
 	errVMidw  *middleware.ErrorMiddleware
 	sessVMidw *middleware.SessionMiddleware
 	authVMidw *middleware.AuthMiddleware
@@ -101,6 +103,16 @@ func (i *Initializer) GetEntryViewController() *controller.EntryController {
 		i.entryVCtrl = controller.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.entryVCtrl
+}
+
+// --- General middleware functions ---
+
+// GetTransactionMiddleware returns a initialized transaction middleware object.
+func (i *Initializer) GetTransactionMiddleware() *tx.TransactionMiddleware {
+	if i.txMidw == nil {
+		i.txMidw = tx.NewTransactionMiddleware()
+	}
+	return i.txMidw
 }
 
 // --- View middleware functions ---

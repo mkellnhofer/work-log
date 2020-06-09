@@ -140,6 +140,73 @@ func (r *UserRepo) DeleteUserById(ctx context.Context, id int) *e.Error {
 	return nil
 }
 
+// --- User role functions ---
+
+// GetUserRoles retrieves roles of a user by its ID.
+func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, *e.Error) {
+	q := "SELECT r.name FROM user_role ur INNER JOIN role r ON ur.role_id = r.id WHERE ur.user_id = ?"
+
+	sr, qrErr := r.query(ctx, scanRoleHelper{}, q, userId)
+	if qrErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query user roles for user %d "+
+			"from database.", userId), qrErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	return sr.([]model.Role), nil
+}
+
+// SetUserRoles set roles of a user by its ID.
+func (r *UserRepo) SetUserRoles(ctx context.Context, userId int, roles []model.Role) *e.Error {
+	tx := r.getCurrentTransaction(ctx)
+	isExistingTx := tx != nil
+
+	if !isExistingTx {
+		var err *e.Error
+		if tx, err = r.begin(); err != nil {
+			return err
+		}
+	}
+
+	drErr := r.execWithTx(tx, "DELETE FROM user_role WHERE user_id = ?", userId)
+	if drErr != nil {
+		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not update user roles for user "+
+			"%d in database.", userId), drErr)
+		log.Error(err.StackTrace())
+		if !isExistingTx {
+			r.rollback(tx)
+		}
+		return err
+	}
+
+	rs := make([]string, len(roles))
+	for i, role := range roles {
+		rs[i] = role.String()
+	}
+
+	sel := createSelectionString(rs)
+	crErr := r.execWithTx(tx, "INSERT INTO user_role (user_id, role_id) "+
+		"SELECT "+strconv.Itoa(userId)+", r.id FROM role r WHERE r.name IN ("+sel+")")
+	if crErr != nil {
+		err := e.WrapError(e.SysDbInsertFailed, fmt.Sprintf("Could not update user roles for user "+
+			"%d in database.", userId), crErr)
+		log.Error(err.StackTrace())
+		if !isExistingTx {
+			r.rollback(tx)
+		}
+		return err
+	}
+
+	if !isExistingTx {
+		if err := r.commit(tx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // --- User settings functions ---
 
 // GetUserIntSetting retrieves a integer setting of a user.
@@ -323,6 +390,28 @@ func (r *UserRepo) UpdateUserContract(ctx context.Context, userId int,
 }
 
 // --- Helper functions ---
+
+type scanRoleHelper struct {
+}
+
+func (h scanRoleHelper) makeSlice() interface{} {
+	return make([]model.Role, 0, 10)
+}
+
+func (h scanRoleHelper) scan(s scanner) (interface{}, error) {
+	var role model.Role
+
+	err := s.Scan(&role)
+	if err != nil {
+		return nil, err
+	}
+
+	return role, nil
+}
+
+func (h scanRoleHelper) appendSlice(items interface{}, item interface{}) interface{} {
+	return append(items.([]model.Role), item.(model.Role))
+}
 
 type scanUserHelper struct {
 }

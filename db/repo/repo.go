@@ -335,6 +335,19 @@ func formatDuration(d *time.Duration) *int {
 	return &min
 }
 
-func escapeRestrictionString(s string) string {
-	return strings.NewReplacer("%", "\\%", "_", "\\_").Replace(s)
+func createSelectionString(values []string) string {
+	s := quoteStrings(values)
+	return strings.Join(s, ",")
+}
+
+func escapeRestrictionString(restriction string) string {
+	return strings.NewReplacer("%", "\\%", "_", "\\_").Replace(restriction)
+}
+
+func quoteStrings(in []string) []string {
+	out := make([]string, len(in))
+	for i := 0; i < len(in); i++ {
+		out[i] = "'" + in[i] + "'"
+	}
+	return out
 }

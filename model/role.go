@@ -13,3 +13,10 @@ const (
 	RoleEvaluator Role = "evaluator"
 	RoleUser      Role = "user"
 )
+
+// Roles holds a list of roles.
+var Roles = []Role{
+	RoleAdmin,
+	RoleEvaluator,
+	RoleUser,
+}

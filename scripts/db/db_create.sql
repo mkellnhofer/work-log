@@ -7,12 +7,33 @@ CREATE TABLE setting (
 INSERT INTO setting (setting_key, setting_value)
   VALUES ('db_version', '1');
 
+CREATE TABLE role (
+  id INT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(20) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO role (id, name)
+  VALUES (1, 'admin'), (2, 'evaluator'), (3, 'user');
+
 CREATE TABLE user (
   id INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   username VARCHAR(100) NOT NULL,
   password VARCHAR(100) NOT NULL,
   PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE user_role (
+  user_id INT NOT NULL,
+  role_id INT NOT NULL,
+  PRIMARY KEY (user_id, role_id),
+  KEY fk_userrole_user (user_id),
+  KEY fk_userrole_role (role_id),
+  CONSTRAINT fk_userrole_user FOREIGN KEY (user_id)
+    REFERENCES user (id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_userrole_role FOREIGN KEY (role_id)
+    REFERENCES role (id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE user_setting (

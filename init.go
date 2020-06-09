@@ -50,7 +50,8 @@ func (i *Initializer) GetDb() *db.Db {
 // GetEntryService returns a initialized entry service object.
 func (i *Initializer) GetEntryService() *service.EntryService {
 	if i.entryServ == nil {
-		i.entryServ = service.NewEntryService(i.GetDb().GetEntryRepo())
+		i.entryServ = service.NewEntryService(i.GetDb().GetTransactionManager(),
+			i.GetDb().GetEntryRepo())
 	}
 	return i.entryServ
 }
@@ -58,7 +59,8 @@ func (i *Initializer) GetEntryService() *service.EntryService {
 // GetSessionService returns a initialized session service object.
 func (i *Initializer) GetSessionService() *service.SessionService {
 	if i.sessServ == nil {
-		i.sessServ = service.NewSessionService(i.GetDb().GetSessionRepo())
+		i.sessServ = service.NewSessionService(i.GetDb().GetTransactionManager(),
+			i.GetDb().GetSessionRepo())
 	}
 	return i.sessServ
 }
@@ -66,7 +68,8 @@ func (i *Initializer) GetSessionService() *service.SessionService {
 // GetUserService returns a initialized user service object.
 func (i *Initializer) GetUserService() *service.UserService {
 	if i.userServ == nil {
-		i.userServ = service.NewUserService(i.GetDb().GetUserRepo())
+		i.userServ = service.NewUserService(i.GetDb().GetTransactionManager(),
+			i.GetDb().GetUserRepo())
 	}
 	return i.userServ
 }

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"kellnhofer.com/work-log/db/repo"
+	"kellnhofer.com/work-log/db/tx"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/loc"
 	"kellnhofer.com/work-log/log"
@@ -14,12 +15,13 @@ import (
 
 // EntryService contains entry related logic.
 type EntryService struct {
+	service
 	eRepo *repo.EntryRepo
 }
 
 // NewEntryService create a new entry service.
-func NewEntryService(er *repo.EntryRepo) *EntryService {
-	return &EntryService{er}
+func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryService {
+	return &EntryService{service{tm}, er}
 }
 
 // --- Entry functions ---

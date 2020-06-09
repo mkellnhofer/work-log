@@ -4,18 +4,20 @@ import (
 	"context"
 
 	"kellnhofer.com/work-log/db/repo"
+	"kellnhofer.com/work-log/db/tx"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/model"
 )
 
 // SessionService contains session related logic.
 type SessionService struct {
+	service
 	sRepo *repo.SessionRepo
 }
 
 // NewSessionService create a new session service.
-func NewSessionService(sr *repo.SessionRepo) *SessionService {
-	return &SessionService{sr}
+func NewSessionService(tm *tx.TransactionManager, sr *repo.SessionRepo) *SessionService {
+	return &SessionService{service{tm}, sr}
 }
 
 // --- Session functions ---

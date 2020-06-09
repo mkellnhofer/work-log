@@ -5,18 +5,20 @@ import (
 
 	"kellnhofer.com/work-log/constant"
 	"kellnhofer.com/work-log/db/repo"
+	"kellnhofer.com/work-log/db/tx"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/model"
 )
 
 // UserService contains user related logic.
 type UserService struct {
+	service
 	uRepo *repo.UserRepo
 }
 
 // NewUserService create a new user service.
-func NewUserService(ur *repo.UserRepo) *UserService {
-	return &UserService{ur}
+func NewUserService(tm *tx.TransactionManager, ur *repo.UserRepo) *UserService {
+	return &UserService{service{tm}, ur}
 }
 
 // --- User functions ---

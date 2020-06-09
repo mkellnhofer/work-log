@@ -28,8 +28,9 @@ const (
 	LogicEntryTimeIntervalInvalid       = -304
 	LogicEntryBreakDurationTooLong      = -305
 	LogicEntrySearchDateIntervalInvalid = -306
-	LogicUserNotFound                   = -307
-	LogicUserAlreadyExists              = -308
+	LogicRoleNotFound                   = -307
+	LogicUserNotFound                   = -308
+	LogicUserAlreadyExists              = -309
 
 	// System errors
 	SysUnknown             = -400

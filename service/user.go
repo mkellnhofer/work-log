@@ -24,6 +24,13 @@ func NewUserService(tm *tx.TransactionManager, ur *repo.UserRepo) *UserService {
 	return &UserService{service{tm}, ur}
 }
 
+// --- Role functions ---
+
+// GetRoles gets all roles.
+func (s *UserService) GetRoles(ctx context.Context) []model.Role {
+	return model.Roles
+}
+
 // --- User functions ---
 
 // GetUsers gets all users.
@@ -124,6 +131,45 @@ func (s *UserService) checkIfUsernameIsAlreadyTaken(ctx context.Context, id int,
 		return err
 	}
 	return nil
+}
+
+// --- User role functions ---
+
+// GetUserRoles gets the roles of a user.
+func (s *UserService) GetUserRoles(ctx context.Context, userId int) ([]model.Role, *e.Error) {
+	return s.uRepo.GetUserRoles(ctx, userId)
+}
+
+// SetUserRoles sets the roles of a user.
+func (s *UserService) SetUserRoles(ctx context.Context, userId int, roles []model.Role) *e.Error {
+	// Check if roles exist
+	if err := s.checkIfRolesExist(ctx, roles); err != nil {
+		return err
+	}
+
+	// Set user roles
+	return s.uRepo.SetUserRoles(ctx, userId, roles)
+}
+
+func (s *UserService) checkIfRolesExist(ctx context.Context, roles []model.Role) *e.Error {
+	for _, role := range roles {
+		found := containsRole(model.Roles, role)
+		if !found {
+			err := e.NewError(e.LogicRoleNotFound, fmt.Sprintf("Role '%s' does not exists.", role))
+			log.Debug(err.StackTrace())
+			return err
+		}
+	}
+	return nil
+}
+
+func containsRole(roles []model.Role, role model.Role) bool {
+	for _, r := range roles {
+		if r == role {
+			return true
+		}
+	}
+	return false
 }
 
 // --- User settings functions ---

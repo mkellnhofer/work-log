@@ -211,3 +211,105 @@ func (s *UserService) UpdateUserContract(ctx context.Context, userId int,
 	contract *model.UserContract) *e.Error {
 	return s.uRepo.UpdateUserContract(ctx, userId, contract)
 }
+
+// --- User data functions ---
+
+// GetUserDatas gets all users with related information at once.
+func (s *UserService) GetUserDatas(ctx context.Context) ([]*model.UserData, *e.Error) {
+	users, gusErr := s.GetUsers(ctx)
+	if gusErr != nil {
+		return nil, gusErr
+	}
+
+	userDatas := make([]*model.UserData, 0, 10)
+
+	for _, user := range users {
+		userContract, gucErr := s.GetUserContractByUserId(ctx, user.Id)
+		if gucErr != nil {
+			return nil, gucErr
+		}
+
+		userDatas = append(userDatas, model.NewUserData(user.Id, user, userContract))
+	}
+
+	return userDatas, nil
+}
+
+// GetUserDataByUserId gets a user with related information at once.
+func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*model.UserData,
+	*e.Error) {
+	user, guErr := s.GetUserById(ctx, userId)
+	if guErr != nil {
+		return nil, guErr
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	userContract, gucErr := s.GetUserContractByUserId(ctx, userId)
+	if gucErr != nil {
+		return nil, gucErr
+	}
+
+	return model.NewUserData(userId, user, userContract), nil
+}
+
+// CreateUserData creates a new user with related information at once.
+func (s *UserService) CreateUserData(ctx context.Context, userData *model.UserData) *e.Error {
+	// Start transaction
+	if err := s.tm.Begin(ctx); err != nil {
+		return err
+	}
+
+	// Create user
+	if err := s.CreateUser(ctx, userData.User); err != nil {
+		s.tm.Rollback(ctx)
+		return err
+	}
+	userData.Id = userData.User.Id
+	// Create roles
+	userRoles := []model.Role{model.RoleUser}
+	if err := s.SetUserRoles(ctx, userData.Id, userRoles); err != nil {
+		s.tm.Rollback(ctx)
+		return err
+	}
+	// Create settings
+	if err := s.CreateSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
+		s.tm.Rollback(ctx)
+		return err
+	}
+	// Create contract
+	if err := s.CreateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
+		s.tm.Rollback(ctx)
+		return err
+	}
+
+	// Commit transaction
+	return s.tm.Commit(ctx)
+}
+
+// UpdateUserData updates a user with related information at once.
+func (s *UserService) UpdateUserData(ctx context.Context, userData *model.UserData) *e.Error {
+	// Start transaction
+	if err := s.tm.Begin(ctx); err != nil {
+		return err
+	}
+
+	// Update user
+	if userData.User != nil {
+		if err := s.UpdateUser(ctx, userData.User); err != nil {
+			s.tm.Rollback(ctx)
+			return err
+		}
+	}
+	// Update contract
+	if userData.UserContract != nil {
+		if err := s.UpdateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
+			s.tm.Rollback(ctx)
+			return err
+		}
+	}
+
+	// Commit transaction
+	return s.tm.Commit(ctx)
+}

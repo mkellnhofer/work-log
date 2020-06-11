@@ -198,14 +198,14 @@ func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request)
 	var workSummary *model.WorkSummary
 	if pageNum == 1 {
 		var gwsErr *e.Error
-		workSummary, gwsErr = c.eServ.GetTotalWorkSummary(ctx, userId)
+		workSummary, gwsErr = c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
 		if gwsErr != nil {
 			panic(gwsErr)
 		}
 	}
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, userId, offset, limit)
+	entries, cnt, gesErr := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
@@ -354,7 +354,7 @@ func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Update entry
-	if ueErr := c.eServ.UpdateEntry(ctx, entry, userId); ueErr != nil {
+	if ueErr := c.eServ.UpdateEntry(ctx, entry); ueErr != nil {
 		c.handleEditError(w, r, ueErr, entryId, input)
 	}
 
@@ -494,7 +494,7 @@ func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Req
 	entryId := getIdPathVar(r)
 
 	// Delete entry
-	if deErr := c.eServ.DeleteEntryById(ctx, entryId, userId); deErr != nil {
+	if deErr := c.eServ.DeleteEntryByIdAndUserId(ctx, entryId, userId); deErr != nil {
 		panic(deErr)
 	}
 
@@ -653,7 +653,7 @@ func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewE
 	year, month := c.getOverviewParams(r)
 
 	// Get entries
-	entries, gesErr := c.eServ.GetMonthEntries(ctx, userId, year, month)
+	entries, gesErr := c.eServ.GetMonthEntriesByUserId(ctx, userId, year, month)
 	if gesErr != nil {
 		panic(gesErr)
 	}
@@ -1690,7 +1690,7 @@ func (c *EntryController) getUserContract(ctx context.Context, userId int) *mode
 }
 
 func (c *EntryController) getEntry(ctx context.Context, entryId int, userId int) *model.Entry {
-	entry, geErr := c.eServ.GetEntryById(ctx, entryId, userId)
+	entry, geErr := c.eServ.GetEntryByIdAndUserId(ctx, entryId, userId)
 	if geErr != nil {
 		panic(geErr)
 	}

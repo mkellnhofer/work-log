@@ -82,6 +82,19 @@ var errorMessageKeys = map[int]string{
 	e.AuthUnknown:            "errAuthUnknown",
 	e.AuthInvalidCredentials: "errAuthInvalidCredentials",
 
+	// Permission errors
+	e.PermUnknown:             "errPermUnknown",
+	e.PermGetUserData:         "errPermMissing",
+	e.PermChangeUserData:      "errPermMissing",
+	e.PermGetUserAccount:      "errPermMissing",
+	e.PermChangeUserAccount:   "errPermMissing",
+	e.PermGetEntryCharacts:    "errPermMissing",
+	e.PermChangeEntryCharacts: "errPermMissing",
+	e.PermGetAllEntries:       "errPermMissing",
+	e.PermChangeAllEntries:    "errPermMissing",
+	e.PermGetOwnEntries:       "errPermMissing",
+	e.PermChangeOwnEntries:    "errPermMissing",
+
 	// Validation erros
 	e.ValUnknown:              "errValUnknown",
 	e.ValPageNumberInvalid:    "errValPageNumberInvalid",

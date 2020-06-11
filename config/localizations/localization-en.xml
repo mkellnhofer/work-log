@@ -114,6 +114,8 @@
     <!-- Errors -->
     <message key="errAuthUnknown"><text>An unknown authentication error occurred.</text></message>
     <message key="errAuthInvalidCredentials"><text>Wrong username or password.</text></message>
+    <message key="errPermUnknown"><text>An unknown permission error occurred.</text></message>
+    <message key="errPermMissing"><text>The user doesn't have the permission to execute this action.</text></message>
     <message key="errValUnknown"><text>An unknown validation error occurred.</text></message>
     <message key="errValPageNumberInvalid"><text>Page number invalid. (Page number must be numeric and positive.)</text></message>
     <message key="errValIdInvalid"><text>ID invalid. (ID must be numeric and positive.)</text></message>

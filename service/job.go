@@ -9,6 +9,7 @@ import (
 	"kellnhofer.com/work-log/db/tx"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	"kellnhofer.com/work-log/model"
 )
 
 const sessionsCleanUpInterval = 15 * time.Minute
@@ -54,7 +55,8 @@ func scheduleJob(jobName string, f jobFunc, interval time.Duration) {
 }
 
 func createJobContext() context.Context {
-	txHolder := &tx.TransactionHolder{}
 	ctx := context.Background()
-	return context.WithValue(ctx, constant.ContextKeyTransactionHolder, txHolder)
+	ctx = context.WithValue(ctx, constant.ContextKeyTransactionHolder, &tx.TransactionHolder{})
+	return context.WithValue(ctx, constant.ContextKeySecurityContext,
+		model.GetSystemUserSecurityContext())
 }

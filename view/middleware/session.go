@@ -8,6 +8,7 @@ import (
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
+	"kellnhofer.com/work-log/util/security"
 )
 
 // SessionHolder acts as a wrapper to be able to change the session of the current context.
@@ -44,10 +45,13 @@ func NewSessionMiddleware(sServ *service.SessionService) *SessionMiddleware {
 func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	log.Verb("Before create/restore session.")
 
-	sysCtx := r.Context()
+	// Create system context
+	sysCtx := security.CreateSystemContext(r.Context())
 
+	// Get session cookie
 	sessCookie, _ := r.Cookie(constant.SessionCookieName)
 
+	// Get session ID
 	var sessId string
 	if sessCookie != nil {
 		sessId = sessCookie.Value
@@ -75,8 +79,7 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	sessHolder := &SessionHolder{iniSess}
 
 	// Update context
-	ctx := r.Context()
-	ctx = context.WithValue(ctx, constant.ContextKeySessionHolder, sessHolder)
+	ctx := context.WithValue(r.Context(), constant.ContextKeySessionHolder, sessHolder)
 
 	// Forward to next handler
 	next(w, r.WithContext(ctx))

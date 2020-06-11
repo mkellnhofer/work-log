@@ -15,6 +15,7 @@ const (
 
 	ContextKeyTransactionHolder contextKey = contextKey("transaction-holder")
 	ContextKeySessionHolder     contextKey = contextKey("session-holder")
+	ContextKeySecurityContext   contextKey = contextKey("security-context")
 
 	PathDefault string = "/list"
 

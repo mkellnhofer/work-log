@@ -12,6 +12,7 @@ import (
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/view/middleware"
 )
 
@@ -148,9 +149,8 @@ func parseMonthParam(v string) (*int, *int) {
 }
 
 func getCurrentUserId(ctx context.Context) int {
-	sh := ctx.Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-	s := sh.Get()
-	return s.UserId
+	sc := ctx.Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
+	return sc.UserId
 }
 
 func saveCurrentUrl(ctx context.Context, r *http.Request) {

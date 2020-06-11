@@ -45,12 +45,14 @@ func main() {
 	pubVRoute.Use(init.GetTransactionMiddleware())
 	pubVRoute.Use(init.GetErrorViewMiddleware())
 	pubVRoute.Use(init.GetSessionViewMiddleware())
+	pubVRoute.Use(init.GetSecurityViewMiddleware())
 	// Create protected view middleware route
 	proVRoute := negroni.New()
 	proVRoute.Use(init.GetTransactionMiddleware())
 	proVRoute.Use(init.GetErrorViewMiddleware())
 	proVRoute.Use(init.GetSessionViewMiddleware())
-	proVRoute.Use(init.GetAuthViewMiddleware())
+	proVRoute.Use(init.GetSecurityViewMiddleware())
+	proVRoute.Use(init.GetAuthCheckViewMiddleware())
 
 	// Get view controllers
 	errViewCtrl := init.GetErrorViewController()

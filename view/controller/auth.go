@@ -12,6 +12,7 @@ import (
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
+	"kellnhofer.com/work-log/util/security"
 	"kellnhofer.com/work-log/view"
 	"kellnhofer.com/work-log/view/middleware"
 	vm "kellnhofer.com/work-log/view/model"
@@ -79,15 +80,15 @@ func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
 }
 
 func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Request) {
-	// Get context
-	ctx := r.Context()
+	// Create system context
+	sysCtx := security.CreateSystemContext(r.Context())
 
 	// Get form inputs
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
 	// Find user
-	user, guErr := c.uServ.GetUserByUsername(ctx, username)
+	user, guErr := c.uServ.GetUserByUsername(sysCtx, username)
 	if guErr != nil {
 		panic(guErr)
 	}

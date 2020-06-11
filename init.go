@@ -27,7 +27,8 @@ type Initializer struct {
 	txMidw    *tx.TransactionMiddleware
 	errVMidw  *middleware.ErrorMiddleware
 	sessVMidw *middleware.SessionMiddleware
-	authVMidw *middleware.AuthMiddleware
+	secVMidw  *middleware.SecurityMiddleware
+	authVMidw *middleware.AuthCheckMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -136,10 +137,18 @@ func (i *Initializer) GetSessionViewMiddleware() *middleware.SessionMiddleware {
 	return i.sessVMidw
 }
 
-// GetAuthViewMiddleware returns a initialized auth view middleware object.
-func (i *Initializer) GetAuthViewMiddleware() *middleware.AuthMiddleware {
+// GetSecurityViewMiddleware returns a initialized security view middleware object.
+func (i *Initializer) GetSecurityViewMiddleware() *middleware.SecurityMiddleware {
+	if i.secVMidw == nil {
+		i.secVMidw = middleware.NewSecurityMiddleware(i.GetUserService())
+	}
+	return i.secVMidw
+}
+
+// GetAuthCheckViewMiddleware returns a initialized auth check view middleware object.
+func (i *Initializer) GetAuthCheckViewMiddleware() *middleware.AuthCheckMiddleware {
 	if i.authVMidw == nil {
-		i.authVMidw = middleware.NewAuthMiddleware()
+		i.authVMidw = middleware.NewAuthCheckMiddleware()
 	}
 	return i.authVMidw
 }

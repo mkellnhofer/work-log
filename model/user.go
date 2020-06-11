@@ -1,5 +1,11 @@
 package model
 
+// Standard user IDs.
+const (
+	SystemUserId    int = -1
+	AnonymousUserId int = 0
+)
+
 // User stores information about a user.
 type User struct {
 	Id       int    // ID of the user

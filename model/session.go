@@ -21,7 +21,7 @@ type Session struct {
 func NewSession() *Session {
 	id := newSessionId()
 	expAt := now().Add(constant.SessionValidity)
-	return &Session{id, 0, expAt, ""}
+	return &Session{id, AnonymousUserId, expAt, ""}
 }
 
 // IsExpired returns true if session is expired, otherwise false.

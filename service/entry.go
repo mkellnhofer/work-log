@@ -274,17 +274,71 @@ func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*mode
 	return m, nil
 }
 
+// CreateEntryActivity creates a new entry activity.
+func (s *EntryService) CreateEntryActivity(ctx context.Context,
+	entryActivity *model.EntryActivity) *e.Error {
+	// Check if entry activity exists
+	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
+		return err
+	}
+
+	// Create entry activity
+	return s.eRepo.CreateEntryActivity(ctx, entryActivity)
+}
+
+// UpdateEntryActivity updates an entry activity.
+func (s *EntryService) UpdateEntryActivity(ctx context.Context,
+	entryActivity *model.EntryActivity) *e.Error {
+	// Check if entry activity exists
+	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
+		return err
+	}
+
+	// Update entry activity
+	return s.eRepo.UpdateEntryActivity(ctx, entryActivity)
+}
+
+// DeleteEntryActivityById deletes an entry activity.
+func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) *e.Error {
+	// Check if entry activity exists
+	if err := s.checkIfEntryActivityExists(ctx, id); err != nil {
+		return err
+	}
+
+	// Check if entries with this activity exist
+	if err := s.checkIfEntryActivityIsUsed(ctx, id); err != nil {
+		return err
+	}
+
+	// Delete entry activity
+	return s.eRepo.DeleteEntryActivityById(ctx, id)
+}
+
 func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) *e.Error {
 	if id == 0 {
 		return nil
 	}
-	exist, err := s.eRepo.ExistsEntryActivityById(ctx, id)
+	exists, err := s.eRepo.ExistsEntryActivityById(ctx, id)
 	if err != nil {
 		return err
 	}
-	if !exist {
+	if !exists {
 		err = e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find entry activity "+
 			"%d.", id))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) *e.Error {
+	existsEntry, err := s.eRepo.ExistsEntryByActivityId(ctx, id)
+	if err != nil {
+		return err
+	}
+	if existsEntry {
+		err = e.NewError(e.LogicEntryActivityDeleteNotAllowed, fmt.Sprintf("Could not delete entry "+
+			"activity %d. There are still entries for this activity.", id))
 		log.Debug(err.StackTrace())
 		return err
 	}

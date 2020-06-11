@@ -25,12 +25,13 @@ const (
 	LogicEntryNotFound                  = -301
 	LogicEntryTypeNotFound              = -302
 	LogicEntryActivityNotFound          = -303
-	LogicEntryTimeIntervalInvalid       = -304
-	LogicEntryBreakDurationTooLong      = -305
-	LogicEntrySearchDateIntervalInvalid = -306
-	LogicRoleNotFound                   = -307
-	LogicUserNotFound                   = -308
-	LogicUserAlreadyExists              = -309
+	LogicEntryActivityDeleteNotAllowed  = -304
+	LogicEntryTimeIntervalInvalid       = -305
+	LogicEntryBreakDurationTooLong      = -306
+	LogicEntrySearchDateIntervalInvalid = -307
+	LogicRoleNotFound                   = -308
+	LogicUserNotFound                   = -309
+	LogicUserAlreadyExists              = -310
 
 	// System errors
 	SysUnknown             = -400

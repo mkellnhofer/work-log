@@ -31,6 +31,11 @@ func (s *UserService) GetRoles(ctx context.Context) []model.Role {
 	return model.Roles
 }
 
+// GetRolesRights gets all roles with their rights.
+func (s *UserService) GetRolesRights(ctx context.Context) map[model.Role][]model.Right {
+	return model.RolesRights
+}
+
 // --- User functions ---
 
 // GetUsers gets all users.

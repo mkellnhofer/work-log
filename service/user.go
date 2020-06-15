@@ -27,35 +27,58 @@ func NewUserService(tm *tx.TransactionManager, ur *repo.UserRepo) *UserService {
 // --- Role functions ---
 
 // GetRoles gets all roles.
-func (s *UserService) GetRoles(ctx context.Context) []model.Role {
-	return model.Roles
+func (s *UserService) GetRoles(ctx context.Context) ([]model.Role, *e.Error) {
+	return model.Roles, nil
 }
 
 // GetRolesRights gets all roles with their rights.
-func (s *UserService) GetRolesRights(ctx context.Context) map[model.Role][]model.Right {
-	return model.RolesRights
+func (s *UserService) GetRolesRights(ctx context.Context) (map[model.Role][]model.Right, *e.Error) {
+	return model.RolesRights, nil
 }
 
 // --- User functions ---
 
 // GetUsers gets all users.
 func (s *UserService) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserData); err != nil {
+		return nil, err
+	}
+
+	// Get users
 	return s.uRepo.GetUsers(ctx)
 }
 
 // GetUserById gets a user by its ID.
 func (s *UserService) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, id); err != nil {
+		return nil, err
+	}
+
+	// Get user
 	return s.uRepo.GetUserById(ctx, id)
 }
 
 // GetUserByUsername gets a user by its username.
 func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*model.User,
 	*e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserData); err != nil {
+		return nil, err
+	}
+
+	// Get user
 	return s.uRepo.GetUserByUsername(ctx, username)
 }
 
 // CreateUser creates a new user.
 func (s *UserService) CreateUser(ctx context.Context, user *model.User) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
 	// Check if username is already taken
 	if err := s.checkIfUsernameIsAlreadyTaken(ctx, 0, user.Username); err != nil {
 		return err
@@ -70,6 +93,11 @@ func (s *UserService) CreateUser(ctx context.Context, user *model.User) *e.Error
 
 // UpdateUser updates a user.
 func (s *UserService) UpdateUser(ctx context.Context, user *model.User) *e.Error {
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, user.Id); err != nil {
+		return err
+	}
+
 	// Check if user exists
 	if err := s.checkIfUserExists(ctx, user.Id); err != nil {
 		return err
@@ -101,6 +129,11 @@ func hashUserPassword(user *model.User) {
 
 // DeleteUserById deletes a user by its ID.
 func (s *UserService) DeleteUserById(ctx context.Context, id int) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
 	// Check if user exists
 	if err := s.checkIfUserExists(ctx, id); err != nil {
 		return err
@@ -142,11 +175,22 @@ func (s *UserService) checkIfUsernameIsAlreadyTaken(ctx context.Context, id int,
 
 // GetUserRoles gets the roles of a user.
 func (s *UserService) GetUserRoles(ctx context.Context, userId int) ([]model.Role, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get user roles
 	return s.uRepo.GetUserRoles(ctx, userId)
 }
 
 // SetUserRoles sets the roles of a user.
 func (s *UserService) SetUserRoles(ctx context.Context, userId int, roles []model.Role) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
 	// Check if roles exist
 	if err := s.checkIfRolesExist(ctx, roles); err != nil {
 		return err
@@ -182,18 +226,36 @@ func containsRole(roles []model.Role, role model.Role) bool {
 // GetSettingShowOverviewDetails gets the setting value for the "show overview details" setting.
 func (s *UserService) GetSettingShowOverviewDetails(ctx context.Context, userId int) (bool,
 	*e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return false, err
+	}
+
+	// Get setting
 	return s.uRepo.GetUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails)
 }
 
 // CreateSettingShowOverviewDetails creates the setting value for the "show overview details" setting.
 func (s *UserService) CreateSettingShowOverviewDetails(ctx context.Context, userId int,
 	value bool) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
+	// Create setting
 	return s.uRepo.CreateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
 }
 
 // UpdateSettingShowOverviewDetails updates the setting value for the "show overview details" setting.
 func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, userId int,
 	value bool) *e.Error {
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, userId); err != nil {
+		return err
+	}
+
+	// Update setting
 	return s.uRepo.UpdateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
 }
 
@@ -202,18 +264,36 @@ func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, user
 // GetUserContractByUserId gets the contract information of a user by its ID.
 func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (*model.UserContract,
 	*e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get user contract
 	return s.uRepo.GetUserContractByUserId(ctx, userId)
 }
 
 // CreateUserContract creates the contract information of a user.
 func (s *UserService) CreateUserContract(ctx context.Context, userId int,
 	contract *model.UserContract) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
+	// Create user contract
 	return s.uRepo.CreateUserContract(ctx, userId, contract)
 }
 
 // UpdateUserContract updates the contract information of a user.
 func (s *UserService) UpdateUserContract(ctx context.Context, userId int,
 	contract *model.UserContract) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
+	// Update user contract
 	return s.uRepo.UpdateUserContract(ctx, userId, contract)
 }
 
@@ -317,4 +397,22 @@ func (s *UserService) UpdateUserData(ctx context.Context, userData *model.UserDa
 
 	// Commit transaction
 	return s.tm.Commit(ctx)
+}
+
+// --- Permission helper functions ---
+
+func (s *UserService) checkHasCurrentUserGetRight(ctx context.Context, userId int) *e.Error {
+	if userId == getCurrentUserId(ctx) {
+		return checkHasCurrentUserRight(ctx, model.RightGetUserAccount)
+	} else {
+		return checkHasCurrentUserRight(ctx, model.RightGetUserData)
+	}
+}
+
+func (s *UserService) checkHasCurrentUserChangeRight(ctx context.Context, userId int) *e.Error {
+	if userId == getCurrentUserId(ctx) {
+		return checkHasCurrentUserRight(ctx, model.RightChangeUserAccount)
+	} else {
+		return checkHasCurrentUserRight(ctx, model.RightChangeUserData)
+	}
 }

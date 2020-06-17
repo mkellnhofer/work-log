@@ -1703,11 +1703,19 @@ func (c *EntryController) getEntry(ctx context.Context, entryId int, userId int)
 }
 
 func (c *EntryController) getEntryTypes(ctx context.Context) []*model.EntryType {
-	return c.eServ.GetEntryTypes(ctx)
+	entryTypes, getsErr := c.eServ.GetEntryTypes(ctx)
+	if getsErr != nil {
+		panic(getsErr)
+	}
+	return entryTypes
 }
 
 func (c *EntryController) getEntryTypesMap(ctx context.Context) map[int]*model.EntryType {
-	return c.eServ.GetEntryTypesMap(ctx)
+	entryTypesMap, getsErr := c.eServ.GetEntryTypesMap(ctx)
+	if getsErr != nil {
+		panic(getsErr)
+	}
+	return entryTypesMap
 }
 
 func (c *EntryController) getEntryActivities(ctx context.Context) []*model.EntryActivity {

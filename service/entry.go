@@ -29,6 +29,11 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 // GetDateEntriesByUserId gets all entries (over date) of an user.
 func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, offset int,
 	limit int) ([]*model.Entry, int, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, 0, err
+	}
+
 	// Get entries
 	entries, err := s.eRepo.GetDateEntriesByUserId(ctx, userId, offset, limit)
 	if err != nil {
@@ -47,6 +52,11 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 // GetEntriesByUserId gets all entries of an user.
 func (s *EntryService) GetEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
 	[]*model.Entry, int, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, 0, err
+	}
+
 	// Get entries
 	entries, err := s.eRepo.GetEntriesByUserId(ctx, userId, offset, limit)
 	if err != nil {
@@ -64,17 +74,42 @@ func (s *EntryService) GetEntriesByUserId(ctx context.Context, userId int, offse
 
 // GetEntryById gets an entry.
 func (s *EntryService) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.Error) {
-	return s.eRepo.GetEntryById(ctx, id)
+	// Get entry
+	entry, err := s.eRepo.GetEntryById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if entry == nil {
+		return nil, nil
+	}
+
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, entry.UserId); err != nil {
+		return nil, err
+	}
+
+	return entry, nil
 }
 
 // GetEntryByIdAndUserId gets an entry of an user.
 func (s *EntryService) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
 	*e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get entry
 	return s.eRepo.GetEntryByIdAndUserId(ctx, id, userId)
 }
 
 // CreateEntry creates a new entry.
 func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.Error {
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, entry.UserId); err != nil {
+		return err
+	}
+
 	// Check if entry type exists
 	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
 		return err
@@ -103,6 +138,11 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) *e.E
 
 	// Check if entry exists
 	if err := s.checkIfEntryExists(entry.Id, existingEntry); err != nil {
+		return err
+	}
+
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, existingEntry.UserId); err != nil {
 		return err
 	}
 
@@ -137,12 +177,22 @@ func (s *EntryService) DeleteEntryById(ctx context.Context, id int) *e.Error {
 		return err
 	}
 
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, existingEntry.UserId); err != nil {
+		return err
+	}
+
 	// Delete entry
 	return s.eRepo.DeleteEntryById(ctx, id)
 }
 
 // DeleteEntryByIdAndUserId deletes an entry of an user.
 func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, userId int) *e.Error {
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, userId); err != nil {
+		return err
+	}
+
 	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryByIdAndUserId(ctx, id, userId)
 	if err != nil {
@@ -161,6 +211,11 @@ func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, use
 // SearchEntries searches entries (over date).
 func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
 	params *model.SearchEntriesParams, offset int, limit int) ([]*model.Entry, int, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, 0, err
+	}
+
 	// Get entries
 	entries, err := s.eRepo.SearchDateEntries(ctx, userId, params, offset, limit)
 	if err != nil {
@@ -179,6 +234,12 @@ func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
 // GetMonthEntriesByUserId gets all entries of a month of an user.
 func (s *EntryService) GetMonthEntriesByUserId(ctx context.Context, userId int, year int,
 	month int) ([]*model.Entry, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get entries
 	return s.eRepo.GetMonthEntries(ctx, userId, year, month)
 }
 
@@ -213,20 +274,29 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 // --- Entry type functions ---
 
 // GetEntryTypes gets all entry types.
-func (s *EntryService) GetEntryTypes(ctx context.Context) []*model.EntryType {
+func (s *EntryService) GetEntryTypes(ctx context.Context) ([]*model.EntryType, *e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetEntryCharacts); err != nil {
+		return nil, err
+	}
+
+	// Get entry types
 	return []*model.EntryType{
 		model.NewEntryType(model.EntryTypeIdWork, loc.CreateString("entryTypeWork")),
 		model.NewEntryType(model.EntryTypeIdTravel, loc.CreateString("entryTypeTravel")),
 		model.NewEntryType(model.EntryTypeIdVacation, loc.CreateString("entryTypeVacation")),
 		model.NewEntryType(model.EntryTypeIdHoliday, loc.CreateString("entryTypeHoliday")),
 		model.NewEntryType(model.EntryTypeIdIllness, loc.CreateString("entryTypeIllness")),
-	}
+	}, nil
 }
 
 // GetEntryTypesMap gets a map of all entry types.
-func (s *EntryService) GetEntryTypesMap(ctx context.Context) map[int]*model.EntryType {
+func (s *EntryService) GetEntryTypesMap(ctx context.Context) (map[int]*model.EntryType, *e.Error) {
 	// Get entry types
-	entryTypes := s.GetEntryTypes(ctx)
+	entryTypes, err := s.GetEntryTypes(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert into map
 	m := make(map[int]*model.EntryType)
@@ -234,7 +304,7 @@ func (s *EntryService) GetEntryTypesMap(ctx context.Context) map[int]*model.Entr
 		m[entryType.Id] = entryType
 	}
 
-	return m
+	return m, nil
 }
 
 func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
@@ -253,6 +323,12 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 
 // GetEntryActivities gets all entry activities.
 func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, *e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetEntryCharacts); err != nil {
+		return nil, err
+	}
+
+	// Get entry activities
 	return s.eRepo.GetEntryActivities(ctx)
 }
 
@@ -277,6 +353,11 @@ func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*mode
 // CreateEntryActivity creates a new entry activity.
 func (s *EntryService) CreateEntryActivity(ctx context.Context,
 	entryActivity *model.EntryActivity) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
+		return err
+	}
+
 	// Check if entry activity exists
 	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
 		return err
@@ -289,6 +370,11 @@ func (s *EntryService) CreateEntryActivity(ctx context.Context,
 // UpdateEntryActivity updates an entry activity.
 func (s *EntryService) UpdateEntryActivity(ctx context.Context,
 	entryActivity *model.EntryActivity) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
+		return err
+	}
+
 	// Check if entry activity exists
 	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
 		return err
@@ -300,6 +386,11 @@ func (s *EntryService) UpdateEntryActivity(ctx context.Context,
 
 // DeleteEntryActivityById deletes an entry activity.
 func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
+		return err
+	}
+
 	// Check if entry activity exists
 	if err := s.checkIfEntryActivityExists(ctx, id); err != nil {
 		return err
@@ -350,8 +441,32 @@ func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) *
 // GetTotalWorkSummaryByUserId gets the total work summary of an user.
 func (s *EntryService) GetTotalWorkSummaryByUserId(ctx context.Context, userId int) (
 	*model.WorkSummary, *e.Error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get work summary
 	start := time.Time{}
 	now := time.Now()
 	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	return s.eRepo.GetWorkSummary(ctx, userId, start, end)
+}
+
+// --- Permission helper functions ---
+
+func (s *EntryService) checkHasCurrentUserGetRight(ctx context.Context, userId int) *e.Error {
+	if userId == getCurrentUserId(ctx) {
+		return checkHasCurrentUserRight(ctx, model.RightGetOwnEntries)
+	} else {
+		return checkHasCurrentUserRight(ctx, model.RightGetAllEntries)
+	}
+}
+
+func (s *EntryService) checkHasCurrentUserChangeRight(ctx context.Context, userId int) *e.Error {
+	if userId == getCurrentUserId(ctx) {
+		return checkHasCurrentUserRight(ctx, model.RightChangeOwnEntries)
+	} else {
+		return checkHasCurrentUserRight(ctx, model.RightChangeAllEntries)
+	}
 }

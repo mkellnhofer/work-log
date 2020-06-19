@@ -20,18 +20,19 @@ const (
 
 	// Validation erros
 	ValUnknown              = -300
-	ValPageNumberInvalid    = -301
-	ValIdInvalid            = -302
-	ValDateInvalid          = -303
-	ValStartDateInvalid     = -304
-	ValEndDateInvalid       = -305
-	ValStartTimeInvalid     = -306
-	ValEndTimeInvalid       = -307
-	ValBreakDurationInvalid = -308
-	ValDescriptionTooLong   = -309
-	ValSearchInvalid        = -310
-	ValSearchQueryInvalid   = -311
-	ValMonthInvalid         = -312
+	ValJsonInvalid          = -301
+	ValPageNumberInvalid    = -302
+	ValIdInvalid            = -303
+	ValDateInvalid          = -304
+	ValStartDateInvalid     = -305
+	ValEndDateInvalid       = -306
+	ValStartTimeInvalid     = -307
+	ValEndTimeInvalid       = -308
+	ValBreakDurationInvalid = -309
+	ValDescriptionTooLong   = -310
+	ValSearchInvalid        = -311
+	ValSearchQueryInvalid   = -312
+	ValMonthInvalid         = -313
 
 	// Logic errors
 	LogicUnknown                        = -400

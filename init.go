@@ -1,6 +1,7 @@
 package main
 
 import (
+	ac "kellnhofer.com/work-log/api/controller"
 	am "kellnhofer.com/work-log/api/middleware"
 	"kellnhofer.com/work-log/config"
 	"kellnhofer.com/work-log/db"
@@ -24,6 +25,8 @@ type Initializer struct {
 	errVCtrl   *vc.ErrorController
 	authVCtrl  *vc.AuthController
 	entryVCtrl *vc.EntryController
+	entryACtrl *ac.EntryController
+	userACtrl  *ac.UserController
 
 	txMidw    *tx.TransactionMiddleware
 	errVMidw  *vm.ErrorMiddleware
@@ -111,6 +114,24 @@ func (i *Initializer) GetEntryViewController() *vc.EntryController {
 		i.entryVCtrl = vc.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.entryVCtrl
+}
+
+// --- API controller functions ---
+
+// GetEntryApiController returns a initialized entry API controller object.
+func (i *Initializer) GetEntryApiController() *ac.EntryController {
+	if i.entryACtrl == nil {
+		i.entryACtrl = ac.NewEntryController(i.GetEntryService())
+	}
+	return i.entryACtrl
+}
+
+// GetUserApiController returns a initialized user API controller object.
+func (i *Initializer) GetUserApiController() *ac.UserController {
+	if i.userACtrl == nil {
+		i.userACtrl = ac.NewUserController(i.GetUserService())
+	}
+	return i.userACtrl
 }
 
 // --- General middleware functions ---

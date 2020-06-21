@@ -31,6 +31,8 @@ type Initializer struct {
 	secVMidw  *vm.SecurityMiddleware
 	authVMidw *vm.AuthCheckMiddleware
 	errAMidw  *am.ErrorMiddleware
+	secAMidw  *am.SecurityMiddleware
+	authAMidw *am.AuthCheckMiddleware
 }
 
 // NewInitializer creates a new initializer.
@@ -163,4 +165,20 @@ func (i *Initializer) GetErrorApiMiddleware() *am.ErrorMiddleware {
 		i.errAMidw = am.NewErrorMiddleware()
 	}
 	return i.errAMidw
+}
+
+// GetSecurityApiMiddleware returns a initialized security API middleware object.
+func (i *Initializer) GetSecurityApiMiddleware() *am.SecurityMiddleware {
+	if i.secAMidw == nil {
+		i.secAMidw = am.NewSecurityMiddleware(i.GetUserService())
+	}
+	return i.secAMidw
+}
+
+// GetAuthCheckApiMiddleware returns a initialized auth check API middleware object.
+func (i *Initializer) GetAuthCheckApiMiddleware() *am.AuthCheckMiddleware {
+	if i.authAMidw == nil {
+		i.authAMidw = am.NewAuthCheckMiddleware()
+	}
+	return i.authAMidw
 }

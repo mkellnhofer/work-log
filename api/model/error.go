@@ -2,8 +2,8 @@ package model
 
 // Error stores error information.
 type Error struct {
-	code    int    `json:"code"`    // Error code
-	message string `json:"message"` // Error message
+	Code    int    `json:"code"`    // Error code
+	Message string `json:"message"` // Error message
 }
 
 // NewError creates a new Error model.

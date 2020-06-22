@@ -1,7 +1,18 @@
 package model
 
-// EntryType specifies the type of a entry.
+// EntryType
+//
+// Specifies the type of a entry.
+//
+// swagger:model EntryType
 type EntryType struct {
-	Id          int    `json:"id"`
+	// The ID of the entry type.
+	// example: 1
+	Id int `json:"id"`
+
+	// The description of the entry type.
+	// min length: 1
+	// max length: 50
+	// example: Work
 	Description string `json:"description"`
 }

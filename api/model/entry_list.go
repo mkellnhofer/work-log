@@ -1,14 +1,31 @@
 package model
 
-// EntryList holds a list of entries.
+// EntryList
+//
+// A list of entries.
+//
+// swagger:model EntryList
 type EntryList struct {
-	Offset int64    `json:"offset"`
-	Limit  int      `json:"limit"`
-	Total  int64    `json:"total"`
-	Items  []*Entry `json:"items"`
+	// The entries page offset.
+	// min: 0
+	// example: 0
+	Offset int `json:"offset"`
+
+	// The entries page limit.
+	// min: 0
+	// example: 0
+	Limit int `json:"limit"`
+
+	// The total count of entries available.
+	// min: 0
+	// example: 0
+	Total int `json:"total"`
+
+	// The entries.
+	Items []*Entry `json:"items"`
 }
 
-// NewEntryList creates a new duty list.
-func NewEntryList(offset int64, limit int, total int64, items []*Entry) *EntryList {
+// NewEntryList creates a new entry list.
+func NewEntryList(offset int, limit int, total int, items []*Entry) *EntryList {
 	return &EntryList{offset, limit, total, items}
 }

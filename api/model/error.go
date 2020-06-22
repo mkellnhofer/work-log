@@ -1,9 +1,15 @@
 package model
 
-// Error stores error information.
+// Error
+//
+// Supplies information about an error.
+//
+// swagger:model Error
 type Error struct {
-	Code    int    `json:"code"`    // Error code
-	Message string `json:"message"` // Error message
+	// error code
+	Code int `json:"code"`
+	// error message
+	Message string `json:"message"`
 }
 
 // NewError creates a new Error model.

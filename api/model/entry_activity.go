@@ -1,7 +1,18 @@
 package model
 
-// EntryActivity specifies the activity of a entry.
+// EntryActivity
+//
+// Specifies the activity of a entry.
+//
+// swagger:model EntryActivity
 type EntryActivity struct {
-	Id          int    `json:"id"`
+	// The ID of the entry activity.
+	// example: 1
+	Id int `json:"id"`
+
+	// The description of the entry activity.
+	// min length: 1
+	// max length: 50
+	// example: Development
 	Description string `json:"description"`
 }

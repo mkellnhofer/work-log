@@ -1,11 +1,16 @@
 package model
 
-// UserDataList holds a list of users.
+// UserList
+//
+// A list of users.
+//
+// swagger:model UserList
 type UserDataList struct {
+	// The users.
 	Items []*UserData `json:"items"`
 }
 
-// NewUserList creates a new user list.
-func NewUserList(items []*UserData) *UserDataList {
+// NewUserDataList creates a new user list.
+func NewUserDataList(items []*UserData) *UserDataList {
 	return &UserDataList{items}
 }

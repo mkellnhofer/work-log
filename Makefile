@@ -1,8 +1,18 @@
-build: clean go-build package
+build: clean swagger-spec go-build package
 
-build-arm-linux: clean go-build-arm-linux package
+build-arm-linux: clean swagger-spec go-build-arm-linux package
 
-build-arm64-linux: clean go-build-arm64-linux package
+build-arm64-linux: clean swagger-spec go-build-arm64-linux package
+
+.PHONY: clean
+clean:
+	rm -f work-log
+	rm -f work-log.zip
+
+.PHONY: swagger-spec
+swagger-spec:
+	# Needs go-swagger
+	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o ./swagger-ui/swagger.json
 
 .PHONY: go-build
 go-build:
@@ -29,9 +39,5 @@ package:
 		resources/img/*.* \
 		resources/js/*.* \
 		scripts/db/*.* \
+		swagger-ui/*.* \
 		templates/*.*
-
-.PHONY: clean
-clean:
-	rm -f work-log
-	rm -f work-log.zip

@@ -45,6 +45,9 @@ func main() {
 	// Configure API routing
 	configureApiRouting(init, router)
 
+	// Add Swagger UI handlers
+	addSwaggerUiHandlers(router)
+
 	// Register router
 	http.Handle("/", router)
 
@@ -148,6 +151,17 @@ func configureApiRouting(init *Initializer, r *mux.Router) {
 	addEndpoint(ar, proRoute, "PUT", "/users/{id}/password", userCtrl.UpdateUserPasswordHandler())
 	addEndpoint(ar, proRoute, "GET", "/users/{id}/roles", userCtrl.GetUserRolesHandler())
 	addEndpoint(ar, proRoute, "PUT", "/users/{id}/roles", userCtrl.UpdateUserRolesHandler())
+}
+
+func addSwaggerUiHandlers(r *mux.Router) {
+	r.Methods("GET").
+		Path("/api").
+		HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.Redirect(w, r, "/api/swagger-ui.html", http.StatusMovedPermanently)
+		})
+	r.Methods("GET").
+		PathPrefix("/api/").
+		Handler(http.StripPrefix("/api/", http.FileServer(http.Dir("./swagger-ui/"))))
 }
 
 // --- Helper functions ---

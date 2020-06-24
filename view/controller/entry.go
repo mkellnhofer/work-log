@@ -541,11 +541,11 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 	// Get page number, offset and limit
 	pageNum, offset, limit := c.getListPagingParams(r)
 
-	// Create search params model from query string
-	params := c.parseSearchQueryString(query)
+	// Create entries filter from query string
+	filter := c.parseSearchQueryString(userId, query)
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.SearchDateEntries(ctx, userId, params, offset, limit)
+	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, filter, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}
@@ -569,18 +569,18 @@ func (c *EntryController) handleExecuteSearch(w http.ResponseWriter, r *http.Req
 	// Get form inputs
 	input := c.getSearchEntriesFormInput(r)
 
-	// Create search params model from inputs
-	params, cmErr := c.createSearchEntriesParamsModel(input)
+	// Create entries filter from inputs
+	filter, cmErr := c.createEntriesFilter(input)
 	if cmErr != nil {
 		c.handleSearchError(w, r, cmErr, input)
 	}
 
-	c.handleSearchSuccess(w, r, params)
+	c.handleSearchSuccess(w, r, filter)
 }
 
 func (c *EntryController) handleSearchSuccess(w http.ResponseWriter, r *http.Request,
-	params *model.SearchEntriesParams) {
-	http.Redirect(w, r, "/search?query="+c.buildSearchQueryString(params), http.StatusFound)
+	filter *model.EntriesFilter) {
+	http.Redirect(w, r, "/search?query="+c.buildSearchQueryString(filter), http.StatusFound)
 }
 
 func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Request, err *e.Error,
@@ -1303,27 +1303,27 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 	return entry, nil
 }
 
-func (c *EntryController) createSearchEntriesParamsModel(input *searchEntriesFormInput) (
-	*model.SearchEntriesParams, *e.Error) {
-	params := model.NewSearchEntriesParams()
+func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*model.EntriesFilter,
+	*e.Error) {
+	filter := model.NewEntriesFilter()
 
 	var err *e.Error
 
 	// Convert type ID
-	params.ByType = input.byType == "on"
-	params.TypeId = c.convertId(input.typeId)
+	filter.ByType = input.byType == "on"
+	filter.TypeId = c.convertId(input.typeId)
 
 	// Convert start/end time
-	params.ByTime = input.byDate == "on"
-	params.StartTime, err = c.convertDateTime(input.startDate, "00:00", e.ValStartDateInvalid)
+	filter.ByTime = input.byDate == "on"
+	filter.StartTime, err = c.convertDateTime(input.startDate, "00:00", e.ValStartDateInvalid)
 	if err != nil {
 		return nil, err
 	}
-	params.EndTime, err = c.convertDateTime(input.endDate, "23:59", e.ValEndDateInvalid)
+	filter.EndTime, err = c.convertDateTime(input.endDate, "23:59", e.ValEndDateInvalid)
 	if err != nil {
 		return nil, err
 	}
-	if params.EndTime.Before(params.StartTime) {
+	if filter.EndTime.Before(filter.StartTime) {
 		err := e.NewError(e.LogicEntrySearchDateIntervalInvalid, fmt.Sprintf("End date %s before "+
 			"start time %s.", input.endDate, input.startDate))
 		log.Debug(err.StackTrace())
@@ -1331,24 +1331,24 @@ func (c *EntryController) createSearchEntriesParamsModel(input *searchEntriesFor
 	}
 
 	// Convert activity ID
-	params.ByActivity = input.byActivity == "on"
-	params.ActivityId = c.convertId(input.activityId)
+	filter.ByActivity = input.byActivity == "on"
+	filter.ActivityId = c.convertId(input.activityId)
 
 	// Validate description
-	params.ByDescription = input.byDescription == "on"
+	filter.ByDescription = input.byDescription == "on"
 	if err = c.validateString(input.description, 200, e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}
-	params.Description = input.description
+	filter.Description = input.description
 
 	// Check if search query is empty
-	if !params.ByType && !params.ByTime && !params.ByActivity && !params.ByDescription {
+	if !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription {
 		err = e.NewError(e.ValSearchInvalid, "Search query is empty.")
 		log.Debug(err.StackTrace())
 		return nil, err
 	}
 
-	return params, nil
+	return filter, nil
 }
 
 func (c *EntryController) convertId(in string) int {
@@ -1401,30 +1401,33 @@ func (c *EntryController) validateString(in string, length int, code int) *e.Err
 
 // --- Search query functions ---
 
-func (c *EntryController) buildSearchQueryString(params *model.SearchEntriesParams) string {
+func (c *EntryController) buildSearchQueryString(filter *model.EntriesFilter) string {
 	var qps []string
 	// Add parameter/value for entry type
-	if params.ByType {
-		qps = append(qps, fmt.Sprintf("typ:%d", params.TypeId))
+	if filter.ByType {
+		qps = append(qps, fmt.Sprintf("typ:%d", filter.TypeId))
 	}
 	// Add parameter/value for entry start/end time
-	if params.ByTime {
-		qps = append(qps, fmt.Sprintf("tim:%s-%s", formatSearchDate(params.StartTime),
-			formatSearchDate(params.EndTime)))
+	if filter.ByTime {
+		qps = append(qps, fmt.Sprintf("tim:%s-%s", formatSearchDate(filter.StartTime),
+			formatSearchDate(filter.EndTime)))
 	}
 	// Add parameter/value for entry activity
-	if params.ByActivity {
-		qps = append(qps, fmt.Sprintf("act:%d", params.ActivityId))
+	if filter.ByActivity {
+		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
 	}
 	// Add parameter/value for entry description
-	if params.ByDescription {
-		qps = append(qps, fmt.Sprintf("des:%s", util.EncodeBase64(params.Description)))
+	if filter.ByDescription {
+		qps = append(qps, fmt.Sprintf("des:%s", util.EncodeBase64(filter.Description)))
 	}
 	return strings.Join(qps[:], "|")
 }
 
-func (c *EntryController) parseSearchQueryString(query string) *model.SearchEntriesParams {
-	params := model.NewSearchEntriesParams()
+func (c *EntryController) parseSearchQueryString(userId int, query string) *model.EntriesFilter {
+	filter := model.NewEntriesFilter()
+
+	filter.ByUser = true
+	filter.UserId = userId
 
 	qps := strings.Split(query, "|")
 
@@ -1452,32 +1455,32 @@ func (c *EntryController) parseSearchQueryString(query string) *model.SearchEntr
 		switch p {
 		// Convert value for entry type
 		case "typ":
-			params.ByType = true
-			params.TypeId, cErr = strconv.Atoi(v)
+			filter.ByType = true
+			filter.TypeId, cErr = strconv.Atoi(v)
 		// Convert values for entry start/end time
 		case "tim":
-			params.ByTime = true
+			filter.ByTime = true
 			se := strings.Split(v, "-")
 			if len(se) < 2 {
 				cErr = errors.New("invalid range")
 				break
 			}
-			params.StartTime, cErr = parseSearchDate(se[0])
+			filter.StartTime, cErr = parseSearchDate(se[0])
 			if cErr != nil {
 				break
 			}
-			params.EndTime, cErr = parseSearchDate(se[1])
+			filter.EndTime, cErr = parseSearchDate(se[1])
 			if cErr != nil {
 				break
 			}
 		// Convert value for entry activity
 		case "act":
-			params.ByActivity = true
-			params.ActivityId, cErr = strconv.Atoi(v)
+			filter.ByActivity = true
+			filter.ActivityId, cErr = strconv.Atoi(v)
 		// Convert value for entry description
 		case "des":
-			params.ByDescription = true
-			params.Description, cErr = util.DecodeBase64(v)
+			filter.ByDescription = true
+			filter.Description, cErr = util.DecodeBase64(v)
 		// Unknown parameter
 		default:
 			err := e.NewError(e.ValSearchQueryInvalid, fmt.Sprintf("Search query parameter '%s' "+
@@ -1494,7 +1497,7 @@ func (c *EntryController) parseSearchQueryString(query string) *model.SearchEntr
 			panic(err)
 		}
 	}
-	return params
+	return filter
 }
 
 func formatSearchDate(d time.Time) string {

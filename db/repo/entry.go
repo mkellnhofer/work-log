@@ -41,9 +41,10 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 
 // --- Entry functions ---
 
-// CountDateEntriesByUserId counts all entries (over date) of an user.
-func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (int, *e.Error) {
-	q, qa := r.buildCountDateEntriesQuery(userId)
+// CountDateEntries counts entries (over date).
+func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesFilter) (int,
+	*e.Error) {
+	q, qa := r.buildCountDateEntriesQuery(filter)
 
 	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
 	if qErr != nil {
@@ -56,25 +57,24 @@ func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (i
 	return sr.(int), nil
 }
 
-func (r *EntryRepo) buildCountDateEntriesQuery(userId int) (string, []interface{}) {
-	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
-		"FROM entry e " +
-		"WHERE e.user_id = ?"
+func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (
+	string, []interface{}) {
+	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
-	qa := []interface{}{userId}
+	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) FROM entry e " + qr
 
-	return q, qa
+	return q, qra
 }
 
-// GetDateEntriesByUserId retrieves all entries (over date) of an user.
-func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
-	[]*model.Entry, *e.Error) {
-	qr, qra := r.buildGetDateEntriesRangeQuery(userId, offset, limit)
+// GetDateEntries retrieves entries (over date).
+func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
+	limit int) ([]*model.Entry, *e.Error) {
+	qr, qra := r.buildGetDateEntriesRangeQuery(filter, offset, limit)
 
 	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
 	if qrErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) "+
-			"from database.", qrErr)
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) from "+
+			"database.", qrErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offs
 		return make([]*model.Entry, 0), nil
 	}
 
-	q, qa := r.buildGetDateEntriesQuery(userId, start, end)
+	q, qa := r.buildGetDateEntriesQuery(filter, start, end)
 
 	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
 	if qErr != nil {
@@ -97,7 +97,92 @@ func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offs
 	return entries, nil
 }
 
-func (r *EntryRepo) buildGetDateEntriesRangeQuery(userId int, offset int, limit int) (string,
+func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter, offset int,
+	limit int) (string, []interface{}) {
+	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+
+	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
+		"FROM entry e " +
+		qr + " " +
+		"ORDER BY date DESC " +
+		createQueryLimitString(offset, limit)
+
+	return q, qra
+}
+
+func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, start string,
+	end string) (string, []interface{}) {
+	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
+		"e.activity_id, e.description " +
+		"FROM entry e " +
+		qr + " " +
+		"AND e.start_time BETWEEN ? AND ? " +
+		"ORDER BY e.start_time DESC, e.end_time DESC"
+
+	qa := append(qra, start, end)
+
+	return q, qa
+}
+
+// CountDateEntriesByUserId counts all entries (over date) of an user.
+func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (int, *e.Error) {
+	q, qa := r.buildCountDateEntriesByUserIdQuery(userId)
+
+	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
+			qErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+
+	return sr.(int), nil
+}
+
+func (r *EntryRepo) buildCountDateEntriesByUserIdQuery(userId int) (string, []interface{}) {
+	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
+		"FROM entry e " +
+		"WHERE e.user_id = ?"
+
+	qa := []interface{}{userId}
+
+	return q, qa
+}
+
+// GetDateEntriesByUserId retrieves all entries (over date) of an user.
+func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
+	[]*model.Entry, *e.Error) {
+	qr, qra := r.buildGetDateEntriesByUserIdRangeQuery(userId, offset, limit)
+
+	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
+	if qrErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) "+
+			"from database.", qrErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+	if start == "" || end == "" {
+		return make([]*model.Entry, 0), nil
+	}
+
+	q, qa := r.buildGetDateEntriesByUserIdQuery(userId, start, end)
+
+	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
+			qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	entries := sr.([]*model.Entry)
+
+	return entries, nil
+}
+
+func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int, limit int) (string,
 	[]interface{}) {
 	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
 		"FROM entry e " +
@@ -110,7 +195,7 @@ func (r *EntryRepo) buildGetDateEntriesRangeQuery(userId int, offset int, limit 
 	return q, qa
 }
 
-func (r *EntryRepo) buildGetDateEntriesQuery(userId int, start string, end string) (string,
+func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
 	[]interface{}) {
 	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
 		"e.activity_id, e.description " +
@@ -124,11 +209,19 @@ func (r *EntryRepo) buildGetDateEntriesQuery(userId int, start string, end strin
 	return q, qa
 }
 
-// CountEntriesByUserId counts all entries of an user.
-func (r *EntryRepo) CountEntriesByUserId(ctx context.Context, userId int) (int, *e.Error) {
-	q := "SELECT COUNT(*) FROM entry WHERE user_id = ?"
+// CountEntries counts all entries.
+func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilter) (int, *e.Error) {
+	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
-	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, userId)
+	q := "SELECT COUNT(*) FROM entry e " + qr
+
+	var sr interface{}
+	var qErr error
+	if len(qra) > 0 {
+		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q, qra)
+	} else {
+		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q)
+	}
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries in database.", qErr)
 		log.Error(err.StackTrace())
@@ -139,34 +232,24 @@ func (r *EntryRepo) CountEntriesByUserId(ctx context.Context, userId int) (int, 
 }
 
 // GetEntries retrieves all entries.
-func (r *EntryRepo) GetEntries(ctx context.Context, offset int, limit int) ([]*model.Entry,
-	*e.Error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description FROM entry ORDER BY start_time DESC, end_time DESC"
+func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
+	limit int) ([]*model.Entry, *e.Error) {
+	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
-	ql := createQueryLimitString(offset, limit)
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
+		"e.activity_id, e.description " +
+		"FROM entry e " +
+		qr + " " +
+		"ORDER BY e.start_time DESC, e.end_time DESC " +
+		createQueryLimitString(offset, limit)
 
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q+" "+ql)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries from database.", qErr)
-		log.Error(err.StackTrace())
-		return nil, err
+	var sr interface{}
+	var qErr error
+	if len(qra) > 0 {
+		sr, qErr = r.query(ctx, &scanEntryHelper{}, q, qra)
+	} else {
+		sr, qErr = r.query(ctx, &scanEntryHelper{}, q)
 	}
-
-	entries := sr.([]*model.Entry)
-
-	return entries, nil
-}
-
-// GetEntriesByUserId retrieves all entries of an user.
-func (r *EntryRepo) GetEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
-	[]*model.Entry, *e.Error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description FROM entry WHERE user_id = ? ORDER BY start_time DESC, end_time DESC"
-
-	ql := createQueryLimitString(offset, limit)
-
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q+" "+ql, userId)
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries from database.", qErr)
 		log.Error(err.StackTrace())
@@ -310,126 +393,6 @@ func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) *e.Error {
 	}
 
 	return nil
-}
-
-// CountSearchDateEntries counts entries of a search (over date).
-func (r *EntryRepo) CountSearchDateEntries(ctx context.Context, userId int,
-	params *model.SearchEntriesParams) (int, *e.Error) {
-	q, qa := r.buildCountSearchDateEntriesQuery(userId, params)
-
-	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
-			qErr)
-		log.Error(err.StackTrace())
-		return 0, err
-	}
-
-	return sr.(int), nil
-}
-
-func (r *EntryRepo) buildCountSearchDateEntriesQuery(userId int, params *model.SearchEntriesParams) (
-	string, []interface{}) {
-	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
-
-	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
-		"FROM entry e " +
-		"WHERE e.user_id = ? AND " + sq
-
-	qa := []interface{}{userId}
-	qa = append(qa, sqa...)
-
-	return q, qa
-}
-
-// SearchDateEntries retrieves entries of a search (over date).
-func (r *EntryRepo) SearchDateEntries(ctx context.Context, userId int,
-	params *model.SearchEntriesParams, offset int, limit int) ([]*model.Entry, *e.Error) {
-	qr, qra := r.buildSearchDateEntriesRangeQuery(userId, params, offset, limit)
-
-	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
-	if qrErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query range for entries (over date) from "+
-			"database.", qrErr)
-		log.Error(err.StackTrace())
-		return nil, err
-	}
-	if start == "" || end == "" {
-		return make([]*model.Entry, 0), nil
-	}
-
-	q, qa := r.buildSearchDateEntriesQuery(userId, params, start, end)
-
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
-			qErr)
-		log.Error(err.StackTrace())
-		return nil, err
-	}
-
-	entries := sr.([]*model.Entry)
-
-	return entries, nil
-}
-
-func (r *EntryRepo) buildSearchDateEntriesRangeQuery(userId int, params *model.SearchEntriesParams,
-	offset int, limit int) (string, []interface{}) {
-	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
-
-	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
-		"FROM entry e " +
-		"WHERE e.user_id = ? AND " + sq + " " +
-		"ORDER BY date DESC " +
-		createQueryLimitString(offset, limit)
-
-	qa := []interface{}{userId}
-	qa = append(qa, sqa...)
-
-	return q, qa
-}
-
-func (r *EntryRepo) buildSearchDateEntriesQuery(userId int, params *model.SearchEntriesParams,
-	start string, end string) (string, []interface{}) {
-	sq, sqa := r.buildSearchDateEntriesQueryRestriction(params)
-
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
-		"e.activity_id, e.description " +
-		"FROM entry e " +
-		"WHERE e.user_id = ? AND " + sq + " " +
-		"AND e.start_time BETWEEN ? AND ? " +
-		"ORDER BY e.start_time DESC, e.end_time DESC"
-
-	qa := []interface{}{userId}
-	qa = append(qa, sqa...)
-	qa = append(qa, start, end)
-
-	return q, qa
-}
-
-func (r *EntryRepo) buildSearchDateEntriesQueryRestriction(params *model.SearchEntriesParams) (
-	string, []interface{}) {
-	var qrs []string
-	var qas []interface{}
-	if params.ByType {
-		qrs = append(qrs, fmt.Sprintf("e.type_id = %d", params.TypeId))
-	}
-	if params.ByTime {
-		qrs = append(qrs, fmt.Sprintf("(e.start_time BETWEEN '%s' AND '%s')",
-			*formatTimestamp(&params.StartTime), *formatTimestamp(&params.EndTime)))
-	}
-	if params.ByActivity {
-		if params.ActivityId == 0 {
-			qrs = append(qrs, "e.activity_id IS NULL")
-		} else {
-			qrs = append(qrs, fmt.Sprintf("e.activity_id = %d", params.ActivityId))
-		}
-	}
-	if params.ByDescription {
-		qrs = append(qrs, "e.description LIKE ?")
-		qas = append(qas, "%"+escapeRestrictionString(params.Description)+"%")
-	}
-	return strings.Join(qrs[:], " AND "), qas
 }
 
 // GetMonthEntries retrieves all entries of a month.
@@ -579,6 +542,50 @@ func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.T
 	workSummary.WorkDurations = workDurations
 
 	return workSummary, nil
+}
+
+// --- Filter helper functions ---
+
+func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilter) (
+	string, []interface{}) {
+	var qrs []string
+	var qas []interface{}
+	if filter == nil {
+		return "", qas
+	}
+
+	if filter.ByUser {
+		qrs = append(qrs, fmt.Sprintf("e.user_id = %d", filter.UserId))
+	}
+	if filter.ByType {
+		qrs = append(qrs, fmt.Sprintf("e.type_id = %d", filter.TypeId))
+	}
+	if filter.ByTime {
+		qrs = append(qrs, fmt.Sprintf("(e.start_time BETWEEN '%s' AND '%s')",
+			*formatTimestamp(&filter.StartTime), *formatTimestamp(&filter.EndTime)))
+	}
+	if filter.ByActivity {
+		if filter.ActivityId == 0 {
+			qrs = append(qrs, "e.activity_id IS NULL")
+		} else {
+			qrs = append(qrs, fmt.Sprintf("e.activity_id = %d", filter.ActivityId))
+		}
+	}
+	if filter.ByDescription {
+		if filter.Description == "" {
+			qrs = append(qrs, "e.description IS NULL")
+		} else {
+			qrs = append(qrs, "e.description LIKE ?")
+			qas = append(qas, "%"+escapeRestrictionString(filter.Description)+"%")
+		}
+	}
+
+	qr := ""
+	if len(qrs) > 0 {
+		qr = "WHERE " + strings.Join(qrs[:], " AND ")
+	}
+
+	return qr, qas
 }
 
 // --- Date range helper functions ---

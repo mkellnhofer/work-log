@@ -26,6 +26,33 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 
 // --- Entry functions ---
 
+// GetDateEntries gets all entries (over date).
+func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
+	limit int) ([]*model.Entry, int, *e.Error) {
+	// Check permissions
+	userId := 0
+	if filter != nil {
+		userId = filter.UserId
+	}
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, 0, err
+	}
+
+	// Get entries
+	entries, err := s.eRepo.GetDateEntries(ctx, filter, offset, limit)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// Count all available entries
+	cnt, err := s.eRepo.CountDateEntries(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return entries, cnt, nil
+}
+
 // GetDateEntriesByUserId gets all entries (over date) of an user.
 func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, offset int,
 	limit int) ([]*model.Entry, int, *e.Error) {
@@ -49,22 +76,26 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 	return entries, cnt, nil
 }
 
-// GetEntriesByUserId gets all entries of an user.
-func (s *EntryService) GetEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
-	[]*model.Entry, int, *e.Error) {
+// GetEntries gets all entries.
+func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
+	limit int) ([]*model.Entry, int, *e.Error) {
 	// Check permissions
+	userId := 0
+	if filter != nil {
+		userId = filter.UserId
+	}
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
 		return nil, 0, err
 	}
 
 	// Get entries
-	entries, err := s.eRepo.GetEntriesByUserId(ctx, userId, offset, limit)
+	entries, err := s.eRepo.GetEntries(ctx, filter, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
 
 	// Count all available entries
-	cnt, err := s.eRepo.CountEntriesByUserId(ctx, userId)
+	cnt, err := s.eRepo.CountEntries(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -206,29 +237,6 @@ func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, use
 
 	// Delete entry
 	return s.eRepo.DeleteEntryById(ctx, id)
-}
-
-// SearchEntries searches entries (over date).
-func (s *EntryService) SearchDateEntries(ctx context.Context, userId int,
-	params *model.SearchEntriesParams, offset int, limit int) ([]*model.Entry, int, *e.Error) {
-	// Check permissions
-	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
-		return nil, 0, err
-	}
-
-	// Get entries
-	entries, err := s.eRepo.SearchDateEntries(ctx, userId, params, offset, limit)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// Count all available entries
-	cnt, err := s.eRepo.CountSearchDateEntries(ctx, userId, params)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	return entries, cnt, nil
 }
 
 // GetMonthEntriesByUserId gets all entries of a month of an user.

@@ -33,6 +33,10 @@ const (
 	ValSearchInvalid        = -311
 	ValSearchQueryInvalid   = -312
 	ValMonthInvalid         = -313
+	ValFilterInvalid        = -314
+	ValSortInvalid          = -315
+	ValOffsetInvalid        = -316
+	ValLimitInvalid         = -317
 
 	// Logic errors
 	LogicUnknown                        = -400

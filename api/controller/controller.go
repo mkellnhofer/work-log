@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 
@@ -10,6 +11,8 @@ import (
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 )
+
+const dateTimeFormat = "2006-01-02T15:04:05"
 
 // Information about the error.
 // swagger:response ErrorResponse
@@ -98,4 +101,8 @@ func getIntQueryParam(r *http.Request, n string) (int, error) {
 		return 0, nil
 	}
 	return strconv.Atoi(qv)
+}
+
+func parseDate(d string) (time.Time, error) {
+	return time.Parse(dateTimeFormat, d)
 }

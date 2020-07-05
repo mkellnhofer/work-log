@@ -67,9 +67,9 @@ func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (
 }
 
 // GetDateEntries retrieves entries (over date).
-func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
-	limit int) ([]*model.Entry, *e.Error) {
-	qr, qra := r.buildGetDateEntriesRangeQuery(filter, offset, limit)
+func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, *e.Error) {
+	qr, qra := r.buildGetDateEntriesRangeQuery(filter, sort, offset, limit)
 
 	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
 	if qrErr != nil {
@@ -82,7 +82,7 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFil
 		return make([]*model.Entry, 0), nil
 	}
 
-	q, qa := r.buildGetDateEntriesQuery(filter, start, end)
+	q, qa := r.buildGetDateEntriesQuery(filter, sort, start, end)
 
 	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
 	if qErr != nil {
@@ -97,29 +97,36 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFil
 	return entries, nil
 }
 
-func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter, offset int,
-	limit int) (string, []interface{}) {
+func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
+	sort *model.EntriesSort, offset int, limit int) (string, []interface{}) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+	var qo string
+	if sort != nil && (sort.ByTime == model.NoSorting || sort.ByTime == model.AscSorting) {
+		qo = "ORDER BY date ASC"
+	} else if sort != nil && sort.ByTime == model.DescSorting {
+		qo = "ORDER BY date DESC"
+	}
 
 	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
 		"FROM entry e " +
 		qr + " " +
-		"ORDER BY date DESC " +
+		qo + " " +
 		createQueryLimitString(offset, limit)
 
 	return q, qra
 }
 
-func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, start string,
-	end string) (string, []interface{}) {
+func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *model.EntriesSort,
+	start string, end string) (string, []interface{}) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+	qo := r.buildEntriesSortQueryClause(sort)
 
 	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
 		"e.activity_id, e.description " +
 		"FROM entry e " +
 		qr + " " +
 		"AND e.start_time BETWEEN ? AND ? " +
-		"ORDER BY e.start_time DESC, e.end_time DESC"
+		qo
 
 	qa := append(qra, start, end)
 
@@ -232,15 +239,16 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilte
 }
 
 // GetEntries retrieves all entries.
-func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
-	limit int) ([]*model.Entry, *e.Error) {
+func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, *e.Error) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+	qo := r.buildEntriesSortQueryClause(sort)
 
 	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
 		"e.activity_id, e.description " +
 		"FROM entry e " +
 		qr + " " +
-		"ORDER BY e.start_time DESC, e.end_time DESC " +
+		qo + " " +
 		createQueryLimitString(offset, limit)
 
 	var sr interface{}
@@ -586,6 +594,20 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 	}
 
 	return qr, qas
+}
+
+// --- Sort ---
+
+func (r *EntryRepo) buildEntriesSortQueryClause(sort *model.EntriesSort) string {
+	if sort == nil {
+		return ""
+	}
+
+	if sort.ByTime == model.NoSorting || sort.ByTime == model.AscSorting {
+		return "ORDER BY e.start_time ASC, e.end_time ASC"
+	} else {
+		return "ORDER BY e.start_time DESC, e.end_time DESC"
+	}
 }
 
 // --- Date range helper functions ---

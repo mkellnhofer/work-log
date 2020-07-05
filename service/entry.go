@@ -27,19 +27,21 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 // --- Entry functions ---
 
 // GetDateEntries gets all entries (over date).
-func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
-	limit int) ([]*model.Entry, int, *e.Error) {
-	// Check permissions
-	userId := 0
-	if filter != nil {
-		userId = filter.UserId
+func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, *e.Error) {
+	// If user does not have right to get any entry: Add default user ID filter
+	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
+		filter.ByUser = true
+		filter.UserId = getCurrentUserId(ctx)
 	}
-	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, filter.UserId); err != nil {
 		return nil, 0, err
 	}
 
 	// Get entries
-	entries, err := s.eRepo.GetDateEntries(ctx, filter, offset, limit)
+	entries, err := s.eRepo.GetDateEntries(ctx, filter, sort, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -77,19 +79,21 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 }
 
 // GetEntries gets all entries.
-func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilter, offset int,
-	limit int) ([]*model.Entry, int, *e.Error) {
-	// Check permissions
-	userId := 0
-	if filter != nil {
-		userId = filter.UserId
+func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilter,
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, *e.Error) {
+	// If user does not have right to get any entry: Add default user ID filter
+	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
+		filter.ByUser = true
+		filter.UserId = getCurrentUserId(ctx)
 	}
-	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, filter.UserId); err != nil {
 		return nil, 0, err
 	}
 
 	// Get entries
-	entries, err := s.eRepo.GetEntries(ctx, filter, offset, limit)
+	entries, err := s.eRepo.GetEntries(ctx, filter, sort, offset, limit)
 	if err != nil {
 		return nil, 0, err
 	}

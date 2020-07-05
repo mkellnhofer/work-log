@@ -543,9 +543,12 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 
 	// Create entries filter from query string
 	filter := c.parseSearchQueryString(userId, query)
+	// Create entries sort
+	sort := model.NewEntriesSort()
+	sort.ByTime = model.DescSorting
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, filter, offset, limit)
+	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, filter, sort, offset, limit)
 	if gesErr != nil {
 		panic(gesErr)
 	}

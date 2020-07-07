@@ -222,8 +222,8 @@ func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, *e.Error) {
 	}
 
 	// Parse values
-	start, sErr := parseDate(f.values[0])
-	end, eErr := parseDate(f.values[1])
+	start, sErr := parseTimestamp(f.values[0])
+	end, eErr := parseTimestamp(f.values[1])
 	if sErr != nil || eErr != nil {
 		return time.Now(), time.Now(), createInvalidFilterValueError(f.name)
 	}

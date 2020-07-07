@@ -8,11 +8,10 @@ import (
 	"github.com/gorilla/mux"
 
 	"kellnhofer.com/work-log/api/model"
+	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 )
-
-const dateTimeFormat = "2006-01-02T15:04:05"
 
 // Information about the error.
 // swagger:response ErrorResponse
@@ -104,5 +103,9 @@ func getIntQueryParam(r *http.Request, n string) (int, error) {
 }
 
 func parseDate(d string) (time.Time, error) {
-	return time.Parse(dateTimeFormat, d)
+	return time.Parse(constant.ApiDateFormat, d)
+}
+
+func parseTimestamp(ts string) (time.Time, error) {
+	return time.Parse(constant.ApiTimestampFormat, ts)
 }

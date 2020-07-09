@@ -85,7 +85,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *model.User) *e.Error
 	}
 
 	// Hash password
-	hashUserPassword(user)
+	user.Password = hashUserPassword(user.Password)
 
 	// Create user
 	return s.uRepo.CreateUser(ctx, user)
@@ -98,8 +98,9 @@ func (s *UserService) UpdateUser(ctx context.Context, user *model.User) *e.Error
 		return err
 	}
 
-	// Check if user exists
-	if err := s.checkIfUserExists(ctx, user.Id); err != nil {
+	// Get user
+	oldUser, err := s.getUserById(ctx, user.Id)
+	if err != nil {
 		return err
 	}
 
@@ -108,23 +109,47 @@ func (s *UserService) UpdateUser(ctx context.Context, user *model.User) *e.Error
 		return err
 	}
 
-	// Hash password
-	hashUserPassword(user)
+	// Was a password provided?
+	if user.Password != "" {
+		// Use new password
+		user.Password = hashUserPassword(user.Password)
+	} else {
+		// Use old password
+		user.Password = oldUser.Password
+	}
 
 	// Update user
 	return s.uRepo.UpdateUser(ctx, user)
 }
 
-func hashUserPassword(user *model.User) {
-	pPassword := user.Password
-	hBytes, hErr := bcrypt.GenerateFromPassword([]byte(pPassword), bcrypt.DefaultCost)
+// UpdateUserPassword updates the password of a user.
+func (s *UserService) UpdateUserPassword(ctx context.Context, id int, password string) *e.Error {
+	// Check permissions
+	if err := s.checkHasCurrentUserChangeRight(ctx, id); err != nil {
+		return err
+	}
+
+	// Get user
+	user, err := s.getUserById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	// Set password
+	user.Password = hashUserPassword(password)
+
+	// Update user
+	return s.uRepo.UpdateUser(ctx, user)
+}
+
+func hashUserPassword(password string) string {
+	hBytes, hErr := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if hErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not hash user password.", hErr)
 		log.Error(err.StackTrace())
 		panic(err)
 	}
-	hPassword := string(hBytes)
-	user.Password = hPassword
+	return string(hBytes)
 }
 
 // DeleteUserById deletes a user by its ID.
@@ -141,6 +166,19 @@ func (s *UserService) DeleteUserById(ctx context.Context, id int) *e.Error {
 
 	// Delete user
 	return s.uRepo.DeleteUserById(ctx, id)
+}
+
+func (s *UserService) getUserById(ctx context.Context, id int) (*model.User, *e.Error) {
+	user, err := s.uRepo.GetUserById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		err = e.NewError(e.LogicUserNotFound, fmt.Sprintf("Could not find user %d.", id))
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+	return user, nil
 }
 
 func (s *UserService) checkIfUserExists(ctx context.Context, id int) *e.Error {

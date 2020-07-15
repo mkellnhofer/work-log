@@ -1,23 +1,30 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
 
-	"kellnhofer.com/work-log/api/model"
+	am "kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/constant"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	m "kellnhofer.com/work-log/model"
 )
 
 // Information about the error.
 // swagger:response ErrorResponse
 type Error struct {
 	// in: body
-	Body model.Error
+	Body am.Error
+}
+
+func getCurrentUserId(ctx context.Context) int {
+	sc := ctx.Value(constant.ContextKeySecurityContext).(*m.SecurityContext)
+	return sc.UserId
 }
 
 func getIdPathVar(r *http.Request) int {

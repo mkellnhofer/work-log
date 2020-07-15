@@ -1,10 +1,15 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
+	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
+	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/service"
+	httputil "kellnhofer.com/work-log/util/http"
 )
 
 // UserController handles requests for user endpoints.
@@ -157,7 +162,18 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get current user ID
+		userId := getCurrentUserId(r.Context())
+
+		// Execute action
+		user, err := c.uServ.GetUserDataByUserId(r.Context(), userId)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		au := mapper.ToUserData(user)
+		httputil.WriteHttpResponse(w, http.StatusOK, au)
 	}
 }
 
@@ -183,7 +199,18 @@ func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get current user ID
+		userId := getCurrentUserId(r.Context())
+
+		// Execute action
+		userRoles, err := c.uServ.GetUserRoles(r.Context(), userId)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aur := mapper.ToRoles(userRoles)
+		httputil.WriteHttpResponse(w, http.StatusOK, aur)
 	}
 }
 
@@ -211,7 +238,15 @@ func (c *UserController) GetUsersHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Execute action
+		users, err := c.uServ.GetUserDatas(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aus := mapper.ToUserDatas(users)
+		httputil.WriteHttpResponse(w, http.StatusOK, aus)
 	}
 }
 
@@ -243,7 +278,24 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Read API model from request
+		var acu model.CreateUserData
+		httputil.ReadHttpBody(r, &acu)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		user := mapper.FromCreateUserData(&acu)
+
+		// Execute action
+		if err := c.uServ.CreateUserData(r.Context(), user); err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		au := mapper.ToUserData(user)
+		httputil.WriteHttpResponse(w, http.StatusOK, au)
 	}
 }
 
@@ -273,7 +325,25 @@ func (c *UserController) GetUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get user ID from request
+		userId := getIdPathVar(r)
+
+		// Execute action
+		user, err := c.uServ.GetUserDataByUserId(r.Context(), userId)
+		if err != nil {
+			panic(err)
+		}
+
+		// Check if a user was found
+		if user == nil {
+			err = e.NewError(e.LogicUserNotFound, fmt.Sprintf("Could not find user %d.", userId))
+			log.Debug(err.StackTrace())
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		au := mapper.ToUserData(user)
+		httputil.WriteHttpResponse(w, http.StatusOK, au)
 	}
 }
 
@@ -307,7 +377,27 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Read API model from request
+		var auu model.UpdateUserData
+		httputil.ReadHttpBody(r, &auu)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		user := mapper.FromUpdateUserData(id, &auu)
+
+		// Execute action
+		if err := c.uServ.UpdateUserData(r.Context(), user); err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		au := mapper.ToUserData(user)
+		httputil.WriteHttpResponse(w, http.StatusOK, au)
 	}
 }
 
@@ -337,7 +427,17 @@ func (c *UserController) DeleteUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get user ID from request
+		userId := getIdPathVar(r)
+
+		// Execute action
+		err := c.uServ.DeleteUserById(r.Context(), userId)
+		if err != nil {
+			panic(err)
+		}
+
+		// Write response
+		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
 }
 
@@ -369,7 +469,23 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		userId := getIdPathVar(r)
+
+		// Read API model from request
+		var auupw model.UpdateUserPassword
+		httputil.ReadHttpBody(r, &auupw)
+
+		// Validate password
 		// TODO
+
+		// Execute action
+		if err := c.uServ.UpdateUserPassword(r.Context(), userId, auupw.Password); err != nil {
+			panic(err)
+		}
+
+		// Write response
+		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
 }
 
@@ -399,7 +515,18 @@ func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get user ID from request
+		userId := getIdPathVar(r)
+
+		// Execute action
+		userRoles, err := c.uServ.GetUserRoles(r.Context(), userId)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aur := mapper.ToRoles(userRoles)
+		httputil.WriteHttpResponse(w, http.StatusOK, aur)
 	}
 }
 
@@ -431,6 +558,26 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		userId := getIdPathVar(r)
+
+		// Read API model from request
+		var auurs model.UpdateUserRoles
+		httputil.ReadHttpBody(r, &auurs)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		userRoles := mapper.FromRoles(&auurs)
+
+		// Execute action
+		if err := c.uServ.SetUserRoles(r.Context(), userId, userRoles); err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aurs := mapper.ToRoles(userRoles)
+		httputil.WriteHttpResponse(w, http.StatusOK, aurs)
 	}
 }

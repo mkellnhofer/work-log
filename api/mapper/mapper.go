@@ -53,3 +53,18 @@ func formatHoursDuration(d time.Duration) float32 {
 	min := int(md.Minutes())
 	return float32(min) / 60.0
 }
+
+func parseMinutesDuration(m int) time.Duration {
+	d, pErr := time.ParseDuration(fmt.Sprintf("%dm", m))
+	if pErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not parse minutes duration.", pErr)
+		log.Error(err.StackTrace())
+		panic(err)
+	}
+	return d
+}
+
+func formatMinutesDuration(d time.Duration) int {
+	md := d.Round(time.Minute)
+	return int(md.Minutes())
+}

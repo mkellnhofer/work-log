@@ -15,6 +15,8 @@ import (
 	m "kellnhofer.com/work-log/model"
 )
 
+const defaultPageSize = 50
+
 // Information about the error.
 // swagger:response ErrorResponse
 type Error struct {
@@ -68,7 +70,7 @@ func getSortQueryParam(r *http.Request) string {
 func getOffsetQueryParam(r *http.Request) int {
 	i, err := getIntQueryParam(r, "offset")
 	if err != nil {
-		err := e.NewError(e.ValOffsetInvalid, "Invalid offset. (Offset must be numeric (int64).)")
+		err := e.NewError(e.ValOffsetInvalid, "Invalid offset. (Offset must be numeric (int32).)")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}

@@ -1,10 +1,15 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
 
+	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
+	e "kellnhofer.com/work-log/error"
+	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/service"
+	httputil "kellnhofer.com/work-log/util/http"
 )
 
 // EntryController handles requests for entry endpoints.
@@ -211,7 +216,7 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	//   format: int32
 	// - name: limit
 	//   in: query
-	//   description: Size of the entries result page. (default=500)
+	//   description: Size of the entries result page. (default=50)
 	//   required: false
 	//   type: integer
 	//   format: int32
@@ -226,7 +231,34 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get filter from request
+		f, err := getEntriesFilter(getFilterQueryParam(r))
+		if err != nil {
+			panic(err)
+		}
+
+		// Get sort from request
+		s, err := getEntriesSort(getSortQueryParam(r))
+		if err != nil {
+			panic(err)
+		}
+
+		// Get offset and limit from request
+		o := getOffsetQueryParam(r)
+		l := getLimitQueryParam(r)
+		if l == 0 {
+			l = defaultPageSize
+		}
+
+		// Execute action
+		entries, cnt, err := c.eServ.GetEntries(r.Context(), f, s, o, l)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aes := mapper.ToEntries(entries, o, l, cnt)
+		httputil.WriteHttpResponse(w, http.StatusOK, aes)
 	}
 }
 
@@ -258,7 +290,25 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Read API model from request
+		var ace model.CreateEntry
+		httputil.ReadHttpBody(r, &ace)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		entry := mapper.FromCreateEntry(&ace)
+
+		// Execute action
+		err := c.eServ.CreateEntry(r.Context(), entry)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		ae := mapper.ToEntry(entry)
+		httputil.WriteHttpResponse(w, http.StatusOK, ae)
 	}
 }
 
@@ -288,7 +338,27 @@ func (c *EntryController) GetEntryHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Execute action
+		entry, err := c.eServ.GetEntryById(r.Context(), id)
+		if err != nil {
+			panic(err)
+		}
+		// Convert permission errors
 		// TODO
+
+		// Check if a entry was found
+		if entry == nil {
+			err = e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
+			log.Debug(err.StackTrace())
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		ae := mapper.ToEntry(entry)
+		httputil.WriteHttpResponse(w, http.StatusOK, ae)
 	}
 }
 
@@ -322,7 +392,30 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Read API model from request
+		var aue model.UpdateEntry
+		httputil.ReadHttpBody(r, &aue)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		entry := mapper.FromUpdateEntry(id, &aue)
+
+		// Execute action
+		err := c.eServ.UpdateEntry(r.Context(), entry)
+		if err != nil {
+			panic(err)
+		}
+		// Convert permission errors
+		// TODO
+
+		// Convert to API model and write response
+		ae := mapper.ToEntry(entry)
+		httputil.WriteHttpResponse(w, http.StatusOK, ae)
 	}
 }
 
@@ -354,7 +447,19 @@ func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Execute action
+		err := c.eServ.DeleteEntryById(r.Context(), id)
+		if err != nil {
+			panic(err)
+		}
+		// Convert permission errors
 		// TODO
+
+		// Write response
+		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
 }
 
@@ -382,7 +487,15 @@ func (c *EntryController) GetEntryTypesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Execute action
+		entryTypes, err := c.eServ.GetEntryTypes(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aets := mapper.ToEntryTypes(entryTypes)
+		httputil.WriteHttpResponse(w, http.StatusOK, aets)
 	}
 }
 
@@ -410,7 +523,15 @@ func (c *EntryController) GetEntryActivitiesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Execute action
+		entryActivities, err := c.eServ.GetEntryActivities(r.Context())
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aeas := mapper.ToEntryActivities(entryActivities)
+		httputil.WriteHttpResponse(w, http.StatusOK, aeas)
 	}
 }
 
@@ -442,7 +563,25 @@ func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Read API model from request
+		var acea model.CreateEntryActivity
+		httputil.ReadHttpBody(r, &acea)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		entryActivity := mapper.FromCreateEntryActivity(&acea)
+
+		// Execute action
+		err := c.eServ.CreateEntryActivity(r.Context(), entryActivity)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aea := mapper.ToEntryActivity(entryActivity)
+		httputil.WriteHttpResponse(w, http.StatusOK, aea)
 	}
 }
 
@@ -476,7 +615,28 @@ func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Read API model from request
+		var auea model.UpdateEntryActivity
+		httputil.ReadHttpBody(r, &auea)
+
+		// Validate model
 		// TODO
+
+		// Convert to logic model
+		entryActivity := mapper.FromUpdateEntryActivity(id, &auea)
+
+		// Execute action
+		err := c.eServ.UpdateEntryActivity(r.Context(), entryActivity)
+		if err != nil {
+			panic(err)
+		}
+
+		// Convert to API model and write response
+		aea := mapper.ToEntryActivity(entryActivity)
+		httputil.WriteHttpResponse(w, http.StatusOK, aea)
 	}
 }
 
@@ -506,6 +666,16 @@ func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// TODO
+		// Get ID from request
+		id := getIdPathVar(r)
+
+		// Execute action
+		err := c.eServ.DeleteEntryActivityById(r.Context(), id)
+		if err != nil {
+			panic(err)
+		}
+
+		// Write response
+		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
 }

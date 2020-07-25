@@ -162,11 +162,8 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get current user ID
-		userId := getCurrentUserId(r.Context())
-
 		// Execute action
-		user, err := c.uServ.GetUserDataByUserId(r.Context(), userId)
+		user, err := c.uServ.GetCurrentUserData(r.Context())
 		if err != nil {
 			panic(err)
 		}
@@ -199,11 +196,8 @@ func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Get current user ID
-		userId := getCurrentUserId(r.Context())
-
 		// Execute action
-		userRoles, err := c.uServ.GetUserRoles(r.Context(), userId)
+		userRoles, err := c.uServ.GetCurrentUserRoles(r.Context())
 		if err != nil {
 			panic(err)
 		}

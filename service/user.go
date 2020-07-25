@@ -72,13 +72,7 @@ func (s *UserService) GetUserByUsername(ctx context.Context, username string) (*
 	return s.uRepo.GetUserByUsername(ctx, username)
 }
 
-// CreateUser creates a new user.
-func (s *UserService) CreateUser(ctx context.Context, user *model.User) *e.Error {
-	// Check permissions
-	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
-		return err
-	}
-
+func (s *UserService) createUser(ctx context.Context, user *model.User) *e.Error {
 	// Check if username is already taken
 	if err := s.checkIfUsernameIsAlreadyTaken(ctx, 0, user.Username); err != nil {
 		return err
@@ -91,13 +85,7 @@ func (s *UserService) CreateUser(ctx context.Context, user *model.User) *e.Error
 	return s.uRepo.CreateUser(ctx, user)
 }
 
-// UpdateUser updates a user.
-func (s *UserService) UpdateUser(ctx context.Context, user *model.User) *e.Error {
-	// Check permissions
-	if err := s.checkHasCurrentUserChangeRight(ctx, user.Id); err != nil {
-		return err
-	}
-
+func (s *UserService) updateUser(ctx context.Context, user *model.User) *e.Error {
 	// Get user
 	oldUser, err := s.getUserById(ctx, user.Id)
 	if err != nil {
@@ -211,10 +199,21 @@ func (s *UserService) checkIfUsernameIsAlreadyTaken(ctx context.Context, id int,
 
 // --- User role functions ---
 
+// GetCurrentUserRoles gets the roles of the current user.
+func (s *UserService) GetCurrentUserRoles(ctx context.Context) ([]model.Role, *e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserAccount); err != nil {
+		return nil, err
+	}
+
+	// Get user roles
+	return s.uRepo.GetUserRoles(ctx, getCurrentUserId(ctx))
+}
+
 // GetUserRoles gets the roles of a user.
 func (s *UserService) GetUserRoles(ctx context.Context, userId int) ([]model.Role, *e.Error) {
 	// Check permissions
-	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserData); err != nil {
 		return nil, err
 	}
 
@@ -229,6 +228,11 @@ func (s *UserService) SetUserRoles(ctx context.Context, userId int, roles []mode
 		return err
 	}
 
+	// Set user roles
+	return s.setUserRoles(ctx, userId, roles)
+}
+
+func (s *UserService) setUserRoles(ctx context.Context, userId int, roles []model.Role) *e.Error {
 	// Check if roles exist
 	if err := s.checkIfRolesExist(ctx, roles); err != nil {
 		return err
@@ -273,15 +277,8 @@ func (s *UserService) GetSettingShowOverviewDetails(ctx context.Context, userId 
 	return s.uRepo.GetUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails)
 }
 
-// CreateSettingShowOverviewDetails creates the setting value for the "show overview details" setting.
-func (s *UserService) CreateSettingShowOverviewDetails(ctx context.Context, userId int,
+func (s *UserService) createSettingShowOverviewDetails(ctx context.Context, userId int,
 	value bool) *e.Error {
-	// Check permissions
-	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
-		return err
-	}
-
-	// Create setting
 	return s.uRepo.CreateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
 }
 
@@ -311,27 +308,13 @@ func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (
 	return s.uRepo.GetUserContractByUserId(ctx, userId)
 }
 
-// CreateUserContract creates the contract information of a user.
-func (s *UserService) CreateUserContract(ctx context.Context, userId int,
+func (s *UserService) createUserContract(ctx context.Context, userId int,
 	contract *model.UserContract) *e.Error {
-	// Check permissions
-	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
-		return err
-	}
-
-	// Create user contract
 	return s.uRepo.CreateUserContract(ctx, userId, contract)
 }
 
-// UpdateUserContract updates the contract information of a user.
-func (s *UserService) UpdateUserContract(ctx context.Context, userId int,
+func (s *UserService) updateUserContract(ctx context.Context, userId int,
 	contract *model.UserContract) *e.Error {
-	// Check permissions
-	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
-		return err
-	}
-
-	// Update user contract
 	return s.uRepo.UpdateUserContract(ctx, userId, contract)
 }
 
@@ -339,15 +322,22 @@ func (s *UserService) UpdateUserContract(ctx context.Context, userId int,
 
 // GetUserDatas gets all users with related information at once.
 func (s *UserService) GetUserDatas(ctx context.Context) ([]*model.UserData, *e.Error) {
-	users, gusErr := s.GetUsers(ctx)
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserData); err != nil {
+		return nil, err
+	}
+
+	// Get users
+	users, gusErr := s.uRepo.GetUsers(ctx)
 	if gusErr != nil {
 		return nil, gusErr
 	}
 
 	userDatas := make([]*model.UserData, 0, 10)
 
+	// Get user contracts
 	for _, user := range users {
-		userContract, gucErr := s.GetUserContractByUserId(ctx, user.Id)
+		userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, user.Id)
 		if gucErr != nil {
 			return nil, gucErr
 		}
@@ -358,10 +348,17 @@ func (s *UserService) GetUserDatas(ctx context.Context) ([]*model.UserData, *e.E
 	return userDatas, nil
 }
 
-// GetUserDataByUserId gets a user with related information at once.
-func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*model.UserData,
-	*e.Error) {
-	user, guErr := s.GetUserById(ctx, userId)
+// GetCurrentUserData gets the current user with related information at once.
+func (s *UserService) GetCurrentUserData(ctx context.Context) (*model.UserData, *e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserAccount); err != nil {
+		return nil, err
+	}
+
+	userId := getCurrentUserId(ctx)
+
+	// Get user
+	user, guErr := s.uRepo.GetUserById(ctx, userId)
 	if guErr != nil {
 		return nil, guErr
 	}
@@ -369,7 +366,34 @@ func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*mod
 		return nil, nil
 	}
 
-	userContract, gucErr := s.GetUserContractByUserId(ctx, userId)
+	// Get user contract
+	userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, userId)
+	if gucErr != nil {
+		return nil, gucErr
+	}
+
+	return model.NewUserData(userId, user, userContract), nil
+}
+
+// GetUserDataByUserId gets a user with related information at once.
+func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*model.UserData,
+	*e.Error) {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightGetUserData); err != nil {
+		return nil, err
+	}
+
+	// Get user
+	user, guErr := s.uRepo.GetUserById(ctx, userId)
+	if guErr != nil {
+		return nil, guErr
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	// Get user contract
+	userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, userId)
 	if gucErr != nil {
 		return nil, gucErr
 	}
@@ -379,30 +403,35 @@ func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*mod
 
 // CreateUserData creates a new user with related information at once.
 func (s *UserService) CreateUserData(ctx context.Context, userData *model.UserData) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
 	// Start transaction
 	if err := s.tm.Begin(ctx); err != nil {
 		return err
 	}
 
 	// Create user
-	if err := s.CreateUser(ctx, userData.User); err != nil {
+	if err := s.createUser(ctx, userData.User); err != nil {
 		s.tm.Rollback(ctx)
 		return err
 	}
 	userData.Id = userData.User.Id
 	// Create roles
 	userRoles := []model.Role{model.RoleUser}
-	if err := s.SetUserRoles(ctx, userData.Id, userRoles); err != nil {
+	if err := s.setUserRoles(ctx, userData.Id, userRoles); err != nil {
 		s.tm.Rollback(ctx)
 		return err
 	}
 	// Create settings
-	if err := s.CreateSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
+	if err := s.createSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
 		s.tm.Rollback(ctx)
 		return err
 	}
 	// Create contract
-	if err := s.CreateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
+	if err := s.createUserContract(ctx, userData.Id, userData.UserContract); err != nil {
 		s.tm.Rollback(ctx)
 		return err
 	}
@@ -413,6 +442,11 @@ func (s *UserService) CreateUserData(ctx context.Context, userData *model.UserDa
 
 // UpdateUserData updates a user with related information at once.
 func (s *UserService) UpdateUserData(ctx context.Context, userData *model.UserData) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserData); err != nil {
+		return err
+	}
+
 	// Start transaction
 	if err := s.tm.Begin(ctx); err != nil {
 		return err
@@ -420,14 +454,14 @@ func (s *UserService) UpdateUserData(ctx context.Context, userData *model.UserDa
 
 	// Update user
 	if userData.User != nil {
-		if err := s.UpdateUser(ctx, userData.User); err != nil {
+		if err := s.updateUser(ctx, userData.User); err != nil {
 			s.tm.Rollback(ctx)
 			return err
 		}
 	}
 	// Update contract
 	if userData.UserContract != nil {
-		if err := s.UpdateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
+		if err := s.updateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
 			s.tm.Rollback(ctx)
 			return err
 		}

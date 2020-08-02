@@ -87,6 +87,15 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
+	// Validate inputs
+	if len(username) > model.MaxLengthUserUsername || len(password) > model.MaxLengthUserPassword {
+		err := e.NewError(e.AuthInvalidCredentials, "Invalid credentials. (Invalid username or "+
+			"password length.)")
+		log.Debug(err.StackTrace())
+		c.handleLoginError(w, r, err)
+		return
+	}
+
 	// Find user
 	user, guErr := c.uServ.GetUserByUsername(sysCtx, username)
 	if guErr != nil {

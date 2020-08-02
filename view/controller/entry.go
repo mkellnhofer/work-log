@@ -1298,7 +1298,8 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 	entry.ActivityId = c.convertId(input.activityId)
 
 	// Validate description
-	if err = c.validateString(input.description, 200, e.ValDescriptionTooLong); err != nil {
+	if err = c.validateString(input.description, model.MaxLengthEntryDescription,
+		e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}
 	entry.Description = input.description
@@ -1339,7 +1340,8 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 
 	// Validate description
 	filter.ByDescription = input.byDescription == "on"
-	if err = c.validateString(input.description, 200, e.ValDescriptionTooLong); err != nil {
+	if err = c.validateString(input.description, model.MaxLengthEntryDescription,
+		e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}
 	filter.Description = input.description
@@ -1383,6 +1385,11 @@ func (c *EntryController) convertDuration(in string, code int) (time.Duration, *
 		log.Debug(err.StackTrace())
 		return 0, err
 	}
+	if m < 0 {
+		err := e.NewError(code, "Invalid duration. (Duration must be zero or positive.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
 	out, pErr := time.ParseDuration(fmt.Sprintf("%dm", m))
 	if pErr != nil {
 		err := e.WrapError(code, fmt.Sprintf("Could not parse duration %s.", in), pErr)
@@ -1393,9 +1400,9 @@ func (c *EntryController) convertDuration(in string, code int) (time.Duration, *
 }
 
 func (c *EntryController) validateString(in string, length int, code int) *e.Error {
-	if len(in) >= length {
+	if len(in) > length {
 		err := e.NewError(code, fmt.Sprintf("String too long. (Must be "+
-			"< %d characters.)", length))
+			"<= %d characters.)", length))
 		log.Debug(err.StackTrace())
 		return err
 	}

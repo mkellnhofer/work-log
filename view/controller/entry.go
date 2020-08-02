@@ -1273,7 +1273,7 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 	var err *e.Error
 
 	// Convert type ID
-	entry.TypeId = c.convertId(input.typeId)
+	entry.TypeId = c.convertId(input.typeId, false)
 
 	// Convert start/end time
 	if _, err := c.convertDateTime(input.date, "00:00", e.ValDateInvalid); err != nil {
@@ -1295,7 +1295,7 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 	}
 
 	// Convert activity ID
-	entry.ActivityId = c.convertId(input.activityId)
+	entry.ActivityId = c.convertId(input.activityId, true)
 
 	// Validate description
 	if err = c.validateString(input.description, model.MaxLengthEntryDescription,
@@ -1315,7 +1315,7 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 
 	// Convert type ID
 	filter.ByType = input.byType == "on"
-	filter.TypeId = c.convertId(input.typeId)
+	filter.TypeId = c.convertId(input.typeId, false)
 
 	// Convert start/end time
 	filter.ByTime = input.byDate == "on"
@@ -1336,7 +1336,7 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 
 	// Convert activity ID
 	filter.ByActivity = input.byActivity == "on"
-	filter.ActivityId = c.convertId(input.activityId)
+	filter.ActivityId = c.convertId(input.activityId, true)
 
 	// Validate description
 	filter.ByDescription = input.byDescription == "on"
@@ -1356,10 +1356,20 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 	return filter, nil
 }
 
-func (c *EntryController) convertId(in string) int {
+func (c *EntryController) convertId(in string, allowZero bool) int {
 	out, cErr := strconv.Atoi(in)
 	if cErr != nil {
 		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", cErr)
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	if !allowZero && out <= 0 {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be positive.)")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
+	if out < 0 {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be zero or positive.)")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}

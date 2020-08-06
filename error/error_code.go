@@ -18,25 +18,36 @@ const (
 	PermGetOwnEntries       = -209
 	PermChangeOwnEntries    = -210
 
-	// Validation erros
+	// General validation erros
 	ValUnknown              = -300
 	ValJsonInvalid          = -301
 	ValPageNumberInvalid    = -302
 	ValIdInvalid            = -303
-	ValDateInvalid          = -304
-	ValStartDateInvalid     = -305
-	ValEndDateInvalid       = -306
-	ValStartTimeInvalid     = -307
-	ValEndTimeInvalid       = -308
-	ValBreakDurationInvalid = -309
-	ValDescriptionTooLong   = -310
-	ValSearchInvalid        = -311
-	ValSearchQueryInvalid   = -312
-	ValMonthInvalid         = -313
-	ValFilterInvalid        = -314
-	ValSortInvalid          = -315
-	ValOffsetInvalid        = -316
-	ValLimitInvalid         = -317
+	ValFilterInvalid        = -304
+	ValSortInvalid          = -305
+	ValOffsetInvalid        = -306
+	ValLimitInvalid         = -307
+	ValFieldNil             = -308
+	ValNumberNegative       = -309
+	ValNumberNegativeOrZero = -310
+	ValStringEmpty          = -311
+	ValStringTooLong        = -312
+	ValDateInvalid          = -313
+	ValTimestampInvalid     = -314
+	ValArrayEmpty           = -315
+	ValRoleInvalid          = -316
+	ValUsernameInvalid      = -317
+	ValPasswordInvalid      = -318
+	// View validation errors
+	ValStartDateInvalid     = -319
+	ValEndDateInvalid       = -320
+	ValStartTimeInvalid     = -321
+	ValEndTimeInvalid       = -322
+	ValBreakDurationInvalid = -323
+	ValDescriptionTooLong   = -324
+	ValSearchInvalid        = -325
+	ValSearchQueryInvalid   = -326
+	ValMonthInvalid         = -327
 
 	// Logic errors
 	LogicUnknown                        = -400

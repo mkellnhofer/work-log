@@ -6,6 +6,7 @@ import (
 
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
+	"kellnhofer.com/work-log/api/validator"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/service"
@@ -250,6 +251,20 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//
 	// Create a user.
 	//
+	// # Username / password rules
+	//
+	// __Username:__
+	//
+	// ⦁ Minimum length: 4
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z - .`
+	//
+	// __Password:__
+	//
+	// ⦁ Minimum length: 8
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z ! \ # $ % & ' ( ) * + , - . / : ; = ? @ [ \ ] ^ _ { | } ~`
+	//
 	// ---
 	//
 	// security:
@@ -277,7 +292,9 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &acu)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateCreateUser(&acu); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		user := mapper.FromCreateUserData(&acu)
@@ -379,7 +396,9 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &auu)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateUpdateUser(&auu); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		user := mapper.FromUpdateUserData(id, &auu)
@@ -441,6 +460,20 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//
 	// Update the password of a user by its ID.
 	//
+	// # Username / password rules
+	//
+	// __Username:__
+	//
+	// ⦁ Minimum length: 4
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z - .`
+	//
+	// __Password:__
+	//
+	// ⦁ Minimum length: 8
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z ! \ # $ % & ' ( ) * + , - . / : ; = ? @ [ \ ] ^ _ { | } ~`
+	//
 	// ---
 	//
 	// security:
@@ -471,7 +504,9 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &auupw)
 
 		// Validate password
-		// TODO
+		if err := validator.ValidateUpdateUserPassword(&auupw); err != nil {
+			panic(err)
+		}
 
 		// Execute action
 		if err := c.uServ.UpdateUserPassword(r.Context(), userId, auupw.Password); err != nil {
@@ -560,7 +595,9 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &auurs)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateUpdateUserRoles(&auurs); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		userRoles := mapper.FromRoles(&auurs)

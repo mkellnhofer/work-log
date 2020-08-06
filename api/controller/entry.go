@@ -6,6 +6,7 @@ import (
 
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
+	"kellnhofer.com/work-log/api/validator"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 	"kellnhofer.com/work-log/service"
@@ -157,7 +158,7 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	//
 	// Only entries a user can see are returned.
 	//
-	// # Filtering:
+	// # Filtering
 	//
 	// The result can be filtered via following fields:
 	// | field name  | operators             | data type / allowed values |
@@ -175,7 +176,7 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	// __Example:__
 	// Get entries for a specific time interval: startTime;bt;2019-01-01T00:00:00;2019-01-05T00:00:00
 	//
-	// # Sorting:
+	// # Sorting
 	//
 	// The result can be sorted via following fields:
 	// | field name | operators  |
@@ -295,7 +296,9 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &ace)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateCreateEntry(&ace); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		entry := mapper.FromCreateEntry(&ace)
@@ -400,7 +403,9 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &aue)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateUpdateEntry(&aue); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		entry := mapper.FromUpdateEntry(id, &aue)
@@ -568,7 +573,9 @@ func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &acea)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateCreateEntryActivity(&acea); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		entryActivity := mapper.FromCreateEntryActivity(&acea)
@@ -623,7 +630,9 @@ func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
 		httputil.ReadHttpBody(r, &auea)
 
 		// Validate model
-		// TODO
+		if err := validator.ValidateUpdateEntryActivity(&auea); err != nil {
+			panic(err)
+		}
 
 		// Convert to logic model
 		entryActivity := mapper.FromUpdateEntryActivity(id, &auea)

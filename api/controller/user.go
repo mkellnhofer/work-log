@@ -160,6 +160,8 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/GetUserResponse"
 	//   '401':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -193,6 +195,8 @@ func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetUserRolesResponse"
 	//   '401':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -229,6 +233,8 @@ func (c *UserController) GetUsersHandler() http.HandlerFunc {
 	//   '401':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '403':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -284,6 +290,8 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -332,6 +340,8 @@ func (c *UserController) GetUserHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -385,6 +395,8 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -436,6 +448,8 @@ func (c *UserController) DeleteUserHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -493,6 +507,8 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -541,6 +557,8 @@ func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -583,6 +601,8 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"

@@ -42,7 +42,12 @@ func (m *SecurityMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 		log.Debugf("Authenticating user '%s' ...", username)
 
 		// Try to authenticate user
-		userId = m.authenticateUser(sysCtx, username, password)
+		user := m.authenticateUser(sysCtx, username, password)
+
+		// Check is user activated
+		checkUserActivated(user)
+
+		userId = user.Id
 	}
 
 	// Create security context
@@ -68,7 +73,7 @@ func (m *SecurityMiddleware) getUserCredentials(r *http.Request) (string, string
 }
 
 func (m *SecurityMiddleware) authenticateUser(ctx context.Context, username string,
-	password string) int {
+	password string) *model.User {
 	user, guErr := m.uServ.GetUserByUsername(ctx, username)
 	if guErr != nil {
 		panic(guErr)
@@ -86,7 +91,15 @@ func (m *SecurityMiddleware) authenticateUser(ctx context.Context, username stri
 		panic(err)
 	}
 
-	return user.Id
+	return user
+}
+
+func checkUserActivated(user *model.User) {
+	if user.MustChangePassword {
+		err := e.NewError(e.AuthUserNotActivated, "User must change password.")
+		log.Debug(err.StackTrace())
+		panic(err)
+	}
 }
 
 func (m *SecurityMiddleware) createSecurityContext(ctx context.Context,

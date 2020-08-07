@@ -229,6 +229,8 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -288,6 +290,8 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -337,6 +341,8 @@ func (c *EntryController) GetEntryHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -391,6 +397,8 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 	//   '404':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -449,6 +457,8 @@ func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -489,6 +499,8 @@ func (c *EntryController) GetEntryTypesHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -524,6 +536,8 @@ func (c *EntryController) GetEntryActivitiesHandler() http.HandlerFunc {
 	//   '401':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '403':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -564,6 +578,8 @@ func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
@@ -619,6 +635,8 @@ func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '409':
 	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
+	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -671,6 +689,8 @@ func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
 	//   '403':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '412':
 	//     "$ref": "#/responses/ErrorResponse"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"

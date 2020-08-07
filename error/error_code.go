@@ -4,6 +4,7 @@ const (
 	// Authentication errors
 	AuthUnknown            = -100
 	AuthInvalidCredentials = -101
+	AuthUserNotActivated   = -102
 
 	// Permission errors
 	PermUnknown             = -200

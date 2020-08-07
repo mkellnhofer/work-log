@@ -20,9 +20,11 @@ const (
 	ContextKeySessionHolder     contextKey = contextKey("session-holder")
 	ContextKeySecurityContext   contextKey = contextKey("security-context")
 
-	PathDefault string = "/list"
-
 	SettingKeyShowOverviewDetails string = "show_overview_details"
+
+	ViewPathDefault string = "/list"
+
+	ApiPath string = "/api/v1"
 )
 
 type contextKey string

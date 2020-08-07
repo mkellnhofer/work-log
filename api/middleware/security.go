@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -44,8 +44,13 @@ func (m *SecurityMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 		// Try to authenticate user
 		user := m.authenticateUser(sysCtx, username, password)
 
+		// Get requested path
+		reqPath := getRequestPath(r)
+
 		// Check is user activated
-		checkUserActivated(user)
+		if reqPath != "/user" && !strings.HasPrefix(reqPath, "/user/") {
+			checkUserActivated(user)
+		}
 
 		userId = user.Id
 	}
@@ -79,14 +84,13 @@ func (m *SecurityMiddleware) authenticateUser(ctx context.Context, username stri
 		panic(guErr)
 	}
 	if user == nil {
-		err := e.NewError(e.AuthInvalidCredentials, fmt.Sprintf("Invalid credentials. (Unknown "+
-			"username '%s'.)", username))
+		err := e.NewError(e.AuthInvalidCredentials, "Invalid credentials.")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
 
 	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
-		err := e.WrapError(e.AuthInvalidCredentials, "Invalid credentials. (Wrong password.)", cpwErr)
+		err := e.WrapError(e.AuthInvalidCredentials, "Invalid credentials.", cpwErr)
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
@@ -147,4 +151,9 @@ func (m *AuthCheckMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, 
 	}
 
 	log.Verb("After API auth check.")
+}
+
+func getRequestPath(r *http.Request) string {
+	p := r.URL.EscapedPath()
+	return strings.TrimPrefix(p, constant.ApiPath)
 }

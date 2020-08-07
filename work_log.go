@@ -109,13 +109,13 @@ func configureViewRouting(init *Initializer, r *mux.Router) {
 
 func getRootHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, constant.PathDefault, http.StatusFound)
+		http.Redirect(w, r, constant.ViewPathDefault, http.StatusFound)
 	}
 }
 
 func configureApiRouting(init *Initializer, r *mux.Router) {
 	// Create API sub route
-	ar := r.PathPrefix("/api/v1").Subrouter()
+	ar := r.PathPrefix(constant.ApiPath).Subrouter()
 
 	// Create protected middleware route
 	proRoute := negroni.New()

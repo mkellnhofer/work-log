@@ -558,7 +558,7 @@ func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Re
 	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
 
 	// Create view model
-	model := c.createListSearchViewModel(constant.PathDefault, query, pageNum, cnt, entries,
+	model := c.createListSearchViewModel(constant.ViewPathDefault, query, pageNum, cnt, entries,
 		entryTypesMap, entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation

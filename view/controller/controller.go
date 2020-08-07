@@ -171,7 +171,7 @@ func getPreviousUrl(ctx context.Context) string {
 	if s.PreviousUrl != "" {
 		return s.PreviousUrl
 	} else {
-		return constant.PathDefault
+		return constant.ViewPathDefault
 	}
 }
 

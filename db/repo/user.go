@@ -33,7 +33,7 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 
 // GetUsers retrieves all users.
 func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
-	q := "SELECT id, name, username, password FROM user"
+	q := "SELECT id, name, username, password, must_change_password FROM user"
 
 	sr, qErr := r.query(ctx, &scanUserHelper{}, q)
 	if qErr != nil {
@@ -47,7 +47,7 @@ func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
 
 // GetUserById retrieves a user by its ID.
 func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
-	q := "SELECT id, name, username, password FROM user WHERE id = ?"
+	q := "SELECT id, name, username, password, must_change_password FROM user WHERE id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, id)
 	if qErr != nil {
@@ -65,7 +65,7 @@ func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, *e.Err
 
 // GetUserByUsername retrieves a user by its username.
 func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, *e.Error) {
-	q := "SELECT id, name, username, password FROM user WHERE username = ?"
+	q := "SELECT id, name, username, password, must_change_password FROM user WHERE username = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, username)
 	if qErr != nil {
@@ -96,9 +96,9 @@ func (r *UserRepo) ExistsUserById(ctx context.Context, id int) (bool, *e.Error) 
 
 // CreateUser creates a new user.
 func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) *e.Error {
-	q := "INSERT INTO user (name, username, password) VALUES (?, ?, ?)"
+	q := "INSERT INTO user (name, username, password, must_change_password) VALUES (?, ?, ?, ?)"
 
-	id, cErr := r.insert(ctx, q, user.Name, user.Username, user.Password)
+	id, cErr := r.insert(ctx, q, user.Name, user.Username, user.Password, user.MustChangePassword)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, "Could not create user in database.", cErr)
 		log.Error(err.StackTrace())
@@ -112,9 +112,9 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) *e.Error {
 
 // UpdateUser updates a user.
 func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) *e.Error {
-	q := "UPDATE user SET name = ?, username = ?, password = ? WHERE id = ?"
+	q := "UPDATE user SET name = ?, username = ?, password = ?, must_change_password = ? WHERE id = ?"
 
-	uErr := r.exec(ctx, q, user.Name, user.Username, user.Password, user.Id)
+	uErr := r.exec(ctx, q, user.Name, user.Username, user.Password, user.MustChangePassword, user.Id)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update user %d in database.",
 			user.Id), uErr)
@@ -423,7 +423,7 @@ func (h *scanUserHelper) makeSlice() interface{} {
 func (h *scanUserHelper) scan(s scanner) (interface{}, error) {
 	var u model.User
 
-	err := s.Scan(&u.Id, &u.Name, &u.Username, &u.Password)
+	err := s.Scan(&u.Id, &u.Name, &u.Username, &u.Password, &u.MustChangePassword)
 	if err != nil {
 		return nil, err
 	}

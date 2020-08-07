@@ -80,6 +80,7 @@ func (s *UserService) createUser(ctx context.Context, user *model.User) *e.Error
 
 	// Hash password
 	user.Password = hashUserPassword(user.Password)
+	user.MustChangePassword = true
 
 	// Create user
 	return s.uRepo.CreateUser(ctx, user)
@@ -101,6 +102,7 @@ func (s *UserService) updateUser(ctx context.Context, user *model.User) *e.Error
 	if user.Password != "" {
 		// Use new password
 		user.Password = hashUserPassword(user.Password)
+		user.MustChangePassword = getCurrentUserId(ctx) != user.Id
 	} else {
 		// Use old password
 		user.Password = oldUser.Password
@@ -125,6 +127,7 @@ func (s *UserService) UpdateUserPassword(ctx context.Context, id int, password s
 
 	// Set password
 	user.Password = hashUserPassword(password)
+	user.MustChangePassword = getCurrentUserId(ctx) != user.Id
 
 	// Update user
 	return s.uRepo.UpdateUser(ctx, user)

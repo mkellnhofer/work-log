@@ -8,10 +8,11 @@ const (
 
 // User stores information about a user.
 type User struct {
-	Id       int    // ID of the user
-	Name     string // Name of the user
-	Username string // Username of the user
-	Password string // Password of the user
+	Id                 int    // ID of the user
+	Name               string // Name of the user
+	Username           string // Username of the user
+	Password           string // Password of the user
+	MustChangePassword bool   // Determines if user must change password
 }
 
 // NewUser creates a new User model.

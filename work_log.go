@@ -142,6 +142,7 @@ func configureApiRouting(init *Initializer, r *mux.Router) {
 	addEndpoint(ar, proRoute, "DELETE", "/entry_activities/{id}",
 		entryCtrl.DeleteEntryActivityHandler())
 	addEndpoint(ar, proRoute, "GET", "/user", userCtrl.GetCurrentUserHandler())
+	addEndpoint(ar, proRoute, "PUT", "/user/password", userCtrl.UpdateCurrentUserPasswordHandler())
 	addEndpoint(ar, proRoute, "GET", "/user/roles", userCtrl.GetCurrentUserRolesHandler())
 	addEndpoint(ar, proRoute, "GET", "/users", userCtrl.GetUsersHandler())
 	addEndpoint(ar, proRoute, "POST", "/users", userCtrl.CreateUserHandler())

@@ -25,6 +25,13 @@ func NewUserController(us *service.UserService) *UserController {
 
 // --- Parameters ---
 
+// swagger:parameters updateCurrentUserPassword
+type UpdateCurrentUserPasswordParameters struct {
+	// in: body
+	// required: true
+	Body model.UpdateUserPassword
+}
+
 // swagger:parameters getUser
 type GetUserParameters struct {
 	// The ID of the user.
@@ -174,6 +181,67 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 		// Convert to API model and write response
 		au := mapper.ToUserData(user)
 		httputil.WriteHttpResponse(w, http.StatusOK, au)
+	}
+}
+
+// UpdateCurrentUserPasswordHandler returns a handler for "PUT /user/password".
+func (c *UserController) UpdateCurrentUserPasswordHandler() http.HandlerFunc {
+	// swagger:operation PUT /user/password user updateCurrentUserPassword
+	//
+	// Update the password of the current user.
+	//
+	// # Username / password rules
+	//
+	// __Username:__
+	//
+	// ⦁ Minimum length: 4
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z - .`
+	//
+	// __Password:__
+	//
+	// ⦁ Minimum length: 8
+	// ⦁ Maximum length: 100
+	// ⦁ Allowed characters: `0-9 a-z A-Z ! \ # $ % & ' ( ) * + , - . / : ; = ? @ [ \ ] ^ _ { | } ~`
+	//
+	// ---
+	//
+	// security:
+	// - basic: []
+	//
+	// produces:
+	// - application/json
+	//
+	// responses:
+	//   '204':
+	//     description: No content.
+	//   '400':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '401':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '403':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   '404':
+	//     "$ref": "#/responses/ErrorResponse"
+	//   default:
+	//     "$ref": "#/responses/ErrorResponse"
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Read API model from request
+		var auupw model.UpdateUserPassword
+		httputil.ReadHttpBody(r, &auupw)
+
+		// Validate password
+		if err := validator.ValidateUpdateUserPassword(&auupw); err != nil {
+			panic(err)
+		}
+
+		// Execute action
+		if err := c.uServ.UpdateCurrentUserPassword(r.Context(), auupw.Password); err != nil {
+			panic(err)
+		}
+
+		// Write response
+		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
 }
 

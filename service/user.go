@@ -112,6 +112,17 @@ func (s *UserService) updateUser(ctx context.Context, user *model.User) *e.Error
 	return s.uRepo.UpdateUser(ctx, user)
 }
 
+// UpdateCurrentUserPassword updates the password of the current a user.
+func (s *UserService) UpdateCurrentUserPassword(ctx context.Context, password string) *e.Error {
+	// Check permissions
+	if err := checkHasCurrentUserRight(ctx, model.RightChangeUserAccount); err != nil {
+		return err
+	}
+
+	// Update user password
+	return s.updateUserPassword(ctx, getCurrentUserId(ctx), password)
+}
+
 // UpdateUserPassword updates the password of a user.
 func (s *UserService) UpdateUserPassword(ctx context.Context, id int, password string) *e.Error {
 	// Check permissions
@@ -119,6 +130,11 @@ func (s *UserService) UpdateUserPassword(ctx context.Context, id int, password s
 		return err
 	}
 
+	// Update user password
+	return s.updateUserPassword(ctx, id, password)
+}
+
+func (s *UserService) updateUserPassword(ctx context.Context, id int, password string) *e.Error {
 	// Get user
 	user, err := s.getUserById(ctx, id)
 	if err != nil {

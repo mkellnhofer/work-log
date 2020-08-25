@@ -103,6 +103,11 @@ h3 {
   font-weight: 400;
 }
 
+.wl-login-form-message {
+  font-size: 1em;
+  font-weight: 200;
+}
+
 .wl-login-form button {
   margin-top: 10px;
 }

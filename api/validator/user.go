@@ -130,9 +130,9 @@ func checkUserUsername(username string) *e.Error {
 		log.Debug(err.StackTrace())
 		return err
 	}
-	if len(username) < 4 {
+	if len(username) < m.MinLengthUserUsername {
 		err := e.NewError(e.ValUsernameInvalid, fmt.Sprintf("'username' must be at least %d long.",
-			4))
+			m.MinLengthUserUsername))
 		log.Debug(err.StackTrace())
 		return err
 	}
@@ -157,9 +157,9 @@ func checkUserPassword(password string) *e.Error {
 		log.Debug(err.StackTrace())
 		return err
 	}
-	if len(password) < 8 {
+	if len(password) < m.MinLengthUserPassword {
 		err := e.NewError(e.ValPasswordInvalid, fmt.Sprintf("'password' must be at least %d long.",
-			8))
+			m.MinLengthUserPassword))
 		log.Debug(err.StackTrace())
 		return err
 	}
@@ -169,7 +169,7 @@ func checkUserPassword(password string) *e.Error {
 		log.Debug(err.StackTrace())
 		return err
 	}
-	r := regexp.MustCompile("^[0-9a-zA-Z!\"#$%&'()*+,\\-./:;=?@\\[\\\\\\]^_{|}~]+$")
+	r := regexp.MustCompile("^[" + m.ValidUserPasswordCharacters + "]+$")
 	if !r.MatchString(password) {
 		err := e.NewError(e.ValPasswordInvalid, "'password' contains contains illegal character.")
 		log.Debug(err.StackTrace())

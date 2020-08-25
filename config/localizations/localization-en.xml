@@ -16,6 +16,13 @@
     <message key="loginLabelPassword"><text>Password:</text></message>
     <message key="loginActionLogin"><text>Login</text></message>
 
+    <!-- Password change view -->
+    <message key="pwChangeTitle"><text>User Account Setup</text></message>
+    <message key="pwChangeMessage"><text>You have to set a new password for your user account.</text></message>
+    <message key="pwChangeLabelPassword1"><text>New password:</text></message>
+    <message key="pwChangeLabelPassword2"><text>New password: (repeat)</text></message>
+    <message key="pwChangeActionSet"><text>Set</text></message>
+
     <!-- List view -->
     <message key="listTitle"><text>Entries</text></message>
     <message key="listActionCreate"><text>Create</text></message>
@@ -129,6 +136,11 @@
     <message key="errValSearchInvalid"><text>Search invalid! (At least one characteristic must be selected.)</text></message>
     <message key="errValSearchQueryInvalid"><text>Search query invalid!</text></message>
     <message key="errValMonthInvalid"><text>Month invalid! (Month must be in \"YYYYMM\" format.)</text></message>
+    <message key="errValPasswordEmpty"><text>Password cannot be empty!</text></message>
+    <message key="errValPasswordTooShort"><text>Password must be at least 8 characters long.</text></message>
+    <message key="errValPasswordTooLong"><text>Password must not be longer than 100 characters.</text></message>
+    <message key="errValPasswordInvalid"><text>Password contains contains illegal characters.</text></message>
+    <message key="errValPasswordsNotMatching"><text>Passwords do not match!</text></message>
     <message key="errLogicUnknown"><text>An unknown logic error occurred.</text></message>
     <message key="errLogicEntryNotFound">​​<text>The entry could not be found.</text></message>
     <message key="errLogicEntryTypeNotFound">​​<text>The entry type could not be found.</text></message>

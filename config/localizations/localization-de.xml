@@ -16,6 +16,13 @@
     <message key="loginLabelPassword"><text>Passwort:</text></message>
     <message key="loginActionLogin"><text>Anmelden</text></message>
 
+    <!-- Password change view -->
+    <message key="pwChangeTitle"><text>Benutzerkonto einrichten</text></message>
+    <message key="pwChangeMessage"><text>Sie müssen ein neues Passwort für ihr Benutzerkonto festlegen.</text></message>
+    <message key="pwChangeLabelPassword1"><text>Neues Passwort:</text></message>
+    <message key="pwChangeLabelPassword2"><text>Neues Passwort: (wiederholen)</text></message>
+    <message key="pwChangeActionSet"><text>Festlegen</text></message>
+
     <!-- List view -->
     <message key="listTitle"><text>Einträge</text></message>
     <message key="listActionCreate"><text>Erstellen</text></message>
@@ -129,6 +136,11 @@
     <message key="errValSearchInvalid"><text>Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)</text></message>
     <message key="errValSearchQueryInvalid"><text>Suchabfrage ungültig!</text></message>
     <message key="errValMonthInvalid"><text>Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)</text></message>
+    <message key="errValPasswordEmpty"><text>Passwort darf nicht leer sein!</text></message>
+    <message key="errValPasswordTooShort"><text>Passwort muss mindestens 8 Zeichen lang sein.</text></message>
+    <message key="errValPasswordTooLong"><text>Passwort darf nicht länger als 100 Zeichen sein.</text></message>
+    <message key="errValPasswordInvalid"><text>Passwort enthält nicht erlaubte Zeichen.</text></message>
+    <message key="errValPasswordsNotMatching"><text>Passwörter stimmen nicht überein!</text></message>
     <message key="errLogicUnknown"><text>Ein unbekannter Logikfehler trat auf.</text></message>
     <message key="errLogicEntryNotFound"><text>Der Eintrag konnte nicht gefunden werden.</text></message>
     <message key="errLogicEntryTypeNotFound"><text>Der Eintragstyp konnte nicht gefunden werden.</text></message>

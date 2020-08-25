@@ -10,6 +10,12 @@ const (
 	AscSorting  Sorting = 1
 )
 
+// Minimum string length constants.
+const (
+	MinLengthUserUsername = 4
+	MinLengthUserPassword = 8
+)
+
 // Maximum string length constants.
 const (
 	MaxLengthRoleName                 = 100
@@ -19,4 +25,9 @@ const (
 	MaxLengthEntryTypeDescription     = 50
 	MaxLengthEntryActivityDescription = 50
 	MaxLengthEntryDescription         = 200
+)
+
+// Other constants.
+const (
+	ValidUserPasswordCharacters = "0-9a-zA-Z!\"#$%&'()*+,\\-./:;=?@\\[\\\\\\]^_{|}~"
 )

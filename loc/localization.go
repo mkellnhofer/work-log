@@ -109,6 +109,11 @@ var errorMessageKeys = map[int]string{
 	e.ValSearchInvalid:        "errValSearchInvalid",
 	e.ValSearchQueryInvalid:   "errValSearchQueryInvalid",
 	e.ValMonthInvalid:         "errValMonthInvalid",
+	e.ValPasswordEmpty:        "errValPasswordEmpty",
+	e.ValPasswordTooShort:     "errValPasswordTooShort",
+	e.ValPasswordTooLong:      "errValPasswordTooLong",
+	e.ValPasswordInvalid:      "errValPasswordInvalid",
+	e.ValPasswordsNotMatching: "errValPasswordsNotMatching",
 
 	// Logic errors
 	e.LogicUnknown:                        "errLogicUnknown",

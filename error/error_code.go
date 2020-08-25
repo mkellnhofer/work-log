@@ -49,6 +49,10 @@ const (
 	ValSearchInvalid        = -325
 	ValSearchQueryInvalid   = -326
 	ValMonthInvalid         = -327
+	ValPasswordEmpty        = -328
+	ValPasswordTooShort     = -329
+	ValPasswordTooLong      = -330
+	ValPasswordsNotMatching = -331
 
 	// Logic errors
 	LogicUnknown                        = -400

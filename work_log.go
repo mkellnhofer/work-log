@@ -85,6 +85,8 @@ func configureViewRouting(init *Initializer, r *mux.Router) {
 	addEndpoint(r, pubRoute, "GET", "/login", authCtrl.GetLoginHandler())
 	addEndpoint(r, pubRoute, "POST", "/login", authCtrl.PostLoginHandler())
 	// Add protected endpoints
+	addEndpoint(r, proRoute, "GET", "/password-change", authCtrl.GetPasswordChangeHandler())
+	addEndpoint(r, proRoute, "POST", "/password-change", authCtrl.PostPasswordChangeHandler())
 	addEndpoint(r, proRoute, "GET", "/logout", authCtrl.GetLogoutHandler())
 	addEndpoint(r, proRoute, "GET", "/list", entryCtrl.GetListHandler())
 	addEndpoint(r, proRoute, "GET", "/create", entryCtrl.GetCreateHandler())

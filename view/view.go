@@ -48,10 +48,11 @@ var monthKeys = map[int]string{
 // --- Template loading functions ---
 
 var templates = loadTemplates("templates/header.tmpl", "templates/footer.tmpl",
-	"templates/error.tmpl", "templates/login.tmpl", "templates/entries_list.tmpl",
-	"templates/list_entries.tmpl", "templates/entry_form.tmpl", "templates/create_entry.tmpl",
-	"templates/edit_entry.tmpl", "templates/copy_entry.tmpl", "templates/search_entries.tmpl",
-	"templates/list_search_entries.tmpl", "templates/list_overview_entries.tmpl")
+	"templates/error.tmpl", "templates/login.tmpl", "templates/password_change.tmpl",
+	"templates/entries_list.tmpl", "templates/list_entries.tmpl", "templates/entry_form.tmpl",
+	"templates/create_entry.tmpl", "templates/edit_entry.tmpl", "templates/copy_entry.tmpl",
+	"templates/search_entries.tmpl", "templates/list_search_entries.tmpl",
+	"templates/list_overview_entries.tmpl")
 
 func loadTemplates(filenames ...string) *template.Template {
 	var t *template.Template
@@ -114,6 +115,11 @@ func RenderErrorTemplate(w http.ResponseWriter, model *model.Error) {
 // RenderLoginTemplate renders the login page.
 func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
 	renderTemplate(w, "login", model)
+}
+
+// RenderPasswordChangeTemplate renders the password change page.
+func RenderPasswordChangeTemplate(w http.ResponseWriter, model *model.PasswordChange) {
+	renderTemplate(w, "password_change", model)
 }
 
 // RenderListEntriesTemplate renders a page of entries.

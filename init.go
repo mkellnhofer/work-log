@@ -173,7 +173,7 @@ func (i *Initializer) GetSecurityViewMiddleware() *vm.SecurityMiddleware {
 // GetAuthCheckViewMiddleware returns a initialized auth check view middleware object.
 func (i *Initializer) GetAuthCheckViewMiddleware() *vm.AuthCheckMiddleware {
 	if i.authVMidw == nil {
-		i.authVMidw = vm.NewAuthCheckMiddleware()
+		i.authVMidw = vm.NewAuthCheckMiddleware(i.GetUserService())
 	}
 	return i.authVMidw
 }

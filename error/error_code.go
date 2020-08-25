@@ -3,7 +3,7 @@ package error
 const (
 	// Authentication errors
 	AuthUnknown            = -100
-	AuthInvalidCredentials = -101
+	AuthCredentialsInvalid = -101
 	AuthUserNotActivated   = -102
 
 	// Permission errors

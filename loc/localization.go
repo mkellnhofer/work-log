@@ -80,7 +80,7 @@ func CreateString(key string, args ...interface{}) string {
 var errorMessageKeys = map[int]string{
 	// Authentication errors
 	e.AuthUnknown:            "errAuthUnknown",
-	e.AuthInvalidCredentials: "errAuthInvalidCredentials",
+	e.AuthCredentialsInvalid: "errAuthCredentialsInvalid",
 
 	// Permission errors
 	e.PermUnknown:             "errPermUnknown",

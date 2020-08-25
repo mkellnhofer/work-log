@@ -113,7 +113,7 @@
 
     <!-- Errors -->
     <message key="errAuthUnknown"><text>Ein unbekannter Authentifizierungsfehler trat auf.</text></message>
-    <message key="errAuthInvalidCredentials"><text>Falscher Benutzername oder Passwort.</text></message>
+    <message key="errAuthCredentialsInvalid"><text>Falscher Benutzername oder Passwort.</text></message>
     <message key="errPermUnknown"><text>Ein unbekannter Berechtigungsfehler trat auf.</text></message>
     <message key="errPermMissing"><text>Der Benutzer hat nicht die Berechtigung diese Aktion auszuführen.</text></message>
     <message key="errValUnknown"><text>Ein unbekannter Validierungsfehler trat auf.</text></message>

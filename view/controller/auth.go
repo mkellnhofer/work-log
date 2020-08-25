@@ -89,7 +89,7 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 
 	// Validate inputs
 	if len(username) > model.MaxLengthUserUsername || len(password) > model.MaxLengthUserPassword {
-		err := e.NewError(e.AuthInvalidCredentials, "Invalid credentials. (Invalid username or "+
+		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials. (Invalid username or "+
 			"password length.)")
 		log.Debug(err.StackTrace())
 		c.handleLoginError(w, r, err)
@@ -102,7 +102,7 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 		panic(guErr)
 	}
 	if user == nil {
-		err := e.NewError(e.AuthInvalidCredentials, fmt.Sprintf("Invalid credentials. (Unknown "+
+		err := e.NewError(e.AuthCredentialsInvalid, fmt.Sprintf("Invalid credentials. (Unknown "+
 			"username %s.)", username))
 		log.Debug(err.StackTrace())
 		c.handleLoginError(w, r, err)
@@ -111,7 +111,7 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 
 	// Check password
 	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
-		err := e.WrapError(e.AuthInvalidCredentials, "Invalid credentials. (Wrong password.)", cpwErr)
+		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials. (Wrong password.)", cpwErr)
 		log.Debug(err.StackTrace())
 		c.handleLoginError(w, r, err)
 		return

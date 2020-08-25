@@ -84,13 +84,13 @@ func (m *SecurityMiddleware) authenticateUser(ctx context.Context, username stri
 		panic(guErr)
 	}
 	if user == nil {
-		err := e.NewError(e.AuthInvalidCredentials, "Invalid credentials.")
+		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials.")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
 
 	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
-		err := e.WrapError(e.AuthInvalidCredentials, "Invalid credentials.", cpwErr)
+		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials.", cpwErr)
 		log.Debug(err.StackTrace())
 		panic(err)
 	}

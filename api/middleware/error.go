@@ -11,7 +11,7 @@ import (
 
 var httpStatusCodeMapping = map[int]int{
 	error.AuthUnknown:            http.StatusUnauthorized,
-	error.AuthInvalidCredentials: http.StatusUnauthorized,
+	error.AuthCredentialsInvalid: http.StatusUnauthorized,
 	error.AuthUserNotActivated:   http.StatusPreconditionFailed,
 
 	error.PermUnknown:             http.StatusForbidden,

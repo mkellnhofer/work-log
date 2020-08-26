@@ -53,7 +53,7 @@ CREATE TABLE user_contract (
   annual_vacation_days FLOAT NOT NULL,
   init_overtime_duration INT NOT NULL,
   init_vacation_days FLOAT NOT NULL,
-  first_work_day TIMESTAMP NOT NULL,
+  first_work_day TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
   PRIMARY KEY (user_id),
   KEY fk_usercontract_user (user_id),
   CONSTRAINT fk_usercontract_user FOREIGN KEY (user_id)
@@ -63,7 +63,7 @@ CREATE TABLE user_contract (
 CREATE TABLE session (
   id VARCHAR(32) NOT NULL,
   user_id INT,
-  expire_at TIMESTAMP NOT NULL,
+  expire_at TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
   previous_url VARCHAR(100),
   PRIMARY KEY (id),
   KEY fk_session_user (user_id),
@@ -92,8 +92,8 @@ CREATE TABLE entry (
   id INT NOT NULL AUTO_INCREMENT,
   user_id INT NOT NULL,
   type_id INT NOT NULL,
-  start_time TIMESTAMP NOT NULL,
-  end_time TIMESTAMP NOT NULL,
+  start_time TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
+  end_time TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00',
   break_duration INT NOT NULL,
   activity_id INT,
   description VARCHAR(200),

@@ -13,6 +13,7 @@ import (
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
 	m "kellnhofer.com/work-log/model"
+	"kellnhofer.com/work-log/util/security"
 )
 
 const defaultPageSize = 50
@@ -25,8 +26,11 @@ type Error struct {
 }
 
 func getCurrentUserId(ctx context.Context) int {
-	sc := ctx.Value(constant.ContextKeySecurityContext).(*m.SecurityContext)
-	return sc.UserId
+	return security.GetCurrentUserId(ctx)
+}
+
+func hasCurrentUserRight(ctx context.Context, right m.Right) bool {
+	return security.HasCurrentUserRight(ctx, right)
 }
 
 func getIdPathVar(r *http.Request) int {

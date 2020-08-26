@@ -63,6 +63,31 @@ func (e *Error) StackTrace() string {
 	return e.stack
 }
 
+// IsAuthError returns true if error is a authentication/authorization error.
+func (e *Error) IsAuthError() bool {
+	return e.Code <= -100 && e.Code > -200
+}
+
+// IsPermissionError returns true if error is a permission error.
+func (e *Error) IsPermissionError() bool {
+	return e.Code <= -200 && e.Code > -300
+}
+
+// IsValidationError returns true if error is a validation error.
+func (e *Error) IsValidationError() bool {
+	return e.Code <= -300 && e.Code > -400
+}
+
+// IsLogicError returns true if error is a logic error.
+func (e *Error) IsLogicError() bool {
+	return e.Code <= -400 && e.Code > -500
+}
+
+// IsSystemError returns true if error is a system error.
+func (e *Error) IsSystemError() bool {
+	return e.Code <= -500
+}
+
 // --- Helper functions ---
 
 func createStackTrace() string {

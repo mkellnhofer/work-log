@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -9,6 +10,7 @@ import (
 	"kellnhofer.com/work-log/api/validator"
 	e "kellnhofer.com/work-log/error"
 	"kellnhofer.com/work-log/log"
+	m "kellnhofer.com/work-log/model"
 	"kellnhofer.com/work-log/service"
 	httputil "kellnhofer.com/work-log/util/http"
 )
@@ -353,10 +355,11 @@ func (c *EntryController) GetEntryHandler() http.HandlerFunc {
 		// Execute action
 		entry, err := c.eServ.GetEntryById(r.Context(), id)
 		if err != nil {
+			if err.IsPermissionError() {
+				err = c.convertPermissionError(r.Context(), id, err)
+			}
 			panic(err)
 		}
-		// Convert permission errors
-		// TODO
 
 		// Check if a entry was found
 		if entry == nil {
@@ -421,10 +424,11 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 		// Execute action
 		err := c.eServ.UpdateEntry(r.Context(), entry)
 		if err != nil {
+			if err.IsPermissionError() {
+				err = c.convertPermissionError(r.Context(), id, err)
+			}
 			panic(err)
 		}
-		// Convert permission errors
-		// TODO
 
 		// Convert to API model and write response
 		ae := mapper.ToEntry(entry)
@@ -468,10 +472,11 @@ func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
 		// Execute action
 		err := c.eServ.DeleteEntryById(r.Context(), id)
 		if err != nil {
+			if err.IsPermissionError() {
+				err = c.convertPermissionError(r.Context(), id, err)
+			}
 			panic(err)
 		}
-		// Convert permission errors
-		// TODO
 
 		// Write response
 		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
@@ -707,4 +712,13 @@ func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
 		// Write response
 		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
 	}
+}
+
+// --- Permission helper functions ---
+
+func (c *EntryController) convertPermissionError(ctx context.Context, id int, pErr *e.Error) *e.Error {
+	if !hasCurrentUserRight(ctx, m.RightGetAllEntries) {
+		return e.WrapError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id), pErr)
+	}
+	return pErr
 }

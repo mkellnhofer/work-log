@@ -6,6 +6,7 @@ import (
 
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 
 	"kellnhofer.com/work-log/config"
 	"kellnhofer.com/work-log/constant"
@@ -121,6 +122,7 @@ func configureApiRouting(init *Initializer, r *mux.Router) {
 
 	// Create protected middleware route
 	proRoute := negroni.New()
+	proRoute.Use(getCorsMiddleware())
 	proRoute.Use(init.GetTransactionMiddleware())
 	proRoute.Use(init.GetErrorApiMiddleware())
 	proRoute.Use(init.GetSecurityApiMiddleware())
@@ -154,6 +156,22 @@ func configureApiRouting(init *Initializer, r *mux.Router) {
 	addEndpoint(ar, proRoute, "PUT", "/users/{id}/password", userCtrl.UpdateUserPasswordHandler())
 	addEndpoint(ar, proRoute, "GET", "/users/{id}/roles", userCtrl.GetUserRolesHandler())
 	addEndpoint(ar, proRoute, "PUT", "/users/{id}/roles", userCtrl.UpdateUserRolesHandler())
+}
+
+func getCorsMiddleware() negroni.Handler {
+	return cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+		AllowedMethods: []string{
+			http.MethodHead,
+			http.MethodGet,
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+		},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
+		AllowCredentials: true,
+	})
 }
 
 func addSwaggerUiHandlers(r *mux.Router) {

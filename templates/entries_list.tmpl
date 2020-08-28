@@ -26,7 +26,9 @@
         <td>
           <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><i class="icon icon-edit" aria-label="{{text "listActionEdit"}}"></i></a>
           <a class="btn btn-link wl-list-table-button" href="../copy/{{.Id}}"><i class="icon icon-copy" aria-label="{{text "listActionCopy"}}"></i></a>
-          <form class="inline" action="../delete/{{.Id}}" method="POST" onsubmit="return approveDeletion()"><button class="btn btn-link wl-list-table-button" type="submit"><i class="icon icon-delete" aria-label="{{text "listActionDelete"}}"></i></button></form>
+          <form class="inline wl-delete-form" action="../delete/{{.Id}}" method="POST" data-dialog-message="{{text "listDialogMessageDelete"}}">
+            <button class="btn btn-link wl-list-table-button" type="submit"><i class="icon icon-delete" aria-label="{{text "listActionDelete"}}"></i></button>
+          </form>
         </td>
         <td class="wl-list-table-text">{{.EntryType}}</td>
         <td class="wl-list-table-text">{{.StartTime}}</td>

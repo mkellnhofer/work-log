@@ -70,7 +70,7 @@ func (m *SecurityMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 func (m *SecurityMiddleware) getUserCredentials(r *http.Request) (string, string) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
-		err := e.NewError(e.AuthUnknown, "Invalid authentication request.")
+		err := e.NewError(e.AuthDataInvalid, "Invalid authentication data.")
 		log.Debug(err.StackTrace())
 		panic(err)
 	}
@@ -146,8 +146,8 @@ func (m *AuthCheckMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, 
 
 		// Request authentication
 		log.Debug("Requesting authentication ...")
-		w.WriteHeader(http.StatusUnauthorized)
 		w.Header().Set("WWW-Authenticate", "Basic")
+		w.WriteHeader(http.StatusUnauthorized)
 	}
 
 	log.Verb("After API auth check.")

@@ -166,9 +166,16 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetUserResponse"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -216,13 +223,16 @@ func (c *UserController) UpdateCurrentUserPasswordHandler() http.HandlerFunc {
 	//   '204':
 	//     description: No content.
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-318]: Invalid password"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -263,9 +273,16 @@ func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetUserRolesResponse"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -299,11 +316,21 @@ func (c *UserController) GetUsersHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetUsersResponse"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-201]: No right to list users"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -351,15 +378,38 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/CreateUserResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-308]: Null field\n
+	//       ⦁ [-309]: Negative number\n
+	//       ⦁ [-310]: Negative or zero number\n
+	//       ⦁ [-311]: Empty string\n
+	//       ⦁ [-312]: Too long string\n
+	//       ⦁ [-313]: Invalid date\n
+	//       ⦁ [-317]: Invalid username\n
+	//       ⦁ [-318]: Invalid password"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-202]: No right to create user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Conflict__\n\n
+	//       ⦁ [-410]: User already exists"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -403,14 +453,32 @@ func (c *UserController) GetUserHandler() http.HandlerFunc {
 	// responses:
 	//   '200':
 	//     "$ref": "#/responses/GetUserResponse"
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-201]: No right to get user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -454,17 +522,43 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/UpdateUserResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-309]: Negative number\n
+	//       ⦁ [-310]: Negative or zero number\n
+	//       ⦁ [-311]: Empty string\n
+	//       ⦁ [-312]: Too long string\n
+	//       ⦁ [-313]: Invalid date\n
+	//       ⦁ [-317]: Invalid username\n
+	//       ⦁ [-318]: Invalid password"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-202]: No right to update user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Conflict__\n\n
+	//       ⦁ [-410]: User already exists"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -511,14 +605,32 @@ func (c *UserController) DeleteUserHandler() http.HandlerFunc {
 	// responses:
 	//   '204':
 	//     description: No content.
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-202]: No right to delete user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -568,15 +680,32 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//   '204':
 	//     description: No content.
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-318]: Invalid password"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-202]: No right to update user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -619,14 +748,32 @@ func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
 	// responses:
 	//   '200':
 	//     "$ref": "#/responses/GetUserRolesResponse"
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-201]: No right to get user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -663,15 +810,35 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/UpdateUserRolesResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-312]: Too long string\n
+	//       ⦁ [-315]: Empty array\n
+	//       ⦁ [-318]: Invalid role"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-202]: No right to update user"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-408]: Role not found\n
+	//       ⦁ [-409]: User not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {

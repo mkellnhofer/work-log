@@ -227,12 +227,31 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	// responses:
 	//   '200':
 	//     "$ref": "#/responses/GetEntriesResponse"
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-302]: Invalid page number\n
+	//       ⦁ [-304]: Invalid filter\n
+	//       ⦁ [-305]: Invalid sort\n
+	//       ⦁ [-306]: Invalid offset\n
+	//       ⦁ [-307]: Invalid limit"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-207]: No right to get entries of other users"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -285,15 +304,37 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/CreateEntryResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-309]: Negative number\n
+	//       ⦁ [-312]: Too long string\n
+	//       ⦁ [-314]: Invalid timestamp\n
+	//       ⦁ [-405]: Invalid time interval\n
+	//       ⦁ [-406]: Invalid break duration"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-208]: No right to create entries for other users"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-402]: Entry type not found\n
+	//       ⦁ [-403]: Entry activity not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -338,14 +379,27 @@ func (c *EntryController) GetEntryHandler() http.HandlerFunc {
 	// responses:
 	//   '200':
 	//     "$ref": "#/responses/GetEntryResponse"
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-401]: Entry not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -392,17 +446,38 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/UpdateEntryResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-309]: Negative number\n
+	//       ⦁ [-312]: Too long string\n
+	//       ⦁ [-314]: Invalid timestamp\n
+	//       ⦁ [-405]: Invalid time interval\n
+	//       ⦁ [-406]: Invalid break duration"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-208]: No right to update entries of other users"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-401]: Entry not found\n
+	//       ⦁ [-402]: Entry type not found\n
+	//       ⦁ [-403]: Entry activity not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -453,16 +528,32 @@ func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
 	// responses:
 	//   '204':
 	//     description: No content.
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-208]: No right to delete entries of other users"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-401]: Entry not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -501,11 +592,16 @@ func (c *EntryController) GetEntryTypesHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetEntryTypesResponse"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -539,11 +635,16 @@ func (c *EntryController) GetEntryActivitiesHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/GetEntryActivitiesResponse"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -577,15 +678,27 @@ func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/CreateEntryActivityResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-311]: Empty string\n
+	//       ⦁ [-312]: Too long string"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-206]: No right to create entry activities"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -631,17 +744,33 @@ func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
 	//   '200':
 	//     "$ref": "#/responses/UpdateEntryActivityResponse"
 	//   '400':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID\n
+	//       ⦁ [-311]: Empty string\n
+	//       ⦁ [-312]: Too long string"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-206]: No right to update entry activities"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
-	//   '409':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-403]: Entry activity not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -689,14 +818,37 @@ func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
 	// responses:
 	//   '204':
 	//     description: No content.
+	//   '400':
+	//     description: "__Bad Request__\n\n
+	//       ⦁ [-303]: Invalid ID"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '401':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Unauthorized__\n\n
+	//       ⦁ [-101]: Invalid authentication data\n
+	//       ⦁ [-102]: Invalid credentials"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '403':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Forbidden__\n\n
+	//       ⦁ [-206]: No right to delete entry activities"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '404':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Not Found__\n\n
+	//       ⦁ [-403]: Entry activity not found"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
+	//   '409':
+	//     description: "__Conflict__\n\n
+	//       ⦁ [-404]: Entry activity still used"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   '412':
-	//     "$ref": "#/responses/ErrorResponse"
+	//     description: "__Precondition Failed__\n\n
+	//       ⦁ [-103]: User not activated"
+	//     schema:
+	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(w http.ResponseWriter, r *http.Request) {

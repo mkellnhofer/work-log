@@ -1769,7 +1769,10 @@ func getDaysString(d time.Duration, wd time.Duration) string {
 	rd := d.Round(time.Hour)
 	h := int(rd.Hours())
 	wh := int(wd.Hours())
-	days := float32(h) / float32(wh)
+	var days float32
+	if wh > 0 {
+		days = float32(h) / float32(wh)
+	}
 	return loc.CreateString("daysValue", days)
 }
 

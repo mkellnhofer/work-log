@@ -111,3 +111,12 @@ CREATE TABLE entry (
 
 CREATE INDEX idx_entry_starttime ON entry(start_time);
 CREATE INDEX idx_entry_endtime ON entry(end_time);
+
+INSERT INTO user (id, name, username, password, must_change_password)
+  VALUES (1, 'Admin', 'admin', '$2a$10$nzf6XCPsr3jGDstxXBRNKOm8a7shG/qJGAMEOB8RvZW063ZgFRqP2', 1);
+INSERT INTO user_role (user_id, role_id)
+  VALUES (1, 1), (1, 2), (1, 3);
+INSERT INTO user_setting (user_id, setting_key, setting_value)
+  VALUES (1, 'show_overview_details', 'true');
+INSERT INTO user_contract (user_id, daily_working_duration, annual_vacation_days, init_overtime_duration, init_vacation_days, first_work_day)
+  VALUES (1, 0, 0, 0, 0, '2020-01-01 00:00:00');

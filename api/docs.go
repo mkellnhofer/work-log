@@ -5,7 +5,7 @@
 // Work Log is open source and free of charge. Source code is available under the [Apache-2.0 license](https://github.com/mkellnhofer/work-log/blob/master/LICENSE) on [GitHub](https://github.com/mkellnhofer/work-log).
 //
 //     BasePath: /api/v1
-//     Version: 1.0.0-alpha
+//     Version: 1.0.0
 //
 //     SecurityDefinitions:
 //     basic:

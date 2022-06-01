@@ -37,7 +37,7 @@ Application data is stored in a database, therefore one of the following databas
 
 ## Installation
 
-1. Extract the archive with `unzip work-log-1.0.0.zip -d work-log`
+1. Extract the archive with `unzip work-log-1.1.0.zip -d work-log`
 2. Go to the directory that was just created
 3. Execute `./work-log`
 

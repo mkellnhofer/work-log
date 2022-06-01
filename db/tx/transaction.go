@@ -143,3 +143,21 @@ func (tm *TransactionManager) Rollback(ctx context.Context) *e.Error {
 
 	return nil
 }
+
+// Executes the provided function in a new database transaction.
+func (tm *TransactionManager) ExecuteInNewTransaction(ctx context.Context,
+	txf func(ctx context.Context) *e.Error) *e.Error {
+	// Start transaction
+	if err := tm.Begin(ctx); err != nil {
+		return err
+	}
+
+	// Execute wrapped function
+	if err := txf(ctx); err != nil {
+		tm.Rollback(ctx)
+		return err
+	}
+
+	// Commit transaction
+	return tm.Commit(ctx)
+}

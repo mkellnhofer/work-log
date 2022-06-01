@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"kellnhofer.com/work-log/constant"
@@ -17,11 +18,13 @@ import (
 type UserService struct {
 	service
 	uRepo *repo.UserRepo
+	cRepo *repo.ContractRepo
 }
 
 // NewUserService create a new user service.
-func NewUserService(tm *tx.TransactionManager, ur *repo.UserRepo) *UserService {
-	return &UserService{service{tm}, ur}
+func NewUserService(tm *tx.TransactionManager, ur *repo.UserRepo, cr *repo.ContractRepo,
+) *UserService {
+	return &UserService{service{tm}, ur, cr}
 }
 
 // --- Role functions ---
@@ -316,7 +319,7 @@ func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, user
 // --- User contract functions ---
 
 // GetUserContractByUserId gets the contract information of a user by its ID.
-func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (*model.UserContract,
+func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (*model.Contract,
 	*e.Error) {
 	// Check permissions
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
@@ -324,17 +327,127 @@ func (s *UserService) GetUserContractByUserId(ctx context.Context, userId int) (
 	}
 
 	// Get user contract
-	return s.uRepo.GetUserContractByUserId(ctx, userId)
+	return s.cRepo.GetContractByUserId(ctx, userId)
 }
 
 func (s *UserService) createUserContract(ctx context.Context, userId int,
-	contract *model.UserContract) *e.Error {
-	return s.uRepo.CreateUserContract(ctx, userId, contract)
+	contract *model.Contract) *e.Error {
+	// Check contract
+	if err := s.checkUserContract(contract); err != nil {
+		return err
+	}
+
+	// Create contract
+	return s.cRepo.CreateContract(ctx, userId, contract)
 }
 
 func (s *UserService) updateUserContract(ctx context.Context, userId int,
-	contract *model.UserContract) *e.Error {
-	return s.uRepo.UpdateUserContract(ctx, userId, contract)
+	contract *model.Contract) *e.Error {
+	// Check contract
+	if err := s.checkUserContract(contract); err != nil {
+		return err
+	}
+
+	// Update contract
+	return s.cRepo.UpdateContract(ctx, userId, contract)
+}
+
+func (s *UserService) checkUserContract(contract *model.Contract) *e.Error {
+	if err := s.checkUserContractWorkingHours(contract.FirstDay, contract.WorkingHours); err != nil {
+		return err
+	}
+	if err := s.checkUserContractVacationDays(contract.FirstDay, contract.VacationDays); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *UserService) checkUserContractWorkingHours(contractFirstDay time.Time,
+	workingHours []model.ContractWorkingHours) *e.Error {
+	errCode := e.LogicContractWorkingHoursInvalid
+
+	// Check if intervals are empty
+	if len(workingHours) == 0 {
+		err := e.NewError(errCode, "Working hours intervals cannot be empty.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+
+	// Check intervals
+	startDay := time.Time{}
+	for _, whs := range workingHours {
+		// Get start day of intervals
+		if startDay.IsZero() || whs.FirstDay.Before(startDay) {
+			startDay = whs.FirstDay
+		}
+
+		// Check if interval first day is not first day of month
+		if whs.FirstDay.Day() != 1 {
+			err := e.NewError(errCode, "A working hours interval must start at the first day of a "+
+				"month.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		// Check if interval hours are negative
+		if whs.Hours < 0 {
+			err := e.NewError(errCode, "Working hours cannot be negative.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+	}
+
+	// Check if start day does not matches with contract first day
+	if startDay.After(contractFirstDay) {
+		err := e.NewError(errCode, "Working hours intervals start must match contract start.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+
+	return nil
+}
+
+func (s *UserService) checkUserContractVacationDays(contractFirstDay time.Time,
+	vacationDays []model.ContractVacationDays) *e.Error {
+	errCode := e.LogicContractVacationDaysInvalid
+
+	// Check if intervals are empty
+	if len(vacationDays) == 0 {
+		err := e.NewError(errCode, "Vacation days intervals cannot be empty.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+
+	// Check intervals
+	startDay := time.Time{}
+	for _, vds := range vacationDays {
+		// Get start day of intervals
+		if startDay.IsZero() || vds.FirstDay.Before(startDay) {
+			startDay = vds.FirstDay
+		}
+
+		// Check if interval first day is not first day of month
+		if vds.FirstDay.Day() != 1 {
+			err := e.NewError(errCode, "A vacation days interval must start at the first day of a "+
+				"month.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		// Check if interval days are negative
+		if vds.Days < 0 {
+			err := e.NewError(errCode, "Vacation days cannot be negative.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+	}
+
+	// Check if start day does not matches with contract first day
+	if startDay.After(contractFirstDay) {
+		err := e.NewError(errCode, "Vacation days intervals start must match contract start.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+
+	return nil
 }
 
 // --- User data functions ---
@@ -356,12 +469,12 @@ func (s *UserService) GetUserDatas(ctx context.Context) ([]*model.UserData, *e.E
 
 	// Get user contracts
 	for _, user := range users {
-		userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, user.Id)
+		contract, gucErr := s.cRepo.GetContractByUserId(ctx, user.Id)
 		if gucErr != nil {
 			return nil, gucErr
 		}
 
-		userDatas = append(userDatas, model.NewUserData(user.Id, user, userContract))
+		userDatas = append(userDatas, model.NewUserData(user.Id, user, contract))
 	}
 
 	return userDatas, nil
@@ -386,12 +499,12 @@ func (s *UserService) GetCurrentUserData(ctx context.Context) (*model.UserData, 
 	}
 
 	// Get user contract
-	userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, userId)
+	contract, gucErr := s.cRepo.GetContractByUserId(ctx, userId)
 	if gucErr != nil {
 		return nil, gucErr
 	}
 
-	return model.NewUserData(userId, user, userContract), nil
+	return model.NewUserData(userId, user, contract), nil
 }
 
 // GetUserDataByUserId gets a user with related information at once.
@@ -412,12 +525,12 @@ func (s *UserService) GetUserDataByUserId(ctx context.Context, userId int) (*mod
 	}
 
 	// Get user contract
-	userContract, gucErr := s.uRepo.GetUserContractByUserId(ctx, userId)
+	contract, gucErr := s.cRepo.GetContractByUserId(ctx, userId)
 	if gucErr != nil {
 		return nil, gucErr
 	}
 
-	return model.NewUserData(userId, user, userContract), nil
+	return model.NewUserData(userId, user, contract), nil
 }
 
 // CreateUserData creates a new user with related information at once.
@@ -427,36 +540,25 @@ func (s *UserService) CreateUserData(ctx context.Context, userData *model.UserDa
 		return err
 	}
 
-	// Start transaction
-	if err := s.tm.Begin(ctx); err != nil {
-		return err
-	}
-
-	// Create user
-	if err := s.createUser(ctx, userData.User); err != nil {
-		s.tm.Rollback(ctx)
-		return err
-	}
-	userData.Id = userData.User.Id
-	// Create roles
-	userRoles := []model.Role{model.RoleUser}
-	if err := s.setUserRoles(ctx, userData.Id, userRoles); err != nil {
-		s.tm.Rollback(ctx)
-		return err
-	}
-	// Create settings
-	if err := s.createSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
-		s.tm.Rollback(ctx)
-		return err
-	}
-	// Create contract
-	if err := s.createUserContract(ctx, userData.Id, userData.UserContract); err != nil {
-		s.tm.Rollback(ctx)
-		return err
-	}
-
-	// Commit transaction
-	return s.tm.Commit(ctx)
+	// Execute in transaction
+	return s.tm.ExecuteInNewTransaction(ctx, func(ctx context.Context) *e.Error {
+		// Create user
+		if err := s.createUser(ctx, userData.User); err != nil {
+			return err
+		}
+		userData.Id = userData.User.Id
+		// Create roles
+		userRoles := []model.Role{model.RoleUser}
+		if err := s.setUserRoles(ctx, userData.Id, userRoles); err != nil {
+			return err
+		}
+		// Create settings
+		if err := s.createSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
+			return err
+		}
+		// Create contract
+		return s.createUserContract(ctx, userData.Id, userData.Contract)
+	})
 }
 
 // UpdateUserData updates a user with related information at once.
@@ -466,28 +568,22 @@ func (s *UserService) UpdateUserData(ctx context.Context, userData *model.UserDa
 		return err
 	}
 
-	// Start transaction
-	if err := s.tm.Begin(ctx); err != nil {
-		return err
-	}
-
-	// Update user
-	if userData.User != nil {
-		if err := s.updateUser(ctx, userData.User); err != nil {
-			s.tm.Rollback(ctx)
-			return err
+	// Execute in transaction
+	return s.tm.ExecuteInNewTransaction(ctx, func(ctx context.Context) *e.Error {
+		// Update user
+		if userData.User != nil {
+			if err := s.updateUser(ctx, userData.User); err != nil {
+				return err
+			}
 		}
-	}
-	// Update contract
-	if userData.UserContract != nil {
-		if err := s.updateUserContract(ctx, userData.Id, userData.UserContract); err != nil {
-			s.tm.Rollback(ctx)
-			return err
+		// Update contract
+		if userData.Contract != nil {
+			if err := s.updateUserContract(ctx, userData.Id, userData.Contract); err != nil {
+				return err
+			}
 		}
-	}
-
-	// Commit transaction
-	return s.tm.Commit(ctx)
+		return nil
+	})
 }
 
 // --- Permission helper functions ---

@@ -67,6 +67,8 @@ const (
 	LogicRoleNotFound                   = -408
 	LogicUserNotFound                   = -409
 	LogicUserAlreadyExists              = -410
+	LogicContractWorkingHoursInvalid    = -411
+	LogicContractVacationDaysInvalid    = -412
 
 	// System errors
 	SysUnknown             = -500

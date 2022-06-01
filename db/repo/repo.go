@@ -117,6 +117,33 @@ func (r *repo) getCurrentTransaction(ctx context.Context) *sql.Tx {
 	return th.Get()
 }
 
+func (r *repo) executeInTransaction(ctx context.Context, txf func(tx *sql.Tx) *e.Error) *e.Error {
+	tx := r.getCurrentTransaction(ctx)
+	isExistingTx := tx != nil
+
+	if !isExistingTx {
+		var err *e.Error
+		if tx, err = r.begin(); err != nil {
+			return err
+		}
+	}
+
+	if err := txf(tx); err != nil {
+		if !isExistingTx {
+			r.rollback(tx)
+		}
+		return err
+	}
+
+	if !isExistingTx {
+		if err := r.commit(tx); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (r *repo) getDbHandle(ctx context.Context) dbHandle {
 	tx := r.getCurrentTransaction(ctx)
 	if tx != nil {

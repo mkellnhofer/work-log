@@ -18,7 +18,7 @@ import (
 	"kellnhofer.com/work-log/log"
 )
 
-const curDbVers = 1
+const curDbVers = 2
 
 // Db abstracts the database access and provides repositories execute CRUD operations.
 type Db struct {
@@ -27,13 +27,14 @@ type Db struct {
 	db    *sql.DB
 	txm   *tx.TransactionManager
 	uRepo *repo.UserRepo
+	cRepo *repo.ContractRepo
 	sRepo *repo.SessionRepo
 	eRepo *repo.EntryRepo
 }
 
 // NewDb creates a new Db for the supplied configuration.
 func NewDb(config *config.Config) *Db {
-	return &Db{config, nil, nil, nil, nil, nil}
+	return &Db{config, nil, nil, nil, nil, nil, nil}
 }
 
 // --- Public functions ---
@@ -105,6 +106,15 @@ func (db *Db) GetUserRepo() *repo.UserRepo {
 	}
 
 	return db.uRepo
+}
+
+// GetContractRepo provides the ContractRepo.
+func (db *Db) GetContractRepo() *repo.ContractRepo {
+	if db.cRepo == nil {
+		db.cRepo = repo.NewContractRepo(db.db)
+	}
+
+	return db.cRepo
 }
 
 // GetSessionRepo provides the SessionRepo.

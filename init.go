@@ -77,7 +77,7 @@ func (i *Initializer) GetSessionService() *service.SessionService {
 func (i *Initializer) GetUserService() *service.UserService {
 	if i.userServ == nil {
 		i.userServ = service.NewUserService(i.GetDb().GetTransactionManager(),
-			i.GetDb().GetUserRepo())
+			i.GetDb().GetUserRepo(), i.GetDb().GetContractRepo())
 	}
 	return i.userServ
 }

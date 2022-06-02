@@ -25,5 +25,5 @@ type CreateUserData struct {
 	Password string `json:"password"`
 
 	// The work contract of the user.
-	Contract *CreateUserContract `json:"contract"`
+	Contract *CreateContract `json:"contract"`
 }

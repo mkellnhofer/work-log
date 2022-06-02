@@ -19,5 +19,5 @@ type UpdateUserData struct {
 	Username string `json:"username"`
 
 	// The work contract of the user.
-	Contract *UpdateUserContract `json:"contract"`
+	Contract *UpdateContract `json:"contract"`
 }

@@ -57,6 +57,8 @@ var httpStatusCodeMapping = map[int]int{
 	error.LogicRoleNotFound:                   http.StatusNotFound,
 	error.LogicUserNotFound:                   http.StatusNotFound,
 	error.LogicUserAlreadyExists:              http.StatusConflict,
+	error.LogicContractWorkingHoursInvalid:    http.StatusBadRequest,
+	error.LogicContractVacationDaysInvalid:    http.StatusBadRequest,
 }
 
 func getHttpStatusCode(errorCode int) int {

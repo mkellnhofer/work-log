@@ -23,27 +23,27 @@ func ValidateCreateUser(data *vm.CreateUserData) *e.Error {
 	if err := checkUserPassword(data.Password); err != nil {
 		return err
 	}
-	return ValidateCreateUserContract(data.Contract)
+	return ValidateCreateContract(data.Contract)
 }
 
-// ValidateCreateUserContract validates information of a CreateUserContract API model.
-func ValidateCreateUserContract(data *vm.CreateUserContract) *e.Error {
+// ValidateCreateContract validates information of a CreateContract API model.
+func ValidateCreateContract(data *vm.CreateContract) *e.Error {
 	if err := checkNotNil("contract", data); err != nil {
 		return err
 	}
-	if err := checkUserDailyWorkingDuration(data.DailyWorkingDuration); err != nil {
+	if err := checkContractFirstDay(data.FirstDay); err != nil {
 		return err
 	}
-	if err := checkUserAnnualVacationDays(data.AnnualVacationDays); err != nil {
+	if err := checkContractInitOvertimeHours(data.InitOvertimeHours); err != nil {
 		return err
 	}
-	if err := checkUserInitOvertimeDuration(data.InitOvertimeDuration); err != nil {
+	if err := checkContractInitVacationDays(data.InitVacationDays); err != nil {
 		return err
 	}
-	if err := checkUserInitVacationDays(data.InitVacationDays); err != nil {
+	if err := checkContractWorkingHours(data.WorkingHours); err != nil {
 		return err
 	}
-	return checkUserFirstWorkDay(data.FirstWorkDay)
+	return checkContractVacationDays(data.VacationDays)
 }
 
 // ValidateUpdateUser validates information of a UpdateUserData API model.
@@ -54,27 +54,27 @@ func ValidateUpdateUser(data *vm.UpdateUserData) *e.Error {
 	if err := checkUserUsername(data.Username); err != nil {
 		return err
 	}
-	return ValidateUpdateUserContract(data.Contract)
+	return ValidateUpdateContract(data.Contract)
 }
 
-// ValidateUpdateUserContract validates information of a UpdateUserContract API model.
-func ValidateUpdateUserContract(data *vm.UpdateUserContract) *e.Error {
+// ValidateUpdateContract validates information of a UpdateContract API model.
+func ValidateUpdateContract(data *vm.UpdateContract) *e.Error {
 	if err := checkNotNil("contract", data); err != nil {
 		return err
 	}
-	if err := checkUserDailyWorkingDuration(data.DailyWorkingDuration); err != nil {
+	if err := checkContractFirstDay(data.FirstDay); err != nil {
 		return err
 	}
-	if err := checkUserAnnualVacationDays(data.AnnualVacationDays); err != nil {
+	if err := checkContractInitOvertimeHours(data.InitOvertimeHours); err != nil {
 		return err
 	}
-	if err := checkUserInitOvertimeDuration(data.InitOvertimeDuration); err != nil {
+	if err := checkContractInitVacationDays(data.InitVacationDays); err != nil {
 		return err
 	}
-	if err := checkUserInitVacationDays(data.InitVacationDays); err != nil {
+	if err := checkContractWorkingHours(data.WorkingHours); err != nil {
 		return err
 	}
-	return checkUserFirstWorkDay(data.FirstWorkDay)
+	return checkContractVacationDays(data.VacationDays)
 }
 
 // ValidateUpdateUserPassword validates information of a UpdateUserPassword API model.
@@ -178,22 +178,64 @@ func checkUserPassword(password string) *e.Error {
 	return nil
 }
 
-func checkUserDailyWorkingDuration(num float32) *e.Error {
-	return checkFloatNotNegativeOrZero("dailyWorkingDuration", num)
+func checkContractFirstDay(date string) *e.Error {
+	return checkDateValid("firstDay", date)
 }
 
-func checkUserAnnualVacationDays(num float32) *e.Error {
-	return checkFloatNotNegative("annualVacationDays", num)
-}
-
-func checkUserInitOvertimeDuration(num float32) *e.Error {
+func checkContractInitOvertimeHours(num float32) *e.Error {
+	// Nothing to validate, hours can be <0, 0 and >0
 	return nil
 }
 
-func checkUserInitVacationDays(num float32) *e.Error {
+func checkContractInitVacationDays(num float32) *e.Error {
+	// Nothing to validate, days can be <0, 0 and >0
 	return nil
 }
 
-func checkUserFirstWorkDay(date string) *e.Error {
-	return checkDateValid("firstWorkDay", date)
+func checkContractWorkingHours(data []*vm.ContractWorkingHours) *e.Error {
+	if err := checkArrayLengthNotZero("workingHours", len(data)); err != nil {
+		return err
+	}
+	for _, wh := range data {
+		if wh == nil {
+			err := e.NewError(e.ValFieldNil, "Elements of 'workingHours' must not be null.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		if err := checkContractDailyWorkingHours(wh); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkContractDailyWorkingHours(data *vm.ContractWorkingHours) *e.Error {
+	if err := checkDateValid("firstDay", data.FirstDay); err != nil {
+		return err
+	}
+	return checkFloatNotNegativeOrZero("hours", data.Hours)
+}
+
+func checkContractVacationDays(data []*vm.ContractVacationDays) *e.Error {
+	if err := checkArrayLengthNotZero("vacationDays", len(data)); err != nil {
+		return err
+	}
+	for _, vd := range data {
+		if vd == nil {
+			err := e.NewError(e.ValFieldNil, "Elements of 'vacationDays' must not be null.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		if err := checkContractMonthlyVacationDays(vd); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkContractMonthlyVacationDays(data *vm.ContractVacationDays) *e.Error {
+	if err := checkDateValid("firstDay", data.FirstDay); err != nil {
+		return err
+	}
+	return checkFloatNotNegative("days", data.Days)
 }

@@ -33,7 +33,7 @@ func ToUserData(ud *m.UserData) *am.UserData {
 	out.Id = ud.Id
 	out.Name = ud.User.Name
 	out.Username = ud.User.Username
-	out.Contract = toUserContract(ud.UserContract)
+	out.Contract = toContract(ud.Contract)
 	return &out
 }
 
@@ -45,7 +45,7 @@ func FromCreateUserData(cud *am.CreateUserData) *m.UserData {
 
 	var out m.UserData
 	out.User = fromCreateUser(cud)
-	out.UserContract = fromCreateUserContract(cud.Contract)
+	out.Contract = fromCreateContract(cud.Contract)
 	return &out
 }
 
@@ -58,7 +58,7 @@ func FromUpdateUserData(id int, uud *am.UpdateUserData) *m.UserData {
 	var out m.UserData
 	out.Id = id
 	out.User = fromUpdateUser(id, uud)
-	out.UserContract = fromUpdateUserContract(uud.Contract)
+	out.Contract = fromUpdateContract(uud.Contract)
 	return &out
 }
 
@@ -86,46 +86,88 @@ func fromUpdateUser(id int, uud *am.UpdateUserData) *m.User {
 	return &out
 }
 
-func toUserContract(uc *m.UserContract) *am.UserContract {
+func toContract(uc *m.Contract) *am.Contract {
 	if uc == nil {
 		return nil
 	}
 
-	var out am.UserContract
-	out.DailyWorkingDuration = formatHoursDuration(uc.DailyWorkingDuration)
-	out.AnnualVacationDays = uc.AnnualVacationDays
-	out.InitOvertimeDuration = formatHoursDuration(uc.InitOvertimeDuration)
+	var out am.Contract
+	out.FirstDay = formatDate(uc.FirstDay)
+	out.InitOvertimeHours = uc.InitOvertimeHours
 	out.InitVacationDays = uc.InitVacationDays
-	out.FirstWorkDay = formatDate(uc.FirstWorkDay)
+	out.WorkingHours = toContractWorkingHours(uc.WorkingHours)
+	out.VacationDays = toContractVacationDays(uc.VacationDays)
 	return &out
 }
 
-func fromCreateUserContract(cuc *am.CreateUserContract) *m.UserContract {
+func fromCreateContract(cuc *am.CreateContract) *m.Contract {
 	if cuc == nil {
 		return nil
 	}
 
-	var out m.UserContract
-	out.DailyWorkingDuration = parseHoursDuration(cuc.DailyWorkingDuration)
-	out.AnnualVacationDays = cuc.AnnualVacationDays
-	out.InitOvertimeDuration = parseHoursDuration(cuc.InitOvertimeDuration)
+	var out m.Contract
+	out.FirstDay = parseDate(cuc.FirstDay)
+	out.InitOvertimeHours = cuc.InitOvertimeHours
 	out.InitVacationDays = cuc.InitVacationDays
-	out.FirstWorkDay = parseDate(cuc.FirstWorkDay)
+	out.WorkingHours = fromContractWorkingHours(cuc.WorkingHours)
+	out.VacationDays = fromContractVacationDays(cuc.VacationDays)
 	return &out
 }
 
-func fromUpdateUserContract(uuc *am.UpdateUserContract) *m.UserContract {
+func fromUpdateContract(uuc *am.UpdateContract) *m.Contract {
 	if uuc == nil {
 		return nil
 	}
 
-	var out m.UserContract
-	out.DailyWorkingDuration = parseHoursDuration(uuc.DailyWorkingDuration)
-	out.AnnualVacationDays = uuc.AnnualVacationDays
-	out.InitOvertimeDuration = parseHoursDuration(uuc.InitOvertimeDuration)
+	var out m.Contract
+	out.FirstDay = parseDate(uuc.FirstDay)
+	out.InitOvertimeHours = uuc.InitOvertimeHours
 	out.InitVacationDays = uuc.InitVacationDays
-	out.FirstWorkDay = parseDate(uuc.FirstWorkDay)
+	out.WorkingHours = fromContractWorkingHours(uuc.WorkingHours)
+	out.VacationDays = fromContractVacationDays(uuc.VacationDays)
 	return &out
+}
+
+func toContractWorkingHours(whs []m.ContractWorkingHours) []*am.ContractWorkingHours {
+	outs := make([]*am.ContractWorkingHours, len(whs))
+	for i, wh := range whs {
+		outs[i] = &am.ContractWorkingHours{}
+		outs[i].FirstDay = formatDate(wh.FirstDay)
+		outs[i].Hours = wh.Hours
+	}
+	return outs
+}
+
+func fromContractWorkingHours(whs []*am.ContractWorkingHours) []m.ContractWorkingHours {
+	outs := make([]m.ContractWorkingHours, len(whs))
+	for i, wh := range whs {
+		if wh != nil {
+			outs[i].FirstDay = parseDate(wh.FirstDay)
+			outs[i].Hours = wh.Hours
+		}
+	}
+	return outs
+}
+
+func toContractVacationDays(vds []m.ContractVacationDays) []*am.ContractVacationDays {
+	outs := make([]*am.ContractVacationDays, len(vds))
+	for i, vd := range vds {
+		outs[i] = &am.ContractVacationDays{}
+		outs[i].FirstDay = formatDate(vd.FirstDay)
+		outs[i].Days = vd.Days
+	}
+	return outs
+}
+
+func fromContractVacationDays(vds []*am.ContractVacationDays) []m.ContractVacationDays {
+	outs := make([]m.ContractVacationDays, len(vds))
+	for i, vd := range vds {
+		if vd != nil {
+			outs[i].FirstDay = parseDate(vd.FirstDay)
+			outs[i].Days = vd.Days
+		}
+	}
+	return outs
 }
 
 // --- Role functions ---

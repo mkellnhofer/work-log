@@ -386,7 +386,9 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-313]: Invalid date\n
 	//       ⦁ [-317]: Invalid username\n
-	//       ⦁ [-318]: Invalid password"
+	//       ⦁ [-318]: Invalid password\n
+	//       ⦁ [-411]: Invalid contract working hours\n
+	//       ⦁ [-412]: Invalid contract vacation days"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':
@@ -530,7 +532,9 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-313]: Invalid date\n
 	//       ⦁ [-317]: Invalid username\n
-	//       ⦁ [-318]: Invalid password"
+	//       ⦁ [-318]: Invalid password\n
+	//       ⦁ [-411]: Invalid contract working hours\n
+	//       ⦁ [-412]: Invalid contract vacation days"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':

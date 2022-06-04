@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +30,11 @@ const timeFormat = "15:04"
 const dateTimeFormat = "2006-01-02 15:04"
 
 const searchDateTimeFormat = "200601021504"
+
+type dailyWorkingDuration struct {
+	fromDate time.Time
+	duration time.Duration
+}
 
 type entryFormInput struct {
 	typeId        string
@@ -711,7 +717,7 @@ func (c *EntryController) handleExecuteOverviewChange(w http.ResponseWriter, r *
 
 // --- Viem model converter functions ---
 
-func (c *EntryController) createListViewModel(userContract *model.UserContract,
+func (c *EntryController) createListViewModel(userContract *model.Contract,
 	workSummary *model.WorkSummary, pageNum int, cnt int, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity) *vm.
 	ListEntries {
@@ -733,7 +739,7 @@ func (c *EntryController) createListViewModel(userContract *model.UserContract,
 	return lesvm
 }
 
-func (c *EntryController) createListSummaryViewModel(userContract *model.UserContract,
+func (c *EntryController) createListSummaryViewModel(userContract *model.Contract,
 	workSummary *model.WorkSummary) *vm.ListEntriesSummary {
 	// If no user contract or work summary was provided: Skip calculation
 	if userContract == nil || workSummary == nil {
@@ -741,17 +747,22 @@ func (c *EntryController) createListSummaryViewModel(userContract *model.UserCon
 	}
 
 	// Calulate durations
-	overtime := c.calculateOvertimeDuration(userContract, workSummary)
-	remainingVacation := c.calculateRemainingVacationDuration(userContract, workSummary)
+	// TODO!!!
+	//overtime := c.calculateOvertimeDuration(userContract, workSummary)
+	overtimeHours := float32(0)
+	// TODO!!!
+	//remainingVacation := c.calculateRemainingVacationDuration(userContract, workSummary)
+	remainingVacationDays := float32(0)
 
 	// Create summary
 	lessvm := vm.NewListEntriesSummary()
-	lessvm.OvertimeHours = getHoursString(overtime)
-	lessvm.RemainingVacationDays = getDaysString(remainingVacation, userContract.DailyWorkingDuration)
+	lessvm.OvertimeHours = createHoursString(overtimeHours)
+	lessvm.RemainingVacationDays = createDaysString(remainingVacationDays)
 	return lessvm
 }
 
-func (c *EntryController) calculateOvertimeDuration(userContract *model.UserContract,
+/*
+func (c *EntryController) calculateOvertimeDuration(userContract *model.Contract,
 	workSummary *model.WorkSummary) time.Duration {
 	// Calculate work days since first work day
 	start := userContract.FirstWorkDay
@@ -774,7 +785,7 @@ func (c *EntryController) calculateOvertimeDuration(userContract *model.UserCont
 	return userContract.InitOvertimeDuration + actualDuration - targetDuration
 }
 
-func (c *EntryController) calculateRemainingVacationDuration(userContract *model.UserContract,
+func (c *EntryController) calculateRemainingVacationDuration(userContract *model.Contract,
 	workSummary *model.WorkSummary) time.Duration {
 	// Calculate years since first work day
 	years := time.Now().Year() - userContract.FirstWorkDay.Year() + 1
@@ -797,6 +808,7 @@ func (c *EntryController) calculateRemainingVacationDuration(userContract *model
 	// Calculate remaining vacation
 	return totalVacation - takenVacation
 }
+*/
 
 func (c *EntryController) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType,
 	id int) string {
@@ -895,19 +907,20 @@ func (c *EntryController) createListSearchViewModel(prevUrl string, query string
 	return lesvm
 }
 
-func (c *EntryController) createEntriesViewModel(userContract *model.UserContract,
+func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity,
 	checkMissingOrOverlapping bool) []*vm.ListEntriesDay {
 	ldsvm := make([]*vm.ListEntriesDay, 0, pageSize)
 
 	var calcTargetWorkDurationReached bool
-	var targetWorkDuration time.Duration
+	var targetWorkDurations []dailyWorkingDuration
+	targetWorkDuration := time.Duration(0)
 
 	// If no user contract was provided: Skip target calculation
 	if userContract != nil {
 		calcTargetWorkDurationReached = true
-		targetWorkDuration = userContract.DailyWorkingDuration
+		targetWorkDurations = c.convertWorkingHours(userContract.WorkingHours)
 	}
 
 	var ldvm *vm.ListEntriesDay
@@ -931,6 +944,11 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 			totalBreakDuration = 0
 			wasTargetWorkDurationReached = ""
 
+			// Get target work duration
+			if calcTargetWorkDurationReached {
+				targetWorkDuration = c.findWorkingDurationForDate(targetWorkDurations, entry.StartTime)
+			}
+
 			// Create and add new day
 			ldvm = vm.NewListEntriesDay()
 			ldvm.Date = view.FormatDate(entry.StartTime)
@@ -944,6 +962,8 @@ func (c *EntryController) createEntriesViewModel(userContract *model.UserContrac
 		netWorkDuration := workDuration - entry.BreakDuration
 		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
 		totalBreakDuration = totalBreakDuration + entry.BreakDuration
+
+		// Calculate if target work duration was reached
 		if calcTargetWorkDurationReached {
 			reached := (totalNetWorkDuration - targetWorkDuration) >= 0
 			wasTargetWorkDurationReached = strconv.FormatBool(reached)
@@ -1008,8 +1028,8 @@ func (c *EntryController) createEntryTypeViewModel(id int, description string) *
 	return vm.NewEntryType(id, description)
 }
 
-func (c *EntryController) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity) []*vm.
-	EntryActivity {
+func (c *EntryController) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
+) []*vm.EntryActivity {
 	easvm := make([]*vm.EntryActivity, 0, 10)
 	easvm = append(easvm, c.createEntryActivityViewModel(0, "-"))
 	for _, entryActivity := range entryActivities {
@@ -1024,7 +1044,7 @@ func (c *EntryController) createEntryActivityViewModel(id int, description strin
 }
 
 func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, month int,
-	userContract *model.UserContract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	userContract *model.Contract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity, showDetails bool) *vm.ListOverviewEntries {
 	lesvm := vm.NewListOverviewEntries()
 	lesvm.PreviousUrl = prevUrl
@@ -1066,7 +1086,7 @@ func (c *EntryController) createListOverviewViewModel(prevUrl string, year int, 
 }
 
 func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
-	userContract *model.UserContract, entries []*model.Entry) *vm.ListOverviewEntriesSummary {
+	userContract *model.Contract, entries []*model.Entry) *vm.ListOverviewEntriesSummary {
 
 	// Calculate type durations
 	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
@@ -1093,8 +1113,12 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 	end := start.AddDate(0, 1, 0)
 	workDays := util.CalculateWorkingDays(start, end)
 
+	// Get target working durations
+	targetWorkDurations := c.convertWorkingHours(userContract.WorkingHours)
+
 	// Calculate target, actual and balance durations
-	var tar time.Duration = time.Duration(workDays) * userContract.DailyWorkingDuration
+	var tar time.Duration = time.Duration(workDays) * c.findWorkingDurationForDate(targetWorkDurations,
+		start)
 	var act time.Duration = actWork + actTrav + actVaca + actHoli + actIlln
 	var bal time.Duration = act - tar
 
@@ -1704,7 +1728,7 @@ func getCellName(col string, row int) string {
 
 // --- Helper functions ---
 
-func (c *EntryController) getUserContract(ctx context.Context, userId int) *model.UserContract {
+func (c *EntryController) getUserContract(ctx context.Context, userId int) *model.Contract {
 	userContract, gucErr := c.uServ.GetUserContractByUserId(ctx, userId)
 	if gucErr != nil {
 		panic(gucErr)
@@ -1757,6 +1781,40 @@ func (c *EntryController) getEntryActivitiesMap(ctx context.Context) map[int]*mo
 	return entryActivitiesMap
 }
 
+func (c *EntryController) convertWorkingHours(workingHours []model.ContractWorkingHours,
+) []dailyWorkingDuration {
+	dds := make([]dailyWorkingDuration, 0, 10)
+
+	// Create daily durations
+	for _, whs := range workingHours {
+		m := int(whs.Hours * 60.0)
+		d := time.Duration(m) * time.Minute
+		dds = append(dds, dailyWorkingDuration{whs.FirstDay, d})
+	}
+
+	// Sort daily durations
+	sort.SliceStable(dds, func(i, j int) bool {
+		return dds[i].fromDate.Before(dds[j].fromDate)
+	})
+
+	return dds
+}
+
+func (c *EntryController) findWorkingDurationForDate(dailyDurations []dailyWorkingDuration,
+	date time.Time) time.Duration {
+	d := time.Duration(0)
+
+	// Find daily duration for supplied date
+	for _, dd := range dailyDurations {
+		if dd.fromDate.After(date) {
+			break
+		}
+		d = dd.duration
+	}
+
+	return d
+}
+
 func getDateString(t time.Time) string {
 	return t.Format(dateFormat)
 }
@@ -1773,15 +1831,27 @@ func getDaysString(d time.Duration, wd time.Duration) string {
 	if wh > 0 {
 		days = float32(h) / float32(wh)
 	}
-	return loc.CreateString("daysValue", days)
+	return createDaysString(days)
 }
 
 func getHoursString(d time.Duration) string {
 	rd := d.Round(time.Minute)
-	return loc.CreateString("hoursValue", rd.Hours())
+	return createHoursString(float32(rd.Hours()))
 }
 
 func getMinutesString(d time.Duration) string {
 	rd := d.Round(time.Minute)
 	return fmt.Sprintf("%d", int(rd.Minutes()))
+}
+
+func createDaysString(days float32) string {
+	return loc.CreateString("daysValue", days)
+}
+
+func createHoursString(hours float32) string {
+	return loc.CreateString("hoursValue", hours)
+}
+
+func createMinutesString(minutes int) string {
+	return fmt.Sprintf("%d", minutes)
 }

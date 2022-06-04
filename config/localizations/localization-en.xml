@@ -35,7 +35,6 @@
     <message key="listSummaryHeading"><text>Working time account:</text></message>
     <message key="listSummaryLabelOvertimeHours"><text>Overtime hours:</text></message>
     <message key="listSummaryLabelRemainingVacationDays"><text>Remaining vacation days:</text></message>
-    <message key="listSummaryActionClose"><text>Close</text></message>
     <message key="listLabelNoEntries"><text>no entries exist</text></message>
     <message key="listLabelBreak"><text>Break</text></message>
     <message key="listDialogMessageDelete"><text>Do you really want to delete the entry?</text></message>

@@ -35,7 +35,6 @@
     <message key="listSummaryHeading"><text>Arbeitszeitkonto:</text></message>
     <message key="listSummaryLabelOvertimeHours"><text>Überstunden:</text></message>
     <message key="listSummaryLabelRemainingVacationDays"><text>Resturlaubstage:</text></message>
-    <message key="listSummaryActionClose"><text>Schließen</text></message>
     <message key="listLabelNoEntries"><text>keine Einträge vorhanden</text></message>
     <message key="listLabelBreak"><text>Pause</text></message>
     <message key="listDialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>

@@ -747,9 +747,7 @@ func (c *EntryController) createListSummaryViewModel(userContract *model.Contrac
 	}
 
 	// Calulate durations
-	// TODO!!!
-	//overtime := c.calculateOvertimeDuration(userContract, workSummary)
-	overtimeHours := float32(0)
+	overtimeHours := c.calculateOvertimeHours(userContract, workSummary)
 	// TODO!!!
 	//remainingVacation := c.calculateRemainingVacationDuration(userContract, workSummary)
 	remainingVacationDays := float32(0)
@@ -761,30 +759,64 @@ func (c *EntryController) createListSummaryViewModel(userContract *model.Contrac
 	return lessvm
 }
 
-/*
-func (c *EntryController) calculateOvertimeDuration(userContract *model.Contract,
-	workSummary *model.WorkSummary) time.Duration {
-	// Calculate work days since first work day
-	start := userContract.FirstWorkDay
-	end := time.Now()
-	workDays := util.CalculateWorkingDays(start, end)
-	log.Verbf("Work days: %s - %s: %d", getDateString(start), getDateString(end), workDays)
-
-	// Calculate target duration
-	targetDuration := time.Duration(workDays) * userContract.DailyWorkingDuration
-	log.Verbf("Target work duration: %.0f min", targetDuration.Minutes())
+func (c *EntryController) calculateOvertimeHours(userContract *model.Contract,
+	workSummary *model.WorkSummary) float32 {
+	// Calculate initial overtime duration
+	initOvertimeDuration := time.Duration(int(userContract.InitOvertimeHours*60.0)) * time.Minute
 
 	// Calculate actual duration
-	var actualDuration time.Duration
+	var actualWorkDuration time.Duration
 	for _, workDuration := range workSummary.WorkDurations {
-		actualDuration = actualDuration + workDuration.WorkDuration - workDuration.BreakDuration
+		actualWorkDuration = actualWorkDuration + workDuration.WorkDuration - workDuration.BreakDuration
 	}
-	log.Verbf("Actual work duration: %.0f min", actualDuration.Minutes())
+	log.Verbf("Actual work duration: %.0f min", actualWorkDuration.Minutes())
+
+	// Get target working durations
+	targetWorkDurations := c.convertWorkingHours(userContract.WorkingHours)
+	// Abort if no target working durations were set
+	if len(targetWorkDurations) == 0 {
+		return 0.0
+	}
+
+	// Calculate target duration
+	start := userContract.FirstDay
+	end := time.Now()
+	targetWorkDuration := time.Duration(0)
+	for i := 0; i < len(targetWorkDurations); i++ {
+		// Calculate interval start/end
+		intStart := start
+		if i > 0 {
+			intStart = targetWorkDurations[i].fromDate
+		}
+		intEnd := end
+		if i+1 < len(targetWorkDurations) {
+			intEnd = targetWorkDurations[i+1].fromDate.AddDate(0, 0, -1)
+		}
+
+		// Calculate interval work days
+		intWorkDays := util.CalculateWorkingDays(intStart, intEnd)
+		log.Verbf("Interval work days: %s - %s: %d", getDateString(intStart), getDateString(intEnd),
+			intWorkDays)
+
+		// Calculate interval target duration
+		intTargetWorkDuration := time.Duration(intWorkDays) * targetWorkDurations[i].duration
+		log.Verbf("Interval daily work duration: %s - %s: %.0f min", getDateString(intStart),
+			getDateString(intEnd), targetWorkDurations[i].duration.Minutes())
+		log.Verbf("Interval target work duration: %s - %s: %.0f min", getDateString(intStart),
+			getDateString(intEnd), intTargetWorkDuration.Minutes())
+
+		// Update target duration
+		targetWorkDuration = targetWorkDuration + intTargetWorkDuration
+	}
 
 	// Calculate overtime
-	return userContract.InitOvertimeDuration + actualDuration - targetDuration
+	overtimeDuration := initOvertimeDuration + actualWorkDuration - targetWorkDuration
+
+	// Return rounded hours
+	return float32(overtimeDuration.Round(time.Minute).Hours())
 }
 
+/*
 func (c *EntryController) calculateRemainingVacationDuration(userContract *model.Contract,
 	workSummary *model.WorkSummary) time.Duration {
 	// Calculate years since first work day

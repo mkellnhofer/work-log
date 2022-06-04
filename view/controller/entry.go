@@ -36,6 +36,11 @@ type dailyWorkingDuration struct {
 	duration time.Duration
 }
 
+type monthlyVacationDays struct {
+	fromDate time.Time
+	days     float32
+}
+
 type entryFormInput struct {
 	typeId        string
 	date          string
@@ -748,9 +753,7 @@ func (c *EntryController) createListSummaryViewModel(userContract *model.Contrac
 
 	// Calulate durations
 	overtimeHours := c.calculateOvertimeHours(userContract, workSummary)
-	// TODO!!!
-	//remainingVacation := c.calculateRemainingVacationDuration(userContract, workSummary)
-	remainingVacationDays := float32(0)
+	remainingVacationDays := c.calculateRemainingVacationDays(userContract, workSummary)
 
 	// Create summary
 	lessvm := vm.NewListEntriesSummary()
@@ -816,31 +819,58 @@ func (c *EntryController) calculateOvertimeHours(userContract *model.Contract,
 	return float32(overtimeDuration.Round(time.Minute).Hours())
 }
 
-/*
-func (c *EntryController) calculateRemainingVacationDuration(userContract *model.Contract,
-	workSummary *model.WorkSummary) time.Duration {
-	// Calculate years since first work day
-	years := time.Now().Year() - userContract.FirstWorkDay.Year() + 1
-	log.Verbf("Years: %d", years)
+func (c *EntryController) calculateRemainingVacationDays(userContract *model.Contract,
+	workSummary *model.WorkSummary) float32 {
+	// Get monthly vacation days
+	vacationDays := c.convertVacationDays(userContract.VacationDays)
+	// Get daily working durations
+	workDurations := c.convertWorkingHours(userContract.WorkingHours)
+	// Abort if no vacation days or working durations were set
+	if len(vacationDays) == 0 || len(workDurations) == 0 {
+		return 0.0
+	}
 
-	// Calculate total vacation
-	totalVacationDays := float32(years)*userContract.AnnualVacationDays + userContract.InitVacationDays
-	totalVacation := time.Duration(totalVacationDays) * userContract.DailyWorkingDuration
-	log.Verbf("Total vacation hours: %.0f", totalVacation.Hours())
+	// Calculate initial vacation hours
+	initVacationHours := userContract.InitVacationDays * float32(workDurations[0].duration.Hours())
+	log.Verbf("Initial vacation: %.0f hours", initVacationHours)
 
-	// Calculate taken vacation
-	var takenVacation time.Duration
+	// Calculate available vacation hours (month by month)
+	start := userContract.FirstDay
+	now := time.Now()
+	curMonth := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, start.Location())
+	endMonth := time.Date(now.Year()+1, time.January, 1, 0, 0, 0, 0, now.Location())
+	availableVacationHours := float32(0.0)
+	for curMonth.Before(endMonth) {
+		// Get vacation days and working duration for current month
+		vd := c.findVacationDaysForDate(vacationDays, curMonth)
+		wd := c.findWorkingDurationForDate(workDurations, curMonth)
+		// Calculate vacation hours for current month
+		availableVacationHours = availableVacationHours + vd*float32(wd.Hours())
+		// Calculate next month
+		curMonth = curMonth.AddDate(0, 1, 0)
+	}
+	log.Verbf("Available vacation: %.0f hours", availableVacationHours)
+
+	// Calculate taken vacation hours
+	takenVacationHours := float32(0.0)
 	for _, workDuration := range workSummary.WorkDurations {
 		if workDuration.TypeId == model.EntryTypeIdVacation {
-			takenVacation = takenVacation + workDuration.WorkDuration - workDuration.BreakDuration
+			takenVacationHours = takenVacationHours + float32(workDuration.WorkDuration.Hours()) -
+				float32(workDuration.BreakDuration.Hours())
 		}
 	}
-	log.Verbf("Taken vacation hours: %.0f", takenVacation.Hours())
+	log.Verbf("Taken vacation: %.0f hours", takenVacationHours)
 
-	// Calculate remaining vacation
-	return totalVacation - takenVacation
+	// Calculate remaining vacation hours
+	remainingVacationHours := initVacationHours + availableVacationHours - takenVacationHours
+	log.Verbf("Remaining vacation: %.0f hours", remainingVacationHours)
+
+	// Convert vacation hours to vacation days
+	wd := c.findWorkingDurationForDate(workDurations, now)
+	remainingVacationDays := remainingVacationHours / float32(wd.Hours())
+
+	return remainingVacationDays
 }
-*/
 
 func (c *EntryController) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType,
 	id int) string {
@@ -1842,6 +1872,38 @@ func (c *EntryController) findWorkingDurationForDate(dailyDurations []dailyWorki
 			break
 		}
 		d = dd.duration
+	}
+
+	return d
+}
+
+func (c *EntryController) convertVacationDays(vacationDays []model.ContractVacationDays,
+) []monthlyVacationDays {
+	mds := make([]monthlyVacationDays, 0, 10)
+
+	// Create monthly days
+	for _, vds := range vacationDays {
+		mds = append(mds, monthlyVacationDays{vds.FirstDay, vds.Days})
+	}
+
+	// Sort monthly days
+	sort.SliceStable(mds, func(i, j int) bool {
+		return mds[i].fromDate.Before(mds[j].fromDate)
+	})
+
+	return mds
+}
+
+func (c *EntryController) findVacationDaysForDate(monthlyDays []monthlyVacationDays,
+	date time.Time) float32 {
+	d := float32(0.0)
+
+	// Find monthly days for supplied date
+	for _, md := range monthlyDays {
+		if md.fromDate.After(date) {
+			break
+		}
+		d = md.days
 	}
 
 	return d

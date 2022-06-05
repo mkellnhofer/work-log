@@ -461,7 +461,7 @@ func (s *EntryService) GetTotalWorkSummaryByUserId(ctx context.Context, userId i
 	// Get work summary
 	start := time.Time{}
 	now := time.Now()
-	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
 	return s.eRepo.GetWorkSummary(ctx, userId, start, end)
 }
 

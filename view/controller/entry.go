@@ -841,8 +841,8 @@ func (c *EntryController) calculateRemainingVacationDays(userContract *model.Con
 	// Calculate available vacation hours (month by month)
 	start := userContract.FirstDay
 	now := time.Now()
-	curMonth := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, start.Location())
-	endMonth := time.Date(now.Year()+1, time.January, 1, 0, 0, 0, 0, now.Location())
+	curMonth := time.Date(start.Year(), start.Month(), 1, 0, 0, 0, 0, time.Local)
+	endMonth := time.Date(now.Year()+1, time.January, 1, 0, 0, 0, 0, time.Local)
 	availableVacationHours := float32(0.0)
 	for curMonth.Before(endMonth) {
 		// Get vacation days and working duration for current month
@@ -1183,8 +1183,8 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 	targetWorkDurations := c.convertWorkingHours(userContract.WorkingHours)
 
 	// Calculate target, actual and balance durations
-	var tar time.Duration = time.Duration(workDays) * c.findWorkingDurationForDate(targetWorkDurations,
-		start)
+	var tar time.Duration = time.Duration(workDays) * c.findWorkingDurationForDate(
+		targetWorkDurations, start)
 	var act time.Duration = actWork + actTrav + actVaca + actHoli + actIlln
 	var bal time.Duration = act - tar
 
@@ -1473,7 +1473,7 @@ func (c *EntryController) convertId(in string, allowZero bool) int {
 func (c *EntryController) convertDateTime(inDate string, inTime string, code int) (time.Time,
 	*e.Error) {
 	dt := inDate + " " + inTime
-	out, pErr := time.Parse(dateTimeFormat, dt)
+	out, pErr := time.ParseInLocation(dateTimeFormat, dt, time.Local)
 	if pErr != nil {
 		err := e.WrapError(code, fmt.Sprintf("Could not parse time %s.", inTime), pErr)
 		log.Debug(err.StackTrace())
@@ -1619,7 +1619,7 @@ func formatSearchDate(d time.Time) string {
 }
 
 func parseSearchDate(d string) (time.Time, error) {
-	return time.Parse(searchDateTimeFormat, d)
+	return time.ParseInLocation(searchDateTimeFormat, d, time.Local)
 }
 
 // --- Export functions ---

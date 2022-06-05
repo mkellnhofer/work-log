@@ -297,7 +297,7 @@ func parseDate(ts *string) *time.Time {
 		return nil
 	}
 
-	t, pErr := time.Parse(constant.DbDateFormat, *ts)
+	t, pErr := time.ParseInLocation(constant.DbDateFormat, *ts, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not parse date.", pErr)
 		log.Error(err.StackTrace())
@@ -311,7 +311,8 @@ func formatDate(t *time.Time) *string {
 		return nil
 	}
 
-	ts := t.Format(constant.DbDateFormat)
+	tl := t.Local()
+	ts := tl.Format(constant.DbDateFormat)
 	return &ts
 }
 
@@ -320,7 +321,7 @@ func parseTimestamp(ts *string) *time.Time {
 		return nil
 	}
 
-	t, pErr := time.Parse(constant.DbTimestampFormat, *ts)
+	t, pErr := time.ParseInLocation(constant.DbTimestampFormat, *ts, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not parse timestamp.", pErr)
 		log.Error(err.StackTrace())
@@ -334,7 +335,8 @@ func formatTimestamp(t *time.Time) *string {
 		return nil
 	}
 
-	ts := t.Format(constant.DbTimestampFormat)
+	tl := t.Local()
+	ts := tl.Format(constant.DbTimestampFormat)
 	return &ts
 }
 

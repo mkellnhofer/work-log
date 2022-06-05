@@ -119,7 +119,7 @@ func checkStringArrayNotTooLong(name string, strs []string, length int) *e.Error
 }
 
 func checkDateValid(name string, date string) *e.Error {
-	_, pErr := time.Parse(constant.ApiDateFormat, date)
+	_, pErr := time.ParseInLocation(constant.ApiDateFormat, date, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.ValDateInvalid, fmt.Sprintf("'%s' must have format 'YYYY-MM-DD'.",
 			name), pErr)
@@ -130,7 +130,7 @@ func checkDateValid(name string, date string) *e.Error {
 }
 
 func checkTimestampValid(name string, timestamp string) *e.Error {
-	_, pErr := time.Parse(constant.ApiTimestampFormat, timestamp)
+	_, pErr := time.ParseInLocation(constant.ApiTimestampFormat, timestamp, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.ValTimestampInvalid, fmt.Sprintf("'%s' must have format "+
 			"'YYYY-MM-DDTHH:mm:ss'.", name), pErr)

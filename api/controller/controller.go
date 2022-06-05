@@ -116,9 +116,9 @@ func getIntQueryParam(r *http.Request, n string) (int, error) {
 }
 
 func parseDate(d string) (time.Time, error) {
-	return time.Parse(constant.ApiDateFormat, d)
+	return time.ParseInLocation(constant.ApiDateFormat, d, time.Local)
 }
 
 func parseTimestamp(ts string) (time.Time, error) {
-	return time.Parse(constant.ApiTimestampFormat, ts)
+	return time.ParseInLocation(constant.ApiTimestampFormat, ts, time.Local)
 }

@@ -10,7 +10,7 @@ import (
 )
 
 func parseDate(d string) time.Time {
-	t, pErr := time.Parse(constant.ApiDateFormat, d)
+	t, pErr := time.ParseInLocation(constant.ApiDateFormat, d, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not parse date.", pErr)
 		log.Error(err.StackTrace())
@@ -24,7 +24,7 @@ func formatDate(t time.Time) string {
 }
 
 func parseTimestamp(ts string) time.Time {
-	t, pErr := time.Parse(constant.ApiTimestampFormat, ts)
+	t, pErr := time.ParseInLocation(constant.ApiTimestampFormat, ts, time.Local)
 	if pErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not parse timestamp.", pErr)
 		log.Error(err.StackTrace())

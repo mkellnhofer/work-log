@@ -181,6 +181,13 @@ func FormatHours(d time.Duration) string {
 	return printer.Sprintf("%.2f", h)
 }
 
+// FormatMinutes returns the minutes string for a duration.
+func FormatMinutes(d time.Duration) string {
+	m := d.Minutes()
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf("%d", int(m))
+}
+
 // GetWeekdayName returns the weekday string for a time.
 func GetWeekdayName(t time.Time) string {
 	wd := t.Weekday()
@@ -198,6 +205,16 @@ func GetShortWeekdayName(t time.Time) string {
 func GetMonthName(m int) string {
 	printer := message.NewPrinter(loc.LngTag)
 	return printer.Sprintf(monthKeys[m])
+}
+
+// CreateDaysString return a formated days string
+func CreateDaysString(days float32) string {
+	return loc.CreateString("daysValue", days)
+}
+
+// CreateHoursString return a formated hours string
+func CreateHoursString(hours float32) string {
+	return loc.CreateString("hoursValue", hours)
 }
 
 // --- Helper functions ---

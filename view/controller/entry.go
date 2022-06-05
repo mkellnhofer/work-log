@@ -340,7 +340,7 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 	prevUrl := getPreviousUrl(ctx)
 	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		int(entry.BreakDuration.Minutes()), entry.ActivityId, entry.Description, entryTypes,
+		getRoundedMinutes(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -430,7 +430,7 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 	prevUrl := getPreviousUrl(ctx)
 	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		int(entry.BreakDuration.Minutes()), entry.ActivityId, entry.Description, entryTypes,
+		getRoundedMinutes(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -761,8 +761,8 @@ func (c *EntryController) createListSummaryViewModel(userContract *model.Contrac
 
 	// Create summary
 	lessvm := vm.NewListEntriesSummary()
-	lessvm.OvertimeHours = createHoursString(overtimeHours)
-	lessvm.RemainingVacationDays = createDaysString(remainingVacationDays)
+	lessvm.OvertimeHours = view.CreateHoursString(overtimeHours)
+	lessvm.RemainingVacationDays = view.CreateDaysString(remainingVacationDays)
 	return lessvm
 }
 
@@ -820,7 +820,7 @@ func (c *EntryController) calculateOvertimeHours(userContract *model.Contract,
 	overtimeDuration := initOvertimeDuration + actualWorkDuration - targetWorkDuration
 
 	// Return rounded hours
-	return float32(overtimeDuration.Round(time.Minute).Hours())
+	return getRoundedHours(overtimeDuration)
 }
 
 func (c *EntryController) calculateRemainingVacationDays(userContract *model.Contract,
@@ -1190,15 +1190,19 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 
 	// Create summary
 	lessvm := vm.NewListOverviewEntriesSummary()
-	lessvm.ActualWorkHours = getHoursString(actWork)
-	lessvm.ActualTravelHours = getHoursString(actTrav)
-	lessvm.ActualVacationHours = getHoursString(actVaca)
-	lessvm.ActualHolidayHours = getHoursString(actHoli)
-	lessvm.ActualIllnessHours = getHoursString(actIlln)
-	lessvm.TargetHours = getHoursString(tar)
-	lessvm.ActualHours = getHoursString(act)
-	lessvm.BalanceHours = getHoursString(bal)
+	lessvm.ActualWorkHours = createRoundedHoursString(actWork)
+	lessvm.ActualTravelHours = createRoundedHoursString(actTrav)
+	lessvm.ActualVacationHours = createRoundedHoursString(actVaca)
+	lessvm.ActualHolidayHours = createRoundedHoursString(actHoli)
+	lessvm.ActualIllnessHours = createRoundedHoursString(actIlln)
+	lessvm.TargetHours = createRoundedHoursString(tar)
+	lessvm.ActualHours = createRoundedHoursString(act)
+	lessvm.BalanceHours = createRoundedHoursString(bal)
 	return lessvm
+}
+
+func createRoundedHoursString(d time.Duration) string {
+	return view.CreateHoursString(getRoundedHours(d))
 }
 
 func (c *EntryController) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,
@@ -1921,35 +1925,16 @@ func getTimeString(t time.Time) string {
 	return t.Format(timeFormat)
 }
 
-func getDaysString(d time.Duration, wd time.Duration) string {
-	rd := d.Round(time.Hour)
-	h := int(rd.Hours())
-	wh := int(wd.Hours())
-	var days float32
-	if wh > 0 {
-		days = float32(h) / float32(wh)
-	}
-	return createDaysString(days)
+func getRoundedHours(d time.Duration) float32 {
+	rd := roundDuration(d)
+	return float32(rd.Hours())
 }
 
-func getHoursString(d time.Duration) string {
-	rd := d.Round(time.Minute)
-	return createHoursString(float32(rd.Hours()))
+func getRoundedMinutes(d time.Duration) int {
+	rd := roundDuration(d)
+	return int(rd.Minutes())
 }
 
-func getMinutesString(d time.Duration) string {
-	rd := d.Round(time.Minute)
-	return fmt.Sprintf("%d", int(rd.Minutes()))
-}
-
-func createDaysString(days float32) string {
-	return loc.CreateString("daysValue", days)
-}
-
-func createHoursString(hours float32) string {
-	return loc.CreateString("hoursValue", hours)
-}
-
-func createMinutesString(minutes int) string {
-	return fmt.Sprintf("%d", minutes)
+func roundDuration(d time.Duration) time.Duration {
+	return d.Round(time.Minute)
 }

@@ -254,7 +254,7 @@ func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Reques
 		entryTypeId = entryTypes[0].Id
 	}
 	model := c.createCreateViewModel(prevUrl, "", entryTypeId, getDateString(time.Now()), "00:00",
-		"00:00", "0", 0, "", entryTypes, entryActivities)
+		"00:00", 0, 0, "", entryTypes, entryActivities)
 
 	// Render
 	view.RenderCreateEntryTemplate(w, model)
@@ -307,8 +307,9 @@ func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Reque
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
+	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createCreateViewModel(prevUrl, em, entryTypeId, input.date, input.startTime,
-		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -337,9 +338,10 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 
 	// Create view model
 	prevUrl := getPreviousUrl(ctx)
-	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
-		getTimeString(entry.StartTime), getTimeString(entry.EndTime), getMinutesString(
-			entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes, entryActivities)
+	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
+		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
+		int(entry.BreakDuration.Minutes()), entry.ActivityId, entry.Description, entryTypes,
+		entryActivities)
 
 	// Render
 	view.RenderEditEntryTemplate(w, model)
@@ -395,8 +397,9 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
+	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createEditViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
-		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -425,9 +428,9 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 
 	// Create view model
 	prevUrl := getPreviousUrl(ctx)
-	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(entry.StartTime),
-		getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		getMinutesString(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
+	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
+		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
+		int(entry.BreakDuration.Minutes()), entry.ActivityId, entry.Description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -484,8 +487,9 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
+	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createCopyViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
-		input.endTime, input.breakDuration, entryActivityId, input.description, entryTypes,
+		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
 		entryActivities)
 
 	// Render
@@ -891,7 +895,7 @@ func (c *EntryController) getEntryActivityDescription(entryActivitiesMap map[int
 }
 
 func (c *EntryController) createCreateViewModel(prevUrl string, errorMessage string, typeId int,
-	date string, startTime string, endTime string, breakDuration string, activityId int,
+	date string, startTime string, endTime string, breakDuration int, activityId int,
 	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
 	cevm.PreviousUrl = prevUrl
@@ -904,7 +908,7 @@ func (c *EntryController) createCreateViewModel(prevUrl string, errorMessage str
 }
 
 func (c *EntryController) createEditViewModel(prevUrl string, errorMessage string, id int,
-	typeId int, date string, startTime string, endTime string, breakDuration string, activityId int,
+	typeId int, date string, startTime string, endTime string, breakDuration int, activityId int,
 	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
 	eevm := vm.NewEditEntry()
 	eevm.PreviousUrl = prevUrl
@@ -917,7 +921,7 @@ func (c *EntryController) createEditViewModel(prevUrl string, errorMessage strin
 }
 
 func (c *EntryController) createCopyViewModel(prevUrl string, errorMessage string, id int,
-	typeId int, date string, startTime string, endTime string, breakDuration string, activityId int,
+	typeId int, date string, startTime string, endTime string, breakDuration int, activityId int,
 	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
 	cevm := vm.NewCopyEntry()
 	cevm.PreviousUrl = prevUrl
@@ -1065,7 +1069,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 }
 
 func (c *EntryController) createEntryViewModel(id int, typeId int, date string, startTime string,
-	endTime string, breakDuration string, activityId int, description string) *vm.Entry {
+	endTime string, breakDuration int, activityId int, description string) *vm.Entry {
 	evm := vm.NewEntry()
 	evm.Id = id
 	evm.TypeId = typeId

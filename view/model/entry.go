@@ -7,7 +7,7 @@ type Entry struct {
 	Date          string
 	StartTime     string
 	EndTime       string
-	BreakDuration string
+	BreakDuration int
 	ActivityId    int
 	Description   string
 }

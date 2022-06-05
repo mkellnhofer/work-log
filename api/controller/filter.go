@@ -124,7 +124,7 @@ func getFilters(str string) (map[string]*filter, *e.Error) {
 
 func checkFilterParts(parts []string) *e.Error {
 	// Check if structure is invalid
-	if len(parts) > 3 {
+	if len(parts) < 3 {
 		err := e.NewError(e.ValFilterInvalid, "Invalid filter. (A filter must have following "+
 			"structure: [field name];[operator];[value-1]...[value-n])")
 		log.Debug(err.StackTrace())
@@ -213,7 +213,7 @@ func getStringFilterValue(f *filter, nullable bool) (string, *e.Error) {
 
 func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, *e.Error) {
 	// Check if wrong operator
-	if f.operator == filterOpBetween {
+	if f.operator != filterOpBetween {
 		return time.Now(), time.Now(), createInvalidFilterOperatorError(f.name, f.operator)
 	}
 	// Check if wrong number of values

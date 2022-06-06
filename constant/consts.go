@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	AppVersion string = "1.1.0-alpha"
+	AppVersion string = "1.1.0"
 
 	DbDateFormat      string = "2006-01-02"
 	DbTimestampFormat string = "2006-01-02 15:04:05"

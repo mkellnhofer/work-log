@@ -1,6 +1,6 @@
 module kellnhofer.com/work-log
 
-go 1.12
+go 1.20
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize/v2 v2.2.0

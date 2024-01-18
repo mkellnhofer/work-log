@@ -2,7 +2,7 @@ package mapper
 
 import (
 	am "kellnhofer.com/work-log/api/model"
-	m "kellnhofer.com/work-log/model"
+	m "kellnhofer.com/work-log/pkg/model"
 )
 
 // --- Entry functions ---

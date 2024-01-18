@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"kellnhofer.com/work-log/constant"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
+	"kellnhofer.com/work-log/pkg/constant"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
 )
 
 func checkIdValid(name string, id int) *e.Error {

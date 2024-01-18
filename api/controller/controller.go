@@ -9,11 +9,11 @@ import (
 	"github.com/gorilla/mux"
 
 	am "kellnhofer.com/work-log/api/model"
-	"kellnhofer.com/work-log/constant"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	m "kellnhofer.com/work-log/model"
-	"kellnhofer.com/work-log/util/security"
+	"kellnhofer.com/work-log/pkg/constant"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	m "kellnhofer.com/work-log/pkg/model"
+	"kellnhofer.com/work-log/pkg/util/security"
 )
 
 const defaultPageSize = 50

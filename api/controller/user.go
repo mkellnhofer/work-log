@@ -7,10 +7,10 @@ import (
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/api/validator"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/service"
-	httputil "kellnhofer.com/work-log/util/http"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	"kellnhofer.com/work-log/pkg/service"
+	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 // UserController handles requests for user endpoints.

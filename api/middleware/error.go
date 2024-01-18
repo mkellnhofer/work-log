@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"kellnhofer.com/work-log/api/model"
-	"kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	httputil "kellnhofer.com/work-log/util/http"
+	"kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 var httpStatusCodeMapping = map[int]int{

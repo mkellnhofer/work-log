@@ -5,9 +5,9 @@ import (
 	"regexp"
 
 	vm "kellnhofer.com/work-log/api/model"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	m "kellnhofer.com/work-log/model"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	m "kellnhofer.com/work-log/pkg/model"
 )
 
 // --- User API model valdidation functions ---

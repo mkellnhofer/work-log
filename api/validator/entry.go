@@ -2,8 +2,8 @@ package validator
 
 import (
 	vm "kellnhofer.com/work-log/api/model"
-	e "kellnhofer.com/work-log/error"
-	m "kellnhofer.com/work-log/model"
+	e "kellnhofer.com/work-log/pkg/error"
+	m "kellnhofer.com/work-log/pkg/model"
 )
 
 // --- Entry activity API model valdidation functions ---

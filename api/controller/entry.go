@@ -8,11 +8,11 @@ import (
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/api/validator"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	m "kellnhofer.com/work-log/model"
-	"kellnhofer.com/work-log/service"
-	httputil "kellnhofer.com/work-log/util/http"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	m "kellnhofer.com/work-log/pkg/model"
+	"kellnhofer.com/work-log/pkg/service"
+	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 // EntryController handles requests for entry endpoints.

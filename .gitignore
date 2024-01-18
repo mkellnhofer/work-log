@@ -1,6 +1,8 @@
 work-log
 work-log.zip
 
+cmd/__debug_*
+
 config/config.ini
 
-swagger-ui/swagger.json
+web/swagger-ui/swagger.json

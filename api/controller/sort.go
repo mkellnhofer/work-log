@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/model"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	"kellnhofer.com/work-log/pkg/model"
 )
 
 type sort struct {

@@ -7,12 +7,12 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"kellnhofer.com/work-log/constant"
-	e "kellnhofer.com/work-log/error"
-	"kellnhofer.com/work-log/log"
-	"kellnhofer.com/work-log/model"
-	"kellnhofer.com/work-log/service"
-	"kellnhofer.com/work-log/util/security"
+	"kellnhofer.com/work-log/pkg/constant"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
+	"kellnhofer.com/work-log/pkg/model"
+	"kellnhofer.com/work-log/pkg/service"
+	"kellnhofer.com/work-log/pkg/util/security"
 )
 
 // SecurityMiddleware creates the security context.

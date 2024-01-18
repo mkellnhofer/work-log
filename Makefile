@@ -12,21 +12,21 @@ clean:
 .PHONY: swagger-spec
 swagger-spec:
 	# Needs go-swagger
-	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o ./swagger-ui/swagger.json
+	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o web/swagger-ui/swagger.json
 
 .PHONY: go-build
 go-build:
-	go build
+	go build -o work-log cmd/init.go cmd/main.go
 
 .PHONY: go-build-arm-linux
 go-build-arm-linux:
 	# Needs ARM compiler (gcc-arm-linux-gnueabihf)
-	CC=arm-linux-gnueabihf-gcc GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 go build
+	CC=arm-linux-gnueabihf-gcc GOOS=linux GOARCH=arm GOARM=6 CGO_ENABLED=1 go build cmd/init.go cmd/main.go
 
 .PHONY: go-build-arm64-linux
 go-build-arm64-linux:
 	# Needs ARM64 compiler (gcc-aarch64-linux-gnu)
-	CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build
+	CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 CGO_ENABLED=1 go build cmd/init.go cmd/main.go
 
 .PHONY: package
 package:
@@ -34,10 +34,10 @@ package:
 		work-log \
 		config/config.ini.example \
 		config/localizations/*.* \
-		resources/css/*.* \
-		resources/font/*.* \
-		resources/img/*.* \
-		resources/js/*.* \
 		scripts/db/*.* \
-		swagger-ui/*.* \
-		templates/*.*
+		web/resources/css/*.* \
+		web/resources/font/*.* \
+		web/resources/img/*.* \
+		web/resources/js/*.* \
+		web/swagger-ui/*.* \
+		web/templates/*.*

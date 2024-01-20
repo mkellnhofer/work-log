@@ -1,0 +1,16 @@
+.devcontainer/
+.vscode/
+
+.dockerignore
+.gitignore
+
+db-init.sql
+docker-compose.yml
+Dockerfile
+
+LICENSE
+Makefile
+README.md
+screenshot.png
+work-log
+work-log.zip

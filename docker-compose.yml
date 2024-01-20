@@ -1,0 +1,36 @@
+version: "3.7"
+
+services:
+
+  db:
+    image: mariadb:11
+    volumes:
+      - ./db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+      - db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./config/config.ini:/app/config/config.ini
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+
+  db:

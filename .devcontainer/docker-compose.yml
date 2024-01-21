@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    volumes:
+      - ../db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  devcontainer:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/workspace:cached
+      - ./config.ini:/workspace/config/config.ini
+    network_mode: service:db
+    command: sleep infinity
+
+volumes:
+
+  db:

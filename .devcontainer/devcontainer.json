@@ -1,0 +1,42 @@
+{
+    "name": "Go & MariaDB",
+
+    // Docker properties
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "devcontainer",
+
+    // Default path that should be open when connecting to the container
+    "workspaceFolder": "/workspace",
+
+    // Additional development container tooling/configuration
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {
+            "version": "latest"
+        },
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "none"
+        }
+    },
+
+    // Additional tools
+    "postCreateCommand": "bash .devcontainer/install-tools.sh",
+
+    // Tool-specific properties
+    "customizations": {
+        "vscode": {
+            // Container specific settings values that are used for the container
+            "settings": {
+                "go.toolsManagement.checkForUpdates": "local",
+                "go.useLanguageServer": true,
+                "go.gopath": "/go"
+            },
+            // IDs of extensions that should be installed when the container is created
+            "extensions": [
+                "golang.go"
+            ]
+        }
+    },
+
+    // Forwarded ports inside the containers
+    "forwardPorts": [3306, 8080]
+}

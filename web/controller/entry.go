@@ -861,7 +861,10 @@ func (c *EntryController) calculateRemainingVacationDays(userContract *model.Con
 
 	// Convert vacation hours to vacation days
 	wd := c.findWorkingDurationForDate(workDurations, now)
-	remainingVacationDays := remainingVacationHours / float32(wd.Hours())
+	var remainingVacationDays float32
+	if remainingVacationHours > 0 {
+		remainingVacationDays = remainingVacationHours / float32(wd.Hours())
+	}
 
 	return remainingVacationDays
 }

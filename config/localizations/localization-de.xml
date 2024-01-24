@@ -71,7 +71,6 @@
     <message key="formLabelDate"><text>Datum:</text></message>
     <message key="formLabelStart"><text>Start:</text></message>
     <message key="formLabelEnd"><text>Ende:</text></message>
-    <message key="formLabelBreak"><text>Pause: (Minuten)</text></message>
     <message key="formLabelFrom"><text>Von:</text></message>
     <message key="formLabelTo"><text>Bis:</text></message>
     <message key="formLabelActivity"><text>Tätigkeit:</text></message>
@@ -82,7 +81,6 @@
     <message key="tableColType"><text>Art</text></message>
     <message key="tableColStart"><text>Start</text></message>
     <message key="tableColEnd"><text>Ende</text></message>
-    <message key="tableColBreak"><text>Pause</text></message>
     <message key="tableColNet"><text>Netto</text></message>
     <message key="tableColActivity"><text>Tätigkeit</text></message>
     <message key="tableColDescription"><text>Beschreibung</text></message>
@@ -130,7 +128,6 @@
     <message key="errValEndDateInvalid"><text>Enddatum ungültig!</text></message>
     <message key="errValStartTimeInvalid"><text>Startzeit ungültig!</text></message>
     <message key="errValEndTimeInvalid"><text>Endzeit ungültig!</text></message>
-    <message key="errValBreakDurationInvalid"><text>Pausendauer ungültig!</text></message>
     <message key="errValDescriptionTooLong"><text>Beschreibung darf nicht länger als 200 Zeichen sein!</text></message>
     <message key="errValSearchInvalid"><text>Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)</text></message>
     <message key="errValSearchQueryInvalid"><text>Suchabfrage ungültig!</text></message>
@@ -145,7 +142,6 @@
     <message key="errLogicEntryTypeNotFound"><text>Der Eintragstyp konnte nicht gefunden werden.</text></message>
     <message key="errLogicEntryActivityNotFound"><text>Die Eintragstätigkeit konnte nicht gefunden werden.</text></message>
     <message key="errLogicEntryTimeIntervalInvalid"><text>Startzeit-Endzeit-Interval ungültig!</text></message>
-    <message key="errLogicEntryBreakDurationTooLong"><text>Pausendauer zu lang!</text></message>
     <message key="errLogicEntrySearchDateIntervalInvalid"><text>Suchzeitraum ungültig!</text></message>
     <message key="errSysUnknown"><text>Ein unbekannter Systemfehler trat auf.</text></message>
     <message key="errSysDbUnknown"><text>Ein unbekannter Datenbankfehler trat auf.</text></message>

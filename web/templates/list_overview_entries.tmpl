@@ -75,7 +75,6 @@
           <th class="wl-overview-table-column-type" scope="col">{{text "tableColType"}}</th>
           <th class="wl-overview-table-column-time" scope="col">{{text "tableColStart"}}</th>
           <th class="wl-overview-table-column-time" scope="col">{{text "tableColEnd"}}</th>
-          <th class="wl-overview-table-column-time" scope="col">{{text "tableColBreak"}}</th>
           <th class="wl-overview-table-column-time" scope="col">{{text "tableColNet"}}</th>
           {{if $.ShowDetails -}}
           <th class="wl-overview-table-column-activity" scope="col">{{text "tableColActivity"}}</th>
@@ -95,7 +94,6 @@
           <td class="wl-overview-table-text">-</td>
           <td class="wl-overview-table-text">-</td>
           <td class="wl-overview-table-text">-</td>
-          <td class="wl-overview-table-text">-</td>
           <td class="wl-overview-table-text"></td>
           <td class="wl-overview-table-text"></td>
         </tr>
@@ -110,8 +108,7 @@
           <td class="wl-overview-table-text">{{$entry.EntryType}}</td>
           <td class="wl-overview-table-text">{{$entry.StartTime}}</td>
           <td class="wl-overview-table-text">{{$entry.EndTime}}</td>
-          <td class="wl-overview-table-text">{{$entry.BreakDuration}}</td>
-          <td class="wl-overview-table-text">{{$entry.WorkDuration}}</td>
+          <td class="wl-overview-table-text">{{$entry.Duration}}</td>
           <td class="wl-overview-table-text">{{$entry.EntryActivity}}</td>
           <td class="wl-overview-table-text">{{$entry.Description}}</td>
         </tr>
@@ -123,7 +120,6 @@
           <td class="wl-overview-table-text"></td>
           <td class="wl-overview-table-text"></td>
           <td class="wl-overview-table-text"></td>
-          <td class="wl-overview-table-text">{{$day.BreakDuration}}</td>
           <td class="wl-overview-table-text">{{$day.WorkDuration}}</td>
           <td class="wl-overview-table-text"></td>
           <td class="wl-overview-table-text"></td>

@@ -52,7 +52,6 @@ var httpStatusCodeMapping = map[int]int{
 	error.LogicEntryActivityNotFound:          http.StatusNotFound,
 	error.LogicEntryActivityDeleteNotAllowed:  http.StatusConflict,
 	error.LogicEntryTimeIntervalInvalid:       http.StatusBadRequest,
-	error.LogicEntryBreakDurationTooLong:      http.StatusBadRequest,
 	error.LogicEntrySearchDateIntervalInvalid: http.StatusBadRequest,
 	error.LogicRoleNotFound:                   http.StatusNotFound,
 	error.LogicUserNotFound:                   http.StatusNotFound,

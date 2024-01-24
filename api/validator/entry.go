@@ -44,9 +44,6 @@ func ValidateCreateEntry(data *vm.CreateEntry) *e.Error {
 	if err := checkEntryEndTime(data.EndTime); err != nil {
 		return err
 	}
-	if err := checkEntryBreakDuration(data.BreakDuration); err != nil {
-		return err
-	}
 	if err := checkEntryTypeId(data.TypeId); err != nil {
 		return err
 	}
@@ -65,9 +62,6 @@ func ValidateUpdateEntry(data *vm.UpdateEntry) *e.Error {
 		return err
 	}
 	if err := checkEntryEndTime(data.EndTime); err != nil {
-		return err
-	}
-	if err := checkEntryBreakDuration(data.BreakDuration); err != nil {
 		return err
 	}
 	if err := checkEntryTypeId(data.TypeId); err != nil {
@@ -91,10 +85,6 @@ func checkEntryStartTime(timestamp string) *e.Error {
 
 func checkEntryEndTime(timestamp string) *e.Error {
 	return checkTimestampValid("startTime", timestamp)
-}
-
-func checkEntryBreakDuration(num int) *e.Error {
-	return checkIntNotNegative("breakDuration", num)
 }
 
 func checkEntryTypeId(id int) *e.Error {

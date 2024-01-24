@@ -32,7 +32,6 @@ func ToEntry(e *m.Entry) *am.Entry {
 	out.UserId = e.UserId
 	out.StartTime = formatTimestamp(e.StartTime)
 	out.EndTime = formatTimestamp(e.EndTime)
-	out.BreakDuration = formatMinutesDuration(e.BreakDuration)
 	out.TypeId = e.TypeId
 	out.ActivityId = e.ActivityId
 	out.Desciption = e.Description
@@ -49,7 +48,6 @@ func FromCreateEntry(ce *am.CreateEntry) *m.Entry {
 	out.UserId = ce.UserId
 	out.StartTime = parseTimestamp(ce.StartTime)
 	out.EndTime = parseTimestamp(ce.EndTime)
-	out.BreakDuration = parseMinutesDuration(ce.BreakDuration)
 	out.TypeId = ce.TypeId
 	out.ActivityId = ce.ActivityId
 	out.Description = ce.Description
@@ -67,7 +65,6 @@ func FromUpdateEntry(id int, ue *am.UpdateEntry) *m.Entry {
 	out.UserId = ue.UserId
 	out.StartTime = parseTimestamp(ue.StartTime)
 	out.EndTime = parseTimestamp(ue.EndTime)
-	out.BreakDuration = parseMinutesDuration(ue.BreakDuration)
 	out.TypeId = ue.TypeId
 	out.ActivityId = ue.ActivityId
 	out.Description = ue.Description

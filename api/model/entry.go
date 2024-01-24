@@ -22,10 +22,6 @@ type Entry struct {
 	// example: 2019-01-01T16:00:00
 	EndTime string `json:"endTime"`
 
-	// The break duration of the entry in minutes.
-	// example: 60
-	BreakDuration int `json:"breakDuration"`
-
 	// The ID of the entry type.
 	// example: 1
 	TypeId int `json:"typeId"`

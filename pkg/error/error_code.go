@@ -45,15 +45,14 @@ const (
 	ValEndDateInvalid       = -320
 	ValStartTimeInvalid     = -321
 	ValEndTimeInvalid       = -322
-	ValBreakDurationInvalid = -323
-	ValDescriptionTooLong   = -324
-	ValSearchInvalid        = -325
-	ValSearchQueryInvalid   = -326
-	ValMonthInvalid         = -327
-	ValPasswordEmpty        = -328
-	ValPasswordTooShort     = -329
-	ValPasswordTooLong      = -330
-	ValPasswordsNotMatching = -331
+	ValDescriptionTooLong   = -323
+	ValSearchInvalid        = -324
+	ValSearchQueryInvalid   = -325
+	ValMonthInvalid         = -326
+	ValPasswordEmpty        = -330
+	ValPasswordTooShort     = -331
+	ValPasswordTooLong      = -332
+	ValPasswordsNotMatching = -333
 
 	// Logic errors
 	LogicUnknown                        = -400
@@ -62,13 +61,12 @@ const (
 	LogicEntryActivityNotFound          = -403
 	LogicEntryActivityDeleteNotAllowed  = -404
 	LogicEntryTimeIntervalInvalid       = -405
-	LogicEntryBreakDurationTooLong      = -406
-	LogicEntrySearchDateIntervalInvalid = -407
-	LogicRoleNotFound                   = -408
-	LogicUserNotFound                   = -409
-	LogicUserAlreadyExists              = -410
-	LogicContractWorkingHoursInvalid    = -411
-	LogicContractVacationDaysInvalid    = -412
+	LogicEntrySearchDateIntervalInvalid = -406
+	LogicRoleNotFound                   = -407
+	LogicUserNotFound                   = -408
+	LogicUserAlreadyExists              = -409
+	LogicContractWorkingHoursInvalid    = -410
+	LogicContractVacationDaysInvalid    = -411
 
 	// System errors
 	SysUnknown             = -500

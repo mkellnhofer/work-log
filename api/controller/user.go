@@ -387,8 +387,8 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//       ⦁ [-313]: Invalid date\n
 	//       ⦁ [-317]: Invalid username\n
 	//       ⦁ [-318]: Invalid password\n
-	//       ⦁ [-411]: Invalid contract working hours\n
-	//       ⦁ [-412]: Invalid contract vacation days"
+	//       ⦁ [-410]: Invalid contract working hours\n
+	//       ⦁ [-411]: Invalid contract vacation days"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':
@@ -404,7 +404,7 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '409':
 	//     description: "__Conflict__\n\n
-	//       ⦁ [-410]: User already exists"
+	//       ⦁ [-409]: User already exists"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -473,7 +473,7 @@ func (c *UserController) GetUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -533,8 +533,8 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//       ⦁ [-313]: Invalid date\n
 	//       ⦁ [-317]: Invalid username\n
 	//       ⦁ [-318]: Invalid password\n
-	//       ⦁ [-411]: Invalid contract working hours\n
-	//       ⦁ [-412]: Invalid contract vacation days"
+	//       ⦁ [-410]: Invalid contract working hours\n
+	//       ⦁ [-411]: Invalid contract vacation days"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':
@@ -550,12 +550,12 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '409':
 	//     description: "__Conflict__\n\n
-	//       ⦁ [-410]: User already exists"
+	//       ⦁ [-409]: User already exists"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -627,7 +627,7 @@ func (c *UserController) DeleteUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -702,7 +702,7 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -770,7 +770,7 @@ func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -834,8 +834,8 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   '404':
 	//     description: "__Not Found__\n\n
-	//       ⦁ [-408]: Role not found\n
-	//       ⦁ [-409]: User not found"
+	//       ⦁ [-407]: Role not found\n
+	//       ⦁ [-408]: User not found"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':

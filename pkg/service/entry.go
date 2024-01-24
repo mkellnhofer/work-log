@@ -272,14 +272,6 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 		return err
 	}
 
-	workDuration := entry.EndTime.Sub(entry.StartTime)
-	if entry.BreakDuration > workDuration {
-		err := e.NewError(e.LogicEntryBreakDurationTooLong, fmt.Sprintf("Break duration %s too long.",
-			entry.BreakDuration))
-		log.Debug(err.StackTrace())
-		return err
-	}
-
 	return nil
 }
 

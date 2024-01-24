@@ -17,7 +17,7 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 )
 
-const curDbVers = 2
+const curDbVers = 3
 
 // Db abstracts the database access and provides repositories execute CRUD operations.
 type Db struct {

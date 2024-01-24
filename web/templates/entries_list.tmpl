@@ -9,7 +9,6 @@
         <th class="wl-list-table-column-type" scope="col">{{text "tableColType"}}</th>
         <th class="wl-list-table-column-time" scope="col">{{text "tableColStart"}}</th>
         <th class="wl-list-table-column-time" scope="col">{{text "tableColEnd"}}</th>
-        <th class="wl-list-table-column-time" scope="col">{{text "tableColBreak"}}</th>
         <th class="wl-list-table-column-time" scope="col">{{text "tableColNet"}}</th>
         <th class="wl-list-table-column-activity" scope="col">{{text "tableColActivity"}}</th>
         <th class="wl-list-table-column-description" scope="col">{{text "tableColDescription"}}</th>
@@ -19,9 +18,9 @@
       {{range .Entries -}}
       <tr>
         {{if .IsMissing -}}
-        <td class="wl-list-table-row-missing" colspan="8"></td>
+        <td class="wl-list-table-row-missing" colspan="7"></td>
         {{else if .IsOverlapping -}}
-        <td class="wl-list-table-row-overlapping" colspan="8"></td>
+        <td class="wl-list-table-row-overlapping" colspan="7"></td>
         {{else -}}
         <td>
           <a class="btn btn-link wl-list-table-button" href="../edit/{{.Id}}"><i class="icon icon-edit" aria-label="{{text "listActionEdit"}}"></i></a>
@@ -33,8 +32,7 @@
         <td class="wl-list-table-text">{{.EntryType}}</td>
         <td class="wl-list-table-text">{{.StartTime}}</td>
         <td class="wl-list-table-text">{{.EndTime}}</td>
-        <td class="wl-list-table-text">{{.BreakDuration}}</td>
-        <td class="wl-list-table-text">{{.WorkDuration}}</td>
+        <td class="wl-list-table-text">{{.Duration}}</td>
         <td class="wl-list-table-text">{{.EntryActivity}}</td>
         <td class="wl-list-table-text">{{.Description}}</td>
         {{end -}}

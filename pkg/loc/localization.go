@@ -104,7 +104,6 @@ var errorMessageKeys = map[int]string{
 	e.ValEndDateInvalid:       "errValEndDateInvalid",
 	e.ValStartTimeInvalid:     "errValStartTimeInvalid",
 	e.ValEndTimeInvalid:       "errValEndTimeInvalid",
-	e.ValBreakDurationInvalid: "errValBreakDurationInvalid",
 	e.ValDescriptionTooLong:   "errValDescriptionTooLong",
 	e.ValSearchInvalid:        "errValSearchInvalid",
 	e.ValSearchQueryInvalid:   "errValSearchQueryInvalid",
@@ -121,7 +120,6 @@ var errorMessageKeys = map[int]string{
 	e.LogicEntryTypeNotFound:              "errLogicEntryTypeNotFound",
 	e.LogicEntryActivityNotFound:          "errLogicEntryActivityNotFound",
 	e.LogicEntryTimeIntervalInvalid:       "errLogicEntryTimeIntervalInvalid",
-	e.LogicEntryBreakDurationTooLong:      "errLogicEntryBreakDurationTooLong",
 	e.LogicEntrySearchDateIntervalInvalid: "errLogicEntrySearchDateIntervalInvalid",
 
 	// System errors

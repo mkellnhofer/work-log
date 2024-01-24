@@ -42,13 +42,12 @@ type monthlyVacationDays struct {
 }
 
 type entryFormInput struct {
-	typeId        string
-	date          string
-	startTime     string
-	endTime       string
-	breakDuration string
-	activityId    string
-	description   string
+	typeId      string
+	date        string
+	startTime   string
+	endTime     string
+	activityId  string
+	description string
 }
 
 type searchEntriesFormInput struct {
@@ -254,7 +253,7 @@ func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Reques
 		entryTypeId = entryTypes[0].Id
 	}
 	model := c.createCreateViewModel(prevUrl, "", entryTypeId, getDateString(time.Now()), "00:00",
-		"00:00", 0, 0, "", entryTypes, entryActivities)
+		"00:00", 0, "", entryTypes, entryActivities)
 
 	// Render
 	view.RenderCreateEntryTemplate(w, model)
@@ -307,10 +306,8 @@ func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Reque
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createCreateViewModel(prevUrl, em, entryTypeId, input.date, input.startTime,
-		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
-		entryActivities)
+		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderCreateEntryTemplate(w, model)
@@ -340,8 +337,7 @@ func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request)
 	prevUrl := getPreviousUrl(ctx)
 	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		getRoundedMinutes(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
-		entryActivities)
+		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderEditEntryTemplate(w, model)
@@ -397,10 +393,8 @@ func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createEditViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
-		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
-		entryActivities)
+		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderEditEntryTemplate(w, model)
@@ -430,8 +424,7 @@ func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request)
 	prevUrl := getPreviousUrl(ctx)
 	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
-		getRoundedMinutes(entry.BreakDuration), entry.ActivityId, entry.Description, entryTypes,
-		entryActivities)
+		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderCopyEntryTemplate(w, model)
@@ -487,10 +480,8 @@ func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request
 	prevUrl := getPreviousUrl(ctx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
-	breakDuration, _ := strconv.Atoi(input.breakDuration)
 	model := c.createCopyViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
-		input.endTime, breakDuration, entryActivityId, input.description, entryTypes,
-		entryActivities)
+		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
 	view.RenderCopyEntryTemplate(w, model)
@@ -774,7 +765,7 @@ func (c *EntryController) calculateOvertimeHours(userContract *model.Contract,
 	// Calculate actual duration
 	var actualWorkDuration time.Duration
 	for _, workDuration := range workSummary.WorkDurations {
-		actualWorkDuration = actualWorkDuration + workDuration.WorkDuration - workDuration.BreakDuration
+		actualWorkDuration = actualWorkDuration + workDuration.WorkDuration
 	}
 	log.Verbf("Actual work duration: %.0f min", actualWorkDuration.Minutes())
 
@@ -859,8 +850,7 @@ func (c *EntryController) calculateRemainingVacationDays(userContract *model.Con
 	takenVacationHours := float32(0.0)
 	for _, workDuration := range workSummary.WorkDurations {
 		if workDuration.TypeId == model.EntryTypeIdVacation {
-			takenVacationHours = takenVacationHours + float32(workDuration.WorkDuration.Hours()) -
-				float32(workDuration.BreakDuration.Hours())
+			takenVacationHours = takenVacationHours + float32(workDuration.WorkDuration.Hours())
 		}
 	}
 	log.Verbf("Taken vacation: %.0f hours", takenVacationHours)
@@ -895,39 +885,39 @@ func (c *EntryController) getEntryActivityDescription(entryActivitiesMap map[int
 }
 
 func (c *EntryController) createCreateViewModel(prevUrl string, errorMessage string, typeId int,
-	date string, startTime string, endTime string, breakDuration int, activityId int,
-	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
+	date string, startTime string, endTime string, activityId int, description string,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
 	cevm := vm.NewCreateEntry()
 	cevm.PreviousUrl = prevUrl
 	cevm.ErrorMessage = errorMessage
-	cevm.Entry = c.createEntryViewModel(0, typeId, date, startTime, endTime, breakDuration,
-		activityId, description)
+	cevm.Entry = c.createEntryViewModel(0, typeId, date, startTime, endTime, activityId,
+		description)
 	cevm.EntryTypes = c.createEntryTypesViewModel(types)
 	cevm.EntryActivities = c.createEntryActivitiesViewModel(activities)
 	return cevm
 }
 
 func (c *EntryController) createEditViewModel(prevUrl string, errorMessage string, id int,
-	typeId int, date string, startTime string, endTime string, breakDuration int, activityId int,
-	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
+	typeId int, date string, startTime string, endTime string, activityId int, description string,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
 	eevm := vm.NewEditEntry()
 	eevm.PreviousUrl = prevUrl
 	eevm.ErrorMessage = errorMessage
-	eevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, breakDuration,
-		activityId, description)
+	eevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
+		description)
 	eevm.EntryTypes = c.createEntryTypesViewModel(types)
 	eevm.EntryActivities = c.createEntryActivitiesViewModel(activities)
 	return eevm
 }
 
 func (c *EntryController) createCopyViewModel(prevUrl string, errorMessage string, id int,
-	typeId int, date string, startTime string, endTime string, breakDuration int, activityId int,
-	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
+	typeId int, date string, startTime string, endTime string, activityId int, description string,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
 	cevm := vm.NewCopyEntry()
 	cevm.PreviousUrl = prevUrl
 	cevm.ErrorMessage = errorMessage
-	cevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, breakDuration,
-		activityId, description)
+	cevm.Entry = c.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
+		description)
 	cevm.EntryTypes = c.createEntryTypesViewModel(types)
 	cevm.EntryActivities = c.createEntryActivitiesViewModel(activities)
 	return cevm
@@ -992,7 +982,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 	var ldvm *vm.ListEntriesDay
 	prevDate := ""
 	var prevStartTime *time.Time
-	var totalNetWorkDuration time.Duration
+	var totalWorkDuration time.Duration
 	var totalBreakDuration time.Duration
 	var wasTargetWorkDurationReached string
 
@@ -1006,7 +996,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 			prevStartTime = nil
 
 			// Reset total work and break duration
-			totalNetWorkDuration = 0
+			totalWorkDuration = 0
 			totalBreakDuration = 0
 			wasTargetWorkDurationReached = ""
 
@@ -1024,15 +1014,19 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 		}
 
 		// Calculate work duration
-		workDuration := entry.EndTime.Sub(entry.StartTime)
-		netWorkDuration := workDuration - entry.BreakDuration
-		totalNetWorkDuration = totalNetWorkDuration + netWorkDuration
-		totalBreakDuration = totalBreakDuration + entry.BreakDuration
+		duration := entry.EndTime.Sub(entry.StartTime)
+		totalWorkDuration = totalWorkDuration + duration
 
 		// Calculate if target work duration was reached
 		if calcTargetWorkDurationReached {
-			reached := (totalNetWorkDuration - targetWorkDuration) >= 0
+			reached := (totalWorkDuration - targetWorkDuration) >= 0
 			wasTargetWorkDurationReached = strconv.FormatBool(reached)
+		}
+
+		// Calculate break duration
+		if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
+			breakDuration := prevStartTime.Sub(entry.EndTime)
+			totalBreakDuration = totalBreakDuration + breakDuration
 		}
 
 		// Check for missing or overlapping entry
@@ -1055,12 +1049,11 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 		levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
 		levm.StartTime = view.FormatTime(entry.StartTime)
 		levm.EndTime = view.FormatTime(entry.EndTime)
-		levm.BreakDuration = view.FormatHours(entry.BreakDuration)
-		levm.WorkDuration = view.FormatHours(netWorkDuration)
+		levm.Duration = view.FormatHours(duration)
 		levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
 		levm.Description = entry.Description
 		ldvm.Entries = append(ldvm.Entries, levm)
-		ldvm.WorkDuration = view.FormatHours(totalNetWorkDuration)
+		ldvm.WorkDuration = view.FormatHours(totalWorkDuration)
 		ldvm.BreakDuration = view.FormatHours(totalBreakDuration)
 		ldvm.WasTargetWorkDurationReached = wasTargetWorkDurationReached
 	}
@@ -1069,14 +1062,13 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 }
 
 func (c *EntryController) createEntryViewModel(id int, typeId int, date string, startTime string,
-	endTime string, breakDuration int, activityId int, description string) *vm.Entry {
+	endTime string, activityId int, description string) *vm.Entry {
 	evm := vm.NewEntry()
 	evm.Id = id
 	evm.TypeId = typeId
 	evm.Date = date
 	evm.StartTime = startTime
 	evm.EndTime = endTime
-	evm.BreakDuration = breakDuration
 	evm.ActivityId = activityId
 	evm.Description = description
 	return evm
@@ -1157,20 +1149,19 @@ func (c *EntryController) createOverviewSummaryViewModel(year int, month int,
 	// Calculate type durations
 	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
 	for _, entry := range entries {
-		workDuration := entry.EndTime.Sub(entry.StartTime)
-		netWorkDuration := workDuration - entry.BreakDuration
+		duration := entry.EndTime.Sub(entry.StartTime)
 
 		switch entry.TypeId {
 		case model.EntryTypeIdWork:
-			actWork = actWork + netWorkDuration
+			actWork = actWork + duration
 		case model.EntryTypeIdTravel:
-			actTrav = actTrav + netWorkDuration
+			actTrav = actTrav + duration
 		case model.EntryTypeIdVacation:
-			actVaca = actVaca + netWorkDuration
+			actVaca = actVaca + duration
 		case model.EntryTypeIdHoliday:
-			actHoli = actHoli + netWorkDuration
+			actHoli = actHoli + duration
 		case model.EntryTypeIdIllness:
-			actIlln = actIlln + netWorkDuration
+			actIlln = actIlln + duration
 		}
 	}
 
@@ -1224,8 +1215,8 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 		ldsvm = append(ldsvm, ldvm)
 
 		// Create entries
-		var colBreakDuration, colNetWorkDuration time.Duration
-		var dailyBreakDuration, dailyNetWorkDuration time.Duration
+		var colWorkDuration time.Duration
+		var dailyWorkDuration time.Duration
 		preEntryTypeId := 0
 		var levm *vm.ListOverviewEntry
 		for {
@@ -1240,25 +1231,20 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 			_, _, cd := curDate.Date()
 			_, _, ed := entryDate.Date()
 			if cd != ed {
-				colBreakDuration = 0
-				colNetWorkDuration = 0
+				colWorkDuration = 0
 				preEntryTypeId = 0
 				break
 			}
 
-			// Reset collected break and net work duration
+			// Reset collected work duration
 			if entry.TypeId != preEntryTypeId {
-				colBreakDuration = 0
-				colNetWorkDuration = 0
+				colWorkDuration = 0
 			}
 
 			// Calculate work duration
-			workDuration := entry.EndTime.Sub(entry.StartTime)
-			netWorkDuration := workDuration - entry.BreakDuration
-			colBreakDuration = colBreakDuration + entry.BreakDuration
-			colNetWorkDuration = colNetWorkDuration + netWorkDuration
-			dailyBreakDuration = dailyBreakDuration + entry.BreakDuration
-			dailyNetWorkDuration = dailyNetWorkDuration + netWorkDuration
+			duration := entry.EndTime.Sub(entry.StartTime)
+			colWorkDuration = colWorkDuration + duration
+			dailyWorkDuration = dailyWorkDuration + duration
 
 			// Create and add new entry
 			if showDetails {
@@ -1267,8 +1253,7 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 				levm.EntryType = c.getEntryTypeDescription(entryTypesMap, entry.TypeId)
 				levm.StartTime = view.FormatTime(entry.StartTime)
 				levm.EndTime = view.FormatTime(entry.EndTime)
-				levm.BreakDuration = view.FormatHours(entry.BreakDuration)
-				levm.WorkDuration = view.FormatHours(netWorkDuration)
+				levm.Duration = view.FormatHours(duration)
 				levm.EntryActivity = c.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
 				levm.Description = entry.Description
 				ldvm.Entries = append(ldvm.Entries, levm)
@@ -1281,8 +1266,7 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 					ldvm.Entries = append(ldvm.Entries, levm)
 				}
 				levm.EndTime = view.FormatTime(entry.EndTime)
-				levm.BreakDuration = view.FormatHours(colBreakDuration)
-				levm.WorkDuration = view.FormatHours(colNetWorkDuration)
+				levm.Duration = view.FormatHours(colWorkDuration)
 			}
 
 			// Update previous entry type ID
@@ -1291,8 +1275,7 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 			// Update entry index
 			entryIndex++
 		}
-		ldvm.BreakDuration = view.FormatHours(dailyBreakDuration)
-		ldvm.WorkDuration = view.FormatHours(dailyNetWorkDuration)
+		ldvm.WorkDuration = view.FormatHours(dailyWorkDuration)
 
 		// If next month is reached: Abort
 		curDate = curDate.Add(24 * time.Hour)
@@ -1329,7 +1312,6 @@ func (c *EntryController) getEntryFormInput(r *http.Request) *entryFormInput {
 	i.date = r.FormValue("date")
 	i.startTime = r.FormValue("start-time")
 	i.endTime = r.FormValue("end-time")
-	i.breakDuration = r.FormValue("break-duration")
 	i.activityId = r.FormValue("activity")
 	i.description = r.FormValue("description")
 	return &i
@@ -1378,12 +1360,6 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 		return nil, err
 	}
 	entry.EndTime, err = c.convertDateTime(input.date, input.endTime, e.ValEndTimeInvalid)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert break duration
-	entry.BreakDuration, err = c.convertDuration(input.breakDuration, e.ValBreakDurationInvalid)
 	if err != nil {
 		return nil, err
 	}
@@ -1745,15 +1721,14 @@ func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.Fi
 	f.SetCellValue(sheet, "B13", loc.CreateString("tableColType"))
 	f.SetCellValue(sheet, "C13", loc.CreateString("tableColStart"))
 	f.SetCellValue(sheet, "D13", loc.CreateString("tableColEnd"))
-	f.SetCellValue(sheet, "E13", loc.CreateString("tableColBreak"))
-	f.SetCellValue(sheet, "F13", loc.CreateString("tableColNet"))
+	f.SetCellValue(sheet, "E13", loc.CreateString("tableColNet"))
 	if overviewEntries.ShowDetails {
-		f.SetCellValue(sheet, "G13", loc.CreateString("tableColActivity"))
-		f.SetCellValue(sheet, "H13", loc.CreateString("tableColDescription"))
+		f.SetCellValue(sheet, "F13", loc.CreateString("tableColActivity"))
+		f.SetCellValue(sheet, "G13", loc.CreateString("tableColDescription"))
 	}
-	f.SetCellStyle(sheet, "A13", "F13", styleTableHeader)
+	f.SetCellStyle(sheet, "A13", "E13", styleTableHeader)
 	if overviewEntries.ShowDetails {
-		f.SetCellStyle(sheet, "G13", "H13", styleTableHeader)
+		f.SetCellStyle(sheet, "F13", "G13", styleTableHeader)
 	}
 	// Create table body
 	row := 14
@@ -1764,29 +1739,26 @@ func exportOverviewEntries(overviewEntries *vm.ListOverviewEntries) *excelize.Fi
 			f.SetCellValue(sheet, getCellName("C", row), "-")
 			f.SetCellValue(sheet, getCellName("D", row), "-")
 			f.SetCellValue(sheet, getCellName("E", row), "-")
-			f.SetCellValue(sheet, getCellName("F", row), "-")
 			row++
 		} else {
 			for _, entry := range day.Entries {
 				f.SetCellValue(sheet, getCellName("B", row), entry.EntryType)
 				f.SetCellValue(sheet, getCellName("C", row), entry.StartTime)
 				f.SetCellValue(sheet, getCellName("D", row), entry.EndTime)
-				f.SetCellValue(sheet, getCellName("E", row), entry.BreakDuration)
-				f.SetCellValue(sheet, getCellName("F", row), entry.WorkDuration)
-				f.SetCellValue(sheet, getCellName("G", row), entry.EntryActivity)
-				f.SetCellValue(sheet, getCellName("H", row), entry.Description)
+				f.SetCellValue(sheet, getCellName("E", row), entry.Duration)
+				f.SetCellValue(sheet, getCellName("F", row), entry.EntryActivity)
+				f.SetCellValue(sheet, getCellName("G", row), entry.Description)
 				row++
 			}
 		}
 		if len(day.Entries) > 1 {
-			f.SetCellValue(sheet, getCellName("E", row), day.BreakDuration)
-			f.SetCellValue(sheet, getCellName("F", row), day.WorkDuration)
+			f.SetCellValue(sheet, getCellName("E", row), day.WorkDuration)
 			row++
 		}
 	}
-	f.SetCellStyle(sheet, "A14", getCellName("F", row-1), styleTableBody)
+	f.SetCellStyle(sheet, "A14", getCellName("E", row-1), styleTableBody)
 	if overviewEntries.ShowDetails {
-		f.SetCellStyle(sheet, "G14", getCellName("H", row-1), styleTableBody)
+		f.SetCellStyle(sheet, "F14", getCellName("G", row-1), styleTableBody)
 	}
 
 	return f

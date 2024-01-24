@@ -13,20 +13,18 @@ import (
 )
 
 type dbEntry struct {
-	id            int
-	userId        int
-	typeId        int
-	startTime     string
-	endTime       string
-	breakDuration int
-	activityId    sql.NullInt64
-	description   sql.NullString
+	id          int
+	userId      int
+	typeId      int
+	startTime   string
+	endTime     string
+	activityId  sql.NullInt64
+	description sql.NullString
 }
 
 type dbWorkDuration struct {
-	typeId        int
-	workDuration  int
-	breakDuration int
+	typeId       int
+	workDuration int
 }
 
 // EntryRepo retrieves and stores entry related entities.
@@ -121,8 +119,8 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
-		"e.activity_id, e.description " +
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
+		"e.description " +
 		"FROM entry e " +
 		qr + " " +
 		"AND e.start_time BETWEEN ? AND ? " +
@@ -204,8 +202,8 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
 	[]interface{}) {
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
-		"e.activity_id, e.description " +
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
+		"e.description " +
 		"FROM entry e " +
 		"WHERE e.user_id = ? " +
 		"AND e.start_time BETWEEN ? AND ? " +
@@ -244,8 +242,8 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.break_duration, " +
-		"e.activity_id, e.description " +
+	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
+		"e.description " +
 		"FROM entry e " +
 		qr + " " +
 		qo + " " +
@@ -271,8 +269,8 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 
 // GetEntryById retrieves an entry.
 func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.Error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description FROM entry WHERE id = ?"
+	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
+		"FROM entry WHERE id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id)
 	if qErr != nil {
@@ -293,8 +291,8 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.
 // GetEntryByIdAndUserId retrieves an entry of an user.
 func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
 	*e.Error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description FROM entry WHERE id = ? AND user_id = ?"
+	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
+		"FROM entry WHERE id = ? AND user_id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id, userId)
 	if qErr != nil {
@@ -353,11 +351,11 @@ func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int)
 func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) *e.Error {
 	etr := toDbEntry(entry)
 
-	q := "INSERT INTO entry (user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description) VALUES (?, ?, ?, ?, ?, ?, ?)"
+	q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, description) " +
+		"VALUES (?, ?, ?, ?, ?, ?)"
 
 	id, cErr := r.insert(ctx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
-		etr.breakDuration, etr.activityId, etr.description)
+		etr.activityId, etr.description)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbInsertFailed, "Could not create entry in database.", cErr)
 		log.Error(err.StackTrace())
@@ -374,10 +372,10 @@ func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) *e.Erro
 	etr := toDbEntry(entry)
 
 	q := "UPDATE entry SET user_id = ?, type_id = ?, start_time = ?, end_time = ?, " +
-		"break_duration = ?, activity_id = ?, description = ? WHERE id = ?"
+		"activity_id = ?, description = ? WHERE id = ?"
 
-	uErr := r.exec(ctx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.breakDuration,
-		etr.activityId, etr.description, etr.id)
+	uErr := r.exec(ctx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.activityId,
+		etr.description, etr.id)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry %d in database.",
 			entry.Id), uErr)
@@ -406,8 +404,7 @@ func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) *e.Error {
 // GetMonthEntries retrieves all entries of a month.
 func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, month int) (
 	[]*model.Entry, *e.Error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, break_duration, activity_id, " +
-		"description " +
+	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
 		"FROM entry " +
 		"WHERE user_id = ? " +
 		"AND YEAR(start_time) = ? AND MONTH(start_time) = ? " +
@@ -527,7 +524,7 @@ func (r *EntryRepo) DeleteEntryActivityById(ctx context.Context, id int) *e.Erro
 func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.Time, end time.Time) (
 	*model.WorkSummary,
 	*e.Error) {
-	q := "SELECT type_id, SUM(TIMESTAMPDIFF(MINUTE, start_time , end_time)), SUM(break_duration) " +
+	q := "SELECT type_id, SUM(TIMESTAMPDIFF(MINUTE, start_time , end_time)) " +
 		"FROM entry " +
 		"WHERE user_id = ? " +
 		"AND start_time >= ? AND end_time <= ? " +
@@ -662,8 +659,8 @@ func (h *scanEntryHelper) makeSlice() interface{} {
 func (h *scanEntryHelper) scan(s scanner) (interface{}, error) {
 	var dbE dbEntry
 
-	err := s.Scan(&dbE.id, &dbE.userId, &dbE.typeId, &dbE.startTime, &dbE.endTime, &dbE.breakDuration,
-		&dbE.activityId, &dbE.description)
+	err := s.Scan(&dbE.id, &dbE.userId, &dbE.typeId, &dbE.startTime, &dbE.endTime, &dbE.activityId,
+		&dbE.description)
 	if err != nil {
 		return nil, err
 	}
@@ -709,7 +706,7 @@ func (h *scanWorkDurationHelper) makeSlice() interface{} {
 func (h *scanWorkDurationHelper) scan(s scanner) (interface{}, error) {
 	var dbWd dbWorkDuration
 
-	err := s.Scan(&dbWd.typeId, &dbWd.workDuration, &dbWd.breakDuration)
+	err := s.Scan(&dbWd.typeId, &dbWd.workDuration)
 	if err != nil {
 		return nil, err
 	}
@@ -730,7 +727,6 @@ func toDbEntry(in *model.Entry) *dbEntry {
 	out.typeId = in.TypeId
 	out.startTime = *formatTimestamp(&in.StartTime)
 	out.endTime = *formatTimestamp(&in.EndTime)
-	out.breakDuration = *formatDuration(&in.BreakDuration)
 	if in.ActivityId != 0 {
 		out.activityId = sql.NullInt64{Int64: int64(in.ActivityId), Valid: true}
 	} else {
@@ -751,7 +747,6 @@ func fromDbEntry(in *dbEntry) *model.Entry {
 	out.TypeId = in.typeId
 	out.StartTime = *parseTimestamp(&in.startTime)
 	out.EndTime = *parseTimestamp(&in.endTime)
-	out.BreakDuration = *parseDuration(&in.breakDuration)
 	if in.activityId.Valid {
 		out.ActivityId = int(in.activityId.Int64)
 	} else {
@@ -769,7 +764,6 @@ func toDbWorkDuration(in *model.WorkDuration) *dbWorkDuration {
 	var out dbWorkDuration
 	out.typeId = in.TypeId
 	out.workDuration = *formatDuration(&in.WorkDuration)
-	out.breakDuration = *formatDuration(&in.BreakDuration)
 	return &out
 }
 
@@ -777,6 +771,5 @@ func fromDbWorkDuration(in *dbWorkDuration) *model.WorkDuration {
 	var out model.WorkDuration
 	out.TypeId = in.typeId
 	out.WorkDuration = *parseDuration(&in.workDuration)
-	out.BreakDuration = *parseDuration(&in.breakDuration)
 	return &out
 }

@@ -6,8 +6,7 @@ type ListOverviewEntry struct {
 	EntryType     string
 	StartTime     string
 	EndTime       string
-	BreakDuration string
-	WorkDuration  string
+	Duration      string
 	EntryActivity string
 	Description   string
 }

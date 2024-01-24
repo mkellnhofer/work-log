@@ -309,8 +309,7 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
-	//       ⦁ [-405]: Invalid time interval\n
-	//       ⦁ [-406]: Invalid break duration"
+	//       ⦁ [-405]: Invalid time interval"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':
@@ -451,8 +450,7 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
-	//       ⦁ [-405]: Invalid time interval\n
-	//       ⦁ [-406]: Invalid break duration"
+	//       ⦁ [-405]: Invalid time interval"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':

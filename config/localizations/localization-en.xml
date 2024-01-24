@@ -71,7 +71,6 @@
     <message key="formLabelDate"><text>Date:</text></message>
     <message key="formLabelStart"><text>Start:</text></message>
     <message key="formLabelEnd"><text>End:</text></message>
-    <message key="formLabelBreak"><text>Break: (Minutes)</text></message>
     <message key="formLabelFrom"><text>From:</text></message>
     <message key="formLabelTo"><text>To:</text></message>
     <message key="formLabelActivity"><text>Activity:</text></message>
@@ -82,7 +81,6 @@
     <message key="tableColType"><text>Type</text></message>
     <message key="tableColStart"><text>Start</text></message>
     <message key="tableColEnd"><text>End</text></message>
-    <message key="tableColBreak"><text>Break</text></message>
     <message key="tableColNet"><text>Net</text></message>
     <message key="tableColActivity"><text>Activity</text></message>
     <message key="tableColDescription"><text>Description</text></message>
@@ -130,7 +128,6 @@
     <message key="errValEndDateInvalid"><text>End date invalid!</text></message>
     <message key="errValStartTimeInvalid"><text>Start time invalid!</text></message>
     <message key="errValEndTimeInvalid"><text>End time invalid!</text></message>
-    <message key="errValBreakDurationInvalid"><text>Break time invalid!</text></message>
     <message key="errValDescriptionTooLong"><text>Description cannot be longer than 200 characters!</text></message>
     <message key="errValSearchInvalid"><text>Search invalid! (At least one characteristic must be selected.)</text></message>
     <message key="errValSearchQueryInvalid"><text>Search query invalid!</text></message>
@@ -145,7 +142,6 @@
     <message key="errLogicEntryTypeNotFound">​​<text>The entry type could not be found.</text></message>
     <message key="errLogicEntryActivityNotFound">​​<text>The entry activity could not be found.</text></message>
     <message key="errLogicEntryTimeIntervalInvalid"><text>Start end time interval invalid!</text></message>
-    <message key="errLogicEntryBreakDurationTooLong"><text>Break too long!</text></message>
     <message key="errLogicEntrySearchDateIntervalInvalid"><text>Search period invalid!</text></message>
     <message key="errSysUnknown"><text>An unknown system error occurred.</text></message>
     <message key="errSysDbUnknown"><text>An unknown database error occurred.</text></message>

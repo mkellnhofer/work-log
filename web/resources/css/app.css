@@ -4,14 +4,7 @@ html {
 
 body {
   height: 100%;
-}
-
-@media (min-width: 700px) and (min-height: 700px) {
-  body {
-    transform: scale(.9);
-    -webkit-transform: scale(.9);
-    -moz-transform: scale(.9);
-  }
+  font-size: 0.9rem;
 }
 
 h1 {
@@ -49,6 +42,18 @@ h3 {
   color: #000000;
   background-color: transparent;
   border-color: #d0d0d0;
+}
+
+@media (min-width: 700px) and (min-height: 700px) {
+  .btn {
+    font-size: 0.9rem;
+  }
+}
+
+@media (min-width: 700px) and (min-height: 700px) {
+  .form-control {
+    font-size: 0.9rem;
+  }
 }
 
 .form-row {
@@ -121,13 +126,14 @@ h3 {
 
 @media (min-width: 700px) and (min-height: 700px) {
   .wl-container {
-    padding: 0px;
+    padding-top: 25px;
+    padding-bottom: 25px;
   }
 }
 
-@media (min-width: 1020px) {
+@media (min-width: 950px) {
   .wl-container {
-    width: 1000px;
+    width: 930px;
   }
 }
 
@@ -141,17 +147,19 @@ h3 {
 }
 
 .wl-header-logo img {
-  width: 40px;
-  height: 40px;
-  margin-top: -12px;
+  width: 36px;
+  height: 36px;
+  margin-top: -10px;
 }
 
 .wl-header-back-button {
   margin-right: 12px;
+  margin-top: 3px;
+  margin-bottom: 3px;
 }
 
 .wl-header-back-button i {
-  font-size: 1.9em;
+  font-size: 1.8em;
 }
 
 .wl-header h1 {
@@ -205,6 +213,7 @@ h3 {
 }
 
 .wl-list-day-target-achieved {
+
 }
 
 .wl-list-day-target-not-achieved {
@@ -250,7 +259,7 @@ h3 {
 }
 
 .wl-list-table-button {
-  padding: 2px 4px;
+  padding: 0px 4px;
 }
 
 .wl-list-table-button i {
@@ -258,15 +267,13 @@ h3 {
 }
 
 .wl-list-table-text {
-  padding-top: 7px !important;
-  padding-bottom: 3px !important;
+
 }
 
 .wl-list-page-buttons {
   position: relative;
   width: 100%;
   height: 38px;
-  margin-bottom: 30px;
 }
 
 .wl-list-page-button-prev {
@@ -311,13 +318,9 @@ h3 {
 
 .wl-overview-summary-table-label {
   min-width: 100px;
-  padding-top: 7px !important;
-  padding-bottom: 3px !important;
 }
 
 .wl-overview-summary-table-hours {
-  padding-top: 7px !important;
-  padding-bottom: 3px !important;
   text-align: right;
 }
 
@@ -371,6 +374,5 @@ h3 {
 }
 
 .wl-overview-table-text {
-  padding-top: 7px !important;
-  padding-bottom: 3px !important;
+
 }

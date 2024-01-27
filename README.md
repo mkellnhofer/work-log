@@ -2,7 +2,7 @@
 
 A simple Go web application for tracking working hours and activities.
 
-![Screenshot](screenshot.png)
+![Screenshot](screenshot-small.png)
 
 ## Features
 
@@ -21,27 +21,53 @@ A simple Go web application for tracking working hours and activities.
   - with endpoints to query/maintain entry types & entry activities
   - with endpoints to query/maintain entries
 
-## Downloads
+## Installation
 
-Downloads can be found at [releases](https://github.com/mkellnhofer/work-log/releases).
-(Binaries are only provided for Linux. For other systems you have to build them yourself. See
-[this blog post](https://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5) for how to cross
-compile Go code.)
+The application is available as a Docker image or a compiled binary.
 
-## Prerequisites
+Before you can start Work Log you need to create a configuration file. See
+[Configuration](#configuration) for more information.
+
+### Prerequisites
 
 Application data is stored in a database, therefore one of the following databases is needed:
 
 - MySQL (version >= 5.5)
 - MariaDB (version >= 5.5)
 
-## Installation
+(To setup the database user and schema, you can use [this](db-init.sql) initialization script.)
+
+### Docker
+
+The Docker image is available at `ghcr.io/mkellnhofer/work-log:1.2.0`.
+
+Images are only provided for `linux/amd64`, `linux/arm64` and `linux/armv7`. For other
+architectures you have to build them yourself.
+
+__Here is an example usage:__
+
+```bash
+docker run \
+  --name work-log \
+  --volume /config/config.ini:/app/config/config.ini \
+  --publish 8080:8080 \
+  ghcr.io/mkellnhofer/work-log:1.2.0
+```
+
+(You can also use [this](docker-compose.yml) example Docker Compose file.)
+
+### Standalone
+
+The standalone binary can be found at [releases](https://github.com/mkellnhofer/work-log/releases).
+
+Binaries are only provided for Linux (`amd64`, `arm64` and `arm`). For other systems you have to
+build them yourself. See
+[this](https://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5) blog post for how to cross
+compile Go code.
 
 1. Extract the archive with `unzip work-log-1.2.0.zip -d work-log`
 2. Go to the directory that was just created
 3. Execute `./work-log`
-
-(Before you can start Work Log you need to create a configuration. See next chapter.)
 
 ## Configuration
 
@@ -73,8 +99,8 @@ Work Log has low minimal requirements and can run on an inexpensive Raspberry Pi
 I would recommend to use a reverse proxy e.g. Nginx which does TLS offloading. (See
 [Nginx documentation](https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/) for how to
 configure Nginx as a reverse proxy and
-[this tutorial](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-18-04)
-for how to secure Nginx with a Let's Encrypt certificate.)
+[this](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-ubuntu-18-04)
+tutorial for how to secure Nginx with a Let's Encrypt certificate.)
 
 ## API Documentation
 

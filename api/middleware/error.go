@@ -3,61 +3,63 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"kellnhofer.com/work-log/api/model"
-	"kellnhofer.com/work-log/pkg/error"
+	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 var httpStatusCodeMapping = map[int]int{
-	error.AuthUnknown:            http.StatusUnauthorized,
-	error.AuthDataInvalid:        http.StatusUnauthorized,
-	error.AuthCredentialsInvalid: http.StatusUnauthorized,
-	error.AuthUserNotActivated:   http.StatusPreconditionFailed,
+	e.AuthUnknown:            http.StatusUnauthorized,
+	e.AuthDataInvalid:        http.StatusUnauthorized,
+	e.AuthCredentialsInvalid: http.StatusUnauthorized,
+	e.AuthUserNotActivated:   http.StatusPreconditionFailed,
 
-	error.PermUnknown:             http.StatusForbidden,
-	error.PermGetUserData:         http.StatusForbidden,
-	error.PermChangeUserData:      http.StatusForbidden,
-	error.PermGetUserAccount:      http.StatusForbidden,
-	error.PermChangeUserAccount:   http.StatusForbidden,
-	error.PermGetEntryCharacts:    http.StatusForbidden,
-	error.PermChangeEntryCharacts: http.StatusForbidden,
-	error.PermGetAllEntries:       http.StatusForbidden,
-	error.PermChangeAllEntries:    http.StatusForbidden,
-	error.PermGetOwnEntries:       http.StatusForbidden,
-	error.PermChangeOwnEntries:    http.StatusForbidden,
+	e.PermUnknown:             http.StatusForbidden,
+	e.PermGetUserData:         http.StatusForbidden,
+	e.PermChangeUserData:      http.StatusForbidden,
+	e.PermGetUserAccount:      http.StatusForbidden,
+	e.PermChangeUserAccount:   http.StatusForbidden,
+	e.PermGetEntryCharacts:    http.StatusForbidden,
+	e.PermChangeEntryCharacts: http.StatusForbidden,
+	e.PermGetAllEntries:       http.StatusForbidden,
+	e.PermChangeAllEntries:    http.StatusForbidden,
+	e.PermGetOwnEntries:       http.StatusForbidden,
+	e.PermChangeOwnEntries:    http.StatusForbidden,
 
-	error.ValUnknown:              http.StatusBadRequest,
-	error.ValJsonInvalid:          http.StatusBadRequest,
-	error.ValPageNumberInvalid:    http.StatusBadRequest,
-	error.ValIdInvalid:            http.StatusBadRequest,
-	error.ValFilterInvalid:        http.StatusBadRequest,
-	error.ValSortInvalid:          http.StatusBadRequest,
-	error.ValOffsetInvalid:        http.StatusBadRequest,
-	error.ValLimitInvalid:         http.StatusBadRequest,
-	error.ValFieldNil:             http.StatusBadRequest,
-	error.ValNumberNegative:       http.StatusBadRequest,
-	error.ValNumberNegativeOrZero: http.StatusBadRequest,
-	error.ValStringEmpty:          http.StatusBadRequest,
-	error.ValStringTooLong:        http.StatusBadRequest,
-	error.ValDateInvalid:          http.StatusBadRequest,
-	error.ValTimestampInvalid:     http.StatusBadRequest,
-	error.ValArrayEmpty:           http.StatusBadRequest,
-	error.ValRoleInvalid:          http.StatusBadRequest,
-	error.ValUsernameInvalid:      http.StatusBadRequest,
-	error.ValPasswordInvalid:      http.StatusBadRequest,
+	e.ValUnknown:              http.StatusBadRequest,
+	e.ValJsonInvalid:          http.StatusBadRequest,
+	e.ValPageNumberInvalid:    http.StatusBadRequest,
+	e.ValIdInvalid:            http.StatusBadRequest,
+	e.ValFilterInvalid:        http.StatusBadRequest,
+	e.ValSortInvalid:          http.StatusBadRequest,
+	e.ValOffsetInvalid:        http.StatusBadRequest,
+	e.ValLimitInvalid:         http.StatusBadRequest,
+	e.ValFieldNil:             http.StatusBadRequest,
+	e.ValNumberNegative:       http.StatusBadRequest,
+	e.ValNumberNegativeOrZero: http.StatusBadRequest,
+	e.ValStringEmpty:          http.StatusBadRequest,
+	e.ValStringTooLong:        http.StatusBadRequest,
+	e.ValDateInvalid:          http.StatusBadRequest,
+	e.ValTimestampInvalid:     http.StatusBadRequest,
+	e.ValArrayEmpty:           http.StatusBadRequest,
+	e.ValRoleInvalid:          http.StatusBadRequest,
+	e.ValUsernameInvalid:      http.StatusBadRequest,
+	e.ValPasswordInvalid:      http.StatusBadRequest,
 
-	error.LogicEntryNotFound:                  http.StatusNotFound,
-	error.LogicEntryTypeNotFound:              http.StatusNotFound,
-	error.LogicEntryActivityNotFound:          http.StatusNotFound,
-	error.LogicEntryActivityDeleteNotAllowed:  http.StatusConflict,
-	error.LogicEntryTimeIntervalInvalid:       http.StatusBadRequest,
-	error.LogicEntrySearchDateIntervalInvalid: http.StatusBadRequest,
-	error.LogicRoleNotFound:                   http.StatusNotFound,
-	error.LogicUserNotFound:                   http.StatusNotFound,
-	error.LogicUserAlreadyExists:              http.StatusConflict,
-	error.LogicContractWorkingHoursInvalid:    http.StatusBadRequest,
-	error.LogicContractVacationDaysInvalid:    http.StatusBadRequest,
+	e.LogicEntryNotFound:                  http.StatusNotFound,
+	e.LogicEntryTypeNotFound:              http.StatusNotFound,
+	e.LogicEntryActivityNotFound:          http.StatusNotFound,
+	e.LogicEntryActivityDeleteNotAllowed:  http.StatusConflict,
+	e.LogicEntryTimeIntervalInvalid:       http.StatusBadRequest,
+	e.LogicEntrySearchDateIntervalInvalid: http.StatusBadRequest,
+	e.LogicRoleNotFound:                   http.StatusNotFound,
+	e.LogicUserNotFound:                   http.StatusNotFound,
+	e.LogicUserAlreadyExists:              http.StatusConflict,
+	e.LogicContractWorkingHoursInvalid:    http.StatusBadRequest,
+	e.LogicContractVacationDaysInvalid:    http.StatusBadRequest,
 }
 
 func getHttpStatusCode(errorCode int) int {
@@ -78,34 +80,40 @@ func NewErrorMiddleware() *ErrorMiddleware {
 	return &ErrorMiddleware{}
 }
 
-// ServeHTTP processes requests.
-func (m *ErrorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before API error check.")
+// CreateHandler creates a new handler to process requests.
+func (m *ErrorMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before API error check.")
 
-	defer func() {
-		if err := recover(); err != nil {
-			log.Verb("Catching error.")
-			m.handleError(w, r, err)
-		}
-	}()
+		err := m.process(next, c)
 
-	next(w, r)
+		log.Verb("After API error check.")
 
-	log.Verb("After API error check.")
+		return err
+	}
 }
 
-func (m *ErrorMiddleware) handleError(w http.ResponseWriter, r *http.Request, err interface{}) {
-	switch e := err.(type) {
-	case *error.Error:
+func (m *ErrorMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	err := next(c)
+	if err != nil {
+		log.Verb("Catching error.")
+		m.handleError(c.Response(), err)
+	}
+	return nil
+}
+
+func (m *ErrorMiddleware) handleError(r *echo.Response, err interface{}) {
+	switch tErr := err.(type) {
+	case *e.Error:
 		// We can retrieve the status here and write out a specific status code.
-		sc := getHttpStatusCode(e.Code)
-		er := model.NewError(e.Code, e.Message)
-		httputil.WriteHttpResponse(w, sc, er)
+		sc := getHttpStatusCode(tErr.Code)
+		er := model.NewError(tErr.Code, tErr.Message)
+		httputil.WriteHttpResponse(r, sc, er)
 	default:
 		// Any error types we don't specifically look out for default to serving a HTTP 500
-		log.Errorf("%s", e)
+		log.Errorf("%s", tErr)
 		sc := http.StatusInternalServerError
-		er := model.NewError(error.SysUnknown, "Internal Server Error")
-		httputil.WriteHttpResponse(w, sc, er)
+		er := model.NewError(e.SysUnknown, "Internal Server Error")
+		httputil.WriteHttpResponse(r, sc, er)
 	}
 }

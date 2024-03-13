@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
 	"kellnhofer.com/work-log/pkg/constant"
@@ -25,98 +26,126 @@ func NewSecurityMiddleware(us *service.UserService) *SecurityMiddleware {
 	return &SecurityMiddleware{us}
 }
 
-// ServeHTTP processes requests.
-func (m *SecurityMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before API auth check.")
+// CreateHandler creates a new handler to process requests.
+func (m *SecurityMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before API auth check.")
+
+		err := m.process(next, c)
+
+		log.Verb("After API auth check.")
+
+		return err
+	}
+}
+
+func (m *SecurityMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
 
 	// Create system context
-	sysCtx := security.CreateSystemContext(r.Context())
+	sysCtx := security.CreateSystemContext(req.Context())
 
 	userId := model.AnonymousUserId
 
 	// Was authentication data provided?
-	if r.Header.Get("Authorization") != "" {
+	if m.hasAuthenticationData(req) {
 		// Get user credentials
-		username, password := m.getUserCredentials(r)
+		username, password, err := m.getUserCredentials(req)
+		if err != nil {
+			return err
+		}
 
 		log.Debugf("Authenticating user '%s' ...", username)
 
 		// Try to authenticate user
-		user := m.authenticateUser(sysCtx, username, password)
+		user, err := m.authenticateUser(sysCtx, username, password)
+		if err != nil {
+			return err
+		}
 
-		// Get requested path
-		reqPath := getRequestPath(r)
-
-		// Check is user activated
-		if reqPath != "/user" && !strings.HasPrefix(reqPath, "/user/") {
-			checkUserActivated(user)
+		// Check user is activated
+		if err := m.checkUserActivated(req, user); err != nil {
+			return err
 		}
 
 		userId = user.Id
 	}
 
 	// Create security context
-	secCtx := m.createSecurityContext(sysCtx, userId)
+	secCtx, err := m.createSecurityContext(sysCtx, userId)
+	if err != nil {
+		return err
+	}
 
 	// Update context
-	ctx := context.WithValue(r.Context(), constant.ContextKeySecurityContext, secCtx)
+	ctx := context.WithValue(req.Context(), constant.ContextKeySecurityContext, secCtx)
+	c.SetRequest(req.WithContext(ctx))
 
 	// Forward to next handler
-	next(w, r.WithContext(ctx))
-
-	log.Verb("After API auth check.")
+	return next(c)
 }
 
-func (m *SecurityMiddleware) getUserCredentials(r *http.Request) (string, string) {
+func (m *SecurityMiddleware) hasAuthenticationData(r *http.Request) bool {
+	return r.Header.Get("Authorization") != ""
+}
+
+func (m *SecurityMiddleware) getUserCredentials(r *http.Request) (string, string, error) {
 	username, password, ok := r.BasicAuth()
 	if !ok {
 		err := e.NewError(e.AuthDataInvalid, "Invalid authentication data.")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return "", "", err
 	}
-	return username, password
+	return username, password, nil
 }
 
 func (m *SecurityMiddleware) authenticateUser(ctx context.Context, username string,
-	password string) *model.User {
+	password string) (*model.User, error) {
 	user, guErr := m.uServ.GetUserByUsername(ctx, username)
 	if guErr != nil {
-		panic(guErr)
+		return nil, guErr
 	}
 	if user == nil {
 		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials.")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return nil, err
 	}
 
 	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
 		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials.", cpwErr)
 		log.Debug(err.StackTrace())
-		panic(err)
+		return nil, err
 	}
 
-	return user
+	return user, nil
 }
 
-func checkUserActivated(user *model.User) {
-	if user.MustChangePassword {
+func (m *SecurityMiddleware) checkUserActivated(r *http.Request, user *model.User) error {
+	path := r.URL.EscapedPath()
+	path = strings.TrimPrefix(path, constant.ApiPath)
+
+	if path != "/user" && !strings.HasPrefix(path, "/user/") && user.MustChangePassword {
 		err := e.NewError(e.AuthUserNotActivated, "User must change password.")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return err
 	}
+
+	return nil
 }
 
-func (m *SecurityMiddleware) createSecurityContext(ctx context.Context,
-	userId int) *model.SecurityContext {
+func (m *SecurityMiddleware) createSecurityContext(ctx context.Context, userId int) (
+	*model.SecurityContext, error) {
 	if userId == model.AnonymousUserId {
-		return model.GetAnonymousUserSecurityContext()
+		return model.GetAnonymousUserSecurityContext(), nil
 	}
 
 	userRoles, err := m.uServ.GetUserRoles(ctx, userId)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return model.NewSecurityContext(userId, userRoles)
+
+	return model.NewSecurityContext(userId, userRoles), nil
 }
 
 // AuthCheckMiddleware ensures that a user was authenticated.
@@ -128,32 +157,39 @@ func NewAuthCheckMiddleware() *AuthCheckMiddleware {
 	return &AuthCheckMiddleware{}
 }
 
-// ServeHTTP processes requests.
-func (m *AuthCheckMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before API auth check.")
+// CreateHandler creates a new handler to process requests.
+func (m *AuthCheckMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before API auth check.")
+
+		err := m.process(next, c)
+
+		log.Verb("After API auth check.")
+
+		return err
+	}
+}
+
+func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
 
 	// Get security context
-	secCtx := r.Context().Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
+	secCtx := req.Context().Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
 
-	// Authenticated?
-	if secCtx.UserId != model.AnonymousUserId {
-		log.Debugf("User %d is authenticated.", secCtx.UserId)
-
-		// Forward to next handler
-		next(w, r)
-	} else {
+	// Wad anonymous user?
+	if secCtx.UserId == model.AnonymousUserId {
 		log.Debug("User must authenticate.")
 
 		// Request authentication
 		log.Debug("Requesting authentication ...")
-		w.Header().Set("WWW-Authenticate", "Basic")
-		w.WriteHeader(http.StatusUnauthorized)
+		res := c.Response().Writer
+		res.Header().Set("WWW-Authenticate", "Basic")
+		return c.NoContent(http.StatusUnauthorized)
 	}
 
-	log.Verb("After API auth check.")
-}
+	log.Debugf("User %d is authenticated.", secCtx.UserId)
 
-func getRequestPath(r *http.Request) string {
-	p := r.URL.EscapedPath()
-	return strings.TrimPrefix(p, constant.ApiPath)
+	// Forward to next handler
+	return next(c)
 }

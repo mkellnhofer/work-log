@@ -5,26 +5,28 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 )
 
 // ReadHttpBody reads the HTTP request
-func ReadHttpBody(r *http.Request, data interface{}) {
-	readRequest(r, data)
+func ReadHttpRequestBody(r *http.Request, data interface{}) error {
+	return readRequestBody(r, data)
 }
 
 // WriteHttpResponse writes the HTTP response.
-func WriteHttpResponse(writer http.ResponseWriter, statusCode int, data interface{}) {
-	writeResponse(writer, statusCode, data)
+func WriteHttpResponse(r *echo.Response, statusCode int, data interface{}) error {
+	return writeResponse(r.Writer, statusCode, data)
 }
 
 // WriteHttpError writes the HTTP error response.
-func WriteHttpError(writer http.ResponseWriter, statusCode int, error string) {
-	writeResponse(writer, statusCode, error)
+func WriteHttpError(r *echo.Response, statusCode int, error string) error {
+	return writeResponse(r.Writer, statusCode, error)
 }
 
-func readRequest(r *http.Request, data interface{}) {
+func readRequestBody(r *http.Request, data interface{}) error {
 	decoder := json.NewDecoder(r.Body)
 	jErr := decoder.Decode(data)
 	if jErr != nil {
@@ -40,11 +42,12 @@ func readRequest(r *http.Request, data interface{}) {
 			err = e.WrapError(e.ValJsonInvalid, "Could not decode JSON.", jErr)
 		}
 		log.Debug(err.StackTrace())
-		panic(err)
+		return err
 	}
+	return nil
 }
 
-func writeResponse(writer http.ResponseWriter, statusCode int, data interface{}) {
+func writeResponse(writer http.ResponseWriter, statusCode int, data interface{}) error {
 	var body []byte
 	var jErr error
 	if data != nil {
@@ -52,7 +55,7 @@ func writeResponse(writer http.ResponseWriter, statusCode int, data interface{})
 		if jErr != nil {
 			err := e.WrapError(e.SysUnknown, "Could not encode JSON.", jErr)
 			log.Error(err.StackTrace())
-			panic(err)
+			return err
 		}
 	}
 
@@ -65,4 +68,6 @@ func writeResponse(writer http.ResponseWriter, statusCode int, data interface{})
 			log.Error(wErr.Error())
 		}
 	}
+
+	return nil
 }

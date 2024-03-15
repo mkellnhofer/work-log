@@ -3,7 +3,8 @@ package tx
 import (
 	"context"
 	"database/sql"
-	"net/http"
+
+	"github.com/labstack/echo/v4"
 
 	"kellnhofer.com/work-log/pkg/constant"
 	e "kellnhofer.com/work-log/pkg/error"
@@ -43,18 +44,26 @@ func NewTransactionMiddleware() *TransactionMiddleware {
 	return &TransactionMiddleware{}
 }
 
-// ServeHTTP processes requests.
-func (m *TransactionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request,
-	next http.HandlerFunc) {
+// CreateHandler creates a new handler to process requests.
+func (m *TransactionMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return m.process(next, c)
+	}
+}
+
+func (m *TransactionMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
+
 	// Create session holder
 	txHolder := &TransactionHolder{}
 
 	// Update context
-	ctx := r.Context()
-	ctx = context.WithValue(ctx, constant.ContextKeyTransactionHolder, txHolder)
+	ctx := context.WithValue(req.Context(), constant.ContextKeyTransactionHolder, txHolder)
+	c.SetRequest(req.WithContext(ctx))
 
 	// Forward to next handler
-	next(w, r.WithContext(ctx))
+	return next(c)
 }
 
 // --- Transaction manager ---

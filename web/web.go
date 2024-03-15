@@ -3,11 +3,11 @@ package web
 import (
 	"fmt"
 	"html/template"
-	"io/ioutil"
-	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"golang.org/x/text/message"
 
 	e "kellnhofer.com/work-log/pkg/error"
@@ -62,7 +62,7 @@ func loadTemplates(filenames ...string) *template.Template {
 
 func loadTemplate(t *template.Template, filename string) *template.Template {
 	// Read template
-	b, rErr := ioutil.ReadFile(filename)
+	b, rErr := os.ReadFile(filename)
 	if rErr != nil {
 		err := e.WrapError(e.SysUnknown, fmt.Sprintf("Could load template '%s'.", filename), rErr)
 		log.Debug(err.StackTrace())
@@ -106,53 +106,53 @@ func getText(key string) string {
 // --- Render functions ---
 
 // RenderErrorTemplate renders the error page.
-func RenderErrorTemplate(w http.ResponseWriter, model *model.Error) {
-	renderTemplate(w, "error", model)
+func RenderErrorTemplate(r *echo.Response, model *model.Error) error {
+	return renderTemplate(r, "error", model)
 }
 
 // RenderLoginTemplate renders the login page.
-func RenderLoginTemplate(w http.ResponseWriter, model *model.Login) {
-	renderTemplate(w, "login", model)
+func RenderLoginTemplate(r *echo.Response, model *model.Login) error {
+	return renderTemplate(r, "login", model)
 }
 
 // RenderPasswordChangeTemplate renders the password change page.
-func RenderPasswordChangeTemplate(w http.ResponseWriter, model *model.PasswordChange) {
-	renderTemplate(w, "password_change", model)
+func RenderPasswordChangeTemplate(r *echo.Response, model *model.PasswordChange) error {
+	return renderTemplate(r, "password_change", model)
 }
 
 // RenderListEntriesTemplate renders a page of entries.
-func RenderListEntriesTemplate(w http.ResponseWriter, model *model.ListEntries) {
-	renderTemplate(w, "list_entries", model)
+func RenderListEntriesTemplate(r *echo.Response, model *model.ListEntries) error {
+	return renderTemplate(r, "list_entries", model)
 }
 
 // RenderCreateEntryTemplate renders the page to create a entry.
-func RenderCreateEntryTemplate(w http.ResponseWriter, model *model.CreateEntry) {
-	renderTemplate(w, "create_entry", model)
+func RenderCreateEntryTemplate(r *echo.Response, model *model.CreateEntry) error {
+	return renderTemplate(r, "create_entry", model)
 }
 
 // RenderEditEntryTemplate renders the page to edit a entry.
-func RenderEditEntryTemplate(w http.ResponseWriter, model *model.EditEntry) {
-	renderTemplate(w, "edit_entry", model)
+func RenderEditEntryTemplate(r *echo.Response, model *model.EditEntry) error {
+	return renderTemplate(r, "edit_entry", model)
 }
 
 // RenderCopyEntryTemplate renders the page to copy a entry.
-func RenderCopyEntryTemplate(w http.ResponseWriter, model *model.CopyEntry) {
-	renderTemplate(w, "copy_entry", model)
+func RenderCopyEntryTemplate(r *echo.Response, model *model.CopyEntry) error {
+	return renderTemplate(r, "copy_entry", model)
 }
 
 // RenderSearchEntriesTemplate renders the page to search entries.
-func RenderSearchEntriesTemplate(w http.ResponseWriter, model *model.SearchEntries) {
-	renderTemplate(w, "search_entries", model)
+func RenderSearchEntriesTemplate(r *echo.Response, model *model.SearchEntries) error {
+	return renderTemplate(r, "search_entries", model)
 }
 
 // RenderListSearchEntriesTemplate renders a page with searched entries.
-func RenderListSearchEntriesTemplate(w http.ResponseWriter, model *model.ListSearchEntries) {
-	renderTemplate(w, "list_search_entries", model)
+func RenderListSearchEntriesTemplate(r *echo.Response, model *model.ListSearchEntries) error {
+	return renderTemplate(r, "list_search_entries", model)
 }
 
 // RenderListOverviewEntriesTemplate renders the page to overview entries.
-func RenderListOverviewEntriesTemplate(w http.ResponseWriter, model *model.ListOverviewEntries) {
-	renderTemplate(w, "list_overview_entries", model)
+func RenderListOverviewEntriesTemplate(r *echo.Response, model *model.ListOverviewEntries) error {
+	return renderTemplate(r, "list_overview_entries", model)
 }
 
 // --- Time formatting functions ---
@@ -217,10 +217,13 @@ func CreateHoursString(hours float32) string {
 
 // --- Helper functions ---
 
-func renderTemplate(w http.ResponseWriter, tmpl string, model interface{}) {
-	err := templates.ExecuteTemplate(w, tmpl+".tmpl", model)
-	if err != nil {
-		log.Errorf("Could not render template! %s", err)
-		http.Error(w, "Could not render template!", http.StatusInternalServerError)
+func renderTemplate(r *echo.Response, tmpl string, model interface{}) error {
+	rw := r.Writer
+	tErr := templates.ExecuteTemplate(rw, tmpl+".tmpl", model)
+	if tErr != nil {
+		err := e.WrapError(e.SysUnknown, fmt.Sprintf("Could not render template '%s'.", tmpl), tErr)
+		log.Debug(err.StackTrace())
+		return err
 	}
+	return nil
 }

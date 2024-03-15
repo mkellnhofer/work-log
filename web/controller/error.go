@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"net/http"
+	"github.com/labstack/echo/v4"
 
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/loc"
@@ -22,21 +22,20 @@ func NewErrorController() *ErrorController {
 // --- Endpoints ---
 
 // GetErrorHandler returns a handler for "GET /error".
-func (c *ErrorController) GetErrorHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *ErrorController) GetErrorHandler() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
 		log.Verb("Handle GET /error.")
-		c.handleShowError(w, r)
+		return c.handleShowError(ctx)
 	}
 }
 
 // --- Handler functions ---
 
-func (c *ErrorController) handleShowError(w http.ResponseWriter, r *http.Request) {
+func (c *ErrorController) handleShowError(ctx echo.Context) error {
 	// Get error code
-	ecqp := getErrorCodeQueryParam(r)
-	ec := e.SysUnknown
-	if ecqp != nil {
-		ec = *ecqp
+	ec, err := getErrorCodeQueryParam(ctx)
+	if err != nil {
+		ec = e.SysUnknown
 	}
 
 	// Create view model
@@ -44,5 +43,5 @@ func (c *ErrorController) handleShowError(w http.ResponseWriter, r *http.Request
 	model := vm.NewError(em)
 
 	// Render
-	view.RenderErrorTemplate(w, model)
+	return view.RenderErrorTemplate(ctx.Response(), model)
 }

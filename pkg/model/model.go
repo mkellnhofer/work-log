@@ -29,5 +29,5 @@ const (
 
 // Other constants.
 const (
-	ValidUserPasswordCharacters = "0-9a-zA-Z!\"#$%&'()*+,\\-./:;=?@\\[\\\\\\]^_{|}~"
+	ValidUserPasswordCharacters = `0-9a-zA-Z!"#$%&'()*+,\-./:;=?@\[\\\]^_{|}~`
 )

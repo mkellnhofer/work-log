@@ -138,7 +138,7 @@ func GetErrorMessageString(errorCode int) string {
 	emk, ok := errorMessageKeys[errorCode]
 	if !ok {
 		log.Debugf("Unexpected error code %d. Using fallback error message.", errorCode)
-		emk, _ = errorMessageKeys[e.SysUnknown]
+		emk = errorMessageKeys[e.SysUnknown]
 	}
 	printer := message.NewPrinter(LngTag)
 	return printer.Sprintf(emk)

@@ -183,7 +183,7 @@ func ToRoles(roles []m.Role) *am.UserRoles {
 		rs[i] = role.String()
 	}
 
-	return &am.UserRoles{rs}
+	return &am.UserRoles{Roles: rs}
 }
 
 // FromRoles converts an API update roles model to a list of logic role models.

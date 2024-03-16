@@ -5,7 +5,6 @@ import (
 
 	"kellnhofer.com/work-log/pkg/db/repo"
 	"kellnhofer.com/work-log/pkg/db/tx"
-	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/model"
 )
 
@@ -23,12 +22,12 @@ func NewSessionService(tm *tx.TransactionManager, sr *repo.SessionRepo) *Session
 // --- Session functions ---
 
 // GetSession gets a session.
-func (s *SessionService) GetSession(ctx context.Context, id string) (*model.Session, *e.Error) {
+func (s *SessionService) GetSession(ctx context.Context, id string) (*model.Session, error) {
 	return s.sRepo.GetSessionById(ctx, id)
 }
 
 // SaveSession creates/updates a session.
-func (s *SessionService) SaveSession(ctx context.Context, session *model.Session) *e.Error {
+func (s *SessionService) SaveSession(ctx context.Context, session *model.Session) error {
 	// Check if session exists
 	exists, err := s.sRepo.ExistsSessionById(ctx, session.Id)
 	if err != nil {
@@ -46,11 +45,11 @@ func (s *SessionService) SaveSession(ctx context.Context, session *model.Session
 }
 
 // DeleteSession deletes a session.
-func (s *SessionService) DeleteSession(ctx context.Context, id string) *e.Error {
+func (s *SessionService) DeleteSession(ctx context.Context, id string) error {
 	return s.sRepo.DeleteSessionById(ctx, id)
 }
 
 // DeleteExpiredSessions deletes expired sessions.
-func (s *SessionService) DeleteExpiredSessions(ctx context.Context) *e.Error {
+func (s *SessionService) DeleteExpiredSessions(ctx context.Context) error {
 	return s.sRepo.DeleteExpiredSessions(ctx)
 }

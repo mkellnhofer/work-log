@@ -10,7 +10,7 @@ import (
 )
 
 // CheckHasCurrentUserRight checks that the current user has a specific right.
-func CheckHasCurrentUserRight(ctx context.Context, right model.Right) *e.Error {
+func CheckHasCurrentUserRight(ctx context.Context, right model.Right) error {
 	sc := GetSecurityContext(ctx)
 	if hasUserRight(sc, right) {
 		return nil

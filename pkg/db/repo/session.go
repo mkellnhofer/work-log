@@ -31,7 +31,7 @@ func NewSessionRepo(db *sql.DB) *SessionRepo {
 // --- Session functions ---
 
 // GetSessionById retrieves a session by its ID.
-func (r *SessionRepo) GetSessionById(ctx context.Context, id string) (*model.Session, *e.Error) {
+func (r *SessionRepo) GetSessionById(ctx context.Context, id string) (*model.Session, error) {
 	sr, qErr := r.queryRow(ctx, &scanSessionHelper{}, "SELECT id, user_id, expire_at, previous_url "+
 		"FROM session WHERE id = ?", id)
 	if qErr != nil {
@@ -48,7 +48,7 @@ func (r *SessionRepo) GetSessionById(ctx context.Context, id string) (*model.Ses
 }
 
 // ExistsSessionById checks if a session exists.
-func (r *SessionRepo) ExistsSessionById(ctx context.Context, id string) (bool, *e.Error) {
+func (r *SessionRepo) ExistsSessionById(ctx context.Context, id string) (bool, error) {
 	cnt, cErr := r.count(ctx, "session", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read session %s from "+
@@ -61,7 +61,7 @@ func (r *SessionRepo) ExistsSessionById(ctx context.Context, id string) (bool, *
 }
 
 // CreateSession creates a new session.
-func (r *SessionRepo) CreateSession(ctx context.Context, session *model.Session) *e.Error {
+func (r *SessionRepo) CreateSession(ctx context.Context, session *model.Session) error {
 	sess := toDbSession(session)
 
 	cErr := r.exec(ctx, "INSERT INTO session (id, user_id, expire_at, previous_url) "+
@@ -76,7 +76,7 @@ func (r *SessionRepo) CreateSession(ctx context.Context, session *model.Session)
 }
 
 // UpdateSession updates a session.
-func (r *SessionRepo) UpdateSession(ctx context.Context, session *model.Session) *e.Error {
+func (r *SessionRepo) UpdateSession(ctx context.Context, session *model.Session) error {
 	sess := toDbSession(session)
 
 	uErr := r.exec(ctx, "UPDATE session SET user_id = ?, expire_at = ?, previous_url = ? WHERE id = ?",
@@ -92,7 +92,7 @@ func (r *SessionRepo) UpdateSession(ctx context.Context, session *model.Session)
 }
 
 // DeleteSessionById deletes a session by by its ID.
-func (r *SessionRepo) DeleteSessionById(ctx context.Context, id string) *e.Error {
+func (r *SessionRepo) DeleteSessionById(ctx context.Context, id string) error {
 	dErr := r.exec(ctx, "DELETE FROM session WHERE id = ?", id)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete session %s from "+
@@ -104,7 +104,7 @@ func (r *SessionRepo) DeleteSessionById(ctx context.Context, id string) *e.Error
 }
 
 // DeleteExpiredSessions deletes expired sessions.
-func (r *SessionRepo) DeleteExpiredSessions(ctx context.Context) *e.Error {
+func (r *SessionRepo) DeleteExpiredSessions(ctx context.Context) error {
 	now := time.Now()
 	n := *formatTimestamp(&now)
 	dErr := r.exec(ctx, "DELETE FROM session WHERE expire_at < ?", n)

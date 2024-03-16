@@ -40,7 +40,7 @@ func NewContractRepo(db *sql.DB) *ContractRepo {
 
 // GetContractByUserId retrieves the contract information of a user by its ID.
 func (r *ContractRepo) GetContractByUserId(ctx context.Context, userId int) (*model.Contract,
-	*e.Error) {
+	error) {
 	c, qErr := r.getContract(ctx, userId)
 	if qErr != nil {
 		return nil, qErr
@@ -63,8 +63,8 @@ func (r *ContractRepo) GetContractByUserId(ctx context.Context, userId int) (*mo
 
 // CreateContract creates the contract information of a user.
 func (r *ContractRepo) CreateContract(ctx context.Context, userId int, contract *model.Contract,
-) *e.Error {
-	return r.executeInTransaction(ctx, func(tx *sql.Tx) *e.Error {
+) error {
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
 		if err := r.createContract(tx, userId, contract); err != nil {
 			return err
 		}
@@ -80,8 +80,8 @@ func (r *ContractRepo) CreateContract(ctx context.Context, userId int, contract 
 
 // UpdateContract updates the contract information of a user.
 func (r *ContractRepo) UpdateContract(ctx context.Context, userId int, contract *model.Contract,
-) *e.Error {
-	return r.executeInTransaction(ctx, func(tx *sql.Tx) *e.Error {
+) error {
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
 		if err := r.updateContract(tx, userId, contract); err != nil {
 			return err
 		}
@@ -95,7 +95,7 @@ func (r *ContractRepo) UpdateContract(ctx context.Context, userId int, contract 
 	})
 }
 
-func (r *ContractRepo) getContract(ctx context.Context, userId int) (*model.Contract, *e.Error) {
+func (r *ContractRepo) getContract(ctx context.Context, userId int) (*model.Contract, error) {
 	q := "SELECT init_overtime_hours, init_vacation_days, first_day FROM contract " +
 		"WHERE user_id = ?"
 
@@ -114,7 +114,7 @@ func (r *ContractRepo) getContract(ctx context.Context, userId int) (*model.Cont
 }
 
 func (r *ContractRepo) createContract(tx *sql.Tx, userId int, contract *model.Contract,
-) *e.Error {
+) error {
 	c := toDbContract(contract)
 
 	q := "INSERT INTO contract (user_id, init_overtime_hours, init_vacation_days, first_day) " +
@@ -132,7 +132,7 @@ func (r *ContractRepo) createContract(tx *sql.Tx, userId int, contract *model.Co
 }
 
 func (r *ContractRepo) updateContract(tx *sql.Tx, userId int, contract *model.Contract,
-) *e.Error {
+) error {
 	c := toDbContract(contract)
 
 	q := "UPDATE contract SET init_overtime_hours = ?, init_vacation_days = ?, first_day = ? " +
@@ -150,7 +150,7 @@ func (r *ContractRepo) updateContract(tx *sql.Tx, userId int, contract *model.Co
 }
 
 func (r *ContractRepo) getContractVacationDays(ctx context.Context, userId int,
-) ([]model.ContractVacationDays, *e.Error) {
+) ([]model.ContractVacationDays, error) {
 	q := "SELECT first_day, monthly_days FROM contract_vacation_days WHERE user_id = ?"
 
 	sr, qErr := r.query(ctx, &scanContractVacationDaysHelper{}, q, userId)
@@ -165,7 +165,7 @@ func (r *ContractRepo) getContractVacationDays(ctx context.Context, userId int,
 }
 
 func (r *ContractRepo) setContractVacationDays(tx *sql.Tx, userId int,
-	vacationDays []model.ContractVacationDays) *e.Error {
+	vacationDays []model.ContractVacationDays) error {
 	dErr := r.execWithTx(tx, "DELETE FROM contract_vacation_days WHERE user_id = ?", userId)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not update contract for user "+
@@ -191,7 +191,7 @@ func (r *ContractRepo) setContractVacationDays(tx *sql.Tx, userId int,
 }
 
 func (r *ContractRepo) getContractWorkingHours(ctx context.Context, userId int,
-) ([]model.ContractWorkingHours, *e.Error) {
+) ([]model.ContractWorkingHours, error) {
 	q := "SELECT first_day, daily_hours FROM contract_working_hours WHERE user_id = ?"
 
 	sr, qErr := r.query(ctx, &scanContractWorkingHoursHelper{}, q, userId)
@@ -206,7 +206,7 @@ func (r *ContractRepo) getContractWorkingHours(ctx context.Context, userId int,
 }
 
 func (r *ContractRepo) setContractWorkingHours(tx *sql.Tx, userId int,
-	workingHours []model.ContractWorkingHours) *e.Error {
+	workingHours []model.ContractWorkingHours) error {
 	dErr := r.execWithTx(tx, "DELETE FROM contract_working_hours WHERE user_id = ?", userId)
 	if dErr != nil {
 		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not update contract for user "+

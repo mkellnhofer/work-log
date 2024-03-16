@@ -2,25 +2,24 @@ package validator
 
 import (
 	vm "kellnhofer.com/work-log/api/model"
-	e "kellnhofer.com/work-log/pkg/error"
 	m "kellnhofer.com/work-log/pkg/model"
 )
 
 // --- Entry activity API model valdidation functions ---
 
 // ValidateCreateEntryActivity validates information of a CreateEntryActivity API model.
-func ValidateCreateEntryActivity(data *vm.CreateEntryActivity) *e.Error {
+func ValidateCreateEntryActivity(data *vm.CreateEntryActivity) error {
 	return checkEntryActivityDescription(data.Description)
 }
 
 // ValidateUpdateEntryActivity validates information of a UpdateEntryActivity API model.
-func ValidateUpdateEntryActivity(data *vm.UpdateEntryActivity) *e.Error {
+func ValidateUpdateEntryActivity(data *vm.UpdateEntryActivity) error {
 	return checkEntryActivityDescription(data.Description)
 }
 
 // --- Basic entry activity validation functions ---
 
-func checkEntryActivityDescription(desc string) *e.Error {
+func checkEntryActivityDescription(desc string) error {
 	if err := checkStringNotEmpty("description", desc); err != nil {
 		return err
 	}
@@ -34,7 +33,7 @@ func checkEntryActivityDescription(desc string) *e.Error {
 // --- Entry API model valdidation functions ---
 
 // ValidateCreateEntry validates information of a CreateEntryA API model.
-func ValidateCreateEntry(data *vm.CreateEntry) *e.Error {
+func ValidateCreateEntry(data *vm.CreateEntry) error {
 	if err := checkEntryUserId(data.UserId); err != nil {
 		return err
 	}
@@ -54,7 +53,7 @@ func ValidateCreateEntry(data *vm.CreateEntry) *e.Error {
 }
 
 // ValidateUpdateEntry validates information of a UpdateEntry API model.
-func ValidateUpdateEntry(data *vm.UpdateEntry) *e.Error {
+func ValidateUpdateEntry(data *vm.UpdateEntry) error {
 	if err := checkEntryUserId(data.UserId); err != nil {
 		return err
 	}
@@ -75,27 +74,27 @@ func ValidateUpdateEntry(data *vm.UpdateEntry) *e.Error {
 
 // --- Basic entry validation functions ---
 
-func checkEntryUserId(id int) *e.Error {
+func checkEntryUserId(id int) error {
 	return checkIdValid("userId", id)
 }
 
-func checkEntryStartTime(timestamp string) *e.Error {
+func checkEntryStartTime(timestamp string) error {
 	return checkTimestampValid("startTime", timestamp)
 }
 
-func checkEntryEndTime(timestamp string) *e.Error {
+func checkEntryEndTime(timestamp string) error {
 	return checkTimestampValid("startTime", timestamp)
 }
 
-func checkEntryTypeId(id int) *e.Error {
+func checkEntryTypeId(id int) error {
 	return checkIdValid("typeId", id)
 }
 
-func checkEntryActivityId(id int) *e.Error {
+func checkEntryActivityId(id int) error {
 	return checkIdValid("activityId", id)
 }
 
-func checkEntryDescription(desc string) *e.Error {
+func checkEntryDescription(desc string) error {
 	if err := checkStringNotTooLong("description", desc, m.MaxLengthEntryDescription); err != nil {
 		return err
 	}

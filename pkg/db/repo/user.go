@@ -24,7 +24,7 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 // --- User functions ---
 
 // GetUsers retrieves all users.
-func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
+func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user"
 
 	sr, qErr := r.query(ctx, &scanUserHelper{}, q)
@@ -38,7 +38,7 @@ func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, *e.Error) {
 }
 
 // GetUserById retrieves a user by its ID.
-func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, *e.Error) {
+func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user WHERE id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, id)
@@ -56,7 +56,7 @@ func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, *e.Err
 }
 
 // GetUserByUsername retrieves a user by its username.
-func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, *e.Error) {
+func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user WHERE username = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, username)
@@ -74,7 +74,7 @@ func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*mod
 }
 
 // ExistsUserById checks if a user exists.
-func (r *UserRepo) ExistsUserById(ctx context.Context, id int) (bool, *e.Error) {
+func (r *UserRepo) ExistsUserById(ctx context.Context, id int) (bool, error) {
 	cnt, cErr := r.count(ctx, "user", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user %d from database.",
@@ -87,7 +87,7 @@ func (r *UserRepo) ExistsUserById(ctx context.Context, id int) (bool, *e.Error) 
 }
 
 // CreateUser creates a new user.
-func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) *e.Error {
+func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) error {
 	q := "INSERT INTO user (name, username, password, must_change_password) VALUES (?, ?, ?, ?)"
 
 	id, cErr := r.insert(ctx, q, user.Name, user.Username, user.Password, user.MustChangePassword)
@@ -103,7 +103,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) *e.Error {
 }
 
 // UpdateUser updates a user.
-func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) *e.Error {
+func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) error {
 	q := "UPDATE user SET name = ?, username = ?, password = ?, must_change_password = ? WHERE id = ?"
 
 	uErr := r.exec(ctx, q, user.Name, user.Username, user.Password, user.MustChangePassword, user.Id)
@@ -118,7 +118,7 @@ func (r *UserRepo) UpdateUser(ctx context.Context, user *model.User) *e.Error {
 }
 
 // DeleteUserById deletes a user by its ID.
-func (r *UserRepo) DeleteUserById(ctx context.Context, id int) *e.Error {
+func (r *UserRepo) DeleteUserById(ctx context.Context, id int) error {
 	q := "DELETE FROM user WHERE id = ?"
 
 	dErr := r.exec(ctx, q, id)
@@ -135,7 +135,7 @@ func (r *UserRepo) DeleteUserById(ctx context.Context, id int) *e.Error {
 // --- User role functions ---
 
 // GetUserRoles retrieves roles of a user by its ID.
-func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, *e.Error) {
+func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, error) {
 	q := "SELECT r.name FROM user_role ur INNER JOIN role r ON ur.role_id = r.id WHERE ur.user_id = ?"
 
 	sr, qrErr := r.query(ctx, scanRoleHelper{}, q, userId)
@@ -150,8 +150,8 @@ func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, 
 }
 
 // SetUserRoles set roles of a user by its ID.
-func (r *UserRepo) SetUserRoles(ctx context.Context, userId int, roles []model.Role) *e.Error {
-	return r.executeInTransaction(ctx, func(tx *sql.Tx) *e.Error {
+func (r *UserRepo) SetUserRoles(ctx context.Context, userId int, roles []model.Role) error {
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
 		drErr := r.execWithTx(tx, "DELETE FROM user_role WHERE user_id = ?", userId)
 		if drErr != nil {
 			err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not update user roles for"+
@@ -182,7 +182,7 @@ func (r *UserRepo) SetUserRoles(ctx context.Context, userId int, roles []model.R
 // --- User settings functions ---
 
 // GetUserIntSetting retrieves a integer setting of a user.
-func (r *UserRepo) GetUserIntSetting(ctx context.Context, userId int, key string) (int, *e.Error) {
+func (r *UserRepo) GetUserIntSetting(ctx context.Context, userId int, key string) (int, error) {
 	v, qErr := r.GetUserStringSetting(ctx, userId, key)
 	if qErr != nil {
 		return 0, qErr
@@ -200,18 +200,18 @@ func (r *UserRepo) GetUserIntSetting(ctx context.Context, userId int, key string
 
 // CreateUserIntSetting creates a integer setting for a user.
 func (r *UserRepo) CreateUserIntSetting(ctx context.Context, userId int, key string,
-	value int) *e.Error {
+	value int) error {
 	return r.CreateUserStringSetting(ctx, userId, key, strconv.Itoa(value))
 }
 
 // UpdateUserIntSetting updates a integer setting of a user.
 func (r *UserRepo) UpdateUserIntSetting(ctx context.Context, userId int, key string,
-	value int) *e.Error {
+	value int) error {
 	return r.UpdateUserStringSetting(ctx, userId, key, strconv.Itoa(value))
 }
 
 // GetUserBoolSetting retrieves a boolean setting of a user.
-func (r *UserRepo) GetUserBoolSetting(ctx context.Context, userId int, key string) (bool, *e.Error) {
+func (r *UserRepo) GetUserBoolSetting(ctx context.Context, userId int, key string) (bool, error) {
 	v, qErr := r.GetUserStringSetting(ctx, userId, key)
 	if qErr != nil {
 		return false, qErr
@@ -230,7 +230,7 @@ func (r *UserRepo) GetUserBoolSetting(ctx context.Context, userId int, key strin
 
 // CreateUserBoolSetting creates a boolean setting for a user.
 func (r *UserRepo) CreateUserBoolSetting(ctx context.Context, userId int, key string, value bool,
-) *e.Error {
+) error {
 	var v string
 	if value {
 		v = "true"
@@ -242,7 +242,7 @@ func (r *UserRepo) CreateUserBoolSetting(ctx context.Context, userId int, key st
 
 // UpdateUserBoolSetting updates a boolean setting of a user.
 func (r *UserRepo) UpdateUserBoolSetting(ctx context.Context, userId int, key string, value bool,
-) *e.Error {
+) error {
 	var v string
 	if value {
 		v = "true"
@@ -254,7 +254,7 @@ func (r *UserRepo) UpdateUserBoolSetting(ctx context.Context, userId int, key st
 
 // GetUserStringSetting retrieves a string setting of a user.
 func (r *UserRepo) GetUserStringSetting(ctx context.Context, userId int, key string) (string,
-	*e.Error) {
+	error) {
 	q := "SELECT setting_value FROM user_setting WHERE user_id = ? AND " +
 		"setting_key = ?"
 
@@ -271,7 +271,7 @@ func (r *UserRepo) GetUserStringSetting(ctx context.Context, userId int, key str
 
 // CreateUserStringSetting creates a string setting for a user.
 func (r *UserRepo) CreateUserStringSetting(ctx context.Context, userId int, key string,
-	value string) *e.Error {
+	value string) error {
 	q := "INSERT INTO user_setting (user_id, setting_key, setting_value) VALUES (?, ?, ?)"
 
 	_, cErr := r.insert(ctx, q, userId, key, value)
@@ -286,7 +286,7 @@ func (r *UserRepo) CreateUserStringSetting(ctx context.Context, userId int, key 
 
 // UpdateUserStringSetting updates a string setting of a user.
 func (r *UserRepo) UpdateUserStringSetting(ctx context.Context, userId int, key string,
-	value string) *e.Error {
+	value string) error {
 	q := "UPDATE user_setting SET setting_value = ? WHERE user_id = ? AND setting_key = ?"
 
 	uErr := r.exec(ctx, q, value, userId, key)

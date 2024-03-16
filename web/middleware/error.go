@@ -41,7 +41,7 @@ func (m *ErrorMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
 	return nil
 }
 
-func (m *ErrorMiddleware) handleError(c echo.Context, err interface{}) {
+func (m *ErrorMiddleware) handleError(c echo.Context, err error) {
 	var ec int
 	switch tErr := err.(type) {
 	case *e.Error:

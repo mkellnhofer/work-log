@@ -102,7 +102,7 @@ func (m *ErrorMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
 	return nil
 }
 
-func (m *ErrorMiddleware) handleError(r *echo.Response, err interface{}) {
+func (m *ErrorMiddleware) handleError(r *echo.Response, err error) {
 	switch tErr := err.(type) {
 	case *e.Error:
 		// We can retrieve the status here and write out a specific status code.

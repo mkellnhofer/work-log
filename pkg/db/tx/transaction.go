@@ -79,7 +79,7 @@ func NewTransactionManager(db *sql.DB) *TransactionManager {
 }
 
 // Begin starts a new database transaction.
-func (tm *TransactionManager) Begin(ctx context.Context) *e.Error {
+func (tm *TransactionManager) Begin(ctx context.Context) error {
 	// Get transaction holder
 	th := ctx.Value(constant.ContextKeyTransactionHolder).(*TransactionHolder)
 
@@ -106,7 +106,7 @@ func (tm *TransactionManager) Begin(ctx context.Context) *e.Error {
 }
 
 // Commit commits the current database transaction.
-func (tm *TransactionManager) Commit(ctx context.Context) *e.Error {
+func (tm *TransactionManager) Commit(ctx context.Context) error {
 	// Get transaction holder
 	th := ctx.Value(constant.ContextKeyTransactionHolder).(*TransactionHolder)
 
@@ -130,7 +130,7 @@ func (tm *TransactionManager) Commit(ctx context.Context) *e.Error {
 }
 
 // Rollback rolls back the current database transaction.
-func (tm *TransactionManager) Rollback(ctx context.Context) *e.Error {
+func (tm *TransactionManager) Rollback(ctx context.Context) error {
 	// Get transaction holder
 	th := ctx.Value(constant.ContextKeyTransactionHolder).(*TransactionHolder)
 
@@ -155,7 +155,7 @@ func (tm *TransactionManager) Rollback(ctx context.Context) *e.Error {
 
 // Executes the provided function in a new database transaction.
 func (tm *TransactionManager) ExecuteInNewTransaction(ctx context.Context,
-	txf func(ctx context.Context) *e.Error) *e.Error {
+	txf func(ctx context.Context) error) error {
 	// Start transaction
 	if err := tm.Begin(ctx); err != nil {
 		return err

@@ -3,7 +3,7 @@ package loc
 import (
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"golang.org/x/text/language"
@@ -40,7 +40,7 @@ func LoadLocalization(lang string) {
 	defer file.Close()
 
 	// Read file
-	byteValue, rfErr := ioutil.ReadAll(file)
+	byteValue, rfErr := io.ReadAll(file)
 	if rfErr != nil {
 		log.Fatalf("Could not read localization file '%s': %s", fileName, rfErr)
 	}

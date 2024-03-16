@@ -29,10 +29,6 @@ func getContext(eCtx echo.Context) context.Context {
 	return eCtx.Request().Context()
 }
 
-func getCurrentUserId(ctx context.Context) int {
-	return security.GetCurrentUserId(ctx)
-}
-
 func hasCurrentUserRight(ctx context.Context, right m.Right) bool {
 	return security.HasCurrentUserRight(ctx, right)
 }
@@ -105,10 +101,6 @@ func getIntQueryParam(eCtx echo.Context, name string) (int, error) {
 		return 0, nil
 	}
 	return strconv.Atoi(qv)
-}
-
-func parseDate(d string) (time.Time, error) {
-	return time.ParseInLocation(constant.ApiDateFormat, d, time.Local)
 }
 
 func parseTimestamp(ts string) (time.Time, error) {

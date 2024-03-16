@@ -1984,11 +1984,6 @@ func getRoundedHours(d time.Duration) float32 {
 	return float32(rd.Hours())
 }
 
-func getRoundedMinutes(d time.Duration) int {
-	rd := roundDuration(d)
-	return int(rd.Minutes())
-}
-
 func roundDuration(d time.Duration) time.Duration {
 	return d.Round(time.Minute)
 }

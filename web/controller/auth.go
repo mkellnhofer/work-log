@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
 	"kellnhofer.com/work-log/pkg/constant"
@@ -32,60 +33,59 @@ func NewAuthController(uServ *service.UserService) *AuthController {
 // --- Endpoints ---
 
 // GetLoginHandler returns a handler for "GET /login".
-func (c *AuthController) GetLoginHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) GetLoginHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /login.")
-		c.handleShowLogin(w, r)
+		return c.handleShowLogin(eCtx)
 	}
 }
 
 // PostLoginHandler returns a handler for "POST /login".
-func (c *AuthController) PostLoginHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) PostLoginHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /login.")
-		c.handleExecuteLogin(w, r)
+		return c.handleExecuteLogin(eCtx)
 	}
 }
 
 // GetPasswordChangeHandler returns a handler for "GET /password_change".
-func (c *AuthController) GetPasswordChangeHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) GetPasswordChangeHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /password_change.")
-		c.handleShowPasswordChange(w, r)
+		return c.handleShowPasswordChange(eCtx)
 	}
 }
 
 // PostPasswordChangeHandler returns a handler for "POST /password_change".
-func (c *AuthController) PostPasswordChangeHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) PostPasswordChangeHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /password_change.")
-		c.handleExecutePasswordChange(w, r)
+		return c.handleExecutePasswordChange(eCtx)
 	}
 }
 
 // GetLogoutHandler returns a handler for "GET /logout".
-func (c *AuthController) GetLogoutHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) GetLogoutHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /logout.")
-		c.handleExecuteLogout(w, r)
+		return c.handleExecuteLogout(eCtx)
 	}
 }
 
 // --- Login handler functions ---
 
-func (c *AuthController) handleShowLogin(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) handleShowLogin(eCtx echo.Context) error {
 	// Get error code
-	ecqp := getErrorCodeQueryParam(r)
-	ec := 0
-	if ecqp != nil {
-		ec = *ecqp
+	ec, err := getErrorCodeQueryParam(eCtx)
+	if err != nil {
+		return err
 	}
 
 	// Create view model
 	model := c.createShowLoginViewModel(ec)
 
 	// Render
-	view.RenderLoginTemplate(w, model)
+	return view.RenderLoginTemplate(eCtx.Response(), model)
 }
 
 func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
@@ -96,47 +96,44 @@ func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
 	return lvm
 }
 
-func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) handleExecuteLogin(eCtx echo.Context) error {
 	// Create system context
-	sysCtx := security.CreateSystemContext(r.Context())
+	syseCtx := security.CreateSystemContext(getContext(eCtx))
 
 	// Get form inputs
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	username := eCtx.FormValue("username")
+	password := eCtx.FormValue("password")
 
 	log.Debugf("User %s is trying to authenticate ...", username)
 
 	// Validate inputs
 	if err := validateLoginInputs(username, password); err != nil {
-		c.handleLoginError(w, r, err)
-		return
+		return c.handleLoginError(eCtx, err)
 	}
 
 	// Find user
-	user, guErr := c.uServ.GetUserByUsername(sysCtx, username)
-	if guErr != nil {
-		panic(guErr)
+	user, err := c.uServ.GetUserByUsername(syseCtx, username)
+	if err != nil {
+		return err
 	}
 	if user == nil {
 		err := e.NewError(e.AuthCredentialsInvalid, fmt.Sprintf("Invalid credentials. (Unknown "+
 			"username %s.)", username))
 		log.Debug(err.StackTrace())
-		c.handleLoginError(w, r, err)
-		return
+		return c.handleLoginError(eCtx, err)
 	}
 
 	// Check password
 	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
 		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials. (Wrong password.)", cpwErr)
 		log.Debug(err.StackTrace())
-		c.handleLoginError(w, r, err)
-		return
+		return c.handleLoginError(eCtx, err)
 	}
 
 	log.Debugf("User %s has successfully authenticated.", username)
 
 	// Get session holder from context
-	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 
 	// Get current session
 	preSess := sessHolder.Get()
@@ -151,41 +148,44 @@ func (c *AuthController) handleExecuteLogin(w http.ResponseWriter, r *http.Reque
 	// Set session cookie
 	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.Id, Path: "/",
 		HttpOnly: true}
-	http.SetCookie(w, sessCookie)
+	eCtx.SetCookie(sessCookie)
 
 	// Was a previous request stored?
 	if preSess != nil && preSess.PreviousUrl != "" {
 		// Redirect to previous path
-		c.handleLoginSuccess(w, r, preSess.PreviousUrl)
+		return c.handleLoginSuccess(eCtx, preSess.PreviousUrl)
 	} else {
 		// Redirect to root path
-		c.handleLoginSuccess(w, r, "/")
+		return c.handleLoginSuccess(eCtx, "/")
 	}
 }
 
-func (c *AuthController) handleLoginSuccess(w http.ResponseWriter, r *http.Request, url string) {
-	http.Redirect(w, r, url, http.StatusFound)
+func (c *AuthController) handleLoginSuccess(eCtx echo.Context, url string) error {
+	return eCtx.Redirect(http.StatusFound, url)
 }
 
-func (c *AuthController) handleLoginError(w http.ResponseWriter, r *http.Request, err *e.Error) {
-	http.Redirect(w, r, fmt.Sprintf("/login?error=%d", err.Code), http.StatusFound)
+func (c *AuthController) handleLoginError(eCtx echo.Context, err error) error {
+	code := e.SysUnknown
+	if er, ok := err.(*e.Error); ok {
+		code = er.Code
+	}
+	return eCtx.Redirect(http.StatusFound, fmt.Sprintf("/login?error=%d", code))
 }
 
 // --- Password change handler functions ---
 
-func (c *AuthController) handleShowPasswordChange(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) handleShowPasswordChange(eCtx echo.Context) error {
 	// Get error code
-	ecqp := getErrorCodeQueryParam(r)
-	ec := 0
-	if ecqp != nil {
-		ec = *ecqp
+	ec, err := getErrorCodeQueryParam(eCtx)
+	if err != nil {
+		return err
 	}
 
 	// Create view model
 	model := c.createShowPasswordChangeViewModel(ec)
 
 	// Render
-	view.RenderPasswordChangeTemplate(w, model)
+	return view.RenderPasswordChangeTemplate(eCtx.Response(), model)
 }
 
 func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordChange {
@@ -196,35 +196,31 @@ func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordC
 	return pcvm
 }
 
-func (c *AuthController) handleExecutePasswordChange(w http.ResponseWriter, r *http.Request) {
-	// Get context
-	ctx := r.Context()
-
+func (c *AuthController) handleExecutePasswordChange(eCtx echo.Context) error {
 	// Get current user ID
-	userId := getCurrentUserId(ctx)
+	userId := getCurrentUserId(getContext(eCtx))
 
 	log.Debugf("User %d is trying to change password ...", userId)
 
 	// Get form inputs
-	password1 := r.FormValue("password1")
-	password2 := r.FormValue("password2")
+	password1 := eCtx.FormValue("password1")
+	password2 := eCtx.FormValue("password2")
 
 	// Validate inputs
 	if err := validatePasswordChangeInputs(password1, password2); err != nil {
-		c.handlePasswordChangeError(w, r, err)
-		return
+		return c.handlePasswordChangeError(eCtx, err)
 	}
 
 	// Update password
-	upwErr := c.uServ.UpdateCurrentUserPassword(ctx, password1)
+	upwErr := c.uServ.UpdateCurrentUserPassword(getContext(eCtx), password1)
 	if upwErr != nil {
-		panic(upwErr)
+		return upwErr
 	}
 
 	log.Debugf("User %d has successfully changed password.", userId)
 
 	// Get session holder from context
-	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 
 	// Get current session
 	preSess := sessHolder.Get()
@@ -232,43 +228,45 @@ func (c *AuthController) handleExecutePasswordChange(w http.ResponseWriter, r *h
 	// Was a previous request stored?
 	if preSess != nil && preSess.PreviousUrl != "" {
 		// Redirect to previous path
-		c.handlePasswordChangeSuccess(w, r, preSess.PreviousUrl)
+		return c.handlePasswordChangeSuccess(eCtx, preSess.PreviousUrl)
 	} else {
 		// Redirect to root path
-		c.handlePasswordChangeSuccess(w, r, "/")
+		return c.handlePasswordChangeSuccess(eCtx, "/")
 	}
 }
 
-func (c *AuthController) handlePasswordChangeSuccess(w http.ResponseWriter, r *http.Request,
-	url string) {
-	http.Redirect(w, r, url, http.StatusFound)
+func (c *AuthController) handlePasswordChangeSuccess(eCtx echo.Context, url string) error {
+	return eCtx.Redirect(http.StatusFound, url)
 }
 
-func (c *AuthController) handlePasswordChangeError(w http.ResponseWriter, r *http.Request,
-	err *e.Error) {
-	http.Redirect(w, r, fmt.Sprintf("/password-change?error=%d", err.Code), http.StatusFound)
+func (c *AuthController) handlePasswordChangeError(eCtx echo.Context, err error) error {
+	code := e.SysUnknown
+	if er, ok := err.(*e.Error); ok {
+		code = er.Code
+	}
+	return eCtx.Redirect(http.StatusFound, fmt.Sprintf("/password-change?error=%d", code))
 }
 
 // --- Logout handler functions ---
 
-func (c *AuthController) handleExecuteLogout(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) handleExecuteLogout(eCtx echo.Context) error {
 	// Get session holder from context
-	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 
 	// Close session
 	sessHolder.Clear()
 
 	// Redirect to login page
-	c.handleLogoutSuccess(w, r)
+	return c.handleLogoutSuccess(eCtx)
 }
 
-func (c *AuthController) handleLogoutSuccess(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "/login", http.StatusFound)
+func (c *AuthController) handleLogoutSuccess(eCtx echo.Context) error {
+	return eCtx.Redirect(http.StatusFound, "/login")
 }
 
 // --- Validator functions ---
 
-func validateLoginInputs(username string, password string) *e.Error {
+func validateLoginInputs(username string, password string) error {
 	if len(username) > model.MaxLengthUserUsername || len(password) > model.MaxLengthUserPassword {
 		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials. (Invalid username or "+
 			"password length.)")
@@ -278,7 +276,7 @@ func validateLoginInputs(username string, password string) *e.Error {
 	return nil
 }
 
-func validatePasswordChangeInputs(password1 string, password2 string) *e.Error {
+func validatePasswordChangeInputs(password1 string, password2 string) error {
 	if len(password1) == 0 {
 		err := e.NewError(e.ValPasswordEmpty, "Password must not be empty.")
 		log.Debug(err.StackTrace())

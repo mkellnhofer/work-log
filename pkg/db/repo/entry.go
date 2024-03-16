@@ -40,8 +40,7 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 // --- Entry functions ---
 
 // CountDateEntries counts entries (over date).
-func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesFilter) (int,
-	*e.Error) {
+func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
 	q, qa := r.buildCountDateEntriesQuery(filter)
 
 	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
@@ -66,7 +65,7 @@ func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (
 
 // GetDateEntries retrieves entries (over date).
 func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, *e.Error) {
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, error) {
 	qr, qra := r.buildGetDateEntriesRangeQuery(filter, sort, offset, limit)
 
 	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
@@ -132,7 +131,7 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 }
 
 // CountDateEntriesByUserId counts all entries (over date) of an user.
-func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (int, *e.Error) {
+func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (int, error) {
 	q, qa := r.buildCountDateEntriesByUserIdQuery(userId)
 
 	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
@@ -158,7 +157,7 @@ func (r *EntryRepo) buildCountDateEntriesByUserIdQuery(userId int) (string, []in
 
 // GetDateEntriesByUserId retrieves all entries (over date) of an user.
 func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offset int, limit int) (
-	[]*model.Entry, *e.Error) {
+	[]*model.Entry, error) {
 	qr, qra := r.buildGetDateEntriesByUserIdRangeQuery(userId, offset, limit)
 
 	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
@@ -215,7 +214,7 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, e
 }
 
 // CountEntries counts all entries.
-func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilter) (int, *e.Error) {
+func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(*) FROM entry e " + qr
@@ -238,7 +237,7 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilte
 
 // GetEntries retrieves all entries.
 func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, *e.Error) {
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, error) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
@@ -268,7 +267,7 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 }
 
 // GetEntryById retrieves an entry.
-func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.Error) {
+func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
 		"FROM entry WHERE id = ?"
 
@@ -290,7 +289,7 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.
 
 // GetEntryByIdAndUserId retrieves an entry of an user.
 func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
-	*e.Error) {
+	error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
 		"FROM entry WHERE id = ? AND user_id = ?"
 
@@ -311,7 +310,7 @@ func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId in
 }
 
 // ExistsEntryById checks if a entry exists.
-func (r *EntryRepo) ExistsEntryById(ctx context.Context, id int) (bool, *e.Error) {
+func (r *EntryRepo) ExistsEntryById(ctx context.Context, id int) (bool, error) {
 	cnt, cErr := r.count(ctx, "entry", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries from database.", cErr)
@@ -324,7 +323,7 @@ func (r *EntryRepo) ExistsEntryById(ctx context.Context, id int) (bool, *e.Error
 
 // ExistsEntryByIdAndUserId checks if a entry exists for an user.
 func (r *EntryRepo) ExistsEntryByIdAndUserId(ctx context.Context, id int, userId int) (bool,
-	*e.Error) {
+	error) {
 	cnt, cErr := r.count(ctx, "entry", "id = ? AND user_id = ?", id, userId)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries from database.", cErr)
@@ -336,7 +335,7 @@ func (r *EntryRepo) ExistsEntryByIdAndUserId(ctx context.Context, id int, userId
 }
 
 // ExistsEntryByActivityId checks if a entry exists for an activity.
-func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int) (bool, *e.Error) {
+func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int) (bool, error) {
 	cnt, cErr := r.count(ctx, "entry", "activity_id = ?", activityId)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries from database.", cErr)
@@ -348,7 +347,7 @@ func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int)
 }
 
 // CreateEntry creates a new entry.
-func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) *e.Error {
+func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) error {
 	etr := toDbEntry(entry)
 
 	q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, description) " +
@@ -368,7 +367,7 @@ func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) *e.Erro
 }
 
 // UpdateEntry updates a entry.
-func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) *e.Error {
+func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) error {
 	etr := toDbEntry(entry)
 
 	q := "UPDATE entry SET user_id = ?, type_id = ?, start_time = ?, end_time = ?, " +
@@ -387,7 +386,7 @@ func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) *e.Erro
 }
 
 // DeleteEntryById deletes a entry.
-func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) *e.Error {
+func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) error {
 	q := "DELETE FROM entry WHERE id = ?"
 
 	dErr := r.exec(ctx, q, id)
@@ -403,7 +402,7 @@ func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) *e.Error {
 
 // GetMonthEntries retrieves all entries of a month.
 func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, month int) (
-	[]*model.Entry, *e.Error) {
+	[]*model.Entry, error) {
 	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
 		"FROM entry " +
 		"WHERE user_id = ? " +
@@ -425,7 +424,7 @@ func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, m
 // --- Entry activity functions ---
 
 // GetEntryActivities retrieves all entry activities.
-func (r *EntryRepo) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, *e.Error) {
+func (r *EntryRepo) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, error) {
 	q := "SELECT id, description FROM entry_activity"
 
 	sr, qErr := r.query(ctx, &scanEntryActivityHelper{}, q)
@@ -441,7 +440,7 @@ func (r *EntryRepo) GetEntryActivities(ctx context.Context) ([]*model.EntryActiv
 
 // GetEntryActivityByDescription retrieves a entry activity by its description.
 func (r *EntryRepo) GetEntryActivityByDescription(ctx context.Context, description string) (
-	*model.EntryActivity, *e.Error) {
+	*model.EntryActivity, error) {
 	q := "SELECT id, description FROM entry_activity WHERE description = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanEntryActivityHelper{}, q, description)
@@ -459,7 +458,7 @@ func (r *EntryRepo) GetEntryActivityByDescription(ctx context.Context, descripti
 }
 
 // ExistsEntryActivityById checks if a entry activity exists.
-func (r *EntryRepo) ExistsEntryActivityById(ctx context.Context, id int) (bool, *e.Error) {
+func (r *EntryRepo) ExistsEntryActivityById(ctx context.Context, id int) (bool, error) {
 	cnt, cErr := r.count(ctx, "entry_activity", "id = ?", id)
 	if cErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entry activities in database.", cErr)
@@ -472,7 +471,7 @@ func (r *EntryRepo) ExistsEntryActivityById(ctx context.Context, id int) (bool, 
 
 // CreateEntryActivity creates a new entry activity.
 func (r *EntryRepo) CreateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) *e.Error {
+	entryActivity *model.EntryActivity) error {
 	q := "INSERT INTO entry_activity (description) VALUES (?)"
 
 	id, cErr := r.insert(ctx, q, entryActivity.Description)
@@ -489,7 +488,7 @@ func (r *EntryRepo) CreateEntryActivity(ctx context.Context,
 
 // UpdateEntryActivity updates a entry activity.
 func (r *EntryRepo) UpdateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) *e.Error {
+	entryActivity *model.EntryActivity) error {
 	q := "UPDATE entry_activity SET description = ? WHERE id = ?"
 
 	uErr := r.exec(ctx, q, entryActivity.Description, entryActivity.Id)
@@ -504,7 +503,7 @@ func (r *EntryRepo) UpdateEntryActivity(ctx context.Context,
 }
 
 // DeleteEntryActivityById deletes a entry activity.
-func (r *EntryRepo) DeleteEntryActivityById(ctx context.Context, id int) *e.Error {
+func (r *EntryRepo) DeleteEntryActivityById(ctx context.Context, id int) error {
 	q := "DELETE FROM entry_activity WHERE id = ?"
 
 	dErr := r.exec(ctx, q, id)
@@ -523,7 +522,7 @@ func (r *EntryRepo) DeleteEntryActivityById(ctx context.Context, id int) *e.Erro
 // GetWorkSummary gets the work summary for a specific period.
 func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.Time, end time.Time) (
 	*model.WorkSummary,
-	*e.Error) {
+	error) {
 	q := "SELECT type_id, SUM(TIMESTAMPDIFF(MINUTE, start_time , end_time)) " +
 		"FROM entry " +
 		"WHERE user_id = ? " +

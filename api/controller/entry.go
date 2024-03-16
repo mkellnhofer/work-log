@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/api/validator"
@@ -12,7 +14,6 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	m "kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
-	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 // EntryController handles requests for entry endpoints.
@@ -153,7 +154,7 @@ type UpdateEntryActivityResponse struct {
 // --- Endpoints ---
 
 // GetEntriesHandler returns a handler for "GET /entries".
-func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
+func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	// swagger:operation GET /entries entries listEntries
 	//
 	// Lists all entries.
@@ -254,40 +255,45 @@ func (c *EntryController) GetEntriesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get filter from request
-		f, err := getEntriesFilter(getFilterQueryParam(r))
+		f, err := getEntriesFilter(getFilterQueryParam(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Get sort from request
-		s, err := getEntriesSort(getSortQueryParam(r))
+		s, err := getEntriesSort(getSortQueryParam(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Get offset and limit from request
-		o := getOffsetQueryParam(r)
-		l := getLimitQueryParam(r)
+		var o, l int
+		if o, err = getOffsetQueryParam(eCtx); err != nil {
+			return err
+		}
+		if l, err = getLimitQueryParam(eCtx); err != nil {
+			return err
+		}
 		if l == 0 {
 			l = defaultPageSize
 		}
 
 		// Execute action
-		entries, cnt, err := c.eServ.GetEntries(r.Context(), f, s, o, l)
+		entries, cnt, err := c.eServ.GetEntries(getContext(eCtx), f, s, o, l)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aes := mapper.ToEntries(entries, o, l, cnt)
-		httputil.WriteHttpResponse(w, http.StatusOK, aes)
+		return writeResponse(eCtx, http.StatusOK, aes)
 	}
 }
 
 // CreateEntryHandler returns a handler for "POST /entries".
-func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
+func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	// swagger:operation POST /entries entries createEntry
 	//
 	// Create a entry.
@@ -336,33 +342,34 @@ func (c *EntryController) CreateEntryHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Read API model from request
 		var ace model.CreateEntry
-		httputil.ReadHttpBody(r, &ace)
+		if err := readRequestBody(eCtx, &ace); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateCreateEntry(&ace); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		entry := mapper.FromCreateEntry(&ace)
 
 		// Execute action
-		err := c.eServ.CreateEntry(r.Context(), entry)
-		if err != nil {
-			panic(err)
+		if err := c.eServ.CreateEntry(getContext(eCtx), entry); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		ae := mapper.ToEntry(entry)
-		httputil.WriteHttpResponse(w, http.StatusOK, ae)
+		return writeResponse(eCtx, http.StatusOK, ae)
 	}
 }
 
 // GetEntryHandler returns a handler for "GET /entries/{id}".
-func (c *EntryController) GetEntryHandler() http.HandlerFunc {
+func (c *EntryController) GetEntryHandler() echo.HandlerFunc {
 	// swagger:operation GET /entries/{id} entries getEntry
 	//
 	// Get a entry by its ID.
@@ -401,34 +408,34 @@ func (c *EntryController) GetEntryHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		entry, err := c.eServ.GetEntryById(r.Context(), id)
+		entry, err := c.eServ.GetEntryById(getContext(eCtx), id)
 		if err != nil {
-			if err.IsPermissionError() {
-				err = c.convertPermissionError(r.Context(), id, err)
-			}
-			panic(err)
+			return c.convertPermissionError(getContext(eCtx), id, err)
 		}
 
 		// Check if a entry was found
 		if entry == nil {
-			err = e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
+			err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
 			log.Debug(err.StackTrace())
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		ae := mapper.ToEntry(entry)
-		httputil.WriteHttpResponse(w, http.StatusOK, ae)
+		return writeResponse(eCtx, http.StatusOK, ae)
 	}
 }
 
 // UpdateEntryHandler returns a handler for "PUT /entries/{id}".
-func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
+func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	// swagger:operation PUT /entries/{id} entries updateEntry
 	//
 	// Update a entry by its ID.
@@ -478,39 +485,40 @@ func (c *EntryController) UpdateEntryHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Read API model from request
 		var aue model.UpdateEntry
-		httputil.ReadHttpBody(r, &aue)
+		if err := readRequestBody(eCtx, &aue); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateUpdateEntry(&aue); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		entry := mapper.FromUpdateEntry(id, &aue)
 
 		// Execute action
-		err := c.eServ.UpdateEntry(r.Context(), entry)
-		if err != nil {
-			if err.IsPermissionError() {
-				err = c.convertPermissionError(r.Context(), id, err)
-			}
-			panic(err)
+		if err := c.eServ.UpdateEntry(getContext(eCtx), entry); err != nil {
+			return c.convertPermissionError(getContext(eCtx), id, err)
 		}
 
 		// Convert to API model and write response
 		ae := mapper.ToEntry(entry)
-		httputil.WriteHttpResponse(w, http.StatusOK, ae)
+		return writeResponse(eCtx, http.StatusOK, ae)
 	}
 }
 
 // DeleteEntryHandler returns a handler for "DELETE /entries/{id}".
-func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
+func (c *EntryController) DeleteEntryHandler() echo.HandlerFunc {
 	// swagger:operation DELETE /entries/{id} entries deleteEntry
 	//
 	// Delete a entry by its ID.
@@ -554,26 +562,25 @@ func (c *EntryController) DeleteEntryHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		err := c.eServ.DeleteEntryById(r.Context(), id)
-		if err != nil {
-			if err.IsPermissionError() {
-				err = c.convertPermissionError(r.Context(), id, err)
-			}
-			panic(err)
+		if err := c.eServ.DeleteEntryById(getContext(eCtx), id); err != nil {
+			return c.convertPermissionError(getContext(eCtx), id, err)
 		}
 
 		// Write response
-		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
+		return writeResponse(eCtx, http.StatusNoContent, nil)
 	}
 }
 
 // GetEntryTypesHandler returns a handler for "GET /entry_types".
-func (c *EntryController) GetEntryTypesHandler() http.HandlerFunc {
+func (c *EntryController) GetEntryTypesHandler() echo.HandlerFunc {
 	// swagger:operation GET /entry_types entry_types listEntryTypes
 	//
 	// Lists all entry types.
@@ -602,21 +609,21 @@ func (c *EntryController) GetEntryTypesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Execute action
-		entryTypes, err := c.eServ.GetEntryTypes(r.Context())
+		entryTypes, err := c.eServ.GetEntryTypes(getContext(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aets := mapper.ToEntryTypes(entryTypes)
-		httputil.WriteHttpResponse(w, http.StatusOK, aets)
+		return writeResponse(eCtx, http.StatusOK, aets)
 	}
 }
 
 // GetEntryActivitiesHandler returns a handler for "GET /entry_activites".
-func (c *EntryController) GetEntryActivitiesHandler() http.HandlerFunc {
+func (c *EntryController) GetEntryActivitiesHandler() echo.HandlerFunc {
 	// swagger:operation GET /entry_activities entry_activities listEntryActivities
 	//
 	// Lists all entry activities.
@@ -645,21 +652,21 @@ func (c *EntryController) GetEntryActivitiesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Execute action
-		entryActivities, err := c.eServ.GetEntryActivities(r.Context())
+		entryActivities, err := c.eServ.GetEntryActivities(getContext(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aeas := mapper.ToEntryActivities(entryActivities)
-		httputil.WriteHttpResponse(w, http.StatusOK, aeas)
+		return writeResponse(eCtx, http.StatusOK, aeas)
 	}
 }
 
 // CreateEntryActivityHandler returns a handler for "POST /entry_activites".
-func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
+func (c *EntryController) CreateEntryActivityHandler() echo.HandlerFunc {
 	// swagger:operation POST /entry_activities entry_activities createEntryActivity
 	//
 	// Create a entry activity.
@@ -699,33 +706,34 @@ func (c *EntryController) CreateEntryActivityHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Read API model from request
 		var acea model.CreateEntryActivity
-		httputil.ReadHttpBody(r, &acea)
+		if err := readRequestBody(eCtx, &acea); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateCreateEntryActivity(&acea); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		entryActivity := mapper.FromCreateEntryActivity(&acea)
 
 		// Execute action
-		err := c.eServ.CreateEntryActivity(r.Context(), entryActivity)
-		if err != nil {
-			panic(err)
+		if err := c.eServ.CreateEntryActivity(getContext(eCtx), entryActivity); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		aea := mapper.ToEntryActivity(entryActivity)
-		httputil.WriteHttpResponse(w, http.StatusOK, aea)
+		return writeResponse(eCtx, http.StatusOK, aea)
 	}
 }
 
 // UpdateEntryActivityHandler returns a handler for "PUT /entry_activites/{id}".
-func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
+func (c *EntryController) UpdateEntryActivityHandler() echo.HandlerFunc {
 	// swagger:operation PUT /entry_activities/{id} entry_activities updateEntryActivity
 	//
 	// Update a entry activity by its ID.
@@ -771,36 +779,40 @@ func (c *EntryController) UpdateEntryActivityHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Read API model from request
 		var auea model.UpdateEntryActivity
-		httputil.ReadHttpBody(r, &auea)
+		if err := readRequestBody(eCtx, &auea); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateUpdateEntryActivity(&auea); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		entryActivity := mapper.FromUpdateEntryActivity(id, &auea)
 
 		// Execute action
-		err := c.eServ.UpdateEntryActivity(r.Context(), entryActivity)
-		if err != nil {
-			panic(err)
+		if err := c.eServ.UpdateEntryActivity(getContext(eCtx), entryActivity); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		aea := mapper.ToEntryActivity(entryActivity)
-		httputil.WriteHttpResponse(w, http.StatusOK, aea)
+		return writeResponse(eCtx, http.StatusOK, aea)
 	}
 }
 
 // DeleteEntryActivityHandler returns a handler for "DELETE /entry_activites/{id}".
-func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
+func (c *EntryController) DeleteEntryActivityHandler() echo.HandlerFunc {
 	// swagger:operation DELETE /entry_activities/{id} entry_activities deleteEntryActivity
 	//
 	// Delete a entry activity by its ID.
@@ -849,26 +861,29 @@ func (c *EntryController) DeleteEntryActivityHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		err := c.eServ.DeleteEntryActivityById(r.Context(), id)
-		if err != nil {
-			panic(err)
+		if err := c.eServ.DeleteEntryActivityById(getContext(eCtx), id); err != nil {
+			return err
 		}
 
 		// Write response
-		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
+		return writeResponse(eCtx, http.StatusNoContent, nil)
 	}
 }
 
 // --- Permission helper functions ---
 
-func (c *EntryController) convertPermissionError(ctx context.Context, id int, pErr *e.Error) *e.Error {
-	if !hasCurrentUserRight(ctx, m.RightGetAllEntries) {
-		return e.WrapError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id), pErr)
+func (c *EntryController) convertPermissionError(ctx context.Context, id int, err error) error {
+	er, ok := err.(*e.Error)
+	if ok && er.IsPermissionError() && !hasCurrentUserRight(ctx, m.RightGetAllEntries) {
+		return e.WrapError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id), err)
 	}
-	return pErr
+	return err
 }

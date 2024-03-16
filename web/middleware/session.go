@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"kellnhofer.com/work-log/pkg/constant"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
@@ -41,15 +43,28 @@ func NewSessionMiddleware(sServ *service.SessionService) *SessionMiddleware {
 	return &SessionMiddleware{sServ}
 }
 
-// ServeHTTP processes requests.
-func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before create/restore session.")
+// CreateHandler creates a new handler to process requests.
+func (m *SessionMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before create/restore session.")
+
+		err := m.process(next, c)
+
+		log.Verb("After create/restore session.")
+
+		return err
+	}
+}
+
+func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
 
 	// Create system context
-	sysCtx := security.CreateSystemContext(r.Context())
+	sysCtx := security.CreateSystemContext(req.Context())
 
 	// Get session cookie
-	sessCookie, _ := r.Cookie(constant.SessionCookieName)
+	sessCookie, _ := req.Cookie(constant.SessionCookieName)
 
 	// Get session ID
 	var sessId string
@@ -58,9 +73,9 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	}
 
 	// Try to load session
-	var iniSess *model.Session
-	if sessId != "" {
-		iniSess = m.getSession(sysCtx, sessId)
+	iniSess, err := m.getSession(sysCtx, sessId)
+	if err != nil {
+		return err
 	}
 	if iniSess != nil {
 		log.Debugf("Session '%s' is still valid.", sessId)
@@ -72,17 +87,20 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 		log.Debugf("New session '%s' was created.", iniSess.Id)
 		sessCookie = &http.Cookie{Name: constant.SessionCookieName, Value: iniSess.Id, Path: "/",
 			HttpOnly: true}
-		http.SetCookie(w, sessCookie)
+		c.SetCookie(sessCookie)
 	}
 
 	// Create session holder
 	sessHolder := &SessionHolder{iniSess}
 
 	// Update context
-	ctx := context.WithValue(r.Context(), constant.ContextKeySessionHolder, sessHolder)
+	ctx := context.WithValue(req.Context(), constant.ContextKeySessionHolder, sessHolder)
+	c.SetRequest(req.WithContext(ctx))
 
 	// Forward to next handler
-	next(w, r.WithContext(ctx))
+	if err := next(c); err != nil {
+		return err
+	}
 
 	// Get session from session holder
 	altSess := sessHolder.session
@@ -90,49 +108,55 @@ func (m *SessionMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	// If session was replaced/deleted: Delete old session
 	wasSessionReplaced := altSess != nil && altSess != iniSess
 	if wasSessionReplaced {
-		m.deleteSession(sysCtx, iniSess.Id)
+		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
+			return err
+		}
 		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.Id, altSess.Id)
 	}
 	wasSessionClosed := altSess == nil
 	if wasSessionClosed {
-		m.deleteSession(sysCtx, iniSess.Id)
+		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
+			return err
+		}
 		log.Debugf("Session '%s' was closed.", iniSess.Id)
 	}
 
 	// Save current session
 	if !wasSessionClosed {
-		m.saveSession(sysCtx, altSess)
+		if err := m.saveSession(sysCtx, altSess); err != nil {
+			return err
+		}
 	}
 
-	log.Verb("After create/restore session.")
+	return nil
 }
 
 func (m *SessionMiddleware) createSession() *model.Session {
 	return model.NewSession()
 }
 
-func (m *SessionMiddleware) getSession(ctx context.Context, sessId string) *model.Session {
+func (m *SessionMiddleware) getSession(ctx context.Context, sessId string) (*model.Session, error) {
+	if sessId == "" {
+		return nil, nil
+	}
+
 	sess, err := m.sServ.GetSession(ctx, sessId)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	if sess == nil || sess.IsExpired() {
-		return nil
+		return nil, nil
 	}
 
-	return sess
+	return sess, nil
 }
 
-func (m *SessionMiddleware) saveSession(ctx context.Context, sess *model.Session) {
+func (m *SessionMiddleware) saveSession(ctx context.Context, sess *model.Session) error {
 	sess.Renew()
-	if err := m.sServ.SaveSession(ctx, sess); err != nil {
-		panic(err)
-	}
+	return m.sServ.SaveSession(ctx, sess)
 }
 
-func (m *SessionMiddleware) deleteSession(ctx context.Context, sessId string) {
-	if err := m.sServ.DeleteSession(ctx, sessId); err != nil {
-		panic(err)
-	}
+func (m *SessionMiddleware) deleteSession(ctx context.Context, sessId string) error {
+	return m.sServ.DeleteSession(ctx, sessId)
 }

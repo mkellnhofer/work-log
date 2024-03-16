@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"kellnhofer.com/work-log/pkg/error"
+	"github.com/labstack/echo/v4"
+
+	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 )
 
@@ -17,31 +19,36 @@ func NewErrorMiddleware() *ErrorMiddleware {
 	return &ErrorMiddleware{}
 }
 
-// ServeHTTP processes requests.
-func (m *ErrorMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before error check.")
+// CreateHandler creates a new handler to process requests.
+func (m *ErrorMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before error check.")
 
-	defer func() {
-		if err := recover(); err != nil {
-			log.Verb("Catching error.")
-			m.handleError(w, r, err)
-		}
-	}()
+		err := m.process(next, c)
 
-	next(w, r)
+		log.Verb("After error check.")
 
-	log.Verb("After error check.")
+		return err
+	}
 }
 
-func (m *ErrorMiddleware) handleError(w http.ResponseWriter, r *http.Request, err interface{}) {
-	var ec int
-	switch e := err.(type) {
-	case *error.Error:
-		ec = e.Code
-	default:
-		log.Errorf("%s", e)
-		ec = error.SysUnknown
+func (m *ErrorMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	err := next(c)
+	if err != nil {
+		log.Verb("Catching error.")
+		m.handleError(c, err)
 	}
+	return nil
+}
 
-	http.Redirect(w, r, fmt.Sprintf("/error?error=%d", ec), http.StatusFound)
+func (m *ErrorMiddleware) handleError(c echo.Context, err error) {
+	var ec int
+	switch tErr := err.(type) {
+	case *e.Error:
+		ec = tErr.Code
+	default:
+		log.Errorf("%s", tErr)
+		ec = e.SysUnknown
+	}
+	c.Redirect(http.StatusFound, fmt.Sprintf("/error?error=%d", ec))
 }

@@ -25,11 +25,11 @@ const (
 	sortNameStartTime = "startTime"
 )
 
-func getEntriesSort(str string) (*model.EntriesSort, *e.Error) {
+func getEntriesSort(str string) (*model.EntriesSort, error) {
 	entrySort := model.NewEntriesSort()
 
 	// Get start time sorting value
-	var err *e.Error
+	var err error
 	if entrySort.ByTime, err = createSort(str, sortNameStartTime); err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func getEntriesSort(str string) (*model.EntriesSort, *e.Error) {
 
 // --- Sorting parsing functions ---
 
-func createSort(str string, name string) (model.Sorting, *e.Error) {
+func createSort(str string, name string) (model.Sorting, error) {
 	// If sort string is empty: Abort
 	if str == "" {
 		return model.NoSorting, nil
@@ -74,7 +74,7 @@ func createSort(str string, name string) (model.Sorting, *e.Error) {
 	}
 }
 
-func checkSortParts(parts []string) *e.Error {
+func checkSortParts(parts []string) error {
 	// Check if structure is invalid
 	if len(parts) < 2 || len(parts) > 2 {
 		err := e.NewError(e.ValSortInvalid, "Invalid sorting. (A sorting must have following "+

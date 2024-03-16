@@ -2,17 +2,17 @@ package controller
 
 import (
 	"context"
-	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
+	"github.com/labstack/echo/v4"
 
 	am "kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/pkg/constant"
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 	m "kellnhofer.com/work-log/pkg/model"
+	httputil "kellnhofer.com/work-log/pkg/util/http"
 	"kellnhofer.com/work-log/pkg/util/security"
 )
 
@@ -25,6 +25,10 @@ type Error struct {
 	Body am.Error
 }
 
+func getContext(eCtx echo.Context) context.Context {
+	return eCtx.Request().Context()
+}
+
 func getCurrentUserId(ctx context.Context) int {
 	return security.GetCurrentUserId(ctx)
 }
@@ -33,82 +37,70 @@ func hasCurrentUserRight(ctx context.Context, right m.Right) bool {
 	return security.HasCurrentUserRight(ctx, right)
 }
 
-func getIdPathVar(r *http.Request) int {
-	v, ok := getPathVar(r, "id")
-	if !ok {
+func getIdPathVar(eCtx echo.Context) (int, error) {
+	v := eCtx.Param("id")
+	if v == "" {
 		err := e.NewError(e.ValIdInvalid, "Invalid ID variable. (Varible missing.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 
 	id, pErr := strconv.Atoi(v)
 	if pErr != nil {
 		err := e.WrapError(e.ValIdInvalid, "Invalid ID variable. (Varible must be numeric.)", pErr)
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 
 	if id <= 0 {
 		err := e.NewError(e.ValIdInvalid, "Invalid ID variable. (Varible must be positive.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 
-	return id
+	return id, nil
 }
 
-func getPathVar(r *http.Request, n string) (string, bool) {
-	vars := mux.Vars(r)
-	elem, ok := vars[n]
-	return elem, ok
+func getFilterQueryParam(eCtx echo.Context) string {
+	return eCtx.QueryParam("filter")
 }
 
-func getFilterQueryParam(r *http.Request) string {
-	return getStringQueryParam(r, "filter")
+func getSortQueryParam(eCtx echo.Context) string {
+	return eCtx.QueryParam("sort")
 }
 
-func getSortQueryParam(r *http.Request) string {
-	return getStringQueryParam(r, "sort")
-}
-
-func getOffsetQueryParam(r *http.Request) int {
-	i, err := getIntQueryParam(r, "offset")
+func getOffsetQueryParam(eCtx echo.Context) (int, error) {
+	i, err := getIntQueryParam(eCtx, "offset")
 	if err != nil {
 		err := e.NewError(e.ValOffsetInvalid, "Invalid offset. (Offset must be numeric (int32).)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 	if i < 0 {
 		err := e.NewError(e.ValOffsetInvalid, "Invalid offset. (Offset must be positive.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
-	return i
+	return i, nil
 }
 
-func getLimitQueryParam(r *http.Request) int {
-	i, err := getIntQueryParam(r, "limit")
+func getLimitQueryParam(eCtx echo.Context) (int, error) {
+	i, err := getIntQueryParam(eCtx, "limit")
 	if err != nil {
 		err := e.NewError(e.ValLimitInvalid, "Invalid limit. (Limit must be numeric (int32).)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 	if i < 0 {
 		err := e.NewError(e.ValLimitInvalid, "Invalid limit. (Limit must be positive.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
-	return i
+	return i, nil
 }
 
-func getStringQueryParam(r *http.Request, n string) string {
-	qvs := r.URL.Query()
-	return qvs.Get(n)
-}
-
-func getIntQueryParam(r *http.Request, n string) (int, error) {
-	qvs := r.URL.Query()
-	qv := qvs.Get(n)
+func getIntQueryParam(eCtx echo.Context, name string) (int, error) {
+	qv := eCtx.QueryParam(name)
 	if qv == "" {
 		return 0, nil
 	}
@@ -121,4 +113,12 @@ func parseDate(d string) (time.Time, error) {
 
 func parseTimestamp(ts string) (time.Time, error) {
 	return time.ParseInLocation(constant.ApiTimestampFormat, ts, time.Local)
+}
+
+func readRequestBody(eCtx echo.Context, data interface{}) error {
+	return httputil.ReadHttpRequestBody(eCtx.Request(), data)
+}
+
+func writeResponse(eCtx echo.Context, statusCode int, data interface{}) error {
+	return httputil.WriteHttpResponse(eCtx.Response(), statusCode, data)
 }

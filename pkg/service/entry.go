@@ -28,7 +28,7 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 
 // GetDateEntries gets all entries (over date).
 func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, *e.Error) {
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, error) {
 	// If user does not have right to get any entry: Add default user ID filter
 	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
 		filter.ByUser = true
@@ -57,7 +57,7 @@ func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.Entries
 
 // GetDateEntriesByUserId gets all entries (over date) of an user.
 func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, offset int,
-	limit int) ([]*model.Entry, int, *e.Error) {
+	limit int) ([]*model.Entry, int, error) {
 	// Check permissions
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
 		return nil, 0, err
@@ -80,7 +80,7 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 
 // GetEntries gets all entries.
 func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, *e.Error) {
+	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, error) {
 	// If user does not have right to get any entry: Add default user ID filter
 	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
 		filter.ByUser = true
@@ -108,7 +108,7 @@ func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilt
 }
 
 // GetEntryById gets an entry.
-func (s *EntryService) GetEntryById(ctx context.Context, id int) (*model.Entry, *e.Error) {
+func (s *EntryService) GetEntryById(ctx context.Context, id int) (*model.Entry, error) {
 	// Get entry
 	entry, err := s.eRepo.GetEntryById(ctx, id)
 	if err != nil {
@@ -128,7 +128,7 @@ func (s *EntryService) GetEntryById(ctx context.Context, id int) (*model.Entry, 
 
 // GetEntryByIdAndUserId gets an entry of an user.
 func (s *EntryService) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
-	*e.Error) {
+	error) {
 	// Check permissions
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
 		return nil, err
@@ -139,7 +139,7 @@ func (s *EntryService) GetEntryByIdAndUserId(ctx context.Context, id int, userId
 }
 
 // CreateEntry creates a new entry.
-func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.Error {
+func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) error {
 	// Check permissions
 	if err := s.checkHasCurrentUserChangeRight(ctx, entry.UserId); err != nil {
 		return err
@@ -164,7 +164,7 @@ func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) *e.E
 }
 
 // UpdateEntry updates an entry.
-func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) *e.Error {
+func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) error {
 	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryByIdAndUserId(ctx, entry.Id, entry.UserId)
 	if err != nil {
@@ -200,7 +200,7 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) *e.E
 }
 
 // DeleteEntryById deletes an entry.
-func (s *EntryService) DeleteEntryById(ctx context.Context, id int) *e.Error {
+func (s *EntryService) DeleteEntryById(ctx context.Context, id int) error {
 	// Get existing entry
 	existingEntry, err := s.eRepo.GetEntryById(ctx, id)
 	if err != nil {
@@ -222,7 +222,7 @@ func (s *EntryService) DeleteEntryById(ctx context.Context, id int) *e.Error {
 }
 
 // DeleteEntryByIdAndUserId deletes an entry of an user.
-func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, userId int) *e.Error {
+func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, userId int) error {
 	// Check permissions
 	if err := s.checkHasCurrentUserChangeRight(ctx, userId); err != nil {
 		return err
@@ -245,7 +245,7 @@ func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, use
 
 // GetMonthEntriesByUserId gets all entries of a month of an user.
 func (s *EntryService) GetMonthEntriesByUserId(ctx context.Context, userId int, year int,
-	month int) ([]*model.Entry, *e.Error) {
+	month int) ([]*model.Entry, error) {
 	// Check permissions
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
 		return nil, err
@@ -255,7 +255,7 @@ func (s *EntryService) GetMonthEntriesByUserId(ctx context.Context, userId int, 
 	return s.eRepo.GetMonthEntries(ctx, userId, year, month)
 }
 
-func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
+func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) error {
 	if entry == nil {
 		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
 		log.Debug(err.StackTrace())
@@ -264,7 +264,7 @@ func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) *e.Error {
 	return nil
 }
 
-func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
+func (s *EntryService) checkEntry(entry *model.Entry) error {
 	if entry.StartTime.After(entry.EndTime) {
 		err := e.NewError(e.LogicEntryTimeIntervalInvalid, fmt.Sprintf("End time %s before "+
 			"start time %s.", entry.EndTime, entry.StartTime))
@@ -278,7 +278,7 @@ func (s *EntryService) checkEntry(entry *model.Entry) *e.Error {
 // --- Entry type functions ---
 
 // GetEntryTypes gets all entry types.
-func (s *EntryService) GetEntryTypes(ctx context.Context) ([]*model.EntryType, *e.Error) {
+func (s *EntryService) GetEntryTypes(ctx context.Context) ([]*model.EntryType, error) {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightGetEntryCharacts); err != nil {
 		return nil, err
@@ -295,7 +295,7 @@ func (s *EntryService) GetEntryTypes(ctx context.Context) ([]*model.EntryType, *
 }
 
 // GetEntryTypesMap gets a map of all entry types.
-func (s *EntryService) GetEntryTypesMap(ctx context.Context) (map[int]*model.EntryType, *e.Error) {
+func (s *EntryService) GetEntryTypesMap(ctx context.Context) (map[int]*model.EntryType, error) {
 	// Get entry types
 	entryTypes, err := s.GetEntryTypes(ctx)
 	if err != nil {
@@ -311,7 +311,7 @@ func (s *EntryService) GetEntryTypesMap(ctx context.Context) (map[int]*model.Ent
 	return m, nil
 }
 
-func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
+func (s *EntryService) checkIfEntryTypeExists(id int) error {
 	exist := id == model.EntryTypeIdWork || id == model.EntryTypeIdTravel ||
 		id == model.EntryTypeIdVacation || id == model.EntryTypeIdHoliday ||
 		id == model.EntryTypeIdIllness
@@ -326,7 +326,7 @@ func (s *EntryService) checkIfEntryTypeExists(id int) *e.Error {
 // --- Entry activity functions ---
 
 // GetEntryActivities gets all entry activities.
-func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, *e.Error) {
+func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, error) {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightGetEntryCharacts); err != nil {
 		return nil, err
@@ -338,7 +338,7 @@ func (s *EntryService) GetEntryActivities(ctx context.Context) ([]*model.EntryAc
 
 // GetEntryActivitiesMap gets a map of all entry activities.
 func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
-	*e.Error) {
+	error) {
 	// Get entry activities
 	entryActivities, err := s.eRepo.GetEntryActivities(ctx)
 	if err != nil {
@@ -356,7 +356,7 @@ func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*mode
 
 // CreateEntryActivity creates a new entry activity.
 func (s *EntryService) CreateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) *e.Error {
+	entryActivity *model.EntryActivity) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
@@ -373,7 +373,7 @@ func (s *EntryService) CreateEntryActivity(ctx context.Context,
 
 // UpdateEntryActivity updates an entry activity.
 func (s *EntryService) UpdateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) *e.Error {
+	entryActivity *model.EntryActivity) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
@@ -389,7 +389,7 @@ func (s *EntryService) UpdateEntryActivity(ctx context.Context,
 }
 
 // DeleteEntryActivityById deletes an entry activity.
-func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) *e.Error {
+func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
@@ -409,7 +409,7 @@ func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) *e.E
 	return s.eRepo.DeleteEntryActivityById(ctx, id)
 }
 
-func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) *e.Error {
+func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) error {
 	if id == 0 {
 		return nil
 	}
@@ -418,7 +418,7 @@ func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) *
 		return err
 	}
 	if !exists {
-		err = e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find entry activity "+
+		err := e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find entry activity "+
 			"%d.", id))
 		log.Debug(err.StackTrace())
 		return err
@@ -426,13 +426,13 @@ func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) *
 	return nil
 }
 
-func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) *e.Error {
+func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) error {
 	existsEntry, err := s.eRepo.ExistsEntryByActivityId(ctx, id)
 	if err != nil {
 		return err
 	}
 	if existsEntry {
-		err = e.NewError(e.LogicEntryActivityDeleteNotAllowed, fmt.Sprintf("Could not delete entry "+
+		err := e.NewError(e.LogicEntryActivityDeleteNotAllowed, fmt.Sprintf("Could not delete entry "+
 			"activity %d. There are still entries for this activity.", id))
 		log.Debug(err.StackTrace())
 		return err
@@ -444,7 +444,7 @@ func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) *
 
 // GetTotalWorkSummaryByUserId gets the total work summary of an user.
 func (s *EntryService) GetTotalWorkSummaryByUserId(ctx context.Context, userId int) (
-	*model.WorkSummary, *e.Error) {
+	*model.WorkSummary, error) {
 	// Check permissions
 	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
 		return nil, err
@@ -459,7 +459,7 @@ func (s *EntryService) GetTotalWorkSummaryByUserId(ctx context.Context, userId i
 
 // --- Permission helper functions ---
 
-func (s *EntryService) checkHasCurrentUserGetRight(ctx context.Context, userId int) *e.Error {
+func (s *EntryService) checkHasCurrentUserGetRight(ctx context.Context, userId int) error {
 	if userId == getCurrentUserId(ctx) {
 		return checkHasCurrentUserRight(ctx, model.RightGetOwnEntries)
 	} else {
@@ -467,7 +467,7 @@ func (s *EntryService) checkHasCurrentUserGetRight(ctx context.Context, userId i
 	}
 }
 
-func (s *EntryService) checkHasCurrentUserChangeRight(ctx context.Context, userId int) *e.Error {
+func (s *EntryService) checkHasCurrentUserChangeRight(ctx context.Context, userId int) error {
 	if userId == getCurrentUserId(ctx) {
 		return checkHasCurrentUserRight(ctx, model.RightChangeOwnEntries)
 	} else {

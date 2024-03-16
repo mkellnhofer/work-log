@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"kellnhofer.com/work-log/api/mapper"
 	"kellnhofer.com/work-log/api/model"
 	"kellnhofer.com/work-log/api/validator"
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/service"
-	httputil "kellnhofer.com/work-log/pkg/util/http"
 )
 
 // UserController handles requests for user endpoints.
@@ -149,7 +150,7 @@ type UpdateUserRolesResponse struct {
 // --- Endpoints ---
 
 // GetCurrentUserHandler returns a handler for "GET /user".
-func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
+func (c *UserController) GetCurrentUserHandler() echo.HandlerFunc {
 	// swagger:operation GET /user user getCurrentUser
 	//
 	// Get the current user.
@@ -178,21 +179,21 @@ func (c *UserController) GetCurrentUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Execute action
-		user, err := c.uServ.GetCurrentUserData(r.Context())
+		user, err := c.uServ.GetCurrentUserData(getContext(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		au := mapper.ToUserData(user)
-		httputil.WriteHttpResponse(w, http.StatusOK, au)
+		return writeResponse(eCtx, http.StatusOK, au)
 	}
 }
 
 // UpdateCurrentUserPasswordHandler returns a handler for "PUT /user/password".
-func (c *UserController) UpdateCurrentUserPasswordHandler() http.HandlerFunc {
+func (c *UserController) UpdateCurrentUserPasswordHandler() echo.HandlerFunc {
 	// swagger:operation PUT /user/password user updateCurrentUserPassword
 	//
 	// Update the password of the current user.
@@ -235,28 +236,30 @@ func (c *UserController) UpdateCurrentUserPasswordHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Read API model from request
 		var auupw model.UpdateUserPassword
-		httputil.ReadHttpBody(r, &auupw)
+		if err := readRequestBody(eCtx, &auupw); err != nil {
+			return err
+		}
 
 		// Validate password
 		if err := validator.ValidateUpdateUserPassword(&auupw); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Execute action
-		if err := c.uServ.UpdateCurrentUserPassword(r.Context(), auupw.Password); err != nil {
-			panic(err)
+		if err := c.uServ.UpdateCurrentUserPassword(getContext(eCtx), auupw.Password); err != nil {
+			return err
 		}
 
 		// Write response
-		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
+		return writeResponse(eCtx, http.StatusNoContent, nil)
 	}
 }
 
 // GetCurrentUserRolesHandler returns a handler for "GET /user/roles".
-func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
+func (c *UserController) GetCurrentUserRolesHandler() echo.HandlerFunc {
 	// swagger:operation GET /user/roles user getCurrentUserRoles
 	//
 	// Get roles of the current user.
@@ -285,21 +288,21 @@ func (c *UserController) GetCurrentUserRolesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Execute action
-		userRoles, err := c.uServ.GetCurrentUserRoles(r.Context())
+		userRoles, err := c.uServ.GetCurrentUserRoles(getContext(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aur := mapper.ToRoles(userRoles)
-		httputil.WriteHttpResponse(w, http.StatusOK, aur)
+		return writeResponse(eCtx, http.StatusOK, aur)
 	}
 }
 
 // GetUsersHandler returns a handler for "GET /users".
-func (c *UserController) GetUsersHandler() http.HandlerFunc {
+func (c *UserController) GetUsersHandler() echo.HandlerFunc {
 	// swagger:operation GET /users users listUsers
 	//
 	// Lists all users.
@@ -333,21 +336,21 @@ func (c *UserController) GetUsersHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Execute action
-		users, err := c.uServ.GetUserDatas(r.Context())
+		users, err := c.uServ.GetUserDatas(getContext(eCtx))
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aus := mapper.ToUserDatas(users)
-		httputil.WriteHttpResponse(w, http.StatusOK, aus)
+		return writeResponse(eCtx, http.StatusOK, aus)
 	}
 }
 
 // CreateUserHandler returns a handler for "POST /users".
-func (c *UserController) CreateUserHandler() http.HandlerFunc {
+func (c *UserController) CreateUserHandler() echo.HandlerFunc {
 	// swagger:operation POST /users users createUser
 	//
 	// Create a user.
@@ -414,32 +417,34 @@ func (c *UserController) CreateUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Read API model from request
 		var acu model.CreateUserData
-		httputil.ReadHttpBody(r, &acu)
+		if err := readRequestBody(eCtx, &acu); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateCreateUser(&acu); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		user := mapper.FromCreateUserData(&acu)
 
 		// Execute action
-		if err := c.uServ.CreateUserData(r.Context(), user); err != nil {
-			panic(err)
+		if err := c.uServ.CreateUserData(getContext(eCtx), user); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		au := mapper.ToUserData(user)
-		httputil.WriteHttpResponse(w, http.StatusOK, au)
+		return writeResponse(eCtx, http.StatusOK, au)
 	}
 }
 
 // GetUserHandler returns a handler for "GET /users/{id}".
-func (c *UserController) GetUserHandler() http.HandlerFunc {
+func (c *UserController) GetUserHandler() echo.HandlerFunc {
 	// swagger:operation GET /users/{id} users getUser
 	//
 	// Get a user by its ID.
@@ -483,31 +488,34 @@ func (c *UserController) GetUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get user ID from request
-		userId := getIdPathVar(r)
+		userId, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		user, err := c.uServ.GetUserDataByUserId(r.Context(), userId)
+		user, err := c.uServ.GetUserDataByUserId(getContext(eCtx), userId)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Check if a user was found
 		if user == nil {
-			err = e.NewError(e.LogicUserNotFound, fmt.Sprintf("Could not find user %d.", userId))
+			err := e.NewError(e.LogicUserNotFound, fmt.Sprintf("Could not find user %d.", userId))
 			log.Debug(err.StackTrace())
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		au := mapper.ToUserData(user)
-		httputil.WriteHttpResponse(w, http.StatusOK, au)
+		return writeResponse(eCtx, http.StatusOK, au)
 	}
 }
 
 // UpdateUserHandler returns a handler for "PUT /users/{id}".
-func (c *UserController) UpdateUserHandler() http.HandlerFunc {
+func (c *UserController) UpdateUserHandler() echo.HandlerFunc {
 	// swagger:operation PUT /users/{id} users updateUser
 	//
 	// Update a user by its ID.
@@ -565,35 +573,40 @@ func (c *UserController) UpdateUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		id := getIdPathVar(r)
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Read API model from request
 		var auu model.UpdateUserData
-		httputil.ReadHttpBody(r, &auu)
+		if err := readRequestBody(eCtx, &auu); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateUpdateUser(&auu); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		user := mapper.FromUpdateUserData(id, &auu)
 
 		// Execute action
-		if err := c.uServ.UpdateUserData(r.Context(), user); err != nil {
-			panic(err)
+		if err := c.uServ.UpdateUserData(getContext(eCtx), user); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		au := mapper.ToUserData(user)
-		httputil.WriteHttpResponse(w, http.StatusOK, au)
+		return writeResponse(eCtx, http.StatusOK, au)
 	}
 }
 
 // DeleteUserHandler returns a handler for "DELETE /users/{id}".
-func (c *UserController) DeleteUserHandler() http.HandlerFunc {
+func (c *UserController) DeleteUserHandler() echo.HandlerFunc {
 	// swagger:operation DELETE /users/{id} users deleteUser
 	//
 	// Delete a user by its ID.
@@ -637,23 +650,25 @@ func (c *UserController) DeleteUserHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get user ID from request
-		userId := getIdPathVar(r)
+		userId, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		err := c.uServ.DeleteUserById(r.Context(), userId)
-		if err != nil {
-			panic(err)
+		if err := c.uServ.DeleteUserById(getContext(eCtx), userId); err != nil {
+			return err
 		}
 
 		// Write response
-		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
+		return writeResponse(eCtx, http.StatusNoContent, nil)
 	}
 }
 
 // UpdateUserPasswordHandler returns a handler for "PUT /users/{id}/password".
-func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
+func (c *UserController) UpdateUserPasswordHandler() echo.HandlerFunc {
 	// swagger:operation PUT /users/{id}/password users updateUserPassword
 	//
 	// Update the password of a user by its ID.
@@ -712,31 +727,36 @@ func (c *UserController) UpdateUserPasswordHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		userId := getIdPathVar(r)
+		userId, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Read API model from request
 		var auupw model.UpdateUserPassword
-		httputil.ReadHttpBody(r, &auupw)
+		if err := readRequestBody(eCtx, &auupw); err != nil {
+			return err
+		}
 
 		// Validate password
 		if err := validator.ValidateUpdateUserPassword(&auupw); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Execute action
-		if err := c.uServ.UpdateUserPassword(r.Context(), userId, auupw.Password); err != nil {
-			panic(err)
+		if err := c.uServ.UpdateUserPassword(getContext(eCtx), userId, auupw.Password); err != nil {
+			return err
 		}
 
 		// Write response
-		httputil.WriteHttpResponse(w, http.StatusNoContent, nil)
+		return writeResponse(eCtx, http.StatusNoContent, nil)
 	}
 }
 
 // GetUserRolesHandler returns a handler for "GET /users/{id}/roles".
-func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
+func (c *UserController) GetUserRolesHandler() echo.HandlerFunc {
 	// swagger:operation GET /users/{id}/roles users getUserRoles
 	//
 	// Get roles of a user by its ID.
@@ -780,24 +800,27 @@ func (c *UserController) GetUserRolesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get user ID from request
-		userId := getIdPathVar(r)
+		userId, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Execute action
-		userRoles, err := c.uServ.GetUserRoles(r.Context(), userId)
+		userRoles, err := c.uServ.GetUserRoles(getContext(eCtx), userId)
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to API model and write response
 		aur := mapper.ToRoles(userRoles)
-		httputil.WriteHttpResponse(w, http.StatusOK, aur)
+		return writeResponse(eCtx, http.StatusOK, aur)
 	}
 }
 
 // UpdateUserRolesHandler returns a handler for "PUT /users/{id}/roles".
-func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
+func (c *UserController) UpdateUserRolesHandler() echo.HandlerFunc {
 	// swagger:operation PUT /users/{id}/roles users updateUserRoles
 	//
 	// Update roles of a user by its ID.
@@ -845,29 +868,34 @@ func (c *UserController) UpdateUserRolesHandler() http.HandlerFunc {
 	//       "$ref": "#/definitions/Error"
 	//   default:
 	//     "$ref": "#/responses/ErrorResponse"
-	return func(w http.ResponseWriter, r *http.Request) {
+	return func(eCtx echo.Context) error {
 		// Get ID from request
-		userId := getIdPathVar(r)
+		userId, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
 
 		// Read API model from request
 		var auurs model.UpdateUserRoles
-		httputil.ReadHttpBody(r, &auurs)
+		if err := readRequestBody(eCtx, &auurs); err != nil {
+			return err
+		}
 
 		// Validate model
 		if err := validator.ValidateUpdateUserRoles(&auurs); err != nil {
-			panic(err)
+			return err
 		}
 
 		// Convert to logic model
 		userRoles := mapper.FromRoles(&auurs)
 
 		// Execute action
-		if err := c.uServ.SetUserRoles(r.Context(), userId, userRoles); err != nil {
-			panic(err)
+		if err := c.uServ.SetUserRoles(getContext(eCtx), userId, userRoles); err != nil {
+			return err
 		}
 
 		// Convert to API model and write response
 		aurs := mapper.ToRoles(userRoles)
-		httputil.WriteHttpResponse(w, http.StatusOK, aurs)
+		return writeResponse(eCtx, http.StatusOK, aurs)
 	}
 }

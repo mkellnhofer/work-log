@@ -34,7 +34,7 @@ const (
 	filterNameDescription = "description"
 )
 
-func getEntriesFilter(str string) (*model.EntriesFilter, *e.Error) {
+func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 	// Get filter values
 	filters, err := getFilters(str)
 	if err != nil {
@@ -96,7 +96,7 @@ func getEntriesFilter(str string) (*model.EntriesFilter, *e.Error) {
 
 // --- Filter parsing functions ---
 
-func getFilters(str string) (map[string]*filter, *e.Error) {
+func getFilters(str string) (map[string]*filter, error) {
 	// If filter string is empty: Abort
 	if str == "" {
 		return make(map[string]*filter), nil
@@ -122,7 +122,7 @@ func getFilters(str string) (map[string]*filter, *e.Error) {
 	return fm, nil
 }
 
-func checkFilterParts(parts []string) *e.Error {
+func checkFilterParts(parts []string) error {
 	// Check if structure is invalid
 	if len(parts) < 3 {
 		err := e.NewError(e.ValFilterInvalid, "Invalid filter. (A filter must have following "+
@@ -148,7 +148,7 @@ func checkFilterParts(parts []string) *e.Error {
 	return nil
 }
 
-func checkFiltersSupported(filters map[string]*filter, names []string) *e.Error {
+func checkFiltersSupported(filters map[string]*filter, names []string) error {
 	for name := range filters {
 		if !isValidFilterName(names, name) {
 			err := e.NewError(e.ValFilterInvalid, fmt.Sprintf("Invalid filter. (Unknown/unsupported "+
@@ -169,7 +169,7 @@ func isValidFilterName(names []string, n string) bool {
 	return false
 }
 
-func getIdFilterValue(f *filter, nullable bool) (int, *e.Error) {
+func getIdFilterValue(f *filter, nullable bool) (int, error) {
 	// Get "is null" value
 	if nullable && f.operator == filterOpIs {
 		if len(f.values) == 1 && f.values[0] == "null" {
@@ -191,7 +191,7 @@ func getIdFilterValue(f *filter, nullable bool) (int, *e.Error) {
 	return 0, createInvalidFilterOperatorError(f.name, f.operator)
 }
 
-func getStringFilterValue(f *filter, nullable bool) (string, *e.Error) {
+func getStringFilterValue(f *filter, nullable bool) (string, error) {
 	// Get "is null" value
 	if nullable && f.operator == filterOpIs {
 		if len(f.values) == 1 && f.values[0] == "null" {
@@ -211,7 +211,7 @@ func getStringFilterValue(f *filter, nullable bool) (string, *e.Error) {
 	return "", createInvalidFilterOperatorError(f.name, f.operator)
 }
 
-func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, *e.Error) {
+func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, error) {
 	// Check if wrong operator
 	if f.operator != filterOpBetween {
 		return time.Now(), time.Now(), createInvalidFilterOperatorError(f.name, f.operator)
@@ -231,14 +231,14 @@ func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, *e.Error) {
 	return start, end, nil
 }
 
-func createInvalidFilterOperatorError(name string, operator string) *e.Error {
+func createInvalidFilterOperatorError(name string, operator string) error {
 	err := e.NewError(e.ValFilterInvalid, fmt.Sprintf("Invalid filter '%s'. (Unsupported "+
 		"operator '%s'.)", name, operator))
 	log.Debug(err.StackTrace())
 	return err
 }
 
-func createInvalidFilterValueError(name string) *e.Error {
+func createInvalidFilterValueError(name string) error {
 	err := e.NewError(e.ValFilterInvalid, fmt.Sprintf("Invalid filter '%s'. (Invalid value(s).)",
 		name))
 	log.Debug(err.StackTrace())

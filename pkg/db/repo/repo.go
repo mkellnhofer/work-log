@@ -82,7 +82,7 @@ type scanIdHelper struct {
 
 // --- DB functions ---
 
-func (r *repo) begin() (*sql.Tx, *e.Error) {
+func (r *repo) begin() (*sql.Tx, error) {
 	tx, bErr := r.db.Begin()
 	if bErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not begin database transaction.", bErr)
@@ -92,7 +92,7 @@ func (r *repo) begin() (*sql.Tx, *e.Error) {
 	return tx, nil
 }
 
-func (r *repo) commit(tx *sql.Tx) *e.Error {
+func (r *repo) commit(tx *sql.Tx) error {
 	cErr := tx.Commit()
 	if cErr != nil {
 		err := e.WrapError(e.SysDbTransactionFailed, "Could not commit database transaction.", cErr)
@@ -102,7 +102,7 @@ func (r *repo) commit(tx *sql.Tx) *e.Error {
 	return nil
 }
 
-func (r *repo) rollback(tx *sql.Tx) *e.Error {
+func (r *repo) rollback(tx *sql.Tx) error {
 	rErr := tx.Rollback()
 	if rErr != nil {
 		err := e.WrapError(e.SysDbTransactionFailed, "Could not rollback database transaction.", rErr)
@@ -117,12 +117,12 @@ func (r *repo) getCurrentTransaction(ctx context.Context) *sql.Tx {
 	return th.Get()
 }
 
-func (r *repo) executeInTransaction(ctx context.Context, txf func(tx *sql.Tx) *e.Error) *e.Error {
+func (r *repo) executeInTransaction(ctx context.Context, txf func(tx *sql.Tx) error) error {
 	tx := r.getCurrentTransaction(ctx)
 	isExistingTx := tx != nil
 
 	if !isExistingTx {
-		var err *e.Error
+		var err error
 		if tx, err = r.begin(); err != nil {
 			return err
 		}

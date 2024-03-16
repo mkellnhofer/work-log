@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"github.com/labstack/echo/v4"
 
 	"kellnhofer.com/work-log/pkg/constant"
 	e "kellnhofer.com/work-log/pkg/error"
@@ -81,173 +82,178 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 // --- Endpoints ---
 
 // GetListHandler returns a handler for "GET /list".
-func (c *EntryController) GetListHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetListHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /list.")
-		c.handleShowList(w, r)
+		return c.handleShowList(eCtx)
 	}
 }
 
 // GetCreateHandler returns a handler for "GET /create".
-func (c *EntryController) GetCreateHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /create.")
-		c.handleShowCreate(w, r)
+		return c.handleShowCreate(eCtx)
 	}
 }
 
 // PostCreateHandler returns a handler for "POST /create".
-func (c *EntryController) PostCreateHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostCreateHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /create.")
-		c.handleExecuteCreate(w, r)
+		return c.handleExecuteCreate(eCtx)
 	}
 }
 
 // GetEditHandler returns a handler for "GET /edit/{id}".
-func (c *EntryController) GetEditHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetEditHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /edit/{id}.")
-		c.handleShowEdit(w, r)
+		return c.handleShowEdit(eCtx)
 	}
 }
 
 // PostEditHandler returns a handler for "POST /edit/{id}".
-func (c *EntryController) PostEditHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostEditHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /edit/{id}.")
-		c.handleExecuteEdit(w, r)
+		return c.handleExecuteEdit(eCtx)
 	}
 }
 
 // GetCopyHandler returns a handler for "GET /copy/{id}".
-func (c *EntryController) GetCopyHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /copy/{id}.")
-		c.handleShowCopy(w, r)
+		return c.handleShowCopy(eCtx)
 	}
 }
 
 // PostCopyHandler returns a handler for "POST /copy/{id}".
-func (c *EntryController) PostCopyHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostCopyHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /copy/{id}.")
-		c.handleExecuteCopy(w, r)
+		return c.handleExecuteCopy(eCtx)
 	}
 }
 
 // PostDeleteHandler returns a handler for "POST /delete/{id}".
-func (c *EntryController) PostDeleteHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /delete/{id}.")
-		c.handleExecuteDelete(w, r)
+		return c.handleExecuteDelete(eCtx)
 	}
 }
 
 // GetSearchHandler returns a handler for "GET /search".
-func (c *EntryController) GetSearchHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetSearchHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /search.")
 		// Get search string
-		sq := getSearchQueryParam(r)
-		if sq == nil {
-			c.handleShowSearch(w, r)
+		searchQuery, avail := getSearchQueryParam(eCtx)
+		if !avail {
+			return c.handleShowSearch(eCtx)
 		} else {
-			c.handleShowListSearch(w, r, *sq)
+			return c.handleShowListSearch(eCtx, searchQuery)
 		}
 	}
 }
 
 // PostSearchHandler returns a handler for "POST /search".
-func (c *EntryController) PostSearchHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostSearchHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /search.")
-		c.handleExecuteSearch(w, r)
+		return c.handleExecuteSearch(eCtx)
 	}
 }
 
 // GetOverviewHandler returns a handler for "GET /overview".
-func (c *EntryController) GetOverviewHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetOverviewHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /overview.")
-		c.handleShowOverview(w, r)
+		return c.handleShowOverview(eCtx)
 	}
 }
 
 // PostOverviewHandler returns a handler for "POST /overview".
-func (c *EntryController) PostOverviewHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) PostOverviewHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /overview.")
-		c.handleExecuteOverviewChange(w, r)
+		return c.handleExecuteOverviewChange(eCtx)
 	}
 }
 
 // GetOverviewExportHandler returns a handler for "GET /overview/export".
-func (c *EntryController) GetOverviewExportHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) GetOverviewExportHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /overview/export.")
-		c.handleExportOverview(w, r)
+		return c.handleExportOverview(eCtx)
 	}
 }
 
 // --- List handler functions ---
 
-func (c *EntryController) handleShowList(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowList(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-	// Get user contract
-	userContract := c.getUserContract(ctx, userId)
+	// Get current user ID and user contract
+	userId, userContract, err := c.getUserIdAndUserContract(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Get page number, offset and limit
-	pageNum, offset, limit := c.getListPagingParams(r)
+	pageNum, offset, limit, err := c.getListPagingParams(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Get work summary (only for first page)
 	var workSummary *model.WorkSummary
 	if pageNum == 1 {
-		var gwsErr *e.Error
-		workSummary, gwsErr = c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
-		if gwsErr != nil {
-			panic(gwsErr)
+		workSummary, err = c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
+		if err != nil {
+			return err
 		}
 	}
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
-	if gesErr != nil {
-		panic(gesErr)
+	entries, cnt, err := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
+	if err != nil {
+		return err
 	}
-	// Get entry types
-	entryTypesMap := c.getEntryTypesMap(ctx)
-	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
+	// Get entry master data
+	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
 	model := c.createListViewModel(userContract, workSummary, pageNum, cnt, entries, entryTypesMap,
 		entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(ctx, r)
+	saveCurrentUrl(eCtx)
 
 	// Render
-	view.RenderListEntriesTemplate(w, model)
+	return view.RenderListEntriesTemplate(eCtx.Response(), model)
 }
 
 // --- Create handler functions ---
 
-func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowCreate(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
@@ -256,276 +262,300 @@ func (c *EntryController) handleShowCreate(w http.ResponseWriter, r *http.Reques
 		"00:00", 0, "", entryTypes, entryActivities)
 
 	// Render
-	view.RenderCreateEntryTemplate(w, model)
+	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleExecuteCreate(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteCreate(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get form inputs
-	input := c.getEntryFormInput(r)
+	input := c.getEntryFormInput(eCtx)
 
 	// Create model
-	entry, cmErr := c.createEntryModel(0, userId, input)
-	if cmErr != nil {
-		c.handleCreateError(w, r, cmErr, input)
+	entry, err := c.createEntryModel(0, userId, input)
+	if err != nil {
+		return c.handleCreateError(eCtx, err, input)
 	}
 
 	// Create entry
-	if ceErr := c.eServ.CreateEntry(ctx, entry); ceErr != nil {
-		c.handleCreateError(w, r, ceErr, input)
+	if err := c.eServ.CreateEntry(ctx, entry); err != nil {
+		return c.handleCreateError(eCtx, err, input)
 	}
 
-	c.handleCreateSuccess(w, r)
+	return c.handleCreateSuccess(eCtx)
 }
 
-func (c *EntryController) handleCreateSuccess(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	prevUrl := getPreviousUrl(ctx)
-	http.Redirect(w, r, prevUrl, http.StatusFound)
+func (c *EntryController) handleCreateSuccess(eCtx echo.Context) error {
+	prevUrl := getPreviousUrl(eCtx)
+	return eCtx.Redirect(http.StatusFound, prevUrl)
 }
 
-func (c *EntryController) handleCreateError(w http.ResponseWriter, r *http.Request, err *e.Error,
-	input *entryFormInput) {
+func (c *EntryController) handleCreateError(eCtx echo.Context, err error,
+	input *entryFormInput) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get error message
-	em := loc.GetErrorMessageString(err.Code)
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createCreateViewModel(prevUrl, em, entryTypeId, input.date, input.startTime,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderCreateEntryTemplate(w, model)
+	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
 }
 
 // --- Edit handler functions ---
 
-func (c *EntryController) handleShowEdit(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowEdit(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get ID
-	entryId := getIdPathVar(r)
+	entryId, err := getIdPathVar(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Get entry
-	entry := c.getEntry(ctx, entryId, userId)
-
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	entry, err := c.getEntry(ctx, entryId, userId)
+	if err != nil {
+		return err
+	}
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	model := c.createEditViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderEditEntryTemplate(w, model)
+	return view.RenderEditEntryTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleExecuteEdit(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteEdit(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get ID
-	entryId := getIdPathVar(r)
+	entryId, err := getIdPathVar(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Get form inputs
-	input := c.getEntryFormInput(r)
+	input := c.getEntryFormInput(eCtx)
 
 	// Create model
-	entry, cmErr := c.createEntryModel(entryId, userId, input)
-	if cmErr != nil {
-		c.handleEditError(w, r, cmErr, entryId, input)
+	entry, err := c.createEntryModel(entryId, userId, input)
+	if err != nil {
+		return c.handleEditError(eCtx, err, entryId, input)
 	}
 
 	// Update entry
-	if ueErr := c.eServ.UpdateEntry(ctx, entry); ueErr != nil {
-		c.handleEditError(w, r, ueErr, entryId, input)
+	if err := c.eServ.UpdateEntry(ctx, entry); err != nil {
+		return c.handleEditError(eCtx, err, entryId, input)
 	}
 
-	c.handleEditSuccess(w, r)
+	return c.handleEditSuccess(eCtx)
 }
 
-func (c *EntryController) handleEditSuccess(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	prevUrl := getPreviousUrl(ctx)
-	http.Redirect(w, r, prevUrl, http.StatusFound)
+func (c *EntryController) handleEditSuccess(eCtx echo.Context) error {
+	prevUrl := getPreviousUrl(eCtx)
+	return eCtx.Redirect(http.StatusFound, prevUrl)
 }
 
-func (c *EntryController) handleEditError(w http.ResponseWriter, r *http.Request, err *e.Error,
-	id int, input *entryFormInput) {
+func (c *EntryController) handleEditError(eCtx echo.Context, err error, id int,
+	input *entryFormInput) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get error message
-	em := loc.GetErrorMessageString(err.Code)
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createEditViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderEditEntryTemplate(w, model)
+	return view.RenderEditEntryTemplate(eCtx.Response(), model)
 }
 
 // --- Copy handler functions ---
 
-func (c *EntryController) handleShowCopy(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowCopy(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get ID
-	entryId := getIdPathVar(r)
+	entryId, err := getIdPathVar(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Get entry
-	entry := c.getEntry(ctx, entryId, userId)
-
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	entry, err := c.getEntry(ctx, entryId, userId)
+	if err != nil {
+		return err
+	}
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	model := c.createCopyViewModel(prevUrl, "", entry.Id, entry.TypeId, getDateString(
 		entry.StartTime), getTimeString(entry.StartTime), getTimeString(entry.EndTime),
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderCopyEntryTemplate(w, model)
+	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleExecuteCopy(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteCopy(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get ID
-	entryId := getIdPathVar(r)
+	entryId, err := getIdPathVar(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Get form inputs
-	input := c.getEntryFormInput(r)
+	input := c.getEntryFormInput(eCtx)
 
 	// Create model
-	entry, cmErr := c.createEntryModel(0, userId, input)
-	if cmErr != nil {
-		c.handleCopyError(w, r, cmErr, entryId, input)
+	entry, err := c.createEntryModel(0, userId, input)
+	if err != nil {
+		return c.handleCopyError(eCtx, err, entryId, input)
 	}
 
 	// Create entry
-	if ceErr := c.eServ.CreateEntry(ctx, entry); ceErr != nil {
-		c.handleCopyError(w, r, ceErr, entryId, input)
+	if err := c.eServ.CreateEntry(ctx, entry); err != nil {
+		return c.handleCopyError(eCtx, err, entryId, input)
 	}
 
-	c.handleCopySuccess(w, r)
+	return c.handleCopySuccess(eCtx)
 }
 
-func (c *EntryController) handleCopySuccess(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	prevUrl := getPreviousUrl(ctx)
-	http.Redirect(w, r, prevUrl, http.StatusFound)
+func (c *EntryController) handleCopySuccess(eCtx echo.Context) error {
+	prevUrl := getPreviousUrl(eCtx)
+	return eCtx.Redirect(http.StatusFound, prevUrl)
 }
 
-func (c *EntryController) handleCopyError(w http.ResponseWriter, r *http.Request, err *e.Error,
-	id int, input *entryFormInput) {
+func (c *EntryController) handleCopyError(eCtx echo.Context, err error, id int,
+	input *entryFormInput) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get error message
-	em := loc.GetErrorMessageString(err.Code)
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	model := c.createCopyViewModel(prevUrl, em, id, entryTypeId, input.date, input.startTime,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderCopyEntryTemplate(w, model)
+	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
 }
 
 // --- Delete handler functions ---
 
-func (c *EntryController) handleExecuteDelete(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteDelete(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get ID
-	entryId := getIdPathVar(r)
-
-	// Delete entry
-	if deErr := c.eServ.DeleteEntryByIdAndUserId(ctx, entryId, userId); deErr != nil {
-		panic(deErr)
+	entryId, err := getIdPathVar(eCtx)
+	if err != nil {
+		return err
 	}
 
-	c.handleDeleteSuccess(w, r)
+	// Delete entry
+	if err := c.eServ.DeleteEntryByIdAndUserId(ctx, entryId, userId); err != nil {
+		return err
+	}
+
+	return c.handleDeleteSuccess(eCtx)
 }
 
-func (c *EntryController) handleDeleteSuccess(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	prevUrl := getPreviousUrl(ctx)
-	http.Redirect(w, r, prevUrl, http.StatusFound)
+func (c *EntryController) handleDeleteSuccess(eCtx echo.Context) error {
+	prevUrl := getPreviousUrl(eCtx)
+	return eCtx.Redirect(http.StatusFound, prevUrl)
 }
 
 // --- Search handler functions ---
 
-func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowSearch(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	entryTypeId := 0
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
@@ -534,79 +564,87 @@ func (c *EntryController) handleShowSearch(w http.ResponseWriter, r *http.Reques
 		getDateString(time.Now()), false, 0, false, "", entryTypes, entryActivities)
 
 	// Render
-	view.RenderSearchEntriesTemplate(w, model)
+	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleShowListSearch(w http.ResponseWriter, r *http.Request, query string) {
+func (c *EntryController) handleShowListSearch(eCtx echo.Context, query string) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get page number, offset and limit
-	pageNum, offset, limit := c.getListPagingParams(r)
+	pageNum, offset, limit, err := c.getListPagingParams(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Create entries filter from query string
-	filter := c.parseSearchQueryString(userId, query)
+	filter, err := c.parseSearchQueryString(userId, query)
+	if err != nil {
+		return err
+	}
 	// Create entries sort
 	sort := model.NewEntriesSort()
 	sort.ByTime = model.DescSorting
 
 	// Get entries
-	entries, cnt, gesErr := c.eServ.GetDateEntries(ctx, filter, sort, offset, limit)
-	if gesErr != nil {
-		panic(gesErr)
+	entries, cnt, err := c.eServ.GetDateEntries(ctx, filter, sort, offset, limit)
+	if err != nil {
+		return err
 	}
-	// Get entry types
-	entryTypesMap := c.getEntryTypesMap(ctx)
-	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
+	// Get entry master data
+	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
 	model := c.createListSearchViewModel(constant.ViewPathDefault, query, pageNum, cnt, entries,
 		entryTypesMap, entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(ctx, r)
+	saveCurrentUrl(eCtx)
 
 	// Render
-	view.RenderListSearchEntriesTemplate(w, model)
+	return view.RenderListSearchEntriesTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleExecuteSearch(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteSearch(eCtx echo.Context) error {
 	// Get form inputs
-	input := c.getSearchEntriesFormInput(r)
+	input := c.getSearchEntriesFormInput(eCtx)
 
 	// Create entries filter from inputs
-	filter, cmErr := c.createEntriesFilter(input)
-	if cmErr != nil {
-		c.handleSearchError(w, r, cmErr, input)
+	filter, err := c.createEntriesFilter(input)
+	if err != nil {
+		return c.handleSearchError(eCtx, err, input)
 	}
 
-	c.handleSearchSuccess(w, r, filter)
+	return c.handleSearchSuccess(eCtx, filter)
 }
 
-func (c *EntryController) handleSearchSuccess(w http.ResponseWriter, r *http.Request,
-	filter *model.EntriesFilter) {
-	http.Redirect(w, r, "/search?query="+c.buildSearchQueryString(filter), http.StatusFound)
+func (c *EntryController) handleSearchSuccess(eCtx echo.Context, filter *model.EntriesFilter) error {
+	return eCtx.Redirect(http.StatusFound, "/search?query="+c.buildSearchQueryString(filter))
 }
 
-func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Request, err *e.Error,
-	input *searchEntriesFormInput) {
+func (c *EntryController) handleSearchError(eCtx echo.Context, err error,
+	input *searchEntriesFormInput) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get error message
-	em := loc.GetErrorMessageString(err.Code)
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
 
-	// Get entry types
-	entryTypes := c.getEntryTypes(ctx)
-	// Get entry activities
-	entryActivities := c.getEntryActivities(ctx)
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	byEntryType, _ := strconv.ParseBool(input.byType)
 	entryTypeId, _ := strconv.Atoi(input.typeId)
 	byEntryDate, _ := strconv.ParseBool(input.byDate)
@@ -618,101 +656,118 @@ func (c *EntryController) handleSearchError(w http.ResponseWriter, r *http.Reque
 		input.description, entryTypes, entryActivities)
 
 	// Render
-	view.RenderSearchEntriesTemplate(w, model)
+	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
 }
 
 // --- Overview handler functions ---
 
-func (c *EntryController) handleShowOverview(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleShowOverview(eCtx echo.Context) error {
 	// Get view data
-	model := c.getOverviewViewData(r)
+	model, err := c.getOverviewViewData(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Render
-	view.RenderListOverviewEntriesTemplate(w, model)
+	return view.RenderListOverviewEntriesTemplate(eCtx.Response(), model)
 }
 
-func (c *EntryController) handleExportOverview(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExportOverview(eCtx echo.Context) error {
 	// Get view data
-	model := c.getOverviewViewData(r)
+	model, err := c.getOverviewViewData(eCtx)
+	if err != nil {
+		return err
+	}
 
 	// Create file
 	fileName := fmt.Sprintf("work-log-export-%s.xlsx", model.CurrMonth)
 	file := exportOverviewEntries(model)
 
 	// Write file
-	writeFile(w, fileName, file)
+	return writeFile(eCtx.Response(), fileName, file)
 }
 
-func (c *EntryController) getOverviewViewData(r *http.Request) *vm.ListOverviewEntries {
+func (c *EntryController) getOverviewViewData(eCtx echo.Context) (*vm.ListOverviewEntries, error) {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-	// Get user contract
-	userContract := c.getUserContract(ctx, userId)
+	// Get current user ID and user contract
+	userId, userContract, err := c.getUserIdAndUserContract(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Get user setting
-	showDetails, gusErr := c.uServ.GetSettingShowOverviewDetails(ctx, userId)
-	if gusErr != nil {
-		panic(gusErr)
+	showDetails, err := c.uServ.GetSettingShowOverviewDetails(ctx, userId)
+	if err != nil {
+		return nil, err
 	}
 
 	// Get year and month
-	year, month := c.getOverviewParams(r)
+	year, month, err := c.getOverviewParams(eCtx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Get entries
-	entries, gesErr := c.eServ.GetMonthEntriesByUserId(ctx, userId, year, month)
-	if gesErr != nil {
-		panic(gesErr)
+	entries, err := c.eServ.GetMonthEntriesByUserId(ctx, userId, year, month)
+	if err != nil {
+		return nil, err
 	}
-	// Get entry types
-	entryTypesMap := c.getEntryTypesMap(ctx)
-	// Get entry activities
-	entryActivitiesMap := c.getEntryActivitiesMap(ctx)
+	// Get entry master data
+	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	// Create view model
-	prevUrl := getPreviousUrl(ctx)
+	prevUrl := getPreviousUrl(eCtx)
 	model := c.createListOverviewViewModel(prevUrl, year, month, userContract, entries,
 		entryTypesMap, entryActivitiesMap, showDetails)
 
-	return model
+	return model, nil
 }
 
-func (c *EntryController) getOverviewParams(r *http.Request) (int, int) {
+func (c *EntryController) getOverviewParams(eCtx echo.Context) (int, int, error) {
 	// Get year and month
-	y, m := getMonthQueryParam(r)
+	y, m, avail, err := getMonthQueryParam(eCtx)
+	if err != nil {
+		return 0, 0, err
+	}
 
 	// Was a year and month provided?
-	if y != nil && m != nil {
-		// Use these
-		return *y, *m
-	} else {
+	if !avail {
 		// Get current year/month
 		t := time.Now()
-		return t.Year(), int(t.Month())
+		return t.Year(), int(t.Month()), nil
+	} else {
+		// Use these
+		return y, m, nil
 	}
 }
 
-func (c *EntryController) handleExecuteOverviewChange(w http.ResponseWriter, r *http.Request) {
+func (c *EntryController) handleExecuteOverviewChange(eCtx echo.Context) error {
 	// Get context
-	ctx := r.Context()
+	ctx := getContext(eCtx)
 
 	// Get current user ID
 	userId := getCurrentUserId(ctx)
 
 	// Get form inputs
-	input := c.getOverviewFormInput(r)
+	input := c.getOverviewFormInput(eCtx)
 
 	// Validate month param
-	parseMonthParam(input.month)
+	_, _, _, err := parseMonthParam(input.month)
+	if err != nil {
+		return err
+	}
 
 	// Update user setting
 	showDetails := input.showDetails == "on"
 	c.uServ.UpdateSettingShowOverviewDetails(ctx, userId, showDetails)
 
 	// Redirect
-	http.Redirect(w, r, "/overview?month="+input.month, http.StatusFound)
+	return eCtx.Redirect(http.StatusFound, "/overview?month="+input.month)
 }
 
 // --- Viem model converter functions ---
@@ -1292,67 +1347,72 @@ func (c *EntryController) createOverviewEntriesViewModel(year int, month int, en
 
 // --- Paging functions ---
 
-func (c *EntryController) getListPagingParams(r *http.Request) (int, int, int) {
+func (c *EntryController) getListPagingParams(eCtx echo.Context) (int, int, int, error) {
 	// Get page number
-	pnqp := getPageNumberQueryParam(r)
-	pageNum := 1
-	if pnqp != nil {
-		pageNum = *pnqp
+	pageNum, avail, err := getPageNumberQueryParam(eCtx)
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	if !avail {
+		pageNum = 1
 	}
 
 	// Calculate offset and limit
 	offset := (pageNum - 1) * pageSize
 	limit := pageSize
 
-	return pageNum, offset, limit
+	return pageNum, offset, limit, nil
 }
 
 // --- Form input retrieval functions ---
 
-func (c *EntryController) getEntryFormInput(r *http.Request) *entryFormInput {
+func (c *EntryController) getEntryFormInput(eCtx echo.Context) *entryFormInput {
 	i := entryFormInput{}
-	i.typeId = r.FormValue("type")
-	i.date = r.FormValue("date")
-	i.startTime = r.FormValue("start-time")
-	i.endTime = r.FormValue("end-time")
-	i.activityId = r.FormValue("activity")
-	i.description = r.FormValue("description")
+	i.typeId = eCtx.FormValue("type")
+	i.date = eCtx.FormValue("date")
+	i.startTime = eCtx.FormValue("start-time")
+	i.endTime = eCtx.FormValue("end-time")
+	i.activityId = eCtx.FormValue("activity")
+	i.description = eCtx.FormValue("description")
 	return &i
 }
 
-func (c *EntryController) getSearchEntriesFormInput(r *http.Request) *searchEntriesFormInput {
+func (c *EntryController) getSearchEntriesFormInput(eCtx echo.Context) *searchEntriesFormInput {
 	i := searchEntriesFormInput{}
-	i.byType = r.FormValue("by-type")
-	i.typeId = r.FormValue("type")
-	i.byDate = r.FormValue("by-date")
-	i.startDate = r.FormValue("start-date")
-	i.endDate = r.FormValue("end-date")
-	i.byActivity = r.FormValue("by-activity")
-	i.activityId = r.FormValue("activity")
-	i.byDescription = r.FormValue("by-description")
-	i.description = r.FormValue("description")
+	i.byType = eCtx.FormValue("by-type")
+	i.typeId = eCtx.FormValue("type")
+	i.byDate = eCtx.FormValue("by-date")
+	i.startDate = eCtx.FormValue("start-date")
+	i.endDate = eCtx.FormValue("end-date")
+	i.byActivity = eCtx.FormValue("by-activity")
+	i.activityId = eCtx.FormValue("activity")
+	i.byDescription = eCtx.FormValue("by-description")
+	i.description = eCtx.FormValue("description")
 	return &i
 }
 
-func (c *EntryController) getOverviewFormInput(r *http.Request) *overviewFormInput {
+func (c *EntryController) getOverviewFormInput(eCtx echo.Context) *overviewFormInput {
 	i := overviewFormInput{}
-	i.month = r.FormValue("month")
-	i.showDetails = r.FormValue("show-details")
+	i.month = eCtx.FormValue("month")
+	i.showDetails = eCtx.FormValue("show-details")
 	return &i
 }
 
 // --- Model converter functions ---
 
 func (c *EntryController) createEntryModel(id int, userId int, input *entryFormInput) (
-	*model.Entry, *e.Error) {
+	*model.Entry, error) {
 	entry := model.NewEntry()
 	entry.Id = id
 	entry.UserId = userId
 
-	var err *e.Error
+	var err error
 
 	// Convert type ID
-	entry.TypeId = c.convertId(input.typeId, false)
+	entry.TypeId, err = c.convertId(input.typeId, false)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert start/end time
 	if _, err := c.convertDateTime(input.date, "00:00", e.ValDateInvalid); err != nil {
@@ -1368,7 +1428,10 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 	}
 
 	// Convert activity ID
-	entry.ActivityId = c.convertId(input.activityId, true)
+	entry.ActivityId, err = c.convertId(input.activityId, true)
+	if err != nil {
+		return nil, err
+	}
 
 	// Validate description
 	if err = c.validateString(input.description, model.MaxLengthEntryDescription,
@@ -1381,14 +1444,17 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryFormI
 }
 
 func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*model.EntriesFilter,
-	*e.Error) {
+	error) {
 	filter := model.NewEntriesFilter()
 
-	var err *e.Error
+	var err error
 
 	// Convert type ID
 	filter.ByType = input.byType == "on"
-	filter.TypeId = c.convertId(input.typeId, false)
+	filter.TypeId, err = c.convertId(input.typeId, false)
+	if err != nil {
+		return nil, err
+	}
 
 	// Convert start/end time
 	filter.ByTime = input.byDate == "on"
@@ -1409,7 +1475,10 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 
 	// Convert activity ID
 	filter.ByActivity = input.byActivity == "on"
-	filter.ActivityId = c.convertId(input.activityId, true)
+	filter.ActivityId, err = c.convertId(input.activityId, true)
+	if err != nil {
+		return nil, err
+	}
 
 	// Validate description
 	filter.ByDescription = input.byDescription == "on"
@@ -1421,7 +1490,7 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 
 	// Check if search query is empty
 	if !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription {
-		err = e.NewError(e.ValSearchInvalid, "Search query is empty.")
+		err := e.NewError(e.ValSearchInvalid, "Search query is empty.")
 		log.Debug(err.StackTrace())
 		return nil, err
 	}
@@ -1429,28 +1498,28 @@ func (c *EntryController) createEntriesFilter(input *searchEntriesFormInput) (*m
 	return filter, nil
 }
 
-func (c *EntryController) convertId(in string, allowZero bool) int {
+func (c *EntryController) convertId(in string, allowZero bool) (int, error) {
 	out, cErr := strconv.Atoi(in)
 	if cErr != nil {
 		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", cErr)
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 	if !allowZero && out <= 0 {
 		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be positive.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
 	if out < 0 {
 		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be zero or positive.)")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return 0, err
 	}
-	return out
+	return out, nil
 }
 
 func (c *EntryController) convertDateTime(inDate string, inTime string, code int) (time.Time,
-	*e.Error) {
+	error) {
 	dt := inDate + " " + inTime
 	out, pErr := time.ParseInLocation(dateTimeFormat, dt, time.Local)
 	if pErr != nil {
@@ -1461,28 +1530,7 @@ func (c *EntryController) convertDateTime(inDate string, inTime string, code int
 	return out, nil
 }
 
-func (c *EntryController) convertDuration(in string, code int) (time.Duration, *e.Error) {
-	m, cErr := strconv.Atoi(in)
-	if cErr != nil {
-		err := e.WrapError(code, fmt.Sprintf("Could not parse duration %s.", in), cErr)
-		log.Debug(err.StackTrace())
-		return 0, err
-	}
-	if m < 0 {
-		err := e.NewError(code, "Invalid duration. (Duration must be zero or positive.)")
-		log.Debug(err.StackTrace())
-		panic(err)
-	}
-	out, pErr := time.ParseDuration(fmt.Sprintf("%dm", m))
-	if pErr != nil {
-		err := e.WrapError(code, fmt.Sprintf("Could not parse duration %s.", in), pErr)
-		log.Debug(err.StackTrace())
-		return 0, err
-	}
-	return out, nil
-}
-
-func (c *EntryController) validateString(in string, length int, code int) *e.Error {
+func (c *EntryController) validateString(in string, length int, code int) error {
 	if len(in) > length {
 		err := e.NewError(code, fmt.Sprintf("String too long. (Must be "+
 			"<= %d characters.)", length))
@@ -1502,8 +1550,8 @@ func (c *EntryController) buildSearchQueryString(filter *model.EntriesFilter) st
 	}
 	// Add parameter/value for entry start/end time
 	if filter.ByTime {
-		qps = append(qps, fmt.Sprintf("tim:%s-%s", formatSearchDate(filter.StartTime),
-			formatSearchDate(filter.EndTime)))
+		qps = append(qps, fmt.Sprintf("tim:%s", formatSearchDateRange(filter.StartTime,
+			filter.EndTime)))
 	}
 	// Add parameter/value for entry activity
 	if filter.ByActivity {
@@ -1516,7 +1564,8 @@ func (c *EntryController) buildSearchQueryString(filter *model.EntriesFilter) st
 	return strings.Join(qps[:], "|")
 }
 
-func (c *EntryController) parseSearchQueryString(userId int, query string) *model.EntriesFilter {
+func (c *EntryController) parseSearchQueryString(userId int, query string) (*model.EntriesFilter,
+	error) {
 	filter := model.NewEntriesFilter()
 
 	filter.ByUser = true
@@ -1528,7 +1577,7 @@ func (c *EntryController) parseSearchQueryString(userId int, query string) *mode
 	if len(qps) < 1 {
 		err := e.NewError(e.ValSearchQueryInvalid, "Search query is empty.")
 		log.Debug(err.StackTrace())
-		panic(err)
+		return nil, err
 	}
 
 	for _, qp := range qps {
@@ -1537,7 +1586,7 @@ func (c *EntryController) parseSearchQueryString(userId int, query string) *mode
 		if len(pv) < 2 {
 			err := e.NewError(e.ValSearchQueryInvalid, "Search query part is invalid.")
 			log.Debug(err.StackTrace())
-			panic(err)
+			return nil, err
 		}
 
 		p := pv[0]
@@ -1553,19 +1602,7 @@ func (c *EntryController) parseSearchQueryString(userId int, query string) *mode
 		// Convert values for entry start/end time
 		case "tim":
 			filter.ByTime = true
-			se := strings.Split(v, "-")
-			if len(se) < 2 {
-				cErr = errors.New("invalid range")
-				break
-			}
-			filter.StartTime, cErr = parseSearchDate(se[0])
-			if cErr != nil {
-				break
-			}
-			filter.EndTime, cErr = parseSearchDate(se[1])
-			if cErr != nil {
-				break
-			}
+			filter.StartTime, filter.EndTime, cErr = parseSearchDateRange(v)
 		// Convert value for entry activity
 		case "act":
 			filter.ByActivity = true
@@ -1579,7 +1616,7 @@ func (c *EntryController) parseSearchQueryString(userId int, query string) *mode
 			err := e.NewError(e.ValSearchQueryInvalid, fmt.Sprintf("Search query parameter '%s' "+
 				"is unknown.", p))
 			log.Debug(err.StackTrace())
-			panic(err)
+			return nil, err
 		}
 
 		// Check if a error occurred
@@ -1587,18 +1624,38 @@ func (c *EntryController) parseSearchQueryString(userId int, query string) *mode
 			err := e.WrapError(e.ValSearchQueryInvalid, fmt.Sprintf("Search query parameter '%s' "+
 				"has invalid value.", p), cErr)
 			log.Debug(err.StackTrace())
-			panic(err)
+			return nil, err
 		}
 	}
-	return filter
+	return filter, nil
 }
 
-func formatSearchDate(d time.Time) string {
-	return d.Format(searchDateTimeFormat)
+func formatSearchDateRange(startDate time.Time, endDate time.Time) string {
+	return fmt.Sprintf("%s-%s", formatSearchDate(startDate), formatSearchDate(endDate))
 }
 
-func parseSearchDate(d string) (time.Time, error) {
-	return time.ParseInLocation(searchDateTimeFormat, d, time.Local)
+func formatSearchDate(date time.Time) string {
+	return date.Format(searchDateTimeFormat)
+}
+
+func parseSearchDateRange(dateRange string) (time.Time, time.Time, error) {
+	se := strings.Split(dateRange, "-")
+	if len(se) < 2 {
+		return time.Time{}, time.Time{}, errors.New("invalid range")
+	}
+	startTime, err := parseSearchDate(se[0])
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	endTime, err := parseSearchDate(se[1])
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return startTime, endTime, nil
+}
+
+func parseSearchDate(date string) (time.Time, error) {
+	return time.ParseInLocation(searchDateTimeFormat, date, time.Local)
 }
 
 // --- Export functions ---
@@ -1773,57 +1830,79 @@ func getCellName(col string, row int) string {
 
 // --- Helper functions ---
 
-func (c *EntryController) getUserContract(ctx context.Context, userId int) *model.Contract {
-	userContract, gucErr := c.uServ.GetUserContractByUserId(ctx, userId)
-	if gucErr != nil {
-		panic(gucErr)
+func (c *EntryController) getUserIdAndUserContract(ctx context.Context) (int, *model.Contract,
+	error) {
+	// Get current user ID
+	userId := getCurrentUserId(ctx)
+	// Get user contract
+	userContract, err := c.uServ.GetUserContractByUserId(ctx, userId)
+	if err != nil {
+		return 0, nil, err
 	}
-	return userContract
+	return userId, userContract, nil
 }
 
-func (c *EntryController) getEntry(ctx context.Context, entryId int, userId int) *model.Entry {
-	entry, geErr := c.eServ.GetEntryByIdAndUserId(ctx, entryId, userId)
-	if geErr != nil {
-		panic(geErr)
+func (c *EntryController) getEntry(ctx context.Context, entryId int, userId int) (*model.Entry,
+	error) {
+	entry, err := c.eServ.GetEntryByIdAndUserId(ctx, entryId, userId)
+	if err != nil {
+		return nil, err
 	}
 	if entry == nil {
 		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", entryId))
 		log.Debug(err.StackTrace())
-		panic(err)
+		return nil, err
 	}
-	return entry
+	return entry, nil
 }
 
-func (c *EntryController) getEntryTypes(ctx context.Context) []*model.EntryType {
-	entryTypes, getsErr := c.eServ.GetEntryTypes(ctx)
-	if getsErr != nil {
-		panic(getsErr)
+func (c *EntryController) getEntryMasterData(ctx context.Context) ([]*model.EntryType,
+	[]*model.EntryActivity, error) {
+	// Get entry types
+	entryTypes, err := c.getEntryTypes(ctx)
+	if err != nil {
+		return nil, nil, err
 	}
-	return entryTypes
+	// Get entry activities
+	entryActivities, err := c.getEntryActivities(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return entryTypes, entryActivities, nil
 }
 
-func (c *EntryController) getEntryTypesMap(ctx context.Context) map[int]*model.EntryType {
-	entryTypesMap, getsErr := c.eServ.GetEntryTypesMap(ctx)
-	if getsErr != nil {
-		panic(getsErr)
+func (c *EntryController) getEntryMasterDataMap(ctx context.Context) (map[int]*model.EntryType,
+	map[int]*model.EntryActivity, error) {
+	// Get entry types
+	entryTypesMap, err := c.getEntryTypesMap(ctx)
+	if err != nil {
+		return nil, nil, err
 	}
-	return entryTypesMap
+	// Get entry activities
+	entryActivitiesMap, err := c.getEntryActivitiesMap(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+	return entryTypesMap, entryActivitiesMap, nil
 }
 
-func (c *EntryController) getEntryActivities(ctx context.Context) []*model.EntryActivity {
-	entryActivities, geasErr := c.eServ.GetEntryActivities(ctx)
-	if geasErr != nil {
-		panic(geasErr)
-	}
-	return entryActivities
+func (c *EntryController) getEntryTypes(ctx context.Context) ([]*model.EntryType, error) {
+	return c.eServ.GetEntryTypes(ctx)
 }
 
-func (c *EntryController) getEntryActivitiesMap(ctx context.Context) map[int]*model.EntryActivity {
-	entryActivitiesMap, geasErr := c.eServ.GetEntryActivitiesMap(ctx)
-	if geasErr != nil {
-		panic(geasErr)
-	}
-	return entryActivitiesMap
+func (c *EntryController) getEntryTypesMap(ctx context.Context) (map[int]*model.EntryType,
+	error) {
+	return c.eServ.GetEntryTypesMap(ctx)
+}
+
+func (c *EntryController) getEntryActivities(ctx context.Context) ([]*model.EntryActivity,
+	error) {
+	return c.eServ.GetEntryActivities(ctx)
+}
+
+func (c *EntryController) getEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
+	error) {
+	return c.eServ.GetEntryActivitiesMap(ctx)
 }
 
 func (c *EntryController) convertWorkingHours(workingHours []model.ContractWorkingHours,

@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"kellnhofer.com/work-log/pkg/db/tx"
-	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/util/security"
 )
@@ -17,7 +16,7 @@ func getCurrentUserId(ctx context.Context) int {
 	return security.GetCurrentUserId(ctx)
 }
 
-func checkHasCurrentUserRight(ctx context.Context, right model.Right) *e.Error {
+func checkHasCurrentUserRight(ctx context.Context, right model.Right) error {
 	return security.CheckHasCurrentUserRight(ctx, right)
 }
 

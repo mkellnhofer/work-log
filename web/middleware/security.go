@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"kellnhofer.com/work-log/pkg/constant"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
@@ -21,20 +23,28 @@ func NewSecurityMiddleware(uServ *service.UserService) *SecurityMiddleware {
 	return &SecurityMiddleware{uServ}
 }
 
-// ServeHTTP processes requests.
-func (m *SecurityMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before security init.")
+// CreateHandler creates a new handler to process requests.
+func (m *SecurityMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before security init.")
 
-	sysCtx := security.CreateSystemContext(r.Context())
-	m.handle(sysCtx, w, r, next)
+		err := m.process(next, c)
 
-	log.Verb("After security init.")
+		log.Verb("After security init.")
+
+		return err
+	}
 }
 
-func (m *SecurityMiddleware) handle(sysCtx context.Context, w http.ResponseWriter, r *http.Request,
-	next http.HandlerFunc) {
+func (m *SecurityMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
+
+	// Create system context
+	sysCtx := security.CreateSystemContext(req.Context())
+
 	// Get session from context
-	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
+	sessHolder := req.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
 	sess := sessHolder.Get()
 
 	// Get current user ID
@@ -45,23 +55,27 @@ func (m *SecurityMiddleware) handle(sysCtx context.Context, w http.ResponseWrite
 	if userId == model.AnonymousUserId {
 		secCtx = model.GetAnonymousUserSecurityContext()
 	} else {
-		userRoles := m.getUserRoles(sysCtx, userId)
+		userRoles, err := m.getUserRoles(sysCtx, userId)
+		if err != nil {
+			return err
+		}
 		secCtx = model.NewSecurityContext(userId, userRoles)
 	}
 
 	// Update context
-	ctx := context.WithValue(r.Context(), constant.ContextKeySecurityContext, secCtx)
+	ctx := context.WithValue(req.Context(), constant.ContextKeySecurityContext, secCtx)
+	c.SetRequest(req.WithContext(ctx))
 
 	// Forward to next handler
-	next(w, r.WithContext(ctx))
+	return next(c)
 }
 
-func (m *SecurityMiddleware) getUserRoles(sysCtx context.Context, userId int) []model.Role {
+func (m *SecurityMiddleware) getUserRoles(sysCtx context.Context, userId int) ([]model.Role, error) {
 	userRoles, err := m.uServ.GetUserRoles(sysCtx, userId)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return userRoles
+	return userRoles, nil
 }
 
 // AuthCheckMiddleware ensures that a user was authenticated.
@@ -74,81 +88,80 @@ func NewAuthCheckMiddleware(uServ *service.UserService) *AuthCheckMiddleware {
 	return &AuthCheckMiddleware{uServ}
 }
 
-// ServeHTTP processes requests.
-func (m *AuthCheckMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	log.Verb("Before auth check.")
+// CreateHandler creates a new handler to process requests.
+func (m *AuthCheckMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		log.Verb("Before auth check.")
 
-	sysCtx := security.CreateSystemContext(r.Context())
-	m.handle(sysCtx, w, r, next)
+		err := m.process(next, c)
 
-	log.Verb("After auth check.")
+		log.Verb("After auth check.")
+
+		return err
+	}
 }
 
-func (m *AuthCheckMiddleware) handle(sysCtx context.Context, w http.ResponseWriter, r *http.Request,
-	next http.HandlerFunc) {
+func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	// Get request
+	req := c.Request()
+
+	// Create system context
+	sysCtx := security.CreateSystemContext(req.Context())
+
 	// Get user ID
-	secCtx := r.Context().Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
+	secCtx := req.Context().Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
 	userId := secCtx.UserId
 
 	// Get session holder
-	sessHolder := r.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
+	sessHolder := req.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
 	sess := sessHolder.Get()
 
 	// If user is not authenticated: Redirect to login page
 	if userId == model.AnonymousUserId {
 		log.Debugf("User must authenticate. (Session: '%s')", sess.Id)
-		m.redirectLogin(sess, w, r)
-		return
+		return m.redirectLogin(c, sess)
 	}
 
 	// Get requested path
-	reqPath := getRequestPath(r)
+	reqPath := getRequestPath(req)
 
 	// Get user
-	user := m.getUser(sysCtx, userId)
+	user, err := m.uServ.GetUserById(sysCtx, userId)
+	if err != nil {
+		return err
+	}
 
 	// If user must change password: Redirect to password change page
 	if reqPath != "/password-change" && user.MustChangePassword {
 		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.Id)
-		m.redirectPasswordChange(sess, w, r)
-		return
+		return m.redirectPasswordChange(c, sess)
 	}
+
+	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.Id)
 
 	// Forward to next handler
-	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.Id)
-	next(w, r)
+	return next(c)
 }
 
-func (m *AuthCheckMiddleware) getUser(sysCtx context.Context, userId int) *model.User {
-	user, err := m.uServ.GetUserById(sysCtx, userId)
-	if err != nil {
-		panic(err)
-	}
-	return user
-}
-
-func (m *AuthCheckMiddleware) redirectLogin(sess *model.Session, w http.ResponseWriter,
-	r *http.Request) {
+func (m *AuthCheckMiddleware) redirectLogin(c echo.Context, sess *model.Session) error {
 	log.Debug("Redirecting to login page ...")
-	m.redirect(sess, w, r, "/login")
+	return m.redirect(c, sess, "/login")
 }
 
-func (m *AuthCheckMiddleware) redirectPasswordChange(sess *model.Session, w http.ResponseWriter,
-	r *http.Request) {
+func (m *AuthCheckMiddleware) redirectPasswordChange(c echo.Context, sess *model.Session) error {
 	log.Debug("Redirecting to password change page ...")
-	m.redirect(sess, w, r, "/password-change")
+	return m.redirect(c, sess, "/password-change")
 }
 
-func (m *AuthCheckMiddleware) redirect(sess *model.Session, w http.ResponseWriter, r *http.Request,
-	url string) {
+func (m *AuthCheckMiddleware) redirect(c echo.Context, sess *model.Session, url string) error {
 	// Get requested URL
-	reqUrl := getRequestUrl(r)
+	reqUrl := getRequestUrl(c.Request())
 
 	// Save requested URL in session
 	sess.PreviousUrl = reqUrl
 
 	// Redirect to login page
-	http.Redirect(w, r, url, http.StatusFound)
+	return c.Redirect(http.StatusFound, url)
 }
 
 func getRequestUrl(r *http.Request) string {

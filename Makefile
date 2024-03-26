@@ -39,5 +39,4 @@ package:
 		static/resources/font/*.* \
 		static/resources/img/*.* \
 		static/resources/js/*.* \
-		static/swagger-ui/*.* \
-		web/templates/*.*
+		static/swagger-ui/*.*

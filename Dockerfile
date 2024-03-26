@@ -32,7 +32,6 @@ COPY config/localizations ./config/localizations
 COPY scripts ./scripts
 COPY static/resources ./static/resources
 COPY static/swagger-ui ./static/swagger-ui
-COPY web/templates ./web/templates
 COPY --from=build /wl/swagger.json ./static/swagger-ui
 COPY --from=build /wl/work-log ./work-log
 

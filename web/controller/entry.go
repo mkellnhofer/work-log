@@ -22,6 +22,7 @@ import (
 	"kellnhofer.com/work-log/pkg/util"
 	view "kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/pages"
 )
 
 const pageSize = 7
@@ -237,7 +238,7 @@ func (c *EntryController) handleShowList(eCtx echo.Context) error {
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return view.RenderListEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListEntriesPage(model))
 }
 
 // --- Create handler functions ---
@@ -262,7 +263,7 @@ func (c *EntryController) handleShowCreate(eCtx echo.Context) error {
 		"00:00", 0, "", entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CreateEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteCreate(eCtx echo.Context) error {
@@ -317,7 +318,7 @@ func (c *EntryController) handleCreateError(eCtx echo.Context, err error,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CreateEntryPage(model))
 }
 
 // --- Edit handler functions ---
@@ -353,7 +354,7 @@ func (c *EntryController) handleShowEdit(eCtx echo.Context) error {
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderEditEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.EditEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteEdit(eCtx echo.Context) error {
@@ -414,7 +415,7 @@ func (c *EntryController) handleEditError(eCtx echo.Context, err error, id int,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderEditEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.EditEntryPage(model))
 }
 
 // --- Copy handler functions ---
@@ -450,7 +451,7 @@ func (c *EntryController) handleShowCopy(eCtx echo.Context) error {
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CopyEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteCopy(eCtx echo.Context) error {
@@ -511,7 +512,7 @@ func (c *EntryController) handleCopyError(eCtx echo.Context, err error, id int,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CopyEntryPage(model))
 }
 
 // --- Delete handler functions ---
@@ -564,7 +565,7 @@ func (c *EntryController) handleShowSearch(eCtx echo.Context) error {
 		getDateString(time.Now()), false, 0, false, "", entryTypes, entryActivities)
 
 	// Render
-	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
 }
 
 func (c *EntryController) handleShowListSearch(eCtx echo.Context, query string) error {
@@ -608,7 +609,7 @@ func (c *EntryController) handleShowListSearch(eCtx echo.Context, query string) 
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return view.RenderListSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListSearchEntriesPage(model))
 }
 
 func (c *EntryController) handleExecuteSearch(eCtx echo.Context) error {
@@ -656,7 +657,7 @@ func (c *EntryController) handleSearchError(eCtx echo.Context, err error,
 		input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
 }
 
 // --- Overview handler functions ---
@@ -669,7 +670,7 @@ func (c *EntryController) handleShowOverview(eCtx echo.Context) error {
 	}
 
 	// Render
-	return view.RenderListOverviewEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListOverviewEntriesPage(model))
 }
 
 func (c *EntryController) handleExportOverview(eCtx echo.Context) error {

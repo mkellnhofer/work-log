@@ -6,6 +6,7 @@ import (
 
 templ ErrorPage(model *model.Error) {
 	@Page() {
-		<h1>TODO!!!</h1>
+		<h1>{ getText("errorTitle") }</h1>
+		<p>{ model.ErrorMessage }</p>
 	}
 }

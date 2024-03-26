@@ -32,7 +32,8 @@
             },
             // IDs of extensions that should be installed when the container is created
             "extensions": [
-                "golang.go"
+                "golang.go",
+                "a-h.templ"
             ]
         }
     },

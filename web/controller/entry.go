@@ -1043,7 +1043,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 	var prevStartTime *time.Time
 	var totalWorkDuration time.Duration
 	var totalBreakDuration time.Duration
-	var wasTargetWorkDurationReached string
+	var wasTargetWorkDurationReached bool
 
 	// Create entries
 	for _, entry := range entries {
@@ -1057,7 +1057,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 			// Reset total work and break duration
 			totalWorkDuration = 0
 			totalBreakDuration = 0
-			wasTargetWorkDurationReached = ""
+			wasTargetWorkDurationReached = false
 
 			// Get target work duration
 			if calcTargetWorkDurationReached {
@@ -1079,7 +1079,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 		// Calculate if target work duration was reached
 		if calcTargetWorkDurationReached {
 			reached := (totalWorkDuration - targetWorkDuration) >= 0
-			wasTargetWorkDurationReached = strconv.FormatBool(reached)
+			wasTargetWorkDurationReached = reached
 		}
 
 		// Calculate break duration

@@ -11,11 +11,21 @@ import "io"
 import "bytes"
 
 import (
+	"strconv"
+
 	"kellnhofer.com/work-log/web"
 )
 
 func getText(key string) string {
 	return web.GetText(key)
+}
+
+func toString(value int) string {
+	return strconv.Itoa(value)
+}
+
+func toURL(url string) templ.SafeURL {
+	return templ.URL(url)
 }
 
 func Page() templ.Component {
@@ -38,7 +48,7 @@ func Page() templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(getText("appName"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/page.templ`, Line: 20, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/page.templ`, Line: 30, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {

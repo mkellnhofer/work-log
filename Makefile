@@ -12,7 +12,7 @@ clean:
 .PHONY: swagger-spec
 swagger-spec:
 	# Needs go-swagger
-	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o web/swagger-ui/swagger.json
+	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o static/swagger-ui/swagger.json
 
 .PHONY: go-build
 go-build:
@@ -35,9 +35,8 @@ package:
 		config/config.ini.example \
 		config/localizations/*.* \
 		scripts/db/*.* \
-		web/resources/css/*.* \
-		web/resources/font/*.* \
-		web/resources/img/*.* \
-		web/resources/js/*.* \
-		web/swagger-ui/*.* \
-		web/templates/*.*
+		static/resources/css/*.* \
+		static/resources/font/*.* \
+		static/resources/img/*.* \
+		static/resources/js/*.* \
+		static/swagger-ui/*.*

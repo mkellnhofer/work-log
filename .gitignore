@@ -5,4 +5,4 @@ cmd/__debug_*
 
 config/config.ini
 
-web/swagger-ui/swagger.json
+static/swagger-ui/swagger.json

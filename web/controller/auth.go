@@ -18,6 +18,7 @@ import (
 	view "kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/middleware"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/pages"
 )
 
 // AuthController handles requests for login/logout endpoints.
@@ -85,7 +86,7 @@ func (c *AuthController) handleShowLogin(eCtx echo.Context) error {
 	model := c.createShowLoginViewModel(ec)
 
 	// Render
-	return view.RenderLoginTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.LoginPage(model))
 }
 
 func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
@@ -185,7 +186,7 @@ func (c *AuthController) handleShowPasswordChange(eCtx echo.Context) error {
 	model := c.createShowPasswordChangeViewModel(ec)
 
 	// Render
-	return view.RenderPasswordChangeTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.PasswordChangePage(model))
 }
 
 func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordChange {

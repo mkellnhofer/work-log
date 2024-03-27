@@ -1,0 +1,12 @@
+package pages
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ ErrorPage(model *model.Error) {
+	@Page() {
+		<h1>{ getText("errorTitle") }</h1>
+		<p>{ model.ErrorMessage }</p>
+	}
+}

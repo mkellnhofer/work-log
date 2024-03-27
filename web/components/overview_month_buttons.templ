@@ -1,0 +1,25 @@
+package components
+
+templ OverviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
+	<div class="wl-overview-month-buttons">
+		<a
+			class="btn btn-light"
+			href={ buildOverviewMonthURL(prevMonth) }
+			aria-label={ getText("actionPrevious") }
+		>
+			&lt;
+		</a>
+		<span class="wl-overview-month-title">{ currMonthName }</span>
+		<a
+			class="btn btn-light"
+			href={ buildOverviewMonthURL(nextMonth) }
+			aria-label={ getText("actionNext") }
+		>
+			&gt;
+		</a>
+	</div>
+}
+
+func buildOverviewMonthURL(month string) templ.SafeURL {
+	return toURL("overview?month=" + month)
+}

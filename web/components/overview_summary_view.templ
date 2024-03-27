@@ -1,0 +1,68 @@
+package components
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ OverviewSummaryView(overviewSummary *model.ListOverviewEntriesSummary) {
+	<div class="wl-overview-summary-table-title">
+		<h2>{ getText("overviewHeadingSummary") }</h2>
+	</div>
+	@OverviewSummaryHoursView(overviewSummary.TargetHours, overviewSummary.ActualHours,
+		overviewSummary.BalanceHours)
+	@OverviewSummaryTypeHoursView(overviewSummary.ActualWorkHours, overviewSummary.ActualTravelHours,
+		overviewSummary.ActualVacationHours, overviewSummary.ActualHolidayHours,
+		overviewSummary.ActualIllnessHours, overviewSummary.ActualHours)
+}
+
+templ OverviewSummaryHoursView(targetHours string, actualHours string, balanceHours string) {
+	<div class="table-responsive table-responsive-xl wl-overview-summary-table">
+		<table class="table table-sm">
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelTargetHours") }</th>
+				<td class="wl-overview-summary-table-hours">{ targetHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelActualHours") }</th>
+				<td class="wl-overview-summary-table-hours">{ actualHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelBalanceHours") }</th>
+				<td class="wl-overview-summary-table-hours">{ balanceHours }</td>
+			</tr>
+		</table>
+	</div>
+}
+
+templ OverviewSummaryTypeHoursView(actualWorkHours string, actualTravelHours string,
+	actualVacationHours string, actualHolidayHours string, actualIllnessHours string,
+	actualHours string) {
+	<div class="table-responsive table-responsive-xl wl-overview-summary-table">
+		<table class="table table-sm">
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("entryTypeWork") }:</th>
+				<td class="wl-overview-summary-table-hours">{ actualWorkHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("entryTypeTravel") }:</th>
+				<td class="wl-overview-summary-table-hours">{ actualTravelHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("entryTypeVacation") }:</th>
+				<td class="wl-overview-summary-table-hours">{ actualVacationHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("entryTypeHoliday") }:</th>
+				<td class="wl-overview-summary-table-hours">{ actualHolidayHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label">{ getText("entryTypeIllness") }:</th>
+				<td class="wl-overview-summary-table-hours">{ actualIllnessHours }</td>
+			</tr>
+			<tr>
+				<th class="wl-overview-summary-table-label"></th>
+				<td class="wl-overview-summary-table-hours">{ actualHours }</td>
+			</tr>
+		</table>
+	</div>
+}

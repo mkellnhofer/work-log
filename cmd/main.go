@@ -100,10 +100,10 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.POST("/overview", entryCtrl.PostOverviewHandler(), proRoute...)
 	e.GET("/overview/export", entryCtrl.GetOverviewExportHandler(), proRoute...)
 	// Register resource handlers
-	e.Static("/css/", "web/resources/css")
-	e.Static("/img/", "web/resources/img")
-	e.Static("/font/", "web/resources/font")
-	e.Static("/js/", "web/resources/js")
+	e.Static("/css/", "static/resources/css")
+	e.Static("/img/", "static/resources/img")
+	e.Static("/font/", "static/resources/font")
+	e.Static("/js/", "static/resources/js")
 }
 
 func getRootHandler() echo.HandlerFunc {
@@ -169,7 +169,7 @@ func getCorsMiddleware() echo.MiddlewareFunc {
 
 func addSwaggerUiHandlers(e *echo.Echo) {
 	e.GET("/api", getSwaggerRootHandler())
-	e.Static("/api/", "web/swagger-ui/")
+	e.Static("/api/", "static/swagger-ui/")
 }
 
 func getSwaggerRootHandler() echo.HandlerFunc {

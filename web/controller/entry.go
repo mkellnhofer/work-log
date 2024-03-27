@@ -22,6 +22,7 @@ import (
 	"kellnhofer.com/work-log/pkg/util"
 	view "kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/pages"
 )
 
 const pageSize = 7
@@ -237,7 +238,7 @@ func (c *EntryController) handleShowList(eCtx echo.Context) error {
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return view.RenderListEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListEntriesPage(model))
 }
 
 // --- Create handler functions ---
@@ -262,7 +263,7 @@ func (c *EntryController) handleShowCreate(eCtx echo.Context) error {
 		"00:00", 0, "", entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CreateEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteCreate(eCtx echo.Context) error {
@@ -317,7 +318,7 @@ func (c *EntryController) handleCreateError(eCtx echo.Context, err error,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCreateEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CreateEntryPage(model))
 }
 
 // --- Edit handler functions ---
@@ -353,7 +354,7 @@ func (c *EntryController) handleShowEdit(eCtx echo.Context) error {
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderEditEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.EditEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteEdit(eCtx echo.Context) error {
@@ -414,7 +415,7 @@ func (c *EntryController) handleEditError(eCtx echo.Context, err error, id int,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderEditEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.EditEntryPage(model))
 }
 
 // --- Copy handler functions ---
@@ -450,7 +451,7 @@ func (c *EntryController) handleShowCopy(eCtx echo.Context) error {
 		entry.ActivityId, entry.Description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CopyEntryPage(model))
 }
 
 func (c *EntryController) handleExecuteCopy(eCtx echo.Context) error {
@@ -511,7 +512,7 @@ func (c *EntryController) handleCopyError(eCtx echo.Context, err error, id int,
 		input.endTime, entryActivityId, input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderCopyEntryTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.CopyEntryPage(model))
 }
 
 // --- Delete handler functions ---
@@ -560,11 +561,12 @@ func (c *EntryController) handleShowSearch(eCtx echo.Context) error {
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
 	}
-	model := c.createSearchViewModel(prevUrl, "", false, entryTypeId, false, getDateString(time.Now()),
-		getDateString(time.Now()), false, 0, false, "", entryTypes, entryActivities)
+	model := c.createSearchEntriesViewModel(prevUrl, "", false, entryTypeId, false,
+		getDateString(time.Now()), getDateString(time.Now()), false, 0, false, "", entryTypes,
+		entryActivities)
 
 	// Render
-	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
 }
 
 func (c *EntryController) handleShowListSearch(eCtx echo.Context, query string) error {
@@ -608,7 +610,7 @@ func (c *EntryController) handleShowListSearch(eCtx echo.Context, query string) 
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return view.RenderListSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListSearchEntriesPage(model))
 }
 
 func (c *EntryController) handleExecuteSearch(eCtx echo.Context) error {
@@ -651,12 +653,12 @@ func (c *EntryController) handleSearchError(eCtx echo.Context, err error,
 	byEntryActivity, _ := strconv.ParseBool(input.byActivity)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	byEntryDescription, _ := strconv.ParseBool(input.byDescription)
-	model := c.createSearchViewModel(prevUrl, em, byEntryType, entryTypeId, byEntryDate,
+	model := c.createSearchEntriesViewModel(prevUrl, em, byEntryType, entryTypeId, byEntryDate,
 		input.startDate, input.endDate, byEntryActivity, entryActivityId, byEntryDescription,
 		input.description, entryTypes, entryActivities)
 
 	// Render
-	return view.RenderSearchEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
 }
 
 // --- Overview handler functions ---
@@ -669,7 +671,7 @@ func (c *EntryController) handleShowOverview(eCtx echo.Context) error {
 	}
 
 	// Render
-	return view.RenderListOverviewEntriesTemplate(eCtx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ListOverviewEntriesPage(model))
 }
 
 func (c *EntryController) handleExportOverview(eCtx echo.Context) error {
@@ -981,25 +983,34 @@ func (c *EntryController) createCopyViewModel(prevUrl string, errorMessage strin
 	return cevm
 }
 
-func (c *EntryController) createSearchViewModel(prevUrl string, errorMessage string, byType bool,
-	typeId int, byDate bool, startDate string, endDate string, byActivity bool, activityId int,
-	byDescription bool, description string, types []*model.EntryType,
+func (c *EntryController) createSearchEntriesViewModel(prevUrl string, errorMessage string,
+	byType bool, typeId int, byDate bool, startDate string, endDate string, byActivity bool,
+	activityId int, byDescription bool, description string, types []*model.EntryType,
 	activities []*model.EntryActivity) *vm.SearchEntries {
 	sevm := vm.NewSearchEntries()
 	sevm.PreviousUrl = prevUrl
 	sevm.ErrorMessage = errorMessage
-	sevm.ByType = byType
-	sevm.TypeId = typeId
-	sevm.ByDate = byDate
-	sevm.StartDate = startDate
-	sevm.EndDate = endDate
-	sevm.ByActivity = byActivity
-	sevm.ActivityId = activityId
-	sevm.ByDescription = byDescription
-	sevm.Description = description
+	sevm.Search = c.createSearchViewModel(byType, typeId, byDate, startDate, endDate, byActivity,
+		activityId, byDescription, description)
 	sevm.EntryTypes = c.createEntryTypesViewModel(types)
 	sevm.EntryActivities = c.createEntryActivitiesViewModel(activities)
 	return sevm
+}
+
+func (c *EntryController) createSearchViewModel(byType bool,
+	typeId int, byDate bool, startDate string, endDate string, byActivity bool, activityId int,
+	byDescription bool, description string) *vm.Search {
+	svm := vm.NewSearch()
+	svm.ByType = byType
+	svm.TypeId = typeId
+	svm.ByDate = byDate
+	svm.StartDate = startDate
+	svm.EndDate = endDate
+	svm.ByActivity = byActivity
+	svm.ActivityId = activityId
+	svm.ByDescription = byDescription
+	svm.Description = description
+	return svm
 }
 
 func (c *EntryController) createListSearchViewModel(prevUrl string, query string, pageNum int,
@@ -1042,7 +1053,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 	var prevStartTime *time.Time
 	var totalWorkDuration time.Duration
 	var totalBreakDuration time.Duration
-	var wasTargetWorkDurationReached string
+	var wasTargetWorkDurationReached bool
 
 	// Create entries
 	for _, entry := range entries {
@@ -1056,7 +1067,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 			// Reset total work and break duration
 			totalWorkDuration = 0
 			totalBreakDuration = 0
-			wasTargetWorkDurationReached = ""
+			wasTargetWorkDurationReached = false
 
 			// Get target work duration
 			if calcTargetWorkDurationReached {
@@ -1078,7 +1089,7 @@ func (c *EntryController) createEntriesViewModel(userContract *model.Contract,
 		// Calculate if target work duration was reached
 		if calcTargetWorkDurationReached {
 			reached := (totalWorkDuration - targetWorkDuration) >= 0
-			wasTargetWorkDurationReached = strconv.FormatBool(reached)
+			wasTargetWorkDurationReached = reached
 		}
 
 		// Calculate break duration

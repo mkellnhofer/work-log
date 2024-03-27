@@ -4,15 +4,7 @@ package model
 type SearchEntries struct {
 	PreviousUrl     string
 	ErrorMessage    string
-	ByType          bool
-	TypeId          int
-	ByDate          bool
-	StartDate       string
-	EndDate         string
-	ByActivity      bool
-	ActivityId      int
-	ByDescription   bool
-	Description     string
+	Search          *Search
 	EntryTypes      []*EntryType
 	EntryActivities []*EntryActivity
 }

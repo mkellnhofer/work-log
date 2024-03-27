@@ -1,0 +1,79 @@
+package pages
+
+import (
+	"kellnhofer.com/work-log/web/components"
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ ListEntriesPage(model *model.ListEntries) {
+	@Page() {
+		<div class="wl-container">
+			@ListEntriesPageHeader()
+			@ListEntriesPageContent(model)
+		</div>
+	}
+}
+
+templ ListEntriesPageHeader() {
+	<div class="wl-header">
+		<a class="wl-header-logo" href="list">
+			<img src="img/app-logo.svg"/>
+		</a>
+		<a class="text-reset" href="list">
+			<h1>{ getText("listTitle") }</h1>
+		</a>
+		@ListEntriesPageButtons()
+	</div>
+}
+
+templ ListEntriesPageButtons() {
+	<div class="wl-header-action-buttons">
+		<a class="btn btn-primary wl-header-action-button" href="../create">
+			{ getText("listActionCreate") }
+		</a>
+		<a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../search">
+			{ getText("listActionSearch") }
+		</a>
+		<a class="btn btn-light wl-header-action-button d-none d-sm-inline-block" href="../overview">
+			{ getText("listActionShowOverview") }
+		</a>
+		<div class="wl-header-action-more">
+			<button
+				class="btn dropdown-toggle"
+				type="button"
+				data-toggle="dropdown"
+				aria-haspopup="true"
+				aria-expanded="false"
+			></button>
+			<div class="dropdown-menu">
+				<a class="dropdown-item d-inline-block d-sm-none" href="../search">
+					{ getText("listActionSearch") }
+				</a>
+				<a class="dropdown-item d-inline-block d-sm-none" href="../overview">
+					{ getText("listActionShowOverview") }
+				</a>
+				<a class="dropdown-item d-inline-block" href="../logout">
+					{ getText("listActionLogout") }
+				</a>
+			</div>
+		</div>
+	</div>
+}
+
+templ ListEntriesPageContent(model *model.ListEntries) {
+	if model.Summary != nil {
+		@components.SummaryView(model.Summary)
+	}
+	if len(model.Days) > 0 {
+		@components.EntryList(model.Days)
+	} else {
+		<p class="wl-list-no-entries-label">{ getText("listLabelNoEntries") }</p>
+	}
+	@components.PagingControl(
+		model.HasPrevPage, buildListPageURL(model.PrevPageNum),
+		model.HasNextPage, buildListPageURL(model.NextPageNum))
+}
+
+func buildListPageURL(pageNum int) templ.SafeURL {
+	return toURL("list?page=" + toString(pageNum))
+}

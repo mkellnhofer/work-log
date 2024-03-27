@@ -7,7 +7,7 @@ type ListEntriesDay struct {
 	Entries                      []*ListEntry
 	WorkDuration                 string
 	BreakDuration                string
-	WasTargetWorkDurationReached string
+	WasTargetWorkDurationReached bool
 }
 
 // NewListEntriesDay creates a new ListEntriesDay view model.

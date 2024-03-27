@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 
 	e "kellnhofer.com/work-log/pkg/error"
@@ -8,6 +10,7 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	view "kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/pages"
 )
 
 // ErrorController handles requests for error endpoints.
@@ -31,9 +34,9 @@ func (c *ErrorController) GetErrorHandler() echo.HandlerFunc {
 
 // --- Handler functions ---
 
-func (c *ErrorController) handleShowError(ctx echo.Context) error {
+func (c *ErrorController) handleShowError(eCtx echo.Context) error {
 	// Get error code
-	ec, err := getErrorCodeQueryParam(ctx)
+	ec, err := getErrorCodeQueryParam(eCtx)
 	if err != nil {
 		ec = e.SysUnknown
 	}
@@ -43,5 +46,5 @@ func (c *ErrorController) handleShowError(ctx echo.Context) error {
 	model := vm.NewError(em)
 
 	// Render
-	return view.RenderErrorTemplate(ctx.Response(), model)
+	return view.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
 }

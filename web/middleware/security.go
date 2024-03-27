@@ -118,7 +118,7 @@ func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) err
 
 	// If user is not authenticated: Redirect to login page
 	if userId == model.AnonymousUserId {
-		log.Debugf("User must authenticate. (Session: '%s')", sess.Id)
+		log.Debugf("User must authenticate. (Session: '%s')", sess.GetShortId())
 		return m.redirectLogin(c, sess)
 	}
 
@@ -133,11 +133,11 @@ func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) err
 
 	// If user must change password: Redirect to password change page
 	if reqPath != "/password-change" && user.MustChangePassword {
-		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.Id)
+		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.GetShortId())
 		return m.redirectPasswordChange(c, sess)
 	}
 
-	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.Id)
+	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.GetShortId())
 
 	// Forward to next handler
 	return next(c)

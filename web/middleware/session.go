@@ -78,13 +78,13 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 		return err
 	}
 	if iniSess != nil {
-		log.Debugf("Session '%s' is still valid.", sessId)
+		log.Debugf("Session '%s' is still valid.", iniSess.GetShortId())
 	}
 
 	// If no session found: Create new session
 	if iniSess == nil {
 		iniSess = m.createSession()
-		log.Debugf("New session '%s' was created.", iniSess.Id)
+		log.Debugf("New session '%s' was created.", iniSess.GetShortId())
 		sessCookie = &http.Cookie{Name: constant.SessionCookieName, Value: iniSess.Id, Path: "/",
 			HttpOnly: true}
 		c.SetCookie(sessCookie)
@@ -111,14 +111,15 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
 			return err
 		}
-		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.Id, altSess.Id)
+		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.GetShortId(),
+			altSess.GetShortId())
 	}
 	wasSessionClosed := altSess == nil
 	if wasSessionClosed {
 		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
 			return err
 		}
-		log.Debugf("Session '%s' was closed.", iniSess.Id)
+		log.Debugf("Session '%s' was closed.", iniSess.GetShortId())
 	}
 
 	// Save current session

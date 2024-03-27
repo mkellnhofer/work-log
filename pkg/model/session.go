@@ -34,6 +34,15 @@ func (s *Session) Renew() {
 	s.ExpireAt = now().Add(constant.SessionValidity)
 }
 
+// GetShortId returns a truncated session ID.
+func (s *Session) GetShortId() string {
+	len := len(s.Id) / 2
+	if len == 0 {
+		return ""
+	}
+	return s.Id[:len] + "..."
+}
+
 // --- Helper functions ---
 
 func newSessionId() string {

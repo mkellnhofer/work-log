@@ -83,7 +83,7 @@ func (r *SessionRepo) UpdateSession(ctx context.Context, session *model.Session)
 		sess.userId, sess.expireAt, sess.previousUrl, sess.id)
 	if uErr != nil {
 		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update session %s in database.",
-			session.Id), uErr)
+			session.GetShortId()), uErr)
 		log.Error(err.StackTrace())
 		return err
 	}

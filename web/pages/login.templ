@@ -1,30 +1,24 @@
 package pages
 
 import (
+	"kellnhofer.com/work-log/web/components"
 	"kellnhofer.com/work-log/web/model"
 )
 
 templ LoginPage(model *model.Login) {
-	@Page() {
-		<div class="wl-login-container">
-			<form class="wl-login-form" action="/login" method="POST">
-				<div>
-					<img class="wl-login-app-logo" src="img/app-login-logo.svg"/>
-				</div>
-				<h2 class="wl-login-form-title">{ getText("loginTitle") }</h2>
-				if model.ErrorMessage != "" {
-					<p class="alert alert-danger">{ model.ErrorMessage }</p>
-				}
-				<div class="form-group">
-					<label for="username">{ getText("loginLabelUsername") }</label>
-					<input class="form-control" name="username" type="text"/>
-				</div>
-				<div class="form-group">
-					<label for="password">{ getText("loginLabelPassword") }</label>
-					<input class="form-control" name="password" type="password"/>
-				</div>
-				<button class="btn btn-primary" type="submit">{ getText("loginActionLogin") }</button>
-			</form>
+	@AuthPage(toURL("/login")) {
+		<h2 class="fs-3 mb-3">{ getText("loginTitle") }</h2>
+		@components.ErrorMessageView(model.ErrorMessage)
+		<div class="mb-3">
+			<label class="form-label" for="username">{ getText("loginLabelUsername") }</label>
+			<input class="form-control" name="username" type="text"/>
+		</div>
+		<div class="mb-4">
+			<label class="form-label" for="password">{ getText("loginLabelPassword") }</label>
+			<input class="form-control" name="password" type="password"/>
+		</div>
+		<div class="mb-4">
+			<button class="btn btn-primary" type="submit">{ getText("loginActionLogin") }</button>
 		</div>
 	}
 }

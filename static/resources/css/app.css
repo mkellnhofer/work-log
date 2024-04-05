@@ -76,37 +76,22 @@ h3 {
   margin-left: 6px;
 }
 
-.wl-login-container {
+.wl-auth-container {
   height: 100%;
   display: flex;
   padding: 20px;
 }
 
-.wl-login-app-logo {
-  height: 70px;
-  display: block;
-  margin: 0 auto 30px auto;
-}
-
-.wl-login-form {
+.wl-auth-form {
   width: 100%;
   max-width: 400px;
   margin: auto;
-  padding: 0 0 30px 0;
 }
 
-.wl-login-form-title {
-  font-size: 1.8em;
-  font-weight: 400;
-}
-
-.wl-login-form-message {
-  font-size: 1em;
-  font-weight: 200;
-}
-
-.wl-login-form button {
-  margin-top: 10px;
+.wl-auth-form > img {
+  height: 70px;
+  display: block;
+  margin: 0 auto 0 auto;
 }
 
 .wl-container {

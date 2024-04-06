@@ -23,32 +23,36 @@
     <message key="pwChangeLabelPassword2"><text>Neues Passwort: (wiederholen)</text></message>
     <message key="pwChangeActionSet"><text>Festlegen</text></message>
 
+    <!-- Main actions -->
+    <message key="actionCreate"><text>Erstellen</text></message>
+    <message key="actionEdit"><text>Bearbeiten</text></message>
+    <message key="actionCopy"><text>Kopieren</text></message>
+    <message key="actionDelete"><text>Löschen</text></message>
+    <message key="actionSearch"><text>Suchen</text></message>
+    <message key="actionShowOverview"><text>Übersicht</text></message>
+    <message key="actionLogout"><text>Abmelden</text></message>
+
+    <!-- Main dialogs -->
+    <message key="dialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
+
     <!-- List view -->
     <message key="listTitle"><text>Einträge</text></message>
-    <message key="listActionCreate"><text>Erstellen</text></message>
-    <message key="listActionEdit"><text>Bearbeiten</text></message>
-    <message key="listActionCopy"><text>Kopieren</text></message>
-    <message key="listActionDelete"><text>Löschen</text></message>
-    <message key="listActionSearch"><text>Suchen</text></message>
-    <message key="listActionShowOverview"><text>Übersicht</text></message>
-    <message key="listActionLogout"><text>Abmelden</text></message>
     <message key="listSummaryHeading"><text>Arbeitszeitkonto:</text></message>
     <message key="listSummaryLabelOvertimeHours"><text>Überstunden:</text></message>
     <message key="listSummaryLabelRemainingVacationDays"><text>Resturlaubstage:</text></message>
     <message key="listLabelNoEntries"><text>keine Einträge vorhanden</text></message>
     <message key="listLabelBreak"><text>Pause</text></message>
-    <message key="listDialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
-
-    <!-- Create/edit/copy view -->
-    <message key="createTitle"><text>Erstellen</text></message>
-    <message key="editTitle"><text>Bearbeiten</text></message>
-    <message key="copyTitle"><text>Kopieren</text></message>
 
     <!-- Search view -->
     <message key="searchTitle"><text>Suchen</text></message>
     <message key="searchActionSearch"><text>Suchen</text></message>
     <message key="searchListTitle"><text>Suchergebnis</text></message>
     <message key="searchListLabelNoEntries"><text>keine Einträge gefunden</text></message>
+
+    <!-- Create/edit/copy view -->
+    <message key="createTitle"><text>Erstellen</text></message>
+    <message key="editTitle"><text>Bearbeiten</text></message>
+    <message key="copyTitle"><text>Kopieren</text></message>
 
     <!-- Overview view -->
     <message key="overviewTitle"><text>Übersicht</text></message>

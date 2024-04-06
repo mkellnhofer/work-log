@@ -1,0 +1,78 @@
+package components
+
+// This template is used to render the navigation bar. It is composed of three main parts, the brand
+// icon, the page navigation and the page menu. The template gets the name of the current page, the
+// current available action buttons, and the user icon for the user menu dropdown.
+templ NavBar(currentPage string, actionButtons templ.Component, userIconSvg string) {
+	<header class="navbar navbar-expand-sm">
+		<nav class="container-xxl flex-wrap flex-sm-nowrap" aria-label="Main navigation">
+			<button
+				class="navbar-toggler d-flex d-sm-none p-2"
+				type="button"
+				data-bs-toggle="offcanvas"
+				data-bs-target="#wl-navbar-nav-offcanvas"
+				aria-label="Open navigation"
+			>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			@navBarBrand()
+			@navBarNav(currentPage)
+			@navBarPageMenu(actionButtons, userIconSvg)
+		</nav>
+	</header>
+}
+
+templ navBarBrand() {
+	<a class="navbar-brand d-none d-sm-block pe-2" href="/" aria-label="Worklog">
+		<img
+			src="img/app-logo.svg"
+			alt="Logo"
+			width="38"
+			height="38"
+		/>
+	</a>
+}
+
+templ navBarNav(currentPage string) {
+	<div
+		id="wl-navbar-nav-offcanvas"
+		class="offcanvas offcanvas-sm offcanvas-start flex-grow-1"
+		tabindex="-1"
+		data-bs-scroll="true"
+		aria-labelledby="wl-navbar-nav-offcanvas-label"
+	>
+		@navBarNavOffHeader()
+		@navBarNavOffBody(currentPage)
+	</div>
+}
+
+templ navBarNavOffHeader() {
+	<div class="offcanvas-header px-4 pb-0">
+		<a class="pe-3" href="/" aria-label="Worklog">
+			<img
+				src="img/app-logo.svg"
+				alt="Logo"
+				width="38"
+				height="38"
+			/>
+		</a>
+		<h5 id="wl-navbar-nav-offcanvas-label" class="offcanvas-title me-auto">Worklog</h5>
+		<button
+			class="btn-close d-sm-none"
+			type="button"
+			data-bs-dismiss="offcanvas"
+			aria-label="Close navigation"
+		></button>
+	</div>
+}
+
+templ navBarNavOffBody(currentPage string) {
+	<div class="offcanvas-body p-4 pt-0 p-sm-0">
+		<hr class="d-sm-none"/>
+		@PageNav(currentPage)
+	</div>
+}
+
+templ navBarPageMenu(actionButtons templ.Component, userIconSvg string) {
+	@PageMenu(actionButtons, userIconSvg)
+}

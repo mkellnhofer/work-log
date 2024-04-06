@@ -122,3 +122,24 @@ func CreateDaysString(days float32) string {
 func CreateHoursString(hours float32) string {
 	return loc.CreateString("hoursValue", hours)
 }
+
+// CreateUserIconSvg creates an SVG icon for a user
+func CreateUserIconSvg(color string, initials string) string {
+	return `
+		<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
+			<g>
+				<circle
+					style="fill:` + color + `;"
+					cx="16"
+					cy="16"
+					r="16"
+				/>
+				<text
+					style="font-size:13;font-family:FreeSans;text-anchor:middle;fill:#FFF;"
+					x="16"
+					y="21"
+				>` + initials + `</text>
+			</g>
+		</svg>
+	`
+}

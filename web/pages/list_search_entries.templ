@@ -6,21 +6,10 @@ import (
 )
 
 templ ListSearchEntriesPage(model *model.ListSearchEntries) {
-	@Page() {
-		<div class="wl-container">
-			@ListSearchEntriesPageHeader(toURL(model.PreviousUrl))
-			@ListSearchEntriesPageContent(model)
-		</div>
+	@MainPage() {
+		// TODO!!!
+		@ListSearchEntriesPageContent(model)
 	}
-}
-
-templ ListSearchEntriesPageHeader(previousUrl templ.SafeURL) {
-	<div class="wl-header">
-		<a class="wl-header-back-button" href={ previousUrl }>
-			<i class="icon icon-back" aria-label={ getText("actionBack") }></i>
-		</a>
-		<h1>{ getText("searchListTitle") }</h1>
-	</div>
 }
 
 templ ListSearchEntriesPageContent(model *model.ListSearchEntries) {

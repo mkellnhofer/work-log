@@ -6,21 +6,9 @@ import (
 )
 
 templ CreateEntryPage(model *model.CreateEntry) {
-	@Page() {
-		<div class="wl-container">
-			@CreateEntryPageHeader(toURL(model.PreviousUrl))
-			@components.ErrorMessageView(model.ErrorMessage)
-			@components.EntryForm(toURL(model.PreviousUrl), toURL("/create"),
-				model.EntryTypes, model.EntryActivities, model.Entry)
-		</div>
+	@MainPage() {
+		@components.ErrorMessageView(model.ErrorMessage)
+		@components.EntryForm(toURL(model.PreviousUrl), toURL("/create"),
+			model.EntryTypes, model.EntryActivities, model.Entry)
 	}
-}
-
-templ CreateEntryPageHeader(previousUrl templ.SafeURL) {
-	<div class="wl-header">
-		<a class="wl-header-back-button" href={ previousUrl }>
-			<i class="icon icon-back" aria-label={ getText("actionBack") }></i>
-		</a>
-		<h1>{ getText("createTitle") }</h1>
-	</div>
 }

@@ -1,0 +1,27 @@
+package components
+
+// This template is used to render the page navigation. It gets the name of the current page, so the
+// corresponding item can be marked as active.
+templ PageNav(currentPage string) {
+	<ul class="navbar-nav justify-content flex-grow-1 pe-3">
+		@pageNavItem(getText("listTitle"), toURL("list"), currentPage == "list")
+		@pageNavItem(getText("searchTitle"), toURL("search"), currentPage == "search")
+		@pageNavItem(getText("overviewTitle"), toURL("overview"), currentPage == "overview")
+	</ul>
+}
+
+templ pageNavItem(text string, url templ.SafeURL, active bool) {
+	<li class="nav-item">
+		<a
+			if active {
+				class="nav-link active"
+				aria-current="true"
+			} else {
+				class="nav-link"
+			}
+			href={ url }
+		>
+			{ text }
+		</a>
+	</li>
+}

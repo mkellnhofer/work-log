@@ -62,19 +62,19 @@ templ EntryDayTableRow(entry *model.ListEntry) {
 		} else {
 			<td>
 				<a class="btn btn-link wl-list-table-button" href={ buildActionURL("edit", entry.Id) }>
-					<i class="icon icon-edit" aria-label={ getText("listActionEdit") }></i>
+					<i class="icon icon-edit" aria-label={ getText("actionEdit") }></i>
 				</a>
 				<a class="btn btn-link wl-list-table-button" href={ buildActionURL("copy", entry.Id) }>
-					<i class="icon icon-copy" aria-label={ getText("listActionCopy") }></i>
+					<i class="icon icon-copy" aria-label={ getText("actionCopy") }></i>
 				</a>
 				<form
 					class="inline wl-delete-form"
 					action={ buildActionURL("delete", entry.Id) }
 					method="POST"
-					data-dialog-message={ getText("listDialogMessageDelete") }
+					data-dialog-message={ getText("dialogMessageDelete") }
 				>
 					<button class="btn btn-link wl-list-table-button" type="submit">
-						<i class="icon icon-delete" aria-label={ getText("listActionDelete") }></i>
+						<i class="icon icon-delete" aria-label={ getText("actionDelete") }></i>
 					</button>
 				</form>
 			</td>

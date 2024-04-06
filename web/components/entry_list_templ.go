@@ -306,9 +306,9 @@ func EntryDayTableRow(entry *model.ListEntry) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var17 string
-			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(getText("listActionEdit"))
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(getText("actionEdit"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 65, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 65, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -328,9 +328,9 @@ func EntryDayTableRow(entry *model.ListEntry) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var19 string
-			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(getText("listActionCopy"))
+			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(getText("actionCopy"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 68, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 68, Col: 65}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -350,9 +350,9 @@ func EntryDayTableRow(entry *model.ListEntry) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 string
-			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(getText("listDialogMessageDelete"))
+			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(getText("dialogMessageDelete"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 74, Col: 61}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 74, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -363,9 +363,9 @@ func EntryDayTableRow(entry *model.ListEntry) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var22 string
-			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(getText("listActionDelete"))
+			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(getText("actionDelete"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 77, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/entry_list.templ`, Line: 77, Col: 70}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {

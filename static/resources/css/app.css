@@ -4,7 +4,6 @@ html {
 
 body {
   height: 100%;
-  font-size: 0.9rem;
 }
 
 h1 {
@@ -96,72 +95,14 @@ h3 {
 
 .wl-container {
   width: 100%;
-  padding: 15px;
   margin-right: auto;
   margin-left: auto;
-}
-
-@media (min-width: 700px) and (min-height: 700px) {
-  .wl-container {
-    padding-top: 25px;
-    padding-bottom: 25px;
-  }
 }
 
 @media (min-width: 950px) {
   .wl-container {
     width: 930px;
   }
-}
-
-.wl-header {
-  position: relative;
-  margin-bottom: 30px;
-}
-
-.wl-header-logo {
-  margin-right: 12px;
-}
-
-.wl-header-logo img {
-  width: 36px;
-  height: 36px;
-  margin-top: -10px;
-}
-
-.wl-header-back-button {
-  margin-right: 12px;
-  margin-top: 3px;
-  margin-bottom: 3px;
-}
-
-.wl-header-back-button i {
-  font-size: 1.8em;
-}
-
-.wl-header h1 {
-  display:inline;
-}
-
-.wl-header-action-buttons {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.wl-header-action-button {
-  margin-left: 10px;
-}
-
-.wl-header-action-more {
-  display: inline-block;
-}
-
-.wl-header-action-more>div {
-  top: 45px !important;
-  left: auto !important;
-  right: 0px !important;
-  transform: none !important;
 }
 
 .wl-form-buttons {

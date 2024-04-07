@@ -25,7 +25,7 @@ templ ModalContainer() {
 // and the attributes of the action that should be performed when the modals form is submitted. The
 // form content is supplied as children.
 templ Modal(title string, submitText string, cancelText string, actionAttrs templ.Attributes) {
-	<div class="modal-dialog modal-lg modal-fullscreen-md-down">
+	<div class="modal-dialog modal-md modal-fullscreen-sm-down">
 		<div class="modal-content">
 			<form { actionAttrs... }>
 				<div class="modal-header">

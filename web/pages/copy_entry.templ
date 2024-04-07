@@ -2,13 +2,10 @@ package pages
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/components"
 )
 
 templ CopyEntryPage(model *model.CopyEntry) {
 	@MainPage() {
-		@components.ErrorMessageView(model.ErrorMessage)
-		@components.EntryForm(toURL(model.PreviousUrl), toURL("/copy/"+toString(model.Entry.Id)),
-			model.EntryTypes, model.EntryActivities, model.Entry)
+		// TODO: Replace with modal
 	}
 }

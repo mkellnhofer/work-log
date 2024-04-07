@@ -1,0 +1,44 @@
+package components
+
+// This template is used to render buttons that launch a modal. It gets the text for the button and
+// the attributes of the action that should be performed when the button is clicked.
+templ ModalLaunchButton(text string, actionAttrs templ.Attributes) {
+	<button
+		class="btn btn-primary"
+		data-bs-toggle="modal"
+		data-bs-target="#modal"
+		{ actionAttrs... }
+	>
+		{ text }
+	</button>
+}
+
+// This template is used to render a modal container, which holds the modals content. The modal
+// content is supplied as children.
+templ ModalContainer() {
+	<div id="modal" class="modal fade" tabindex="-1">
+		{ children... }
+	</div>
+}
+
+// This template is used to render a modal. It gets the texts for title, the submit/cancel buttons
+// and the attributes of the action that should be performed when the modals form is submitted. The
+// form content is supplied as children.
+templ Modal(title string, submitText string, cancelText string, actionAttrs templ.Attributes) {
+	<div class="modal-dialog modal-lg modal-fullscreen-md-down">
+		<div class="modal-content">
+			<form { actionAttrs... }>
+				<div class="modal-header">
+					<h1 class="modal-title fs-5">{ title }</h1>
+				</div>
+				<div class="modal-body">
+					{ children... }
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{ cancelText }</button>
+					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal">{ submitText }</button>
+				</div>
+			</form>
+		</div>
+	</div>
+}

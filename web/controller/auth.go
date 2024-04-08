@@ -15,7 +15,7 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/pkg/util/security"
-	view "kellnhofer.com/work-log/web"
+	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/middleware"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/pages"
@@ -86,7 +86,7 @@ func (c *AuthController) handleShowLogin(eCtx echo.Context) error {
 	model := c.createShowLoginViewModel(ec)
 
 	// Render
-	return view.Render(eCtx, http.StatusOK, pages.LoginPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.LoginPage(model))
 }
 
 func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
@@ -186,7 +186,7 @@ func (c *AuthController) handleShowPasswordChange(eCtx echo.Context) error {
 	model := c.createShowPasswordChangeViewModel(ec)
 
 	// Render
-	return view.Render(eCtx, http.StatusOK, pages.PasswordChangePage(model))
+	return web.Render(eCtx, http.StatusOK, pages.PasswordChangePage(model))
 }
 
 func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordChange {

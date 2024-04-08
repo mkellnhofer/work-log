@@ -8,7 +8,7 @@ import (
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/loc"
 	"kellnhofer.com/work-log/pkg/log"
-	view "kellnhofer.com/work-log/web"
+	"kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/pages"
 )
@@ -46,5 +46,5 @@ func (c *ErrorController) handleShowError(eCtx echo.Context) error {
 	model := vm.NewError(em)
 
 	// Render
-	return view.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
 }

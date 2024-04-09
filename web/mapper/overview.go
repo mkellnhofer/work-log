@@ -22,7 +22,7 @@ func NewOverviewMapper() *OverviewMapper {
 // CreateOverviewViewModel creates a view model for the overview page.
 func (m *OverviewMapper) CreateListOverviewViewModel(prevUrl string, year int, month int,
 	userContract *model.Contract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity, showDetails bool) *vm.ListOverviewEntries {
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListOverviewEntries {
 	lesvm := vm.NewListOverviewEntries()
 	lesvm.PreviousUrl = prevUrl
 
@@ -55,9 +55,8 @@ func (m *OverviewMapper) CreateListOverviewViewModel(prevUrl string, year int, m
 	lesvm.Summary = m.createOverviewSummaryViewModel(year, month, userContract, entries)
 
 	// Create entries
-	lesvm.ShowDetails = showDetails
 	lesvm.Days = m.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
-		entryActivitiesMap, showDetails)
+		entryActivitiesMap)
 
 	return lesvm
 }
@@ -112,7 +111,7 @@ func (m *OverviewMapper) createOverviewSummaryViewModel(year int, month int,
 
 func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
-	showDetails bool) []*vm.ListOverviewEntriesDay {
+) []*vm.ListOverviewEntriesDay {
 	ldsvm := make([]*vm.ListOverviewEntriesDay, 0, 31)
 
 	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
@@ -161,27 +160,15 @@ func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, ent
 			dailyWorkDuration = dailyWorkDuration + duration
 
 			// Create and add new entry
-			if showDetails {
-				levm = vm.NewListOverviewEntry()
-				levm.Id = entry.Id
-				levm.EntryType = m.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-				levm.StartTime = formatTime(entry.StartTime)
-				levm.EndTime = formatTime(entry.EndTime)
-				levm.Duration = formatHours(duration)
-				levm.EntryActivity = m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
-				levm.Description = entry.Description
-				ldvm.Entries = append(ldvm.Entries, levm)
-			} else {
-				if entry.TypeId != preEntryTypeId {
-					levm = vm.NewListOverviewEntry()
-					levm.Id = entry.Id
-					levm.EntryType = m.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-					levm.StartTime = formatTime(entry.StartTime)
-					ldvm.Entries = append(ldvm.Entries, levm)
-				}
-				levm.EndTime = formatTime(entry.EndTime)
-				levm.Duration = formatHours(colWorkDuration)
-			}
+			levm = vm.NewListOverviewEntry()
+			levm.Id = entry.Id
+			levm.EntryType = m.getEntryTypeDescription(entryTypesMap, entry.TypeId)
+			levm.StartTime = formatTime(entry.StartTime)
+			levm.EndTime = formatTime(entry.EndTime)
+			levm.Duration = formatHours(duration)
+			levm.EntryActivity = m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
+			levm.Description = entry.Description
+			ldvm.Entries = append(ldvm.Entries, levm)
 
 			// Update previous entry type ID
 			preEntryTypeId = entry.TypeId

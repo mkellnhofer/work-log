@@ -57,7 +57,6 @@
     <!-- Overview view -->
     <message key="overviewTitle"><text>Übersicht</text></message>
     <message key="overviewActionExport"><text>Exportieren</text></message>
-    <message key="overviewActionShowActivities"><text>zeige Tätigkeiten</text></message>
     <message key="overviewHeadingSummary"><text>Zusammenfassung:</text></message>
     <message key="overviewHeadingEntries"><text>Einträge:</text></message>
     <message key="overviewSummaryLabelTargetHours"><text>Soll:</text></message>

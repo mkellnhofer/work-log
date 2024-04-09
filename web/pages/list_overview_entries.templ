@@ -15,5 +15,5 @@ templ ListOverviewEntriesPage(model *model.ListOverviewEntries) {
 templ ListOverviewEntriesPageContent(model *model.ListOverviewEntries) {
 	@components.OverviewMonthButtons(model.PrevMonth, model.NextMonth, model.CurrMonthName)
 	@components.OverviewSummaryView(model.Summary)
-	@components.OverviewEntryList(model.CurrMonth, model.ShowDetails, model.Days)
+	@components.OverviewEntryList(model.Days)
 }

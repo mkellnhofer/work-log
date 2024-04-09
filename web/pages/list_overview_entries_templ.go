@@ -79,7 +79,7 @@ func ListOverviewEntriesPageContent(model *model.ListOverviewEntries) templ.Comp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.OverviewEntryList(model.CurrMonth, model.ShowDetails, model.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.OverviewEntryList(model.Days).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

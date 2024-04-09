@@ -21,8 +21,7 @@ import (
 )
 
 type overviewFormInput struct {
-	month       string
-	showDetails string
+	month string
 }
 
 // OverviewController handles requests for overview endpoints.
@@ -108,12 +107,6 @@ func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.ListOve
 		return nil, err
 	}
 
-	// Get user setting
-	showDetails, err := c.uServ.GetSettingShowOverviewDetails(ctx, userId)
-	if err != nil {
-		return nil, err
-	}
-
 	// Get year and month
 	year, month, err := c.getOverviewParams(eCtx)
 	if err != nil {
@@ -134,7 +127,7 @@ func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.ListOve
 	// Create view model
 	prevUrl := getPreviousUrl(eCtx)
 	model := c.mapper.CreateListOverviewViewModel(prevUrl, year, month, userContract, entries,
-		entryTypesMap, entryActivitiesMap, showDetails)
+		entryTypesMap, entryActivitiesMap)
 
 	return model, nil
 }
@@ -158,12 +151,6 @@ func (c *OverviewController) getOverviewParams(eCtx echo.Context) (int, int, err
 }
 
 func (c *OverviewController) handleExecuteOverviewChange(eCtx echo.Context) error {
-	// Get context
-	ctx := getContext(eCtx)
-
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
 	// Get form inputs
 	input := c.getOverviewFormInput(eCtx)
 
@@ -172,10 +159,6 @@ func (c *OverviewController) handleExecuteOverviewChange(eCtx echo.Context) erro
 	if err != nil {
 		return err
 	}
-
-	// Update user setting
-	showDetails := input.showDetails == "on"
-	c.uServ.UpdateSettingShowOverviewDetails(ctx, userId, showDetails)
 
 	// Redirect
 	return eCtx.Redirect(http.StatusFound, "/overview?month="+input.month)
@@ -186,7 +169,6 @@ func (c *OverviewController) handleExecuteOverviewChange(eCtx echo.Context) erro
 func (c *OverviewController) getOverviewFormInput(eCtx echo.Context) *overviewFormInput {
 	i := overviewFormInput{}
 	i.month = eCtx.FormValue("month")
-	i.showDetails = eCtx.FormValue("show-details")
 	return &i
 }
 
@@ -315,14 +297,10 @@ func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.ListOverv
 	f.SetCellValue(sheet, "C13", loc.CreateString("tableColStart"))
 	f.SetCellValue(sheet, "D13", loc.CreateString("tableColEnd"))
 	f.SetCellValue(sheet, "E13", loc.CreateString("tableColNet"))
-	if overviewEntries.ShowDetails {
-		f.SetCellValue(sheet, "F13", loc.CreateString("tableColActivity"))
-		f.SetCellValue(sheet, "G13", loc.CreateString("tableColDescription"))
-	}
+	f.SetCellValue(sheet, "F13", loc.CreateString("tableColActivity"))
+	f.SetCellValue(sheet, "G13", loc.CreateString("tableColDescription"))
 	f.SetCellStyle(sheet, "A13", "E13", styleTableHeader)
-	if overviewEntries.ShowDetails {
-		f.SetCellStyle(sheet, "F13", "G13", styleTableHeader)
-	}
+	f.SetCellStyle(sheet, "F13", "G13", styleTableHeader)
 	// Create table body
 	row := 14
 	for _, day := range overviewEntries.Days {
@@ -350,9 +328,7 @@ func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.ListOverv
 		}
 	}
 	f.SetCellStyle(sheet, "A14", c.getCellName("E", row-1), styleTableBody)
-	if overviewEntries.ShowDetails {
-		f.SetCellStyle(sheet, "F14", c.getCellName("G", row-1), styleTableBody)
-	}
+	f.SetCellStyle(sheet, "F14", c.getCellName("G", row-1), styleTableBody)
 
 	return f
 }

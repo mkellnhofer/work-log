@@ -8,7 +8,6 @@ type ListOverviewEntries struct {
 	PrevMonth     string
 	NextMonth     string
 	Summary       *ListOverviewEntriesSummary
-	ShowDetails   bool
 	Days          []*ListOverviewEntriesDay
 }
 

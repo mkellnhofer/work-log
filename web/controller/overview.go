@@ -73,18 +73,18 @@ func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 
 func (c *OverviewController) handleShowOverview(eCtx echo.Context) error {
 	// Get view data
-	model, err := c.getOverviewViewData(eCtx)
+	userModel, model, err := c.getOverviewViewData(eCtx)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.OverviewEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.OverviewEntriesPage(userModel, model))
 }
 
 func (c *OverviewController) handleExportOverview(eCtx echo.Context) error {
 	// Get view data
-	model, err := c.getOverviewViewData(eCtx)
+	_, model, err := c.getOverviewViewData(eCtx)
 	if err != nil {
 		return err
 	}
@@ -97,39 +97,41 @@ func (c *OverviewController) handleExportOverview(eCtx echo.Context) error {
 	return c.writeFile(eCtx.Response(), fileName, file)
 }
 
-func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.OverviewEntries, error) {
+func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.UserInfo,
+	*vm.OverviewEntries, error) {
 	// Get context
 	ctx := getContext(eCtx)
 
-	// Get current user ID and user contract
-	userId, userContract, err := c.getUserIdAndUserContract(ctx)
+	// Get current user and user contract
+	user, userContract, err := c.getUserAndUserContract(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Get year and month
 	year, month, err := c.getOverviewParams(eCtx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Get entries
-	entries, err := c.eServ.GetMonthEntriesByUserId(ctx, userId, year, month)
+	entries, err := c.eServ.GetMonthEntriesByUserId(ctx, user.Id, year, month)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	// Get entry master data
 	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Create view model
+	userModel := c.mapper.CreateUserInfoViewModel(user)
 	prevUrl := getPreviousUrl(eCtx)
 	model := c.mapper.CreateOverviewEntriesViewModel(prevUrl, year, month, userContract, entries,
 		entryTypesMap, entryActivitiesMap)
 
-	return model, nil
+	return userModel, model, nil
 }
 
 func (c *OverviewController) getOverviewParams(eCtx echo.Context) (int, int, error) {

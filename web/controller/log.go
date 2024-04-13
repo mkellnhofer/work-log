@@ -47,8 +47,8 @@ func (c *LogController) handleShowLog(eCtx echo.Context) error {
 	// Get context
 	ctx := getContext(eCtx)
 
-	// Get current user ID and user contract
-	userId, userContract, err := c.getUserIdAndUserContract(ctx)
+	// Get current user and user contract
+	user, userContract, err := c.getUserAndUserContract(ctx)
 	if err != nil {
 		return err
 	}
@@ -63,14 +63,14 @@ func (c *LogController) handleShowLog(eCtx echo.Context) error {
 	// Get work summary (only for first page)
 	var workSummary *model.WorkSummary
 	if pageNum == 1 {
-		workSummary, err = c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
+		workSummary, err = c.eServ.GetTotalWorkSummaryByUserId(ctx, user.Id)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Get entries
-	entries, cnt, err := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
+	entries, cnt, err := c.eServ.GetDateEntriesByUserId(ctx, user.Id, offset, limit)
 	if err != nil {
 		return err
 	}
@@ -81,12 +81,10 @@ func (c *LogController) handleShowLog(eCtx echo.Context) error {
 	}
 
 	// Create view model
+	userModel := c.mapper.CreateUserInfoViewModel(user)
 	model := c.mapper.CreateLogViewModel(userContract, workSummary, pageNum, pageSize, cnt, entries,
 		entryTypesMap, entryActivitiesMap)
 
-	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(eCtx)
-
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.LogEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.LogEntriesPage(userModel, model))
 }

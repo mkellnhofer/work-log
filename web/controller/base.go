@@ -15,14 +15,23 @@ type baseController struct {
 	eServ *service.EntryService
 }
 
-func (c *baseController) getUserIdAndUserContract(ctx context.Context) (int, *model.Contract,
+func (c *baseController) getUser(ctx context.Context) (*model.User, error) {
+	userId := getCurrentUserId(ctx)
+	return c.uServ.GetUserById(ctx, userId)
+}
+
+func (c *baseController) getUserAndUserContract(ctx context.Context) (*model.User, *model.Contract,
 	error) {
 	userId := getCurrentUserId(ctx)
+	user, err := c.uServ.GetUserById(ctx, userId)
+	if err != nil {
+		return nil, nil, err
+	}
 	userContract, err := c.uServ.GetUserContractByUserId(ctx, userId)
 	if err != nil {
-		return 0, nil, err
+		return nil, nil, err
 	}
-	return userId, userContract, nil
+	return user, userContract, nil
 }
 
 func (c *baseController) getEntry(ctx context.Context, entryId int, userId int) (*model.Entry,

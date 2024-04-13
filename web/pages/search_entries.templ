@@ -5,11 +5,14 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ SearchEntriesPage(model *model.SearchEntries) {
+templ SearchEntriesPage(userModel *model.UserInfo, model *model.SearchEntries) {
 	@MainPage() {
-		// TODO!!!
+		@components.NavBar("search", SearchEntriesPageActions(), userModel.IconSvg)
 		@SearchEntriesPageContent(model)
 	}
+}
+
+templ SearchEntriesPageActions() {
 }
 
 templ SearchEntriesPageContent(model *model.SearchEntries) {

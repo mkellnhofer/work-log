@@ -5,11 +5,17 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ OverviewEntriesPage(model *model.OverviewEntries) {
+templ OverviewEntriesPage(userModel *model.UserInfo, model *model.OverviewEntries) {
 	@MainPage() {
-		// TODO!!!
+		@components.NavBar("overview", OverviewEntriesPageActions(), userModel.IconSvg)
 		@OverviewEntriesPageContent(model)
 	}
+}
+
+templ OverviewEntriesPageActions() {
+	<button class="btn btn-primary" type="button" aria-label={ getText("overviewActionExport") }>
+		{ getText("overviewActionExport") }
+	</button>
 }
 
 templ OverviewEntriesPageContent(model *model.OverviewEntries) {

@@ -16,27 +16,6 @@ func GetText(key string) string {
 	return printer.Sprintf(key)
 }
 
-// CreateUserIconSvg creates an SVG icon for a user.
-func CreateUserIconSvg(color string, initials string) string {
-	return `
-		<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-			<g>
-				<circle
-					style="fill:` + color + `;"
-					cx="16"
-					cy="16"
-					r="16"
-				/>
-				<text
-					style="font-size:13;font-family:FreeSans;text-anchor:middle;fill:#FFF;"
-					x="16"
-					y="21"
-				>` + initials + `</text>
-			</g>
-		</svg>
-	`
-}
-
 // Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)

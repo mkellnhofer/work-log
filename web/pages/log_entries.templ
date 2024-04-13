@@ -5,11 +5,17 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ LogEntriesPage(model *model.LogEntries) {
+templ LogEntriesPage(userModel *model.UserInfo, model *model.LogEntries) {
 	@MainPage() {
-		// TODO!!!
+		@components.NavBar("log", LogEntriesPageActions(), userModel.IconSvg)
 		@LogEntriesPageContent(model)
 	}
+}
+
+templ LogEntriesPageActions() {
+	<button class="btn btn-primary" type="button" aria-label={ getText("actionCreate") }>
+		{ getText("actionCreate") }
+	</button>
 }
 
 templ LogEntriesPageContent(model *model.LogEntries) {

@@ -107,8 +107,11 @@ func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string)
 	// Get context
 	ctx := getContext(eCtx)
 
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
+	// Get current user
+	user, err := c.getUser(ctx)
+	if err != nil {
+		return err
+	}
 
 	// Get page number, offset and limit
 	pageNum, _, err := getPageNumberQueryParam(eCtx)
@@ -118,7 +121,7 @@ func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string)
 	offset, limit := calculateOffsetLimitFromPageNumber(pageNum)
 
 	// Create entries filter from query string
-	filter, err := c.parseSearchQueryString(userId, query)
+	filter, err := c.parseSearchQueryString(user.Id, query)
 	if err != nil {
 		return err
 	}
@@ -138,6 +141,7 @@ func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string)
 	}
 
 	// Create view model
+	userModel := c.mapper.CreateUserInfoViewModel(user)
 	model := c.mapper.CreateSearchEntriesViewModel(constant.ViewPathDefault, query, pageNum,
 		pageSize, cnt, entries, entryTypesMap, entryActivitiesMap)
 
@@ -145,7 +149,7 @@ func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string)
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(userModel, model))
 }
 
 func (c *SearchController) handleExecuteSearch(eCtx echo.Context) error {

@@ -11,8 +11,8 @@ import "io"
 import "bytes"
 
 import (
-	"kellnhofer.com/work-log/web/components"
 	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
 )
 
 func SearchPage(model *model.Search) templ.Component {

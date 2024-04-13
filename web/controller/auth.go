@@ -18,7 +18,7 @@ import (
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/middleware"
 	vm "kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/pages"
+	"kellnhofer.com/work-log/web/view/pages"
 )
 
 // AuthController handles requests for login/logout endpoints.

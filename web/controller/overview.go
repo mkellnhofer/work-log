@@ -17,7 +17,7 @@ import (
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/pages"
+	"kellnhofer.com/work-log/web/view/pages"
 )
 
 type overviewFormInput struct {

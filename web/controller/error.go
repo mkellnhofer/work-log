@@ -10,7 +10,7 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/pages"
+	"kellnhofer.com/work-log/web/view/pages"
 )
 
 // ErrorController handles requests for error endpoints.

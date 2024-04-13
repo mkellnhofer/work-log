@@ -10,7 +10,7 @@ import (
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
-	"kellnhofer.com/work-log/web/pages"
+	"kellnhofer.com/work-log/web/view/pages"
 )
 
 // LogController handles requests for log endpoints.

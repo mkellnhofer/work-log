@@ -4,11 +4,11 @@ import (
 	"strconv"
 
 	"github.com/a-h/templ"
-	"kellnhofer.com/work-log/web"
+	"kellnhofer.com/work-log/web/view"
 )
 
 func getText(key string) string {
-	return web.GetText(key)
+	return view.GetText(key)
 }
 
 func toString(value int) string {

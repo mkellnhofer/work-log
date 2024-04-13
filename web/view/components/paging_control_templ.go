@@ -45,7 +45,7 @@ func PagingControl(hasPrevPage bool, prevPageUrl templ.SafeURL,
 			var templ_7745c5c3_Var3 string
 			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(getText("actionPrevious"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/paging_control.templ`, Line: 8, Col: 77}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/paging_control.templ`, Line: 8, Col: 77}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 			if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func PagingControl(hasPrevPage bool, prevPageUrl templ.SafeURL,
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(getText("actionNext"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/components/paging_control.templ`, Line: 13, Col: 73}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/paging_control.templ`, Line: 13, Col: 73}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {

@@ -2,16 +2,16 @@ package components
 
 templ PagingControl(hasPrevPage bool, prevPageUrl templ.SafeURL,
 	hasNextPage bool, nextPageUrl templ.SafeURL) {
-	<div class="wl-list-page-buttons">
-		if hasPrevPage {
-			<div class="wl-list-page-button-prev">
+	<div class="d-flex justify-content-between mt-4 mb-3">
+		<div>
+			if hasPrevPage {
 				<a class="btn btn-light" href={ prevPageUrl }>{ getText("actionPrevious") }</a>
-			</div>
-		}
-		if hasNextPage {
-			<div class="wl-list-page-button-next">
+			}
+		</div>
+		<div>
+			if hasNextPage {
 				<a class="btn btn-light" href={ nextPageUrl }>{ getText("actionNext") }</a>
-			</div>
-		}
+			}
+		</div>
 	</div>
 }

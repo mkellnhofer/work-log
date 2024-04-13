@@ -45,7 +45,7 @@ func SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"wl-form-buttons\"><a class=\"btn btn-light wl-form-button\" href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><a class=\"btn btn-light\" href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +67,7 @@ func SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <button class=\"btn btn-primary wl-form-button\" type=\"submit\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <button class=\"btn btn-primary\" type=\"submit\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -105,7 +105,7 @@ func SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"form-row\"><div class=\"wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-type\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"form-row\"><div class=\"col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-type\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -174,7 +174,7 @@ func SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"form-row\"><div class=\"wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-date\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"form-row\"><div class=\"col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-date\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -236,7 +236,7 @@ func SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div></div><div class=\"form-row\"><div class=\"wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-activity\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div></div><div class=\"form-row\"><div class=\"col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-activity\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -305,7 +305,7 @@ func SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"form-row\"><div class=\"wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-description\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"form-row\"><div class=\"col-2 col-sm-1 col-md-1 col-xl-1\"><input class=\"checkbox\" name=\"by-description\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

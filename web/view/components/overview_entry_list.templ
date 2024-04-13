@@ -5,48 +5,48 @@ import (
 )
 
 templ OverviewEntryList(days []*model.OverviewEntriesDay) {
-	@OverviewEntryListHeader()
-	@OverviewEntryDaysTable(days)
+	@overviewEntryListHeader()
+	@overviewEntryDaysTable(days)
 }
 
-templ OverviewEntryListHeader() {
-	<div class="wl-overview-table-title">
+templ overviewEntryListHeader() {
+	<div class="mb-3">
 		<h2>{ getText("overviewHeadingEntries") }</h2>
 	</div>
 }
 
-templ OverviewEntryDaysTable(days []*model.OverviewEntriesDay) {
-	<div class="table-responsive table-responsive-xl wl-overview-table">
+templ overviewEntryDaysTable(days []*model.OverviewEntriesDay) {
+	<div class="table-responsive table-responsive-xl mb-4">
 		<table class="table table-sm">
-			@OverviewEntryDaysTableHeader()
-			@OverviewEntryDaysTableBody(days)
+			@overviewEntryDaysTableHeader()
+			@overviewEntryDaysTableBody(days)
 		</table>
 	</div>
 }
 
-templ OverviewEntryDaysTableHeader() {
+templ overviewEntryDaysTableHeader() {
 	<thead>
 		<tr class="wl-overview-table-head">
-			<th class="wl-overview-table-column-date" scope="col">{ getText("tableColDate") }</th>
-			<th class="wl-overview-table-column-type" scope="col">{ getText("tableColType") }</th>
-			<th class="wl-overview-table-column-time" scope="col">{ getText("tableColStart") }</th>
-			<th class="wl-overview-table-column-time" scope="col">{ getText("tableColEnd") }</th>
-			<th class="wl-overview-table-column-time" scope="col">{ getText("tableColNet") }</th>
-			<th class="wl-overview-table-column-activity" scope="col">{ getText("tableColActivity") }</th>
-			<th class="wl-overview-table-column-description" scope="col">{ getText("tableColDescription") }</th>
+			<th class="wl-overview-table-column-date">{ getText("tableColDate") }</th>
+			<th class="wl-overview-table-column-type">{ getText("tableColType") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColStart") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColEnd") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColNet") }</th>
+			<th class="wl-overview-table-column-activity">{ getText("tableColActivity") }</th>
+			<th class="wl-overview-table-column-description">{ getText("tableColDescription") }</th>
 		</tr>
 	</thead>
 }
 
-templ OverviewEntryDaysTableBody(days []*model.OverviewEntriesDay) {
+templ overviewEntryDaysTableBody(days []*model.OverviewEntriesDay) {
 	<tbody>
 		for _, day := range days {
-			@OverviewEntryDaysTableRow(day)
+			@overviewEntryDaysTableRow(day)
 		}
 	</tbody>
 }
 
-templ OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
+templ overviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
 	if len(day.Entries) > 0 {
 		for ei, entry := range day.Entries {
 			<tr
@@ -55,16 +55,16 @@ templ OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
 				}
 			>
 				if ei == 0 {
-					<td class="wl-overview-table-text">{ day.Weekday } { day.Date }</td>
+					<td>{ day.Weekday } { day.Date }</td>
 				} else {
-					<td class="wl-overview-table-text"></td>
+					<td></td>
 				}
-				<td class="wl-overview-table-text">{ entry.EntryType }</td>
-				<td class="wl-overview-table-text">{ entry.StartTime }</td>
-				<td class="wl-overview-table-text">{ entry.EndTime }</td>
-				<td class="wl-overview-table-text">{ entry.Duration }</td>
-				<td class="wl-overview-table-text">{ entry.EntryActivity }</td>
-				<td class="wl-overview-table-text">{ entry.Description }</td>
+				<td>{ entry.EntryType }</td>
+				<td>{ entry.StartTime }</td>
+				<td>{ entry.EndTime }</td>
+				<td>{ entry.Duration }</td>
+				<td>{ entry.EntryActivity }</td>
+				<td>{ entry.Description }</td>
 			</tr>
 		}
 		if len(day.Entries) > 1 {
@@ -73,13 +73,13 @@ templ OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
 					class="wl-overview-table-row-weekend"
 				}
 			>
-				<td class="wl-overview-table-text"></td>
-				<td class="wl-overview-table-text"></td>
-				<td class="wl-overview-table-text"></td>
-				<td class="wl-overview-table-text"></td>
-				<td class="wl-overview-table-text">{ day.WorkDuration }</td>
-				<td class="wl-overview-table-text"></td>
-				<td class="wl-overview-table-text"></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>{ day.WorkDuration }</td>
+				<td></td>
+				<td></td>
 			</tr>
 		}
 	} else {
@@ -88,13 +88,13 @@ templ OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
 				class="wl-overview-table-row-weekend"
 			}
 		>
-			<td class="wl-overview-table-text">{ day.Weekday } { day.Date }</td>
-			<td class="wl-overview-table-text">-</td>
-			<td class="wl-overview-table-text">-</td>
-			<td class="wl-overview-table-text">-</td>
-			<td class="wl-overview-table-text">-</td>
-			<td class="wl-overview-table-text"></td>
-			<td class="wl-overview-table-text"></td>
+			<td>{ day.Weekday } { day.Date }</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td></td>
+			<td></td>
 		</tr>
 	}
 }

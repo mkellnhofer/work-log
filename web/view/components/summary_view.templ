@@ -5,9 +5,9 @@ import (
 )
 
 templ SummaryView(summary *model.LogEntriesSummary) {
-	<div class="alert alert-primary wl-list-alert" role="alert">
+	<div class="border rounded-2 mb-4 p-3">
 		<h2>{ getText("logSummaryHeading") }</h2>
-		<p>
+		<p class="mb-0">
 			<span class="nowrap">
 				{ getText("logSummaryLabelOvertimeHours") } { summary.OvertimeHours }
 			</span>

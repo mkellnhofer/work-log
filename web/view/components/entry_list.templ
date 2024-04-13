@@ -6,13 +6,13 @@ import (
 
 templ EntryList(days []*model.ListEntriesDay) {
 	for _, day := range days {
-		@EntryDayHeader(day)
-		@EntryDayTable(day)
+		@entryDayHeader(day)
+		@entryDayTable(day)
 	}
 }
 
-templ EntryDayHeader(day *model.ListEntriesDay) {
-	<h3 class="wl-list-day-title">
+templ entryDayHeader(day *model.ListEntriesDay) {
+	<h3 class="mb-3 fw-bold">
 		<span>{ day.Date }</span>
 		<span>-</span>
 		<span>{ day.Weekday }</span>
@@ -30,64 +30,77 @@ templ EntryDayHeader(day *model.ListEntriesDay) {
 	</h3>
 }
 
-templ EntryDayTable(day *model.ListEntriesDay) {
-	<div class="table-responsive table-responsive-xl wl-list-table">
-		<table class="table table-sm">
+templ entryDayTable(day *model.ListEntriesDay) {
+	<div class="table-responsive table-responsive-xl mb-4">
+		<table class="table table-sm align-middle">
 			<thead>
-				<tr class="wl-list-table-head">
-					<th class="wl-list-table-column-buttons" scope="col"></th>
-					<th class="wl-list-table-column-type" scope="col">{ getText("tableColType") }</th>
-					<th class="wl-list-table-column-time" scope="col">{ getText("tableColStart") }</th>
-					<th class="wl-list-table-column-time" scope="col">{ getText("tableColEnd") }</th>
-					<th class="wl-list-table-column-time" scope="col">{ getText("tableColNet") }</th>
-					<th class="wl-list-table-column-activity" scope="col">{ getText("tableColActivity") }</th>
-					<th class="wl-list-table-column-description" scope="col">{ getText("tableColDescription") }</th>
-				</tr>
+				@entryDayTableHeaderRow()
 			</thead>
 			<tbody>
 				for _, entry := range day.Entries {
-					@EntryDayTableRow(entry)
+					@entryDayTableRow(entry)
 				}
 			</tbody>
 		</table>
 	</div>
 }
 
-templ EntryDayTableRow(entry *model.ListEntry) {
-	<tr>
-		if entry.IsMissing {
-			<td class="wl-list-table-row-missing" colspan="7"></td>
-		} else if entry.IsOverlapping {
-			<td class="wl-list-table-row-overlapping" colspan="7"></td>
-		} else {
-			<td>
-				<a class="btn btn-link wl-list-table-button" href={ buildActionURL("edit", entry.Id) }>
-					<i class="icon icon-edit" aria-label={ getText("actionEdit") }></i>
-				</a>
-				<a class="btn btn-link wl-list-table-button" href={ buildActionURL("copy", entry.Id) }>
-					<i class="icon icon-copy" aria-label={ getText("actionCopy") }></i>
-				</a>
-				<form
-					class="inline wl-delete-form"
-					action={ buildActionURL("delete", entry.Id) }
-					method="POST"
-					data-dialog-message={ getText("dialogMessageDelete") }
-				>
-					<button class="btn btn-link wl-list-table-button" type="submit">
-						<i class="icon icon-delete" aria-label={ getText("actionDelete") }></i>
-					</button>
-				</form>
-			</td>
-			<td class="wl-list-table-text">{ entry.EntryType }</td>
-			<td class="wl-list-table-text">{ entry.StartTime }</td>
-			<td class="wl-list-table-text">{ entry.EndTime }</td>
-			<td class="wl-list-table-text">{ entry.Duration }</td>
-			<td class="wl-list-table-text">{ entry.EntryActivity }</td>
-			<td class="wl-list-table-text">{ entry.Description }</td>
-		}
+templ entryDayTableHeaderRow() {
+	<tr class="wl-list-table-head">
+		<th class="wl-list-table-column-buttons"></th>
+		<th class="wl-list-table-column-type">{ getText("tableColType") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColStart") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColEnd") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColNet") }</th>
+		<th class="wl-list-table-column-activity">{ getText("tableColActivity") }</th>
+		<th class="wl-list-table-column-description">{ getText("tableColDescription") }</th>
 	</tr>
+}
+
+templ entryDayTableRow(entry *model.ListEntry) {
+	if entry.IsMissing {
+		<tr class="wl-list-table-row-missing">
+			@entryDayTableRowBlank()
+		</tr>
+	} else if entry.IsOverlapping {
+		<tr class="wl-list-table-row-overlapping">
+			@entryDayTableRowBlank()
+		</tr>
+	} else {
+		<tr>
+			@entryDayTableRowButtonsField(entry.Id)
+			@entryDayTableRowTextField(entry.EntryType)
+			@entryDayTableRowTextField(entry.StartTime)
+			@entryDayTableRowTextField(entry.EndTime)
+			@entryDayTableRowTextField(entry.Duration)
+			@entryDayTableRowTextField(entry.EntryActivity)
+			@entryDayTableRowTextField(entry.Description)
+		</tr>
+	}
+}
+
+templ entryDayTableRowBlank() {
+	<td colspan="7"></td>
+}
+
+templ entryDayTableRowButtonsField(id int) {
+	<td>
+		@entryDayTableRowButton(buildActionURL("edit", id), "icon-edit", getText("actionEdit"))
+		@entryDayTableRowButton(buildActionURL("copy", id), "icon-copy", getText("actionCopy"))
+		@entryDayTableRowButton(buildActionURL("delete", id), "icon-delete", getText("actionDelete"))
+	</td>
+}
+
+templ entryDayTableRowButton(url templ.SafeURL, icon string, text string) {
+	<a class="btn btn-link px-2 py-0 fs-6" href={ url }>
+		<i class={ "icon " + icon } aria-label={ text }></i>
+	</a>
 }
 
 func buildActionURL(action string, id int) templ.SafeURL {
 	return toURL("../" + action + "/" + toString(id))
+}
+
+templ entryDayTableRowTextField(content string) {
+	<td>{ content }</td>
 }

@@ -19,7 +19,11 @@ templ SearchEntriesPageContent(model *model.SearchEntries) {
 	if len(model.Days) > 0 {
 		@components.EntryList(model.Days)
 	} else {
-		<p class="wl-list-no-entries-label">{ getText("searchListLabelNoEntries") }</p>
+		<div class="container m-5 text-center">
+			<p class="p-5">
+				{ getText("searchListLabelNoEntries") }
+			</p>
+		</div>
 	}
 	@components.PagingControl(
 		model.HasPrevPage, buildSearchPageURL(model.PrevPageNum, model.Query),

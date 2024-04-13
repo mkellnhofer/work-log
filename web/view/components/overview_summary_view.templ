@@ -5,64 +5,50 @@ import (
 )
 
 templ OverviewSummaryView(overviewSummary *model.OverviewEntriesSummary) {
-	<div class="wl-overview-summary-table-title">
+	<div class="mb-3">
 		<h2>{ getText("overviewHeadingSummary") }</h2>
 	</div>
-	@OverviewSummaryHoursView(overviewSummary.TargetHours, overviewSummary.ActualHours,
-		overviewSummary.BalanceHours)
-	@OverviewSummaryTypeHoursView(overviewSummary.ActualWorkHours, overviewSummary.ActualTravelHours,
-		overviewSummary.ActualVacationHours, overviewSummary.ActualHolidayHours,
-		overviewSummary.ActualIllnessHours, overviewSummary.ActualHours)
+	<div class="d-flex flex-wrap mb-3">
+		@overviewSummaryHoursView(overviewSummary.TargetHours, overviewSummary.ActualHours,
+			overviewSummary.BalanceHours)
+		@overviewSummaryTypeHoursView(overviewSummary.ActualWorkHours, overviewSummary.ActualTravelHours,
+			overviewSummary.ActualVacationHours, overviewSummary.ActualHolidayHours,
+			overviewSummary.ActualIllnessHours, overviewSummary.ActualHours)
+	</div>
 }
 
-templ OverviewSummaryHoursView(targetHours string, actualHours string, balanceHours string) {
-	<div class="table-responsive table-responsive-xl wl-overview-summary-table">
+templ overviewSummaryHoursView(targetHours string, actualHours string, balanceHours string) {
+	<div class="table-responsive me-4">
 		<table class="table table-sm">
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelTargetHours") }</th>
-				<td class="wl-overview-summary-table-hours">{ targetHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelActualHours") }</th>
-				<td class="wl-overview-summary-table-hours">{ actualHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("overviewSummaryLabelBalanceHours") }</th>
-				<td class="wl-overview-summary-table-hours">{ balanceHours }</td>
-			</tr>
+			@overviewSummaryTableRow("overviewSummaryLabelTargetHours", targetHours)
+			@overviewSummaryTableRow("overviewSummaryLabelActualHours", actualHours)
+			@overviewSummaryTableRow("overviewSummaryLabelBalanceHours", balanceHours)
 		</table>
 	</div>
 }
 
-templ OverviewSummaryTypeHoursView(actualWorkHours string, actualTravelHours string,
+templ overviewSummaryTypeHoursView(actualWorkHours string, actualTravelHours string,
 	actualVacationHours string, actualHolidayHours string, actualIllnessHours string,
 	actualHours string) {
-	<div class="table-responsive table-responsive-xl wl-overview-summary-table">
+	<div class="table-responsive me-4">
 		<table class="table table-sm">
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("entryTypeWork") }:</th>
-				<td class="wl-overview-summary-table-hours">{ actualWorkHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("entryTypeTravel") }:</th>
-				<td class="wl-overview-summary-table-hours">{ actualTravelHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("entryTypeVacation") }:</th>
-				<td class="wl-overview-summary-table-hours">{ actualVacationHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("entryTypeHoliday") }:</th>
-				<td class="wl-overview-summary-table-hours">{ actualHolidayHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label">{ getText("entryTypeIllness") }:</th>
-				<td class="wl-overview-summary-table-hours">{ actualIllnessHours }</td>
-			</tr>
-			<tr>
-				<th class="wl-overview-summary-table-label"></th>
-				<td class="wl-overview-summary-table-hours">{ actualHours }</td>
-			</tr>
+			@overviewSummaryTableRow("entryTypeWork", actualWorkHours)
+			@overviewSummaryTableRow("entryTypeTravel", actualTravelHours)
+			@overviewSummaryTableRow("entryTypeVacation", actualVacationHours)
+			@overviewSummaryTableRow("entryTypeHoliday", actualHolidayHours)
+			@overviewSummaryTableRow("entryTypeIllness", actualIllnessHours)
+			@overviewSummaryTableRow("", actualHours)
 		</table>
 	</div>
+}
+
+templ overviewSummaryTableRow(labelTextRef string, hours string) {
+	<tr>
+		<th class="wl-overview-summary-table-column-label">
+			if labelTextRef != "" {
+				{ getText(labelTextRef) }:
+			}
+		</th>
+		<td class="wl-overview-summary-table-column-hours">{ hours }</td>
+	</tr>
 }

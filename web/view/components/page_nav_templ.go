@@ -29,15 +29,15 @@ func PageNav(currentPage string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = pageNavItem(getText("logTitle"), toURL("log"), currentPage == "log").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem("logTitle", toURL("log"), currentPage == "log").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = pageNavItem(getText("searchTitle"), toURL("search"), currentPage == "search").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem("searchTitle", toURL("search"), currentPage == "search").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = pageNavItem(getText("overviewTitle"), toURL("overview"), currentPage == "overview").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem("overviewTitle", toURL("overview"), currentPage == "overview").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -52,7 +52,7 @@ func PageNav(currentPage string) templ.Component {
 	})
 }
 
-func pageNavItem(text string, url templ.SafeURL, active bool) templ.Component {
+func pageNavItem(titleTextRef string, url templ.SafeURL, active bool) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -94,9 +94,9 @@ func pageNavItem(text string, url templ.SafeURL, active bool) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var4 string
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(text)
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(getText(titleTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/page_nav.templ`, Line: 24, Col: 9}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/page_nav.templ`, Line: 24, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {

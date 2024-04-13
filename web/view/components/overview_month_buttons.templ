@@ -1,7 +1,7 @@
 package components
 
 templ OverviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
-	<div class="wl-overview-month-buttons">
+	<div class="mb-4">
 		<a
 			class="btn btn-light"
 			href={ buildOverviewMonthURL(prevMonth) }
@@ -9,7 +9,7 @@ templ OverviewMonthButtons(prevMonth string, nextMonth string, currMonthName str
 		>
 			&lt;
 		</a>
-		<span class="wl-overview-month-title">{ currMonthName }</span>
+		<span class="mx-4">{ currMonthName }</span>
 		<a
 			class="btn btn-light"
 			href={ buildOverviewMonthURL(nextMonth) }

@@ -8,11 +8,11 @@ templ SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity, search *model.SearchInput) {
 	<form action={ actionUrl } method="POST">
 		@SearchEntryFormFields(entryTypes, entryActivities, search)
-		<div class="wl-form-buttons">
-			<a class="btn btn-light wl-form-button" href={ previousUrl }>
+		<div>
+			<a class="btn btn-light" href={ previousUrl }>
 				{ getText("actionCancel") }
 			</a>
-			<button class="btn btn-primary wl-form-button" type="submit">
+			<button class="btn btn-primary" type="submit">
 				{ getText("searchActionSearch") }
 			</button>
 		</div>
@@ -22,7 +22,7 @@ templ SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 templ SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
 	search *model.SearchInput) {
 	<div class="form-row">
-		<div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
+		<div class="col-2 col-sm-1 col-md-1 col-xl-1">
 			<input
 				class="checkbox"
 				name="by-type"
@@ -49,7 +49,7 @@ templ SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mo
 		</div>
 	</div>
 	<div class="form-row">
-		<div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
+		<div class="col-2 col-sm-1 col-md-1 col-xl-1">
 			<input
 				class="checkbox"
 				name="by-date"
@@ -69,7 +69,7 @@ templ SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mo
 		</div>
 	</div>
 	<div class="form-row">
-		<div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
+		<div class="col-2 col-sm-1 col-md-1 col-xl-1">
 			<input
 				class="checkbox"
 				name="by-activity"
@@ -96,7 +96,7 @@ templ SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*mo
 		</div>
 	</div>
 	<div class="form-row">
-		<div class="wl-search-form-checkbox-col col-2 col-sm-1 col-md-1 col-xl-1">
+		<div class="col-2 col-sm-1 col-md-1 col-xl-1">
 			<input
 				class="checkbox"
 				name="by-description"

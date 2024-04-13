@@ -59,9 +59,9 @@
     <message key="overviewActionExport"><text>Exportieren</text></message>
     <message key="overviewHeadingSummary"><text>Zusammenfassung:</text></message>
     <message key="overviewHeadingEntries"><text>Einträge:</text></message>
-    <message key="overviewSummaryLabelTargetHours"><text>Soll:</text></message>
-    <message key="overviewSummaryLabelActualHours"><text>Ist:</text></message>
-    <message key="overviewSummaryLabelBalanceHours"><text>Saldo:</text></message>
+    <message key="overviewSummaryLabelTargetHours"><text>Soll</text></message>
+    <message key="overviewSummaryLabelActualHours"><text>Ist</text></message>
+    <message key="overviewSummaryLabelBalanceHours"><text>Saldo</text></message>
     <message key="exportTitle"><text>%s Export</text></message>
     <message key="exportPropTitle"><text>%s Export - %s</text></message>
     <message key="exportPropDescription"><text>This file created by %s.</text></message>

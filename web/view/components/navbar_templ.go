@@ -26,7 +26,7 @@ func NavBar(currentPage string, actionButtons templ.Component, userIconSvg strin
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar navbar-expand-sm\"><nav class=\"container-xxl flex-wrap flex-sm-nowrap\" aria-label=\"Main navigation\"><button class=\"navbar-toggler d-flex d-sm-none p-2\" type=\"button\" data-bs-toggle=\"offcanvas\" data-bs-target=\"#wl-navbar-nav-offcanvas\" aria-label=\"Open navigation\"><span class=\"navbar-toggler-icon\"></span></button>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar navbar-expand-sm mb-2\"><nav class=\"container-xxl flex-wrap flex-sm-nowrap px-0\" aria-label=\"Main navigation\"><button class=\"navbar-toggler d-flex d-sm-none p-2\" type=\"button\" data-bs-toggle=\"offcanvas\" data-bs-target=\"#wl-navbar-nav-offcanvas\" aria-label=\"Open navigation\"><span class=\"navbar-toggler-icon\"></span></button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -66,7 +66,7 @@ func navBarBrand() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"navbar-brand d-none d-sm-block pe-2\" href=\"/\" aria-label=\"Worklog\"><img src=\"img/app-logo.svg\" alt=\"Logo\" width=\"38\" height=\"38\"></a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"navbar-brand d-none d-sm-block px-2\" href=\"/\" aria-label=\"Worklog\"><img src=\"img/app-logo.svg\" alt=\"Logo\" width=\"38\" height=\"38\"></a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -126,7 +126,7 @@ func navBarNavOffHeader() templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"offcanvas-header px-4 pb-0\"><a class=\"pe-3\" href=\"/\" aria-label=\"Worklog\"><img src=\"img/app-logo.svg\" alt=\"Logo\" width=\"38\" height=\"38\"></a><h5 id=\"wl-navbar-nav-offcanvas-label\" class=\"offcanvas-title me-auto\">Worklog</h5><button class=\"btn-close d-sm-none\" type=\"button\" data-bs-dismiss=\"offcanvas\" aria-label=\"Close navigation\"></button></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"offcanvas-header px-4 pb-0\"><a class=\"pe-3\" href=\"/\" aria-label=\"Worklog\"><img src=\"img/app-logo.svg\" alt=\"Logo\" width=\"38\" height=\"38\"></a><h2 id=\"wl-navbar-nav-offcanvas-label\" class=\"offcanvas-title me-auto\">Worklog</h2><button class=\"btn-close d-sm-none\" type=\"button\" data-bs-dismiss=\"offcanvas\" aria-label=\"Close navigation\"></button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

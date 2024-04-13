@@ -68,10 +68,11 @@ func (m *mapper) createEntriesViewModel(userContract *model.Contract, entries []
 			}
 
 			// Create and add new day
-			ldvm = vm.NewListEntriesDay()
-			ldvm.Date = formatDate(entry.StartTime)
-			ldvm.Weekday = getWeekdayName(entry.StartTime)
-			ldvm.Entries = make([]*vm.ListEntry, 0, 10)
+			ldvm = &vm.ListEntriesDay{
+				Date:    formatDate(entry.StartTime),
+				Weekday: getWeekdayName(entry.StartTime),
+				Entries: make([]*vm.ListEntry, 0, 10),
+			}
 			ldsvm = append(ldsvm, ldvm)
 		}
 
@@ -94,27 +95,29 @@ func (m *mapper) createEntriesViewModel(userContract *model.Contract, entries []
 		// Check for missing or overlapping entry
 		if checkMissingOrOverlapping {
 			if prevStartTime != nil && prevStartTime.After(entry.EndTime) {
-				levm := vm.NewListEntry()
-				levm.IsMissing = true
-				ldvm.Entries = append(ldvm.Entries, levm)
+				ldvm.Entries = append(ldvm.Entries, &vm.ListEntry{
+					IsMissing: true,
+				})
 			} else if prevStartTime != nil && prevStartTime.Before(entry.EndTime) {
-				levm := vm.NewListEntry()
-				levm.IsOverlapping = true
-				ldvm.Entries = append(ldvm.Entries, levm)
+				ldvm.Entries = append(ldvm.Entries, &vm.ListEntry{
+					IsOverlapping: true,
+				})
 			}
 		}
 		prevStartTime = &entry.StartTime
 
 		// Create and add new entry
-		levm := vm.NewListEntry()
-		levm.Id = entry.Id
-		levm.EntryType = m.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-		levm.StartTime = formatTime(entry.StartTime)
-		levm.EndTime = formatTime(entry.EndTime)
-		levm.Duration = formatHours(duration)
-		levm.EntryActivity = m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
-		levm.Description = entry.Description
-		ldvm.Entries = append(ldvm.Entries, levm)
+		ldvm.Entries = append(ldvm.Entries, &vm.ListEntry{
+			Id:            entry.Id,
+			EntryType:     m.getEntryTypeDescription(entryTypesMap, entry.TypeId),
+			StartTime:     formatTime(entry.StartTime),
+			EndTime:       formatTime(entry.EndTime),
+			Duration:      formatHours(duration),
+			EntryActivity: m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
+			Description:   entry.Description,
+		})
+
+		// Set work/break durations
 		ldvm.WorkDuration = formatHours(totalWorkDuration)
 		ldvm.BreakDuration = formatHours(totalBreakDuration)
 		ldvm.WasTargetWorkDurationReached = wasTargetWorkDurationReached
@@ -152,15 +155,15 @@ func (m *mapper) createEntryActivityViewModel(id int, description string) *vm.En
 
 func (m *mapper) createEntryViewModel(id int, typeId int, date string, startTime string,
 	endTime string, activityId int, description string) *vm.Entry {
-	evm := vm.NewEntry()
-	evm.Id = id
-	evm.TypeId = typeId
-	evm.Date = date
-	evm.StartTime = startTime
-	evm.EndTime = endTime
-	evm.ActivityId = activityId
-	evm.Description = description
-	return evm
+	return &vm.Entry{
+		Id:          id,
+		TypeId:      typeId,
+		Date:        date,
+		StartTime:   startTime,
+		EndTime:     endTime,
+		ActivityId:  activityId,
+		Description: description,
+	}
 }
 
 func (m *mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType, id int) string {

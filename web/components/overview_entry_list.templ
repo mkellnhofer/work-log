@@ -4,7 +4,7 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ OverviewEntryList(days []*model.ListOverviewEntriesDay) {
+templ OverviewEntryList(days []*model.OverviewEntriesDay) {
 	@OverviewEntryListHeader()
 	@OverviewEntryDaysTable(days)
 }
@@ -15,7 +15,7 @@ templ OverviewEntryListHeader() {
 	</div>
 }
 
-templ OverviewEntryDaysTable(days []*model.ListOverviewEntriesDay) {
+templ OverviewEntryDaysTable(days []*model.OverviewEntriesDay) {
 	<div class="table-responsive table-responsive-xl wl-overview-table">
 		<table class="table table-sm">
 			@OverviewEntryDaysTableHeader()
@@ -38,7 +38,7 @@ templ OverviewEntryDaysTableHeader() {
 	</thead>
 }
 
-templ OverviewEntryDaysTableBody(days []*model.ListOverviewEntriesDay) {
+templ OverviewEntryDaysTableBody(days []*model.OverviewEntriesDay) {
 	<tbody>
 		for _, day := range days {
 			@OverviewEntryDaysTableRow(day)
@@ -46,7 +46,7 @@ templ OverviewEntryDaysTableBody(days []*model.ListOverviewEntriesDay) {
 	</tbody>
 }
 
-templ OverviewEntryDaysTableRow(day *model.ListOverviewEntriesDay) {
+templ OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
 	if len(day.Entries) > 0 {
 		for ei, entry := range day.Entries {
 			<tr

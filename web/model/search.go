@@ -1,7 +1,16 @@
 package model
 
-// Search stores view data of a search.
+// Search stores data for the search view.
 type Search struct {
+	PreviousUrl     string
+	ErrorMessage    string
+	SearchInput     *SearchInput
+	EntryTypes      []*EntryType
+	EntryActivities []*EntryActivity
+}
+
+// SearchInput stores view data of a search.
+type SearchInput struct {
 	ByType        bool
 	TypeId        int
 	ByDate        bool
@@ -13,7 +22,9 @@ type Search struct {
 	Description   string
 }
 
-// NewSearch creates a new Search view model.
-func NewSearch() *Search {
-	return &Search{}
+// SearchEntries stores data for the search entries view.
+type SearchEntries struct {
+	PreviousUrl string
+	Query       string
+	ListEntries
 }

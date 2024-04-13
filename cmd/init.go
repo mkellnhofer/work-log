@@ -25,7 +25,7 @@ type Initializer struct {
 	errVCtrl      *vc.ErrorController
 	authVCtrl     *vc.AuthController
 	entryVCtrl    *vc.EntryController
-	listVCtrl     *vc.ListController
+	logVCtrl      *vc.LogController
 	overviewVCtrl *vc.OverviewController
 	searchVCtrl   *vc.SearchController
 	entryACtrl    *ac.EntryController
@@ -119,12 +119,12 @@ func (i *Initializer) GetEntryViewController() *vc.EntryController {
 	return i.entryVCtrl
 }
 
-// GetListViewController returns a initialized list view controller object.
-func (i *Initializer) GetListViewController() *vc.ListController {
-	if i.listVCtrl == nil {
-		i.listVCtrl = vc.NewListController(i.GetUserService(), i.GetEntryService())
+// GetLogViewController returns a initialized log view controller object.
+func (i *Initializer) GetLogViewController() *vc.LogController {
+	if i.logVCtrl == nil {
+		i.logVCtrl = vc.NewLogController(i.GetUserService(), i.GetEntryService())
 	}
-	return i.listVCtrl
+	return i.logVCtrl
 }
 
 // GetOverviewViewController returns a initialized overview view controller object.

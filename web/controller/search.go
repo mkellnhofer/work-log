@@ -96,11 +96,11 @@ func (c *SearchController) handleShowSearch(eCtx echo.Context) error {
 	if len(entryTypes) > 0 {
 		entryTypeId = entryTypes[0].Id
 	}
-	model := c.mapper.CreateInitialSearchEntriesViewModel(prevUrl, entryTypeId, time.Now(), 0,
-		entryTypes, entryActivities)
+	model := c.mapper.CreateInitialSearchViewModel(prevUrl, entryTypeId, time.Now(), 0, entryTypes,
+		entryActivities)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.SearchPage(model))
 }
 
 func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string) error {
@@ -138,14 +138,14 @@ func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string)
 	}
 
 	// Create view model
-	model := c.mapper.CreateListSearchViewModel(constant.ViewPathDefault, query, pageNum, pageSize,
-		cnt, entries, entryTypesMap, entryActivitiesMap)
+	model := c.mapper.CreateSearchEntriesViewModel(constant.ViewPathDefault, query, pageNum,
+		pageSize, cnt, entries, entryTypesMap, entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.ListSearchEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
 }
 
 func (c *SearchController) handleExecuteSearch(eCtx echo.Context) error {
@@ -188,12 +188,12 @@ func (c *SearchController) handleSearchError(eCtx echo.Context, err error,
 	byEntryActivity, _ := strconv.ParseBool(input.byActivity)
 	entryActivityId, _ := strconv.Atoi(input.activityId)
 	byEntryDescription, _ := strconv.ParseBool(input.byDescription)
-	model := c.mapper.CreateSearchEntriesViewModel(prevUrl, em, byEntryType, entryTypeId,
+	model := c.mapper.CreateSearchViewModel(prevUrl, em, byEntryType, entryTypeId,
 		byEntryDate, input.startDate, input.endDate, byEntryActivity, entryActivityId,
 		byEntryDescription, input.description, entryTypes, entryActivities)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.SearchPage(model))
 }
 
 // --- Form input retrieval functions ---

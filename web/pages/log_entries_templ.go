@@ -15,7 +15,7 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-func ListOverviewEntriesPage(model *model.ListOverviewEntries) templ.Component {
+func LogEntriesPage(model *model.LogEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -38,7 +38,7 @@ func ListOverviewEntriesPage(model *model.ListOverviewEntries) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = ListOverviewEntriesPageContent(model).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = LogEntriesPageContent(model).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -58,7 +58,7 @@ func ListOverviewEntriesPage(model *model.ListOverviewEntries) templ.Component {
 	})
 }
 
-func ListOverviewEntriesPageContent(model *model.ListOverviewEntries) templ.Component {
+func LogEntriesPageContent(model *model.LogEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -71,15 +71,39 @@ func ListOverviewEntriesPageContent(model *model.ListOverviewEntries) templ.Comp
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = components.OverviewMonthButtons(model.PrevMonth, model.NextMonth, model.CurrMonthName).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if model.Summary != nil {
+			templ_7745c5c3_Err = components.SummaryView(model.Summary).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = components.OverviewSummaryView(model.Summary).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if len(model.Days) > 0 {
+			templ_7745c5c3_Err = components.EntryList(model.Days).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p class=\"wl-list-no-entries-label\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var4 string
+			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(getText("logLabelNoEntries"))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/pages/log_entries.templ`, Line: 22, Col: 68}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		templ_7745c5c3_Err = components.OverviewEntryList(model.Days).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = components.PagingControl(
+			model.HasPrevPage, buildLogPageURL(model.PrevPageNum),
+			model.HasNextPage, buildLogPageURL(model.NextPageNum)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -88,4 +112,8 @@ func ListOverviewEntriesPageContent(model *model.ListOverviewEntries) templ.Comp
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func buildLogPageURL(pageNum int) templ.SafeURL {
+	return toURL("log?page=" + toString(pageNum))
 }

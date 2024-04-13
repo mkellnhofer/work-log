@@ -15,7 +15,7 @@ import (
 )
 
 func SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
-	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity, search *model.Search) templ.Component {
+	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity, search *model.SearchInput) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -92,7 +92,7 @@ func SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 }
 
 func SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
-	search *model.Search) templ.Component {
+	search *model.SearchInput) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

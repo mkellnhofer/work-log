@@ -36,12 +36,12 @@
     <message key="dialogMessageDelete"><text>Do you really want to delete the entry?</text></message>
 
     <!-- List view -->
-    <message key="listTitle"><text>Entries</text></message>
-    <message key="listSummaryHeading"><text>Working time account:</text></message>
-    <message key="listSummaryLabelOvertimeHours"><text>Overtime hours:</text></message>
-    <message key="listSummaryLabelRemainingVacationDays"><text>Remaining vacation days:</text></message>
-    <message key="listLabelNoEntries"><text>no entries exist</text></message>
-    <message key="listLabelBreak"><text>Break</text></message>
+    <message key="logTitle"><text>Log</text></message>
+    <message key="logSummaryHeading"><text>Working time account:</text></message>
+    <message key="logSummaryLabelOvertimeHours"><text>Overtime hours:</text></message>
+    <message key="logSummaryLabelRemainingVacationDays"><text>Remaining vacation days:</text></message>
+    <message key="logLabelNoEntries"><text>no entries exist</text></message>
+    <message key="logLabelBreak"><text>Break</text></message>
 
     <!-- Search view -->
     <message key="searchTitle"><text>Search</text></message>

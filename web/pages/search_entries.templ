@@ -13,7 +13,16 @@ templ SearchEntriesPage(model *model.SearchEntries) {
 }
 
 templ SearchEntriesPageContent(model *model.SearchEntries) {
-	@components.ErrorMessageView(model.ErrorMessage)
-	@components.SearchEntryForm(toURL(model.PreviousUrl), toURL("search"), model.EntryTypes,
-		model.EntryActivities, model.Search)
+	if len(model.Days) > 0 {
+		@components.EntryList(model.Days)
+	} else {
+		<p class="wl-list-no-entries-label">{ getText("searchListLabelNoEntries") }</p>
+	}
+	@components.PagingControl(
+		model.HasPrevPage, buildSearchPageURL(model.PrevPageNum, model.Query),
+		model.HasNextPage, buildSearchPageURL(model.NextPageNum, model.Query))
+}
+
+func buildSearchPageURL(pageNum int, query string) templ.SafeURL {
+	return toURL("search?page=" + toString(pageNum) + "&query=" + query)
 }

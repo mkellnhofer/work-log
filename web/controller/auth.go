@@ -90,7 +90,7 @@ func (c *AuthController) handleShowLogin(eCtx echo.Context) error {
 }
 
 func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
-	lvm := vm.NewLogin()
+	lvm := &vm.Login{}
 	if ec != 0 {
 		lvm.ErrorMessage = loc.GetErrorMessageString(ec)
 	}
@@ -190,7 +190,7 @@ func (c *AuthController) handleShowPasswordChange(eCtx echo.Context) error {
 }
 
 func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordChange {
-	pcvm := vm.NewPasswordChange()
+	pcvm := &vm.PasswordChange{}
 	if ec != 0 {
 		pcvm.ErrorMessage = loc.GetErrorMessageString(ec)
 	}

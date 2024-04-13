@@ -19,15 +19,15 @@ func NewOverviewMapper() *OverviewMapper {
 	return &OverviewMapper{}
 }
 
-// CreateOverviewViewModel creates a view model for the overview page.
-func (m *OverviewMapper) CreateListOverviewViewModel(prevUrl string, year int, month int,
+// CreateOverviewEntriesViewModel creates a view model for the overview page.
+func (m *OverviewMapper) CreateOverviewEntriesViewModel(prevUrl string, year int, month int,
 	userContract *model.Contract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListOverviewEntries {
-	lesvm := vm.NewListOverviewEntries()
-	lesvm.PreviousUrl = prevUrl
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.OverviewEntries {
+	oesvm := &vm.OverviewEntries{}
+	oesvm.PreviousUrl = prevUrl
 
 	// Get current month name
-	lesvm.CurrMonthName = fmt.Sprintf("%s %d", getMonthName(month), year)
+	oesvm.CurrMonthName = fmt.Sprintf("%s %d", getMonthName(month), year)
 
 	// Calculate previous/next month
 	var py, pm, ny, nm int
@@ -47,22 +47,22 @@ func (m *OverviewMapper) CreateListOverviewViewModel(prevUrl string, year int, m
 		ny = year
 		nm = month + 1
 	}
-	lesvm.CurrMonth = fmt.Sprintf("%d%02d", year, month)
-	lesvm.PrevMonth = fmt.Sprintf("%d%02d", py, pm)
-	lesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
+	oesvm.CurrMonth = fmt.Sprintf("%d%02d", year, month)
+	oesvm.PrevMonth = fmt.Sprintf("%d%02d", py, pm)
+	oesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
 
 	// Calculate summary
-	lesvm.Summary = m.createOverviewSummaryViewModel(year, month, userContract, entries)
+	oesvm.Summary = m.createSummaryViewModel(year, month, userContract, entries)
 
 	// Create entries
-	lesvm.Days = m.createOverviewEntriesViewModel(year, month, entries, entryTypesMap,
+	oesvm.Days = m.createEntriesViewModel(year, month, entries, entryTypesMap,
 		entryActivitiesMap)
 
-	return lesvm
+	return oesvm
 }
 
-func (m *OverviewMapper) createOverviewSummaryViewModel(year int, month int,
-	userContract *model.Contract, entries []*model.Entry) *vm.ListOverviewEntriesSummary {
+func (m *OverviewMapper) createSummaryViewModel(year int, month int, userContract *model.Contract,
+	entries []*model.Entry) *vm.OverviewEntriesSummary {
 	// Calculate type durations
 	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
 	for _, entry := range entries {
@@ -97,22 +97,22 @@ func (m *OverviewMapper) createOverviewSummaryViewModel(year int, month int,
 	var bal time.Duration = act - tar
 
 	// Create summary
-	lessvm := vm.NewListOverviewEntriesSummary()
-	lessvm.ActualWorkHours = createRoundedHoursString(actWork)
-	lessvm.ActualTravelHours = createRoundedHoursString(actTrav)
-	lessvm.ActualVacationHours = createRoundedHoursString(actVaca)
-	lessvm.ActualHolidayHours = createRoundedHoursString(actHoli)
-	lessvm.ActualIllnessHours = createRoundedHoursString(actIlln)
-	lessvm.TargetHours = createRoundedHoursString(tar)
-	lessvm.ActualHours = createRoundedHoursString(act)
-	lessvm.BalanceHours = createRoundedHoursString(bal)
-	return lessvm
+	return &vm.OverviewEntriesSummary{
+		ActualWorkHours:     createRoundedHoursString(actWork),
+		ActualTravelHours:   createRoundedHoursString(actTrav),
+		ActualVacationHours: createRoundedHoursString(actVaca),
+		ActualHolidayHours:  createRoundedHoursString(actHoli),
+		ActualIllnessHours:  createRoundedHoursString(actIlln),
+		TargetHours:         createRoundedHoursString(tar),
+		ActualHours:         createRoundedHoursString(act),
+		BalanceHours:        createRoundedHoursString(bal),
+	}
 }
 
-func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, entries []*model.Entry,
+func (m *OverviewMapper) createEntriesViewModel(year int, month int, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
-) []*vm.ListOverviewEntriesDay {
-	ldsvm := make([]*vm.ListOverviewEntriesDay, 0, 31)
+) []*vm.OverviewEntriesDay {
+	dsvm := make([]*vm.OverviewEntriesDay, 0, 31)
 
 	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
 
@@ -120,18 +120,19 @@ func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, ent
 	entryIndex := 0
 	for {
 		// Create and add new day
-		ldvm := vm.NewListOverviewEntriesDay()
-		ldvm.Date = formatShortDate(curDate)
-		ldvm.Weekday = getShortWeekdayName(curDate)
-		ldvm.IsWeekendDay = curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday
-		ldvm.Entries = make([]*vm.ListOverviewEntry, 0, 10)
-		ldsvm = append(ldsvm, ldvm)
+		dvm := &vm.OverviewEntriesDay{
+			Date:         formatShortDate(curDate),
+			Weekday:      getShortWeekdayName(curDate),
+			IsWeekendDay: curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday,
+			Entries:      make([]*vm.OverviewEntry, 0, 10),
+		}
+		dsvm = append(dsvm, dvm)
 
 		// Create entries
 		var colWorkDuration time.Duration
 		var dailyWorkDuration time.Duration
 		preEntryTypeId := 0
-		var levm *vm.ListOverviewEntry
+		var evm *vm.OverviewEntry
 		for {
 			// If there are no entries: Abort (No entries exist for this day)
 			if len(entries) == 0 || len(entries) == entryIndex {
@@ -160,15 +161,17 @@ func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, ent
 			dailyWorkDuration = dailyWorkDuration + duration
 
 			// Create and add new entry
-			levm = vm.NewListOverviewEntry()
-			levm.Id = entry.Id
-			levm.EntryType = m.getEntryTypeDescription(entryTypesMap, entry.TypeId)
-			levm.StartTime = formatTime(entry.StartTime)
-			levm.EndTime = formatTime(entry.EndTime)
-			levm.Duration = formatHours(duration)
-			levm.EntryActivity = m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId)
-			levm.Description = entry.Description
-			ldvm.Entries = append(ldvm.Entries, levm)
+			evm = &vm.OverviewEntry{
+				Id:        entry.Id,
+				EntryType: m.getEntryTypeDescription(entryTypesMap, entry.TypeId),
+				StartTime: formatTime(entry.StartTime),
+				EndTime:   formatTime(entry.EndTime),
+				Duration:  formatHours(duration),
+				EntryActivity: m.getEntryActivityDescription(entryActivitiesMap,
+					entry.ActivityId),
+				Description: entry.Description,
+			}
+			dvm.Entries = append(dvm.Entries, evm)
 
 			// Update previous entry type ID
 			preEntryTypeId = entry.TypeId
@@ -176,7 +179,7 @@ func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, ent
 			// Update entry index
 			entryIndex++
 		}
-		ldvm.WorkDuration = formatHours(dailyWorkDuration)
+		dvm.WorkDuration = formatHours(dailyWorkDuration)
 
 		// If next month is reached: Abort
 		curDate = curDate.Add(24 * time.Hour)
@@ -185,5 +188,5 @@ func (m *OverviewMapper) createOverviewEntriesViewModel(year int, month int, ent
 		}
 	}
 
-	return ldsvm
+	return dsvm
 }

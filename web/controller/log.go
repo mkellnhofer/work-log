@@ -13,37 +13,37 @@ import (
 	"kellnhofer.com/work-log/web/pages"
 )
 
-// ListController handles requests for list endpoints.
-type ListController struct {
+// LogController handles requests for log endpoints.
+type LogController struct {
 	baseController
 
-	mapper *mapper.ListMapper
+	mapper *mapper.LogMapper
 }
 
-// NewListController creates a new list controller.
-func NewListController(uServ *service.UserService, eServ *service.EntryService) *ListController {
-	return &ListController{
+// NewLogController creates a new log controller.
+func NewLogController(uServ *service.UserService, eServ *service.EntryService) *LogController {
+	return &LogController{
 		baseController: baseController{
 			uServ: uServ,
 			eServ: eServ,
 		},
-		mapper: mapper.NewListMapper(),
+		mapper: mapper.NewLogMapper(),
 	}
 }
 
 // --- Endpoints ---
 
-// GetListHandler returns a handler for "GET /list".
-func (c *ListController) GetListHandler() echo.HandlerFunc {
+// GetLogHandler returns a handler for "GET /log".
+func (c *LogController) GetLogHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /list.")
-		return c.handleShowList(eCtx)
+		log.Verb("Handle GET /log.")
+		return c.handleShowLog(eCtx)
 	}
 }
 
 // --- Handler functions ---
 
-func (c *ListController) handleShowList(eCtx echo.Context) error {
+func (c *LogController) handleShowLog(eCtx echo.Context) error {
 	// Get context
 	ctx := getContext(eCtx)
 
@@ -81,12 +81,12 @@ func (c *ListController) handleShowList(eCtx echo.Context) error {
 	}
 
 	// Create view model
-	model := c.mapper.CreateListViewModel(userContract, workSummary, pageNum, pageSize, cnt, entries,
+	model := c.mapper.CreateLogViewModel(userContract, workSummary, pageNum, pageSize, cnt, entries,
 		entryTypesMap, entryActivitiesMap)
 
 	// Save current URL to be able to used later for back navigation
 	saveCurrentUrl(eCtx)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.ListEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.LogEntriesPage(model))
 }

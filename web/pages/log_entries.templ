@@ -1,0 +1,31 @@
+package pages
+
+import (
+	"kellnhofer.com/work-log/web/components"
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ LogEntriesPage(model *model.LogEntries) {
+	@MainPage() {
+		// TODO!!!
+		@LogEntriesPageContent(model)
+	}
+}
+
+templ LogEntriesPageContent(model *model.LogEntries) {
+	if model.Summary != nil {
+		@components.SummaryView(model.Summary)
+	}
+	if len(model.Days) > 0 {
+		@components.EntryList(model.Days)
+	} else {
+		<p class="wl-list-no-entries-label">{ getText("logLabelNoEntries") }</p>
+	}
+	@components.PagingControl(
+		model.HasPrevPage, buildLogPageURL(model.PrevPageNum),
+		model.HasNextPage, buildLogPageURL(model.NextPageNum))
+}
+
+func buildLogPageURL(pageNum int) templ.SafeURL {
+	return toURL("log?page=" + toString(pageNum))
+}

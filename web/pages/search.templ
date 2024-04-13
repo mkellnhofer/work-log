@@ -1,0 +1,19 @@
+package pages
+
+import (
+	"kellnhofer.com/work-log/web/components"
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ SearchPage(model *model.Search) {
+	@MainPage() {
+		// TODO!!!
+		@SearchPageContent(model)
+	}
+}
+
+templ SearchPageContent(model *model.Search) {
+	@components.ErrorMessageView(model.ErrorMessage)
+	@components.SearchEntryForm(toURL(model.PreviousUrl), toURL("search"), model.EntryTypes,
+		model.EntryActivities, model.SearchInput)
+}

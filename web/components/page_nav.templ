@@ -4,7 +4,7 @@ package components
 // corresponding item can be marked as active.
 templ PageNav(currentPage string) {
 	<ul class="navbar-nav justify-content flex-grow-1 pe-3">
-		@pageNavItem(getText("listTitle"), toURL("list"), currentPage == "list")
+		@pageNavItem(getText("logTitle"), toURL("log"), currentPage == "log")
 		@pageNavItem(getText("searchTitle"), toURL("search"), currentPage == "search")
 		@pageNavItem(getText("overviewTitle"), toURL("overview"), currentPage == "overview")
 	</ul>

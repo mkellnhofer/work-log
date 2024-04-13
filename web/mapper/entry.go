@@ -28,14 +28,14 @@ func (m *EntryMapper) CreateInitialCreateViewModel(prevUrl string, typeId int, d
 func (m *EntryMapper) CreateCreateViewModel(prevUrl string, errorMessage string, typeId int,
 	date string, startTime string, endTime string, activityId int, description string,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.CreateEntry {
-	cevm := vm.NewCreateEntry()
-	cevm.PreviousUrl = prevUrl
-	cevm.ErrorMessage = errorMessage
-	cevm.Entry = m.createEntryViewModel(0, typeId, date, startTime, endTime, activityId,
-		description)
-	cevm.EntryTypes = m.createEntryTypesViewModel(types)
-	cevm.EntryActivities = m.createEntryActivitiesViewModel(activities)
-	return cevm
+	return &vm.CreateEntry{
+		PreviousUrl:  prevUrl,
+		ErrorMessage: errorMessage,
+		Entry: m.createEntryViewModel(0, typeId, date, startTime, endTime, activityId,
+			description),
+		EntryTypes:      m.createEntryTypesViewModel(types),
+		EntryActivities: m.createEntryActivitiesViewModel(activities),
+	}
 }
 
 // CreateEntryViewModel creates a view model for the edit entry page.
@@ -50,14 +50,14 @@ func (m *EntryMapper) CreateInitialEditViewModel(prevUrl string, id int, typeId 
 func (m *EntryMapper) CreateEditViewModel(prevUrl string, errorMessage string, id int, typeId int,
 	date string, startTime string, endTime string, activityId int, description string,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.EditEntry {
-	eevm := vm.NewEditEntry()
-	eevm.PreviousUrl = prevUrl
-	eevm.ErrorMessage = errorMessage
-	eevm.Entry = m.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
-		description)
-	eevm.EntryTypes = m.createEntryTypesViewModel(types)
-	eevm.EntryActivities = m.createEntryActivitiesViewModel(activities)
-	return eevm
+	return &vm.EditEntry{
+		PreviousUrl:  prevUrl,
+		ErrorMessage: errorMessage,
+		Entry: m.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
+			description),
+		EntryTypes:      m.createEntryTypesViewModel(types),
+		EntryActivities: m.createEntryActivitiesViewModel(activities),
+	}
 }
 
 // CreateInitialCopyViewModel creates a view model for the copy entry page.
@@ -72,22 +72,22 @@ func (m *EntryMapper) CreateInitialCopyViewModel(prevUrl string, id int, typeId 
 func (m *EntryMapper) CreateCopyViewModel(prevUrl string, errorMessage string, id int, typeId int,
 	date string, startTime string, endTime string, activityId int, description string,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.CopyEntry {
-	cevm := vm.NewCopyEntry()
-	cevm.PreviousUrl = prevUrl
-	cevm.ErrorMessage = errorMessage
-	cevm.Entry = m.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
-		description)
-	cevm.EntryTypes = m.createEntryTypesViewModel(types)
-	cevm.EntryActivities = m.createEntryActivitiesViewModel(activities)
-	return cevm
+	return &vm.CopyEntry{
+		PreviousUrl:  prevUrl,
+		ErrorMessage: errorMessage,
+		Entry: m.createEntryViewModel(id, typeId, date, startTime, endTime, activityId,
+			description),
+		EntryTypes:      m.createEntryTypesViewModel(types),
+		EntryActivities: m.createEntryActivitiesViewModel(activities),
+	}
 }
 
 // CreateDeleteViewModel creates a view model for the delete entry page.
 func (m *EntryMapper) CreateDeleteViewModel(prevUrl string, errorMessage string, id int,
 ) *vm.DeleteEntry {
-	devm := vm.NewDeleteEntry()
-	devm.PreviousUrl = prevUrl
-	devm.ErrorMessage = errorMessage
-	devm.Id = id
-	return devm
+	return &vm.DeleteEntry{
+		PreviousUrl:  prevUrl,
+		ErrorMessage: errorMessage,
+		Id:           id,
+	}
 }

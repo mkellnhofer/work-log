@@ -14,7 +14,7 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-func OverviewEntryList(days []*model.ListOverviewEntriesDay) templ.Component {
+func OverviewEntryList(days []*model.OverviewEntriesDay) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -79,7 +79,7 @@ func OverviewEntryListHeader() templ.Component {
 	})
 }
 
-func OverviewEntryDaysTable(days []*model.ListOverviewEntriesDay) templ.Component {
+func OverviewEntryDaysTable(days []*model.OverviewEntriesDay) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -230,7 +230,7 @@ func OverviewEntryDaysTableHeader() templ.Component {
 	})
 }
 
-func OverviewEntryDaysTableBody(days []*model.ListOverviewEntriesDay) templ.Component {
+func OverviewEntryDaysTableBody(days []*model.OverviewEntriesDay) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -264,7 +264,7 @@ func OverviewEntryDaysTableBody(days []*model.ListOverviewEntriesDay) templ.Comp
 	})
 }
 
-func OverviewEntryDaysTableRow(day *model.ListOverviewEntriesDay) templ.Component {
+func OverviewEntryDaysTableRow(day *model.OverviewEntriesDay) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

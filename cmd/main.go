@@ -76,7 +76,7 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	errCtrl := init.GetErrorViewController()
 	authCtrl := init.GetAuthViewController()
 	entryCtrl := init.GetEntryViewController()
-	listCtrl := init.GetListViewController()
+	logCtrl := init.GetLogViewController()
 	overviewCtrl := init.GetOverviewViewController()
 	searchCtrl := init.GetSearchViewController()
 
@@ -89,7 +89,7 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/password-change", authCtrl.GetPasswordChangeHandler(), proRoute...)
 	e.POST("/password-change", authCtrl.PostPasswordChangeHandler(), proRoute...)
 	e.GET("/logout", authCtrl.GetLogoutHandler(), proRoute...)
-	e.GET("/list", listCtrl.GetListHandler(), proRoute...)
+	e.GET("/log", logCtrl.GetLogHandler(), proRoute...)
 	e.GET("/create", entryCtrl.GetCreateHandler(), proRoute...)
 	e.POST("/create", entryCtrl.PostCreateHandler(), proRoute...)
 	e.GET("/edit/:id", entryCtrl.GetEditHandler(), proRoute...)

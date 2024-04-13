@@ -79,7 +79,7 @@ func (c *OverviewController) handleShowOverview(eCtx echo.Context) error {
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.ListOverviewEntriesPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.OverviewEntriesPage(model))
 }
 
 func (c *OverviewController) handleExportOverview(eCtx echo.Context) error {
@@ -97,7 +97,7 @@ func (c *OverviewController) handleExportOverview(eCtx echo.Context) error {
 	return c.writeFile(eCtx.Response(), fileName, file)
 }
 
-func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.ListOverviewEntries, error) {
+func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.OverviewEntries, error) {
 	// Get context
 	ctx := getContext(eCtx)
 
@@ -126,7 +126,7 @@ func (c *OverviewController) getOverviewViewData(eCtx echo.Context) (*vm.ListOve
 
 	// Create view model
 	prevUrl := getPreviousUrl(eCtx)
-	model := c.mapper.CreateListOverviewViewModel(prevUrl, year, month, userContract, entries,
+	model := c.mapper.CreateOverviewEntriesViewModel(prevUrl, year, month, userContract, entries,
 		entryTypesMap, entryActivitiesMap)
 
 	return model, nil
@@ -174,7 +174,7 @@ func (c *OverviewController) getOverviewFormInput(eCtx echo.Context) *overviewFo
 
 // --- Export functions ---
 
-func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.ListOverviewEntries,
+func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.OverviewEntries,
 ) *excelize.File {
 	f := excelize.NewFile()
 

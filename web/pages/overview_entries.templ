@@ -5,14 +5,14 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ ListOverviewEntriesPage(model *model.ListOverviewEntries) {
+templ OverviewEntriesPage(model *model.OverviewEntries) {
 	@MainPage() {
 		// TODO!!!
-		@ListOverviewEntriesPageContent(model)
+		@OverviewEntriesPageContent(model)
 	}
 }
 
-templ ListOverviewEntriesPageContent(model *model.ListOverviewEntries) {
+templ OverviewEntriesPageContent(model *model.OverviewEntries) {
 	@components.OverviewMonthButtons(model.PrevMonth, model.NextMonth, model.CurrMonthName)
 	@components.OverviewSummaryView(model.Summary)
 	@components.OverviewEntryList(model.Days)

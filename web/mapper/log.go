@@ -9,24 +9,24 @@ import (
 	vm "kellnhofer.com/work-log/web/model"
 )
 
-// ListMapper creates view models for the list page.
-type ListMapper struct {
+// LogMapper creates view models for the log page.
+type LogMapper struct {
 	mapper
 }
 
-// NewListMapper creates a new list mapper.
-func NewListMapper() *ListMapper {
-	return &ListMapper{}
+// NewLogMapper creates a new log mapper.
+func NewLogMapper() *LogMapper {
+	return &LogMapper{}
 }
 
-// CreateListViewModel creates a view model for the list page.
-func (m *ListMapper) CreateListViewModel(userContract *model.Contract, workSummary *model.WorkSummary,
+// CreateLogViewModel creates a view model for the log page.
+func (m *LogMapper) CreateLogViewModel(userContract *model.Contract, workSummary *model.WorkSummary,
 	pageNum int, pageSize int, cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
-	lesvm := vm.NewListEntries()
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.LogEntries {
+	lesvm := &vm.LogEntries{}
 
 	// Calculate summary
-	lesvm.Summary = m.createListSummaryViewModel(userContract, workSummary)
+	lesvm.Summary = m.createSummaryViewModel(userContract, workSummary)
 
 	// Calculate previous/next page numbers
 	lesvm.HasPrevPage = pageNum > 1
@@ -41,8 +41,8 @@ func (m *ListMapper) CreateListViewModel(userContract *model.Contract, workSumma
 	return lesvm
 }
 
-func (m *ListMapper) createListSummaryViewModel(userContract *model.Contract,
-	workSummary *model.WorkSummary) *vm.ListEntriesSummary {
+func (m *LogMapper) createSummaryViewModel(userContract *model.Contract,
+	workSummary *model.WorkSummary) *vm.LogEntriesSummary {
 	// If no user contract or work summary was provided: Skip calculation
 	if userContract == nil || workSummary == nil {
 		return nil
@@ -53,13 +53,13 @@ func (m *ListMapper) createListSummaryViewModel(userContract *model.Contract,
 	remainingVacationDays := m.calculateRemainingVacationDays(userContract, workSummary)
 
 	// Create summary
-	lessvm := vm.NewListEntriesSummary()
-	lessvm.OvertimeHours = createHoursString(overtimeHours)
-	lessvm.RemainingVacationDays = createDaysString(remainingVacationDays)
-	return lessvm
+	return &vm.LogEntriesSummary{
+		OvertimeHours:         createHoursString(overtimeHours),
+		RemainingVacationDays: createDaysString(remainingVacationDays),
+	}
 }
 
-func (m *ListMapper) calculateOvertimeHours(userContract *model.Contract,
+func (m *LogMapper) calculateOvertimeHours(userContract *model.Contract,
 	workSummary *model.WorkSummary) float32 {
 	// Calculate initial overtime duration
 	initOvertimeDuration := time.Duration(int(userContract.InitOvertimeHours*60.0)) * time.Minute
@@ -116,7 +116,7 @@ func (m *ListMapper) calculateOvertimeHours(userContract *model.Contract,
 	return getRoundedHours(overtimeDuration)
 }
 
-func (m *ListMapper) calculateRemainingVacationDays(userContract *model.Contract,
+func (m *LogMapper) calculateRemainingVacationDays(userContract *model.Contract,
 	workSummary *model.WorkSummary) float32 {
 	// Get monthly vacation days
 	vacationDays := m.convertVacationDays(userContract.VacationDays)

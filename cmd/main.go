@@ -86,8 +86,6 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/login", authCtrl.GetLoginHandler(), pubRoute...)
 	e.POST("/login", authCtrl.PostLoginHandler(), pubRoute...)
 	// Register protected handlers
-	e.GET("/password-change", authCtrl.GetPasswordChangeHandler(), proRoute...)
-	e.POST("/password-change", authCtrl.PostPasswordChangeHandler(), proRoute...)
 	e.GET("/logout", authCtrl.GetLogoutHandler(), proRoute...)
 	e.GET("/log", logCtrl.GetLogHandler(), proRoute...)
 	e.GET("/create", entryCtrl.GetCreateHandler(), proRoute...)

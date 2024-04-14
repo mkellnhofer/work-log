@@ -8,6 +8,11 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 )
 
+// IsHtmxRequest returns true if request is a HTMX request.
+func IsHtmxRequest(ctx echo.Context) bool {
+	return ctx.Request().Header.Get("HX-Request") == "true"
+}
+
 // Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)

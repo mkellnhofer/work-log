@@ -25,8 +25,8 @@ templ Page() {
 			<meta charset="utf-8"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-			<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; font-src 'self'; form-action 'self'; base-uri 'self';"/>
-			<meta http-equiv="X-Content-Security-Policy" content="default-src 'none'; script-src 'self'; img-src 'self'; style-src 'self'; font-src 'self'; form-action 'self'; base-uri 'self';"/>
+			@securityHeader("Content-Security-Policy")
+			@securityHeader("X-Content-Security-Policy")
 			<title>{ getText("appName") }</title>
 			<link rel="shortcut icon" type="image/png" href="/img/favicon.png"/>
 			<link rel="stylesheet" href="/css/bootstrap.min.css"/>
@@ -36,7 +36,23 @@ templ Page() {
 		<body>
 			{ children... }
 			<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+			<script type="text/javascript" src="/js/htmx.min.js"></script>
 			<script type="text/javascript" src="/js/app.js"></script>
 		</body>
 	</html>
+}
+
+templ securityHeader(name string) {
+	<meta
+		http-equiv={ name }
+		content="
+			default-src 'none';
+			script-src 'self';
+			img-src 'self' data:;
+			style-src 'self' 'unsafe-inline';
+			font-src 'self';
+			form-action 'self';
+			base-uri 'self';
+		"
+	/>
 }

@@ -10,6 +10,7 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/hx"
 	"kellnhofer.com/work-log/web/view/pages"
 )
 
@@ -28,13 +29,34 @@ func NewErrorController() *ErrorController {
 func (c *ErrorController) GetErrorHandler() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
 		log.Verb("Handle GET /error.")
-		return c.handleShowError(ctx)
+
+		isHtmx := web.IsHtmxRequest(ctx)
+
+		if !isHtmx {
+			return c.handleShowError(ctx)
+		} else {
+			return c.handleHxShowError(ctx)
+		}
 	}
 }
 
 // --- Handler functions ---
 
 func (c *ErrorController) handleShowError(eCtx echo.Context) error {
+	// Get view data
+	model := c.getErrorViewData(eCtx)
+	// Render
+	return web.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
+}
+
+func (c *ErrorController) handleHxShowError(eCtx echo.Context) error {
+	// Get view data
+	model := c.getErrorViewData(eCtx)
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.ErrorPage(model))
+}
+
+func (c *ErrorController) getErrorViewData(eCtx echo.Context) *vm.Error {
 	// Get error code
 	ec, err := getErrorCodeQueryParam(eCtx)
 	if err != nil {
@@ -43,8 +65,5 @@ func (c *ErrorController) handleShowError(eCtx echo.Context) error {
 
 	// Create view model
 	em := loc.GetErrorMessageString(ec)
-	model := vm.NewError(em)
-
-	// Render
-	return web.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
+	return vm.NewError(em)
 }

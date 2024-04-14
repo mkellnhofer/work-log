@@ -8,7 +8,7 @@ import (
 templ LoginPage(model *model.Login) {
 	@AuthPage(toURL("/login")) {
 		<h2 class="fs-3 mb-3">{ getText("loginTitle") }</h2>
-		@components.ErrorMessageView(model.ErrorMessage)
+		@components.ErrorMessage(model.ErrorMessage)
 		<div class="mb-3">
 			<label class="form-label" for="username">{ getText("loginLabelUsername") }</label>
 			<input class="form-control" name="username" type="text"/>

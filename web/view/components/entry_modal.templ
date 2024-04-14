@@ -8,7 +8,7 @@ import (
 templ CreateEntryModal(model *model.CreateEntry) {
 	@Modal(getText("createTitle"), getText("actionSave"), getText("actionCancel"),
 		templ.Attributes{"action": toURL("/create")}) {
-		@ErrorMessageView(model.ErrorMessage)
+		@ErrorMessage(model.ErrorMessage)
 		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
 	}
 }
@@ -17,7 +17,7 @@ templ CreateEntryModal(model *model.CreateEntry) {
 templ CopyEntryModal(model *model.CopyEntry) {
 	@Modal(getText("copyTitle"), getText("actionSave"), getText("actionCancel"),
 		templ.Attributes{"action": toURL("/copy/" + toString(model.Entry.Id))}) {
-		@ErrorMessageView(model.ErrorMessage)
+		@ErrorMessage(model.ErrorMessage)
 		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
 	}
 }
@@ -26,7 +26,7 @@ templ CopyEntryModal(model *model.CopyEntry) {
 templ EditEntryModal(model *model.EditEntry) {
 	@Modal(getText("editTitle"), getText("actionSave"), getText("actionCancel"),
 		templ.Attributes{"action": toURL("/edit/" + toString(model.Entry.Id))}) {
-		@ErrorMessageView(model.ErrorMessage)
+		@ErrorMessage(model.ErrorMessage)
 		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
 	}
 }
@@ -35,7 +35,7 @@ templ EditEntryModal(model *model.EditEntry) {
 templ DeleteEntryModal(model *model.DeleteEntry) {
 	@Modal(getText("deleteTitle"), getText("actionDelete"), getText("actionCancel"),
 		templ.Attributes{"action": toURL("/delete/" + toString(model.Id))}) {
-		@ErrorMessageView(model.ErrorMessage)
+		@ErrorMessage(model.ErrorMessage)
 		<div class="form-row">
 			<div class="form-group col-12">
 				<label>{ getText("deleteMessage") }</label>

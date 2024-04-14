@@ -34,7 +34,7 @@ func CreateEntryModal(model *model.CreateEntry) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = ErrorMessageView(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ErrorMessage(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -83,7 +83,7 @@ func CopyEntryModal(model *model.CopyEntry) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = ErrorMessageView(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ErrorMessage(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -132,7 +132,7 @@ func EditEntryModal(model *model.EditEntry) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = ErrorMessageView(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ErrorMessage(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -181,7 +181,7 @@ func DeleteEntryModal(model *model.DeleteEntry) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = ErrorMessageView(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ErrorMessage(model.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

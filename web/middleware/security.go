@@ -11,6 +11,7 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/pkg/util/security"
+	"kellnhofer.com/work-log/web"
 )
 
 // SecurityMiddleware creates the security context.
@@ -160,8 +161,13 @@ func (m *AuthCheckMiddleware) redirect(c echo.Context, sess *model.Session, url 
 	// Save requested URL in session
 	sess.PreviousUrl = reqUrl
 
-	// Redirect to login page
-	return c.Redirect(http.StatusFound, url)
+	// Redirect
+	if web.IsHtmxRequest(c) {
+		web.HtmxRedirectUrl(c, url)
+		return c.NoContent(http.StatusOK)
+	} else {
+		return c.Redirect(http.StatusFound, url)
+	}
 }
 
 func getRequestUrl(r *http.Request) string {

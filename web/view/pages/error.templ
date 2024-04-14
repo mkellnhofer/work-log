@@ -2,11 +2,12 @@ package pages
 
 import (
 	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
 )
 
-templ ErrorPage(model *model.Error) {
+// This template is used to render the full error page.
+templ ErrorPage(err *model.Error) {
 	@Page() {
-		<h1>{ getText("errorTitle") }</h1>
-		<p>{ model.ErrorMessage }</p>
+		@components.ErrorView(err.ErrorMessage)
 	}
 }

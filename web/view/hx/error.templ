@@ -1,0 +1,15 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
+)
+
+// This template is used to render the error message for unexpected errors. After an unexpected
+// error has occurred, the error view is swapped into the main container.
+templ ErrorPage(err *model.Error) {
+	// OoB swaps
+	<div id="wl-container" hx-swap-oob="innerHTML">
+		@components.ErrorView(err.ErrorMessage)
+	</div>
+}

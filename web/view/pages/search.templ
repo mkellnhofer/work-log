@@ -13,7 +13,7 @@ templ SearchPage(model *model.Search) {
 }
 
 templ SearchPageContent(model *model.Search) {
-	@components.ErrorMessageView(model.ErrorMessage)
+	@components.ErrorMessage(model.ErrorMessage)
 	@components.SearchEntryForm(toURL(model.PreviousUrl), toURL("search"), model.EntryTypes,
 		model.EntryActivities, model.SearchInput)
 }

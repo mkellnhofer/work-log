@@ -1,0 +1,20 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
+)
+
+// This template is used to render parts of the page which need to be changed after the user has
+// navigated to the log page.
+templ Log(logEntries *model.LogEntries) {
+	// OoB swaps
+	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+		@components.PageNavItems("log")
+	</div>
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@components.LogActions()
+	</div>
+	// Regular swaps
+	@components.LogContent(logEntries)
+}

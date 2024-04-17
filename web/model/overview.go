@@ -2,7 +2,6 @@ package model
 
 // OverviewEntries stores data for the overview entries view.
 type OverviewEntries struct {
-	PreviousUrl   string
 	CurrMonthName string
 	CurrMonth     string
 	PrevMonth     string

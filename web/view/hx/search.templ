@@ -1,0 +1,20 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
+)
+
+// This template is used to render parts of the page which need to be changed after the user has
+// navigated to the search page.
+templ Search(searchEntries *model.SearchEntries) {
+	// OoB swaps
+	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+		@components.PageNavItems("search")
+	</div>
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@components.SearchActions()
+	</div>
+	// Regular swaps
+	@components.SearchContent(searchEntries)
+}

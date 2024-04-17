@@ -2,7 +2,6 @@ package model
 
 // Search stores data for the search view.
 type Search struct {
-	PreviousUrl     string
 	ErrorMessage    string
 	SearchInput     *SearchInput
 	EntryTypes      []*EntryType
@@ -24,7 +23,6 @@ type SearchInput struct {
 
 // SearchEntries stores data for the search entries view.
 type SearchEntries struct {
-	PreviousUrl string
-	Query       string
+	Query string
 	ListEntries
 }

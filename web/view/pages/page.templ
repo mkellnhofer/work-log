@@ -1,23 +1,7 @@
 package pages
 
-import (
-	"strconv"
-
-	"kellnhofer.com/work-log/web/view"
-)
-
-func getText(key string) string {
-	return view.GetText(key)
-}
-
-func toString(value int) string {
-	return strconv.Itoa(value)
-}
-
-func toURL(url string) templ.SafeURL {
-	return templ.URL(url)
-}
-
+// This template is used to render the common HTML for all pages. The page content is supplied as
+// children.
 templ Page() {
 	<!DOCTYPE html>
 	<html lang="en">
@@ -46,7 +30,7 @@ templ securityHeader(name string) {
 	<meta
 		http-equiv={ name }
 		content="
-			default-src 'none';
+			default-src 'self';
 			script-src 'self';
 			img-src 'self' data:;
 			style-src 'self' 'unsafe-inline';

@@ -8,30 +8,32 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
+	"kellnhofer.com/work-log/web/mapper"
+	vm "kellnhofer.com/work-log/web/model"
 )
 
 type baseController struct {
 	uServ *service.UserService
 	eServ *service.EntryService
+
+	mapper *mapper.Mapper
 }
 
-func (c *baseController) getUser(ctx context.Context) (*model.User, error) {
-	userId := getCurrentUserId(ctx)
+func (c *baseController) getUser(ctx context.Context, userId int) (*model.User, error) {
 	return c.uServ.GetUserById(ctx, userId)
 }
 
-func (c *baseController) getUserAndUserContract(ctx context.Context) (*model.User, *model.Contract,
-	error) {
+func (c *baseController) getUserContract(ctx context.Context, userId int) (*model.Contract, error) {
+	return c.uServ.GetUserContractByUserId(ctx, userId)
+}
+
+func (c *baseController) getUserInfoViewData(ctx context.Context) (*vm.UserInfo, error) {
 	userId := getCurrentUserId(ctx)
-	user, err := c.uServ.GetUserById(ctx, userId)
+	user, err := c.getUser(ctx, userId)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	userContract, err := c.uServ.GetUserContractByUserId(ctx, userId)
-	if err != nil {
-		return nil, nil, err
-	}
-	return user, userContract, nil
+	return c.mapper.CreateUserInfoViewModel(user), nil
 }
 
 func (c *baseController) getEntry(ctx context.Context, entryId int, userId int) (*model.Entry,

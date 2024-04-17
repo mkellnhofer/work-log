@@ -1,9 +1,17 @@
 package pages
 
+// This template is used to render the common elements for the main pages. The page content is
+// supplied as children.
 templ MainPage() {
 	@Page() {
-		<div class="wl-container p-2">
+		<div id="wl-container" class="wl-container px-2 pt-0 pb-2 py-sm-2">
 			{ children... }
 		</div>
 	}
+}
+
+templ mainPageContent() {
+	<div id="wl-page-content">
+		{ children... }
+	</div>
 }

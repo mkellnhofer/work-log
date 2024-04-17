@@ -23,11 +23,11 @@ type monthlyVacationDays struct {
 	days     float32
 }
 
-type mapper struct {
+type Mapper struct {
 }
 
 // CreateUserInfoViewModel creates a view model for the user info.
-func (m *mapper) CreateUserInfoViewModel(user *model.User) *vm.UserInfo {
+func (m *Mapper) CreateUserInfoViewModel(user *model.User) *vm.UserInfo {
 	return &vm.UserInfo{
 		Id:       user.Id,
 		Initials: getUserInitials(user.Name),
@@ -35,7 +35,7 @@ func (m *mapper) CreateUserInfoViewModel(user *model.User) *vm.UserInfo {
 	}
 }
 
-func (m *mapper) createEntriesViewModel(userContract *model.Contract, entries []*model.Entry,
+func (m *Mapper) createEntriesViewModel(userContract *model.Contract, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
 	checkMissingOrOverlapping bool) []*vm.ListEntriesDay {
 	ldsvm := make([]*vm.ListEntriesDay, 0, 10)
@@ -136,7 +136,7 @@ func (m *mapper) createEntriesViewModel(userContract *model.Contract, entries []
 	return ldsvm
 }
 
-func (m *mapper) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
+func (m *Mapper) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
 	etsvm := make([]*vm.EntryType, 0, 10)
 	for _, entryType := range entryTypes {
 		etsvm = append(etsvm, m.createEntryTypeViewModel(entryType.Id, entryType.Description))
@@ -144,11 +144,11 @@ func (m *mapper) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.
 	return etsvm
 }
 
-func (m *mapper) createEntryTypeViewModel(id int, description string) *vm.EntryType {
+func (m *Mapper) createEntryTypeViewModel(id int, description string) *vm.EntryType {
 	return vm.NewEntryType(id, description)
 }
 
-func (m *mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
+func (m *Mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
 ) []*vm.EntryActivity {
 	easvm := make([]*vm.EntryActivity, 0, 10)
 	easvm = append(easvm, m.createEntryActivityViewModel(0, "-"))
@@ -159,11 +159,11 @@ func (m *mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryAc
 	return easvm
 }
 
-func (m *mapper) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
+func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
 	return vm.NewEntryActivity(id, description)
 }
 
-func (m *mapper) createEntryViewModel(id int, typeId int, date string, startTime string,
+func (m *Mapper) createEntryViewModel(id int, typeId int, date string, startTime string,
 	endTime string, activityId int, description string) *vm.Entry {
 	return &vm.Entry{
 		Id:          id,
@@ -176,7 +176,7 @@ func (m *mapper) createEntryViewModel(id int, typeId int, date string, startTime
 	}
 }
 
-func (m *mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType, id int) string {
+func (m *Mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType, id int) string {
 	et, ok := entryTypesMap[id]
 	if ok {
 		return et.Description
@@ -184,7 +184,7 @@ func (m *mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType,
 	return ""
 }
 
-func (m *mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.EntryActivity,
+func (m *Mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.EntryActivity,
 	id int) string {
 	ea, ok := entryActivitiesMap[id]
 	if ok {
@@ -193,7 +193,7 @@ func (m *mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.E
 	return ""
 }
 
-func (m *mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
+func (m *Mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
 ) []monthlyVacationDays {
 	mds := make([]monthlyVacationDays, 0, 10)
 
@@ -210,7 +210,7 @@ func (m *mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
 	return mds
 }
 
-func (m *mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date time.Time,
+func (m *Mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date time.Time,
 ) float32 {
 	d := float32(0.0)
 
@@ -225,7 +225,7 @@ func (m *mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date
 	return d
 }
 
-func (m *mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
+func (m *Mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
 ) []dailyWorkingDuration {
 	dds := make([]dailyWorkingDuration, 0, 10)
 
@@ -244,7 +244,7 @@ func (m *mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
 	return dds
 }
 
-func (m *mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuration, date time.Time,
+func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuration, date time.Time,
 ) time.Duration {
 	d := time.Duration(0)
 

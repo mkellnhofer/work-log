@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -10,15 +11,15 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"kellnhofer.com/work-log/pkg/constant"
 	e "kellnhofer.com/work-log/pkg/error"
-	"kellnhofer.com/work-log/pkg/loc"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/pkg/util"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
+	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/hx"
 	"kellnhofer.com/work-log/web/view/pages"
 )
 
@@ -45,12 +46,14 @@ type SearchController struct {
 
 // NewSearchController creates a new search controller.
 func NewSearchController(uServ *service.UserService, eServ *service.EntryService) *SearchController {
+	searchMapper := mapper.NewSearchMapper()
 	return &SearchController{
 		baseController: baseController{
-			uServ: uServ,
-			eServ: eServ,
+			uServ:  uServ,
+			eServ:  eServ,
+			mapper: &searchMapper.Mapper,
 		},
-		mapper: mapper.NewSearchMapper(),
+		mapper: searchMapper,
 	}
 }
 
@@ -60,12 +63,23 @@ func NewSearchController(uServ *service.UserService, eServ *service.EntryService
 func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		log.Verb("Handle GET /search.")
-		// Get search string
-		searchQuery, avail := getSearchQueryParam(eCtx)
-		if !avail {
-			return c.handleShowSearch(eCtx)
+
+		isHtmxReq := web.IsHtmxRequest(eCtx)
+
+		searchQuery, _ := getSearchQueryParam(eCtx)
+		pageNum, isPageReq, err := getPageNumberQueryParam(eCtx)
+		if err != nil {
+			return err
+		}
+
+		ctx := getContext(eCtx)
+
+		if !isHtmxReq {
+			return c.handleShowSearch(eCtx, ctx, searchQuery, pageNum)
+		} else if !isPageReq {
+			return c.handleHxShowSearch(eCtx, ctx, searchQuery, pageNum)
 		} else {
-			return c.handleShowListSearch(eCtx, searchQuery)
+			return c.handleHxGetSearchPage(eCtx, ctx, searchQuery, pageNum)
 		}
 	}
 }
@@ -74,130 +88,77 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /search.")
-		return c.handleExecuteSearch(eCtx)
+
+		// TODO!!!
+		return nil
 	}
 }
 
 // --- Handler functions ---
 
-func (c *SearchController) handleShowSearch(eCtx echo.Context) error {
-	// Get context
-	ctx := getContext(eCtx)
-
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Context, query string,
+	pageNum int) error {
+	// Create view model
+	userModel, err := c.getUserInfoViewData(ctx)
 	if err != nil {
 		return err
 	}
-
-	// Create view model
-	prevUrl := getPreviousUrl(eCtx)
-	entryTypeId := 0
-	if len(entryTypes) > 0 {
-		entryTypeId = entryTypes[0].Id
+	model, err := c.getSearchViewData(ctx, query, pageNum)
+	if err != nil {
+		return err
 	}
-	model := c.mapper.CreateInitialSearchViewModel(prevUrl, entryTypeId, time.Now(), 0, entryTypes,
-		entryActivities)
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchPage(model))
+	return web.Render(eCtx, http.StatusOK, pages.Search(userModel, model))
 }
 
-func (c *SearchController) handleShowListSearch(eCtx echo.Context, query string) error {
-	// Get context
-	ctx := getContext(eCtx)
-
-	// Get current user
-	user, err := c.getUser(ctx)
+func (c *SearchController) handleHxShowSearch(eCtx echo.Context, ctx context.Context, query string,
+	pageNum int) error {
+	// Create view model
+	model, err := c.getSearchViewData(ctx, query, pageNum)
 	if err != nil {
 		return err
 	}
 
-	// Get page number, offset and limit
-	pageNum, _, err := getPageNumberQueryParam(eCtx)
-	if err != nil {
-		return err
-	}
-	offset, limit := calculateOffsetLimitFromPageNumber(pageNum)
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.Search(model))
+}
+
+func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.Context, query string,
+	pageNum int) error {
+	// TODO!!!
+	return nil
+}
+
+func (c *SearchController) getSearchViewData(ctx context.Context, query string, pageNum int,
+) (*vm.SearchEntries, error) {
+	// Get current user information
+	userId := getCurrentUserId(ctx)
 
 	// Create entries filter from query string
-	filter, err := c.parseSearchQueryString(user.Id, query)
+	filter, err := c.parseSearchQueryString(userId, query)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Create entries sort
 	sort := model.NewEntriesSort()
 	sort.ByTime = model.DescSorting
 
 	// Get entries
+	offset, limit := calculateOffsetLimitFromPageNumber(pageNum)
 	entries, cnt, err := c.eServ.GetDateEntries(ctx, filter, sort, offset, limit)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	// Get entry master data
 	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Create view model
-	userModel := c.mapper.CreateUserInfoViewModel(user)
-	model := c.mapper.CreateSearchEntriesViewModel(constant.ViewPathDefault, query, pageNum,
-		pageSize, cnt, entries, entryTypesMap, entryActivitiesMap)
-
-	// Save current URL to be able to used later for back navigation
-	saveCurrentUrl(eCtx)
-
-	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchEntriesPage(userModel, model))
-}
-
-func (c *SearchController) handleExecuteSearch(eCtx echo.Context) error {
-	// Get form inputs
-	input := c.getSearchEntriesFormInput(eCtx)
-
-	// Create entries filter from inputs
-	filter, err := c.createEntriesFilter(input)
-	if err != nil {
-		return c.handleSearchError(eCtx, err, input)
-	}
-
-	return c.handleSearchSuccess(eCtx, filter)
-}
-
-func (c *SearchController) handleSearchSuccess(eCtx echo.Context, filter *model.EntriesFilter) error {
-	return eCtx.Redirect(http.StatusFound, "/search?query="+c.buildSearchQueryString(filter))
-}
-
-func (c *SearchController) handleSearchError(eCtx echo.Context, err error,
-	input *searchEntriesFormInput) error {
-	// Get context
-	ctx := getContext(eCtx)
-
-	// Get error message
-	ec := getErrorCode(err)
-	em := loc.GetErrorMessageString(ec)
-
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	prevUrl := getPreviousUrl(eCtx)
-	byEntryType, _ := strconv.ParseBool(input.byType)
-	entryTypeId, _ := strconv.Atoi(input.typeId)
-	byEntryDate, _ := strconv.ParseBool(input.byDate)
-	byEntryActivity, _ := strconv.ParseBool(input.byActivity)
-	entryActivityId, _ := strconv.Atoi(input.activityId)
-	byEntryDescription, _ := strconv.ParseBool(input.byDescription)
-	model := c.mapper.CreateSearchViewModel(prevUrl, em, byEntryType, entryTypeId,
-		byEntryDate, input.startDate, input.endDate, byEntryActivity, entryActivityId,
-		byEntryDescription, input.description, entryTypes, entryActivities)
-
-	// Render
-	return web.Render(eCtx, http.StatusOK, pages.SearchPage(model))
+	return c.mapper.CreateSearchEntriesViewModel(query, pageNum, pageSize, cnt, entries,
+		entryTypesMap, entryActivitiesMap), nil
 }
 
 // --- Form input retrieval functions ---
@@ -304,14 +265,11 @@ func (c *SearchController) parseSearchQueryString(userId int, query string) (*mo
 	filter.ByUser = true
 	filter.UserId = userId
 
-	qps := strings.Split(query, "|")
-
-	// Check if query is empty
-	if len(qps) < 1 {
-		err := e.NewError(e.ValSearchQueryInvalid, "Search query is empty.")
-		log.Debug(err.StackTrace())
-		return nil, err
+	if query == "" {
+		return filter, nil
 	}
+
+	qps := strings.Split(query, "|")
 
 	for _, qp := range qps {
 		pv := strings.Split(qp, ":")

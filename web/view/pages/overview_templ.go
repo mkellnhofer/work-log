@@ -15,8 +15,8 @@ import (
 	"kellnhofer.com/work-log/web/view/components"
 )
 
-// This template is used to render the full search page.
-func Search(userModel *model.UserInfo, model *model.SearchEntries) templ.Component {
+// This template is used to render the full overview page.
+func Overview(userModel *model.UserInfo, overviewEntries *model.OverviewEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -35,7 +35,8 @@ func Search(userModel *model.UserInfo, model *model.SearchEntries) templ.Compone
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = components.NavBar("search", components.SearchActions(), userModel.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.NavBar("overview", components.OverviewActions(overviewEntries.CurrMonth),
+				userModel.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -49,7 +50,7 @@ func Search(userModel *model.UserInfo, model *model.SearchEntries) templ.Compone
 					templ_7745c5c3_Buffer = templ.GetBuffer()
 					defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 				}
-				templ_7745c5c3_Err = components.SearchContent(model).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.OverviewContent(overviewEntries).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

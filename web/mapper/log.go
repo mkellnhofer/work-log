@@ -11,7 +11,7 @@ import (
 
 // LogMapper creates view models for the log page.
 type LogMapper struct {
-	mapper
+	Mapper
 }
 
 // NewLogMapper creates a new log mapper.

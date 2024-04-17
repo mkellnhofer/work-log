@@ -1,0 +1,16 @@
+package pages
+
+import (
+	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render the full log page.
+templ Log(userModel *model.UserInfo, logEntries *model.LogEntries) {
+	@MainPage() {
+		@components.NavBar("log", components.LogActions(), userModel.IconSvg)
+		@mainPageContent() {
+			@components.LogContent(logEntries)
+		}
+	}
+}

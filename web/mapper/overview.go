@@ -11,7 +11,7 @@ import (
 
 // OverviewMapper creates view models for the overview page.
 type OverviewMapper struct {
-	mapper
+	Mapper
 }
 
 // NewOverviewMapper creates a new overview mapper.
@@ -20,11 +20,10 @@ func NewOverviewMapper() *OverviewMapper {
 }
 
 // CreateOverviewEntriesViewModel creates a view model for the overview page.
-func (m *OverviewMapper) CreateOverviewEntriesViewModel(prevUrl string, year int, month int,
+func (m *OverviewMapper) CreateOverviewEntriesViewModel(year int, month int,
 	userContract *model.Contract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.OverviewEntries {
 	oesvm := &vm.OverviewEntries{}
-	oesvm.PreviousUrl = prevUrl
 
 	// Get current month name
 	oesvm.CurrMonthName = fmt.Sprintf("%s %d", getMonthName(month), year)

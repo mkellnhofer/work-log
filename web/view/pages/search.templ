@@ -5,15 +5,12 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ SearchPage(model *model.Search) {
+// This template is used to render the full search page.
+templ Search(userModel *model.UserInfo, model *model.SearchEntries) {
 	@MainPage() {
-		// TODO!!!
-		@SearchPageContent(model)
+		@components.NavBar("search", components.SearchActions(), userModel.IconSvg)
+		@mainPageContent() {
+			@components.SearchContent(model)
+		}
 	}
-}
-
-templ SearchPageContent(model *model.Search) {
-	@components.ErrorMessage(model.ErrorMessage)
-	@components.SearchEntryForm(toURL(model.PreviousUrl), toURL("search"), model.EntryTypes,
-		model.EntryActivities, model.SearchInput)
 }

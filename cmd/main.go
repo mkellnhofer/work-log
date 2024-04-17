@@ -98,7 +98,6 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/search", searchCtrl.GetSearchHandler(), proRoute...)
 	e.POST("/search", searchCtrl.PostSearchHandler(), proRoute...)
 	e.GET("/overview", overviewCtrl.GetOverviewHandler(), proRoute...)
-	e.POST("/overview", overviewCtrl.PostOverviewHandler(), proRoute...)
 	e.GET("/overview/export", overviewCtrl.GetOverviewExportHandler(), proRoute...)
 	// Register resource handlers
 	e.Static("/css/", "static/resources/css")

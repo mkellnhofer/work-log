@@ -9,7 +9,7 @@ import (
 
 // SearchMapper creates view models for the search page.
 type SearchMapper struct {
-	mapper
+	Mapper
 }
 
 // NewSearchMapper creates a new search mapper.
@@ -18,22 +18,21 @@ func NewSearchMapper() *SearchMapper {
 }
 
 // CreateInitialSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateInitialSearchViewModel(prevUrl string, typeId int, date time.Time,
-	activityId int, types []*model.EntryType, activities []*model.EntryActivity) *vm.Search {
-	return m.CreateSearchViewModel(prevUrl, "", false, typeId, false, getDateString(date),
+func (m *SearchMapper) CreateInitialSearchViewModel(typeId int, date time.Time, activityId int,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.Search {
+	return m.CreateSearchViewModel("", false, typeId, false, getDateString(date),
 		getDateString(date), false, activityId, false, "", types, activities)
 }
 
 // CreateSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateSearchViewModel(prevUrl string, errorMessage string, byType bool,
+func (m *SearchMapper) CreateSearchViewModel(errorMessage string, byType bool,
 	typeId int, byDate bool, startDate string, endDate string, byActivity bool, activityId int,
 	byDescription bool, description string, types []*model.EntryType,
 	activities []*model.EntryActivity) *vm.Search {
 	return &vm.Search{
-		PreviousUrl:  prevUrl,
 		ErrorMessage: errorMessage,
-		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, startDate, endDate, byActivity,
-			activityId, byDescription, description),
+		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, startDate, endDate,
+			byActivity, activityId, byDescription, description),
 		EntryTypes:      m.createEntryTypesViewModel(types),
 		EntryActivities: m.createEntryActivitiesViewModel(activities),
 	}
@@ -56,11 +55,10 @@ func (m *SearchMapper) createSearchInputViewModel(byType bool, typeId int, byDat
 }
 
 // CreateSearchEntriesViewModel creates a view model for the search result page.
-func (m *SearchMapper) CreateSearchEntriesViewModel(prevUrl string, query string, pageNum int,
-	pageSize int, cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+func (m *SearchMapper) CreateSearchEntriesViewModel(query string, pageNum int, pageSize int, cnt int,
+	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.SearchEntries {
 	sesvm := &vm.SearchEntries{}
-	sesvm.PreviousUrl = prevUrl
 	sesvm.Query = query
 
 	// Calculate previous/next page numbers

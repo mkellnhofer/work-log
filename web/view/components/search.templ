@@ -4,10 +4,36 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
+// This template is used to render the action buttons on the search page.
+templ SearchActions() {
+}
+
+// This template is used to render the content of the search page.
+templ SearchContent(searchEntries *model.SearchEntries) {
+	<div id="wl-search-content">
+		if len(searchEntries.Days) > 0 {
+			@EntryList(searchEntries.Days)
+		} else {
+			<div class="container m-5 text-center">
+				<p class="p-5">
+					{ getText("searchListLabelNoEntries") }
+				</p>
+			</div>
+		}
+		@PagingControl(
+			searchEntries.HasPrevPage, buildSearchPageURL(searchEntries.PrevPageNum, searchEntries.Query),
+			searchEntries.HasNextPage, buildSearchPageURL(searchEntries.NextPageNum, searchEntries.Query))
+	</div>
+}
+
+func buildSearchPageURL(pageNum int, query string) templ.SafeURL {
+	return toURL("search?page=" + toString(pageNum) + "&query=" + query)
+}
+
+templ searchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 	entryTypes []*model.EntryType, entryActivities []*model.EntryActivity, search *model.SearchInput) {
 	<form action={ actionUrl } method="POST">
-		@SearchEntryFormFields(entryTypes, entryActivities, search)
+		@searchEntryFormFields(entryTypes, entryActivities, search)
 		<div>
 			<a class="btn btn-light" href={ previousUrl }>
 				{ getText("actionCancel") }
@@ -19,7 +45,7 @@ templ SearchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,
 	</form>
 }
 
-templ SearchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
+templ searchEntryFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
 	search *model.SearchInput) {
 	<div class="form-row">
 		<div class="col-2 col-sm-1 col-md-1 col-xl-1">

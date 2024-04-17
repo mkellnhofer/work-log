@@ -4,7 +4,6 @@
     <message key="appName"><text>Work Log</text></message>
 
     <!-- Common actions -->
-    <message key="actionBack"><text>Zurück</text></message>
     <message key="actionPrevious"><text>Vorherige</text></message>
     <message key="actionNext"><text>Nächste</text></message>
     <message key="actionCancel"><text>Abbrechen</text></message>
@@ -29,7 +28,6 @@
     <message key="actionCopy"><text>Kopieren</text></message>
     <message key="actionDelete"><text>Löschen</text></message>
     <message key="actionSearch"><text>Suchen</text></message>
-    <message key="actionShowOverview"><text>Übersicht</text></message>
     <message key="actionLogout"><text>Abmelden</text></message>
 
     <!-- Main dialogs -->

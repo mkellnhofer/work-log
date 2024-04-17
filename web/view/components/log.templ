@@ -1,0 +1,52 @@
+package components
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render the action buttons on the log page.
+templ LogActions() {
+	<button class="btn btn-primary" type="button" aria-label={ getText("actionCreate") }>
+		{ getText("actionCreate") }
+	</button>
+}
+
+// This template is used to render the content of the log page.
+templ LogContent(logEntries *model.LogEntries) {
+	<div id="wl-log-content">
+		@logSummaryView(logEntries.Summary)
+		if len(logEntries.Days) > 0 {
+			@EntryList(logEntries.Days)
+		} else {
+			<div class="container m-5 text-center">
+				<p class="p-5">
+					{ getText("logLabelNoEntries") }
+				</p>
+			</div>
+		}
+		@PagingControl(
+			logEntries.HasPrevPage, buildLogPageURL(logEntries.PrevPageNum),
+			logEntries.HasNextPage, buildLogPageURL(logEntries.NextPageNum))
+	</div>
+}
+
+templ logSummaryView(summary *model.LogEntriesSummary) {
+	if summary != nil {
+		<div class="border rounded-2 mb-4 p-3">
+			<h2>{ getText("logSummaryHeading") }</h2>
+			<p class="mb-0">
+				<span class="nowrap">
+					{ getText("logSummaryLabelOvertimeHours") } { summary.OvertimeHours }
+				</span>
+				<span>-</span>
+				<span class="nowrap">
+					{ getText("logSummaryLabelRemainingVacationDays") } { summary.RemainingVacationDays }
+				</span>
+			</p>
+		</div>
+	}
+}
+
+func buildLogPageURL(pageNum int) templ.SafeURL {
+	return toURL("log?page=" + toString(pageNum))
+}

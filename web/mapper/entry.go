@@ -9,7 +9,7 @@ import (
 
 // EntryMapper creates view models for the create/edit/copy/delete entry page.
 type EntryMapper struct {
-	mapper
+	Mapper
 }
 
 // NewEntryMapper creates a new entry mapper.

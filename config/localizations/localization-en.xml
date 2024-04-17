@@ -4,7 +4,6 @@
     <message key="appName"><text>Work Log</text></message>
 
     <!-- Common actions -->
-    <message key="actionBack"><text>Back</text></message>
     <message key="actionPrevious"><text>Previous</text></message>
     <message key="actionNext"><text>Next</text></message>
     <message key="actionCancel"><text>Cancel</text></message>
@@ -29,7 +28,6 @@
     <message key="actionCopy"><text>Copy</text></message>
     <message key="actionDelete"><text>Delete</text></message>
     <message key="actionSearch"><text>Search</text></message>
-    <message key="actionOverview"><text>Overview</text></message>
     <message key="actionLogout"><text>Logout</text></message>
 
     <!-- Main dialogs -->

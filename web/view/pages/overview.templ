@@ -6,10 +6,10 @@ import (
 )
 
 // This template is used to render the full overview page.
-templ Overview(userModel *model.UserInfo, overviewEntries *model.OverviewEntries) {
+templ Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) {
 	@MainPage() {
 		@components.NavBar("overview", components.OverviewActions(overviewEntries.CurrMonth),
-			userModel.IconSvg)
+			userInfo.IconSvg)
 		@mainPageContent() {
 			@components.OverviewContent(overviewEntries)
 		}

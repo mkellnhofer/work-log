@@ -16,7 +16,7 @@ import (
 )
 
 // This template is used to render the full log page.
-func Log(userModel *model.UserInfo, logEntries *model.LogEntries) templ.Component {
+func Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -35,7 +35,7 @@ func Log(userModel *model.UserInfo, logEntries *model.LogEntries) templ.Componen
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			templ_7745c5c3_Err = components.NavBar("log", components.LogActions(), userModel.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.NavBar("log", components.LogActions(), userInfo.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -49,7 +49,7 @@ func Log(userModel *model.UserInfo, logEntries *model.LogEntries) templ.Componen
 					templ_7745c5c3_Buffer = templ.GetBuffer()
 					defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 				}
-				templ_7745c5c3_Err = components.LogContent(logEntries).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

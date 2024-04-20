@@ -62,7 +62,7 @@ func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
 		if !isHtmxReq {
 			return c.handleShowOverview(eCtx, ctx, year, month)
 		} else if !isPageReq {
-			return c.handleHxShowOverview(eCtx, ctx, year, month)
+			return c.handleHxNavOverview(eCtx, ctx, year, month)
 		} else {
 			return c.handleHxGetOverviewPage(eCtx, ctx, year, month)
 		}
@@ -106,35 +106,41 @@ func (c *OverviewController) getOverviewParams(eCtx echo.Context) (int, int, boo
 func (c *OverviewController) handleShowOverview(eCtx echo.Context, ctx context.Context, year int,
 	month int) error {
 	// Get view data
-	userModel, err := c.getUserInfoViewData(ctx)
+	userInfo, err := c.getUserInfoViewData(ctx)
 	if err != nil {
 		return err
 	}
-	model, err := c.getOverviewViewData(ctx, year, month)
+	overviewEntries, err := c.getOverviewViewData(ctx, year, month)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Overview(userModel, model))
+	return web.Render(eCtx, http.StatusOK, pages.Overview(userInfo, overviewEntries))
 }
 
-func (c *OverviewController) handleHxShowOverview(eCtx echo.Context, ctx context.Context, year int,
+func (c *OverviewController) handleHxNavOverview(eCtx echo.Context, ctx context.Context, year int,
 	month int) error {
 	// Get view data
-	model, err := c.getOverviewViewData(ctx, year, month)
+	overviewEntries, err := c.getOverviewViewData(ctx, year, month)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.Overview(model))
+	return web.Render(eCtx, http.StatusOK, hx.OverviewNav(overviewEntries))
 }
 
 func (c *OverviewController) handleHxGetOverviewPage(eCtx echo.Context, ctx context.Context, year int,
 	month int) error {
-	// TODO!!!
-	return nil
+	// Get view data
+	overviewEntries, err := c.getOverviewViewData(ctx, year, month)
+	if err != nil {
+		return err
+	}
+
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.OverviewPage(overviewEntries))
 }
 
 func (c *OverviewController) handleExportOverview(eCtx echo.Context, ctx context.Context, year int,

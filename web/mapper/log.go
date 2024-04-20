@@ -19,14 +19,17 @@ func NewLogMapper() *LogMapper {
 	return &LogMapper{}
 }
 
-// CreateLogViewModel creates a view model for the log page.
-func (m *LogMapper) CreateLogViewModel(userContract *model.Contract, workSummary *model.WorkSummary,
-	pageNum int, pageSize int, cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.LogEntries {
-	lesvm := &vm.LogEntries{}
+// CreateLogSummaryViewModel creates a summary view model for the log page.
+func (m *LogMapper) CreateLogSummaryViewModel(userContract *model.Contract,
+	workSummary *model.WorkSummary) *vm.LogSummary {
+	return m.createSummaryViewModel(userContract, workSummary)
+}
 
-	// Calculate summary
-	lesvm.Summary = m.createSummaryViewModel(userContract, workSummary)
+// CreateLogEntriesViewModel creates a entries view model for the log page.
+func (m *LogMapper) CreateLogEntriesViewModel(userContract *model.Contract, pageNum int, pageSize int,
+	cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
+	lesvm := &vm.ListEntries{}
 
 	// Calculate previous/next page numbers
 	lesvm.HasPrevPage = pageNum > 1
@@ -42,7 +45,7 @@ func (m *LogMapper) CreateLogViewModel(userContract *model.Contract, workSummary
 }
 
 func (m *LogMapper) createSummaryViewModel(userContract *model.Contract,
-	workSummary *model.WorkSummary) *vm.LogEntriesSummary {
+	workSummary *model.WorkSummary) *vm.LogSummary {
 	// If no user contract or work summary was provided: Skip calculation
 	if userContract == nil || workSummary == nil {
 		return nil
@@ -53,7 +56,7 @@ func (m *LogMapper) createSummaryViewModel(userContract *model.Contract,
 	remainingVacationDays := m.calculateRemainingVacationDays(userContract, workSummary)
 
 	// Create summary
-	return &vm.LogEntriesSummary{
+	return &vm.LogSummary{
 		OvertimeHours:         createHoursString(overtimeHours),
 		RemainingVacationDays: createDaysString(remainingVacationDays),
 	}

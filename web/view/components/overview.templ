@@ -26,38 +26,40 @@ templ OverviewContent(entries *model.OverviewEntries) {
 
 templ overviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
 	<div class="mb-4">
-		<a
-			class="btn btn-light"
-			href={ buildOverviewMonthURL(prevMonth) }
-			aria-label={ getText("actionPrevious") }
-		>
-			&lt;
-		</a>
+		@overviewMonthButton(prevMonth, "#wl-overview-content", "actionPrevious", "&lt;")
 		<span class="mx-4">{ currMonthName }</span>
-		<a
-			class="btn btn-light"
-			href={ buildOverviewMonthURL(nextMonth) }
-			aria-label={ getText("actionNext") }
-		>
-			&gt;
-		</a>
+		@overviewMonthButton(nextMonth, "#wl-overview-content", "actionNext", "&gt;")
 	</div>
 }
 
-func buildOverviewMonthURL(month string) templ.SafeURL {
-	return toURL("overview?month=" + month)
+templ overviewMonthButton(month string, hxTarget string, labelTextRef string, icon string) {
+	<a
+		class="btn btn-light"
+		href="#"
+		hx-trigger="click"
+		hx-get={ buildOverviewMonthHxGetUrl(month) }
+		hx-target={ hxTarget }
+		hx-swap="outerHTML"
+		hx-push-url="true"
+		aria-label={ getText(labelTextRef) }
+	>
+		@templ.Raw(icon)
+	</a>
 }
 
-templ overviewSummaryView(overviewSummary *model.OverviewEntriesSummary) {
+func buildOverviewMonthHxGetUrl(month string) string {
+	return "overview?month=" + month
+}
+
+templ overviewSummaryView(summary *model.OverviewEntriesSummary) {
 	<div class="mb-3">
 		<h2>{ getText("overviewHeadingSummary") }</h2>
 	</div>
 	<div class="d-flex flex-wrap mb-3">
-		@overviewSummaryHoursView(overviewSummary.TargetHours, overviewSummary.ActualHours,
-			overviewSummary.BalanceHours)
-		@overviewSummaryTypeHoursView(overviewSummary.ActualWorkHours, overviewSummary.ActualTravelHours,
-			overviewSummary.ActualVacationHours, overviewSummary.ActualHolidayHours,
-			overviewSummary.ActualIllnessHours, overviewSummary.ActualHours)
+		@overviewSummaryHoursView(summary.TargetHours, summary.ActualHours, summary.BalanceHours)
+		@overviewSummaryTypeHoursView(summary.ActualWorkHours, summary.ActualTravelHours,
+			summary.ActualVacationHours, summary.ActualHolidayHours, summary.ActualIllnessHours,
+			summary.ActualHours)
 	</div>
 }
 

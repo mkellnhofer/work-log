@@ -6,11 +6,11 @@ import (
 )
 
 // This template is used to render the full log page.
-templ Log(userModel *model.UserInfo, logEntries *model.LogEntries) {
+templ Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model.ListEntries) {
 	@MainPage() {
-		@components.NavBar("log", components.LogActions(), userModel.IconSvg)
+		@components.NavBar("log", components.LogActions(), userInfo.IconSvg)
 		@mainPageContent() {
-			@components.LogContent(logEntries)
+			@components.LogContent(summary, listEntries)
 		}
 	}
 }

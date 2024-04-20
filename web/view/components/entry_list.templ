@@ -4,6 +4,7 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
+// This template is used to render a list of entries. It gets a list of days with their entries.
 templ EntryList(days []*model.ListEntriesDay) {
 	for _, day := range days {
 		@entryDayHeader(day)

@@ -66,8 +66,7 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 
-		searchQuery, _ := getSearchQueryParam(eCtx)
-		pageNum, isPageReq, err := getPageNumberQueryParam(eCtx)
+		searchQuery, pageNum, isPageReq, err := c.getSearchParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -77,11 +76,23 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 		if !isHtmxReq {
 			return c.handleShowSearch(eCtx, ctx, searchQuery, pageNum)
 		} else if !isPageReq {
-			return c.handleHxShowSearch(eCtx, ctx, searchQuery, pageNum)
+			return c.handleHxNavSearch(eCtx, ctx, searchQuery, pageNum)
 		} else {
 			return c.handleHxGetSearchPage(eCtx, ctx, searchQuery, pageNum)
 		}
 	}
+}
+
+func (c *SearchController) getSearchParams(eCtx echo.Context) (string, int, bool, error) {
+	searchQuery, _ := getSearchQueryParam(eCtx)
+	pageNum, pageNumAvail, err := getPageNumberQueryParam(eCtx)
+	if err != nil {
+		return "", 0, false, err
+	}
+	if !pageNumAvail {
+		pageNum = 1
+	}
+	return searchQuery, pageNum, pageNumAvail, nil
 }
 
 // PostSearchHandler returns a handler for "POST /search".
@@ -99,38 +110,44 @@ func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
 func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Context, query string,
 	pageNum int) error {
 	// Create view model
-	userModel, err := c.getUserInfoViewData(ctx)
+	userInfo, err := c.getUserInfoViewData(ctx)
 	if err != nil {
 		return err
 	}
-	model, err := c.getSearchViewData(ctx, query, pageNum)
+	entries, err := c.getSearchPageViewData(ctx, query, pageNum)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Search(userModel, model))
+	return web.Render(eCtx, http.StatusOK, pages.Search(userInfo, entries))
 }
 
-func (c *SearchController) handleHxShowSearch(eCtx echo.Context, ctx context.Context, query string,
+func (c *SearchController) handleHxNavSearch(eCtx echo.Context, ctx context.Context, query string,
 	pageNum int) error {
 	// Create view model
-	model, err := c.getSearchViewData(ctx, query, pageNum)
+	entries, err := c.getSearchPageViewData(ctx, query, pageNum)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.Search(model))
+	return web.Render(eCtx, http.StatusOK, hx.SearchNav(entries))
 }
 
 func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.Context, query string,
 	pageNum int) error {
-	// TODO!!!
-	return nil
+	// Create view model
+	entries, err := c.getSearchPageViewData(ctx, query, pageNum)
+	if err != nil {
+		return err
+	}
+
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.SearchPage(entries))
 }
 
-func (c *SearchController) getSearchViewData(ctx context.Context, query string, pageNum int,
+func (c *SearchController) getSearchPageViewData(ctx context.Context, query string, pageNum int,
 ) (*vm.SearchEntries, error) {
 	// Get current user information
 	userId := getCurrentUserId(ctx)

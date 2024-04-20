@@ -16,7 +16,7 @@ import (
 )
 
 // This template is used to render the full overview page.
-func Overview(userModel *model.UserInfo, overviewEntries *model.OverviewEntries) templ.Component {
+func Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -36,7 +36,7 @@ func Overview(userModel *model.UserInfo, overviewEntries *model.OverviewEntries)
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
 			templ_7745c5c3_Err = components.NavBar("overview", components.OverviewActions(overviewEntries.CurrMonth),
-				userModel.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
+				userInfo.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

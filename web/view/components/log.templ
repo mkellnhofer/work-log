@@ -12,25 +12,14 @@ templ LogActions() {
 }
 
 // This template is used to render the content of the log page.
-templ LogContent(logEntries *model.LogEntries) {
+templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	<div id="wl-log-content">
-		@logSummaryView(logEntries.Summary)
-		if len(logEntries.Days) > 0 {
-			@EntryList(logEntries.Days)
-		} else {
-			<div class="container m-5 text-center">
-				<p class="p-5">
-					{ getText("logLabelNoEntries") }
-				</p>
-			</div>
-		}
-		@PagingControl(
-			logEntries.HasPrevPage, buildLogPageURL(logEntries.PrevPageNum),
-			logEntries.HasNextPage, buildLogPageURL(logEntries.NextPageNum))
+		@logSummaryView(summary)
+		@logEntryList(listEntries)
 	</div>
 }
 
-templ logSummaryView(summary *model.LogEntriesSummary) {
+templ logSummaryView(summary *model.LogSummary) {
 	if summary != nil {
 		<div class="border rounded-2 mb-4 p-3">
 			<h2>{ getText("logSummaryHeading") }</h2>
@@ -47,6 +36,23 @@ templ logSummaryView(summary *model.LogEntriesSummary) {
 	}
 }
 
-func buildLogPageURL(pageNum int) templ.SafeURL {
-	return toURL("log?page=" + toString(pageNum))
+templ logEntryList(entries *model.ListEntries) {
+	if len(entries.Days) > 0 {
+		@EntryList(entries.Days)
+	} else {
+		<div class="container m-5 text-center">
+			<p class="p-5">
+				{ getText("logLabelNoEntries") }
+			</p>
+		</div>
+	}
+}
+
+templ logPagingControl(hasPrevPage bool, prevPageNum int, hasNextPage bool, nextPageNum int) {
+	@PagingControl("#wl-log-content", hasPrevPage, buildLogPageHxGetUrl(prevPageNum), hasNextPage,
+		buildLogPageHxGetUrl(nextPageNum))
+}
+
+func buildLogPageHxGetUrl(pageNum int) string {
+	return "log?page=" + toString(pageNum)
 }

@@ -6,11 +6,11 @@ import (
 )
 
 // This template is used to render the full search page.
-templ Search(userModel *model.UserInfo, model *model.SearchEntries) {
+templ Search(userInfo *model.UserInfo, searchEntries *model.SearchEntries) {
 	@MainPage() {
-		@components.NavBar("search", components.SearchActions(), userModel.IconSvg)
+		@components.NavBar("search", components.SearchActions(), userInfo.IconSvg)
 		@mainPageContent() {
-			@components.SearchContent(model)
+			@components.SearchContent(searchEntries)
 		}
 	}
 }

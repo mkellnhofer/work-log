@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"kellnhofer.com/work-log/pkg/log"
+	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
@@ -43,7 +44,7 @@ func (c *LogController) GetLogHandler() echo.HandlerFunc {
 		log.Verb("Handle: GET /log")
 
 		isHtmxReq := web.IsHtmxRequest(eCtx)
-		pageNum, isPageReq, err := getPageNumberQueryParam(eCtx)
+		pageNum, isPageReq, err := c.getLogParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -53,73 +54,129 @@ func (c *LogController) GetLogHandler() echo.HandlerFunc {
 		if !isHtmxReq {
 			return c.handleShowLog(eCtx, ctx, pageNum)
 		} else if !isPageReq {
-			return c.handleHxShowLog(eCtx, ctx, pageNum)
+			return c.handleHxNavLog(eCtx, ctx, pageNum)
 		} else {
 			return c.handleHxGetLogPage(eCtx, ctx, pageNum)
 		}
 	}
 }
 
+func (c *LogController) getLogParams(eCtx echo.Context) (int, bool, error) {
+	pageNum, avail, err := getPageNumberQueryParam(eCtx)
+	if err != nil {
+		return 0, false, err
+	}
+	if !avail {
+		pageNum = 1
+	}
+	return pageNum, avail, nil
+}
+
 // --- Handler functions ---
 
 func (c *LogController) handleShowLog(eCtx echo.Context, ctx context.Context, pageNum int) error {
 	// Get view data
-	userModel, err := c.getUserInfoViewData(ctx)
+	userInfo, err := c.getUserInfoViewData(ctx)
 	if err != nil {
 		return err
 	}
-	model, err := c.getLogViewData(ctx, pageNum)
+	summary, entries, err := c.getLogViewData(ctx, pageNum)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Log(userModel, model))
+	return web.Render(eCtx, http.StatusOK, pages.Log(userInfo, summary, entries))
 }
 
-func (c *LogController) handleHxShowLog(eCtx echo.Context, ctx context.Context, pageNum int) error {
+func (c *LogController) handleHxNavLog(eCtx echo.Context, ctx context.Context, pageNum int) error {
 	// Get view data
-	model, err := c.getLogViewData(ctx, pageNum)
+	summary, entries, err := c.getLogViewData(ctx, pageNum)
 	if err != nil {
 		return err
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.Log(model))
+	return web.Render(eCtx, http.StatusOK, hx.LogNav(summary, entries))
 }
 
-func (c *LogController) handleHxGetLogPage(eCtx echo.Context, ctx context.Context, pageNum int) error {
-	// TODO!!!
-	return nil
+func (c *LogController) handleHxGetLogPage(eCtx echo.Context, ctx context.Context, pageNum int,
+) error {
+	// Get view data
+	summary, entries, err := c.getLogViewData(ctx, pageNum)
+	if err != nil {
+		return err
+	}
+
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.LogPage(summary, entries))
 }
 
-func (c *LogController) getLogViewData(ctx context.Context, pageNum int) (*vm.LogEntries, error) {
+func (c *LogController) getLogViewData(ctx context.Context, pageNum int) (*vm.LogSummary,
+	*vm.ListEntries, error) {
 	// Get current user information
 	userId := getCurrentUserId(ctx)
 	userContract, err := c.getUserContract(ctx, userId)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
+	// Get view data
+	if pageNum > 1 {
+		entries, err := c.getLogEntriesViewData(ctx, userId, userContract, pageNum)
+		return nil, entries, err
+	} else {
+		summary, err := c.getLogSummaryViewData(ctx, userId, userContract)
+		if err != nil {
+			return nil, nil, err
+		}
+		entries, err := c.getLogEntriesViewData(ctx, userId, userContract, pageNum)
+		if err != nil {
+			return nil, nil, err
+		}
+		return summary, entries, nil
+	}
+}
+
+func (c *LogController) getLogSummaryViewData(ctx context.Context, userId int,
+	userContract *model.Contract) (*vm.LogSummary, error) {
 	// Get work summary data
 	workSummary, err := c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
+	// Create view model
+	return c.mapper.CreateLogSummaryViewModel(userContract, workSummary), nil
+}
+
+func (c *LogController) getLogEntriesViewData(ctx context.Context, userId int,
+	userContract *model.Contract, pageNum int) (*vm.ListEntries, error) {
 	// Get entries
-	offset, limit := calculateOffsetLimitFromPageNumber(pageNum)
-	entries, cnt, err := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
-	if err != nil {
-		return nil, err
-	}
-	// Get entry master data
-	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
+	cnt, entries, entryTypesMap, entryActivitiesMap, err := c.getEntryData(ctx, userId, pageNum)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create view model
-	return c.mapper.CreateLogViewModel(userContract, workSummary, pageNum, pageSize, cnt, entries,
+	return c.mapper.CreateLogEntriesViewModel(userContract, pageNum, pageSize, cnt, entries,
 		entryTypesMap, entryActivitiesMap), nil
+}
+
+func (c *LogController) getEntryData(ctx context.Context, userId, pageNum int) (int, []*model.Entry,
+	map[int]*model.EntryType, map[int]*model.EntryActivity, error) {
+	// Get entries
+	offset, limit := calculateOffsetLimitFromPageNumber(pageNum)
+	entries, cnt, err := c.eServ.GetDateEntriesByUserId(ctx, userId, offset, limit)
+	if err != nil {
+		return 0, nil, nil, nil, err
+	}
+
+	// Get entry master data
+	entryTypesMap, entryActivitiesMap, err := c.getEntryMasterDataMap(ctx)
+	if err != nil {
+		return 0, nil, nil, nil, err
+	}
+
+	return cnt, entries, entryTypesMap, entryActivitiesMap, nil
 }

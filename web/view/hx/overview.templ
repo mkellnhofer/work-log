@@ -7,7 +7,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the overview page.
-templ Overview(overviewEntries *model.OverviewEntries) {
+templ OverviewNav(overviewEntries *model.OverviewEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
 		@components.PageNavItems("overview")
@@ -16,5 +16,15 @@ templ Overview(overviewEntries *model.OverviewEntries) {
 		@components.OverviewActions(overviewEntries.CurrMonth)
 	</div>
 	// Regular swaps
+	@components.OverviewContent(overviewEntries)
+}
+
+// This template is used to render changes in the overview page after the user has requested the
+// previous/next month.
+templ OverviewPage(overviewEntries *model.OverviewEntries) {
+	// OoB swaps
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@components.OverviewActions(overviewEntries.CurrMonth)
+	</div>
 	@components.OverviewContent(overviewEntries)
 }

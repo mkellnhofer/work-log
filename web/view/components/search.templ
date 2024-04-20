@@ -11,23 +11,39 @@ templ SearchActions() {
 // This template is used to render the content of the search page.
 templ SearchContent(searchEntries *model.SearchEntries) {
 	<div id="wl-search-content">
-		if len(searchEntries.Days) > 0 {
-			@EntryList(searchEntries.Days)
-		} else {
-			<div class="container m-5 text-center">
-				<p class="p-5">
-					{ getText("searchListLabelNoEntries") }
-				</p>
-			</div>
-		}
-		@PagingControl(
-			searchEntries.HasPrevPage, buildSearchPageURL(searchEntries.PrevPageNum, searchEntries.Query),
-			searchEntries.HasNextPage, buildSearchPageURL(searchEntries.NextPageNum, searchEntries.Query))
+		@SearchResult(searchEntries)
 	</div>
 }
 
-func buildSearchPageURL(pageNum int, query string) templ.SafeURL {
-	return toURL("search?page=" + toString(pageNum) + "&query=" + query)
+// This template is used to render the search result.
+templ SearchResult(entries *model.SearchEntries) {
+	<div id="wl-search-result">
+		@searchEntryList(entries)
+		@searchPagingControl(entries.Query, entries.HasPrevPage, entries.PrevPageNum,
+			entries.HasNextPage, entries.NextPageNum)
+	</div>
+}
+
+templ searchEntryList(entries *model.SearchEntries) {
+	if len(entries.Days) > 0 {
+		@EntryList(entries.Days)
+	} else {
+		<div class="container m-5 text-center">
+			<p class="p-5">
+				{ getText("searchListLabelNoEntries") }
+			</p>
+		</div>
+	}
+}
+
+templ searchPagingControl(query string, hasPrevPage bool, prevPageNum int, hasNextPage bool,
+	nextPageNum int) {
+	@PagingControl("#wl-search-result", hasPrevPage, buildSearchPageHxGetUrl(query, prevPageNum),
+		hasNextPage, buildSearchPageHxGetUrl(query, nextPageNum))
+}
+
+func buildSearchPageHxGetUrl(query string, pageNum int) string {
+	return "search?query=" + query + "&page=" + toString(pageNum)
 }
 
 templ searchEntryForm(previousUrl templ.SafeURL, actionUrl templ.SafeURL,

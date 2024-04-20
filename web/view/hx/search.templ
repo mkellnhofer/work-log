@@ -7,7 +7,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the search page.
-templ Search(searchEntries *model.SearchEntries) {
+templ SearchNav(searchEntries *model.SearchEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
 		@components.PageNavItems("search")
@@ -17,4 +17,10 @@ templ Search(searchEntries *model.SearchEntries) {
 	</div>
 	// Regular swaps
 	@components.SearchContent(searchEntries)
+}
+
+// This template is used to render changes in the search page after the user has requested the
+// previous/next entries.
+templ SearchPage(searchEntries *model.SearchEntries) {
+	@components.SearchResult(searchEntries)
 }

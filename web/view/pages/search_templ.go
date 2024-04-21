@@ -16,7 +16,8 @@ import (
 )
 
 // This template is used to render the full search page.
-func Search(userInfo *model.UserInfo, searchEntries *model.SearchEntries) templ.Component {
+func Search(userInfo *model.UserInfo, errorMessage string, search *model.Search,
+	searchEntries *model.SearchEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -49,7 +50,7 @@ func Search(userInfo *model.UserInfo, searchEntries *model.SearchEntries) templ.
 					templ_7745c5c3_Buffer = templ.GetBuffer()
 					defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 				}
-				templ_7745c5c3_Err = components.SearchContent(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+				templ_7745c5c3_Err = components.SearchContent(errorMessage, search, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}

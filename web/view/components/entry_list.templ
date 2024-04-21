@@ -4,30 +4,31 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-// This template is used to render a list of entries. It gets a list of days with their entries.
-templ EntryList(days []*model.ListEntriesDay) {
+// This template is used to render a list of entries. It gets a list of days with their entries and
+// two flags which control the rendering of day header.
+templ EntryList(days []*model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
 	for _, day := range days {
-		@entryDayHeader(day)
+		@entryDayHeader(day, highlightWorkDuration, showBreakDuration)
 		@entryDayTable(day)
 	}
 }
 
-templ entryDayHeader(day *model.ListEntriesDay) {
+templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
 	<h3 class="mb-3 fw-bold">
 		<span>{ day.Date }</span>
 		<span>-</span>
 		<span>{ day.Weekday }</span>
 		<span>-</span>
 		<span
-			if day.WasTargetWorkDurationReached {
-				class="wl-list-day-target-achieved"
-			} else {
+			if highlightWorkDuration && !day.WasTargetWorkDurationReached {
 				class="wl-list-day-target-not-achieved"
 			}
 		>
 			{ day.WorkDuration }
 		</span>
-		<span>({ day.BreakDuration } { getText("logLabelBreak") })</span>
+		if showBreakDuration {
+			<span>({ day.BreakDuration } { getText("logLabelBreak") })</span>
+		}
 	</h3>
 }
 

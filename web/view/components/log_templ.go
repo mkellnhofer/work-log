@@ -207,7 +207,7 @@ func logEntryList(entries *model.ListEntries) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(entries.Days) > 0 {
-			templ_7745c5c3_Err = EntryList(entries.Days).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = EntryList(entries.Days, true, true).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

@@ -1,16 +1,17 @@
 package pages
 
 import (
-	"kellnhofer.com/work-log/web/view/components"
 	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
 )
 
 // This template is used to render the full search page.
-templ Search(userInfo *model.UserInfo, searchEntries *model.SearchEntries) {
+templ Search(userInfo *model.UserInfo, errorMessage string, search *model.Search,
+	searchEntries *model.SearchEntries) {
 	@MainPage() {
 		@components.NavBar("search", components.SearchActions(), userInfo.IconSvg)
 		@mainPageContent() {
-			@components.SearchContent(searchEntries)
+			@components.SearchContent(errorMessage, search, searchEntries)
 		}
 	}
 }

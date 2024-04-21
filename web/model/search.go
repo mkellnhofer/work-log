@@ -2,7 +2,6 @@ package model
 
 // Search stores data for the search view.
 type Search struct {
-	ErrorMessage    string
 	SearchInput     *SearchInput
 	EntryTypes      []*EntryType
 	EntryActivities []*EntryActivity

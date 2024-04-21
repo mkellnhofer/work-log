@@ -13,6 +13,12 @@ func IsHtmxRequest(ctx echo.Context) bool {
 	return ctx.Request().Header.Get("HX-Request") == "true"
 }
 
+// HtmxPushUrl sets the response header "HX-Push-Url" which instructs HTMX to push the supplied URL
+// into the browser's page history.
+func HtmxPushUrl(ctx echo.Context, url string) {
+	ctx.Response().Header().Set("HX-Push-Url", url)
+}
+
 // HtmxRedirectUrl sets the response headers "HX-Redirect" and "HX-Push-Url" which instructs HTMX to
 // do a client-side redirect to the supplied URL.
 func HtmxRedirectUrl(ctx echo.Context, url string) {

@@ -17,22 +17,13 @@ func NewSearchMapper() *SearchMapper {
 	return &SearchMapper{}
 }
 
-// CreateInitialSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateInitialSearchViewModel(typeId int, date time.Time, activityId int,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.Search {
-	return m.CreateSearchViewModel("", false, typeId, false, getDateString(date),
-		getDateString(date), false, activityId, false, "", types, activities)
-}
-
 // CreateSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateSearchViewModel(errorMessage string, byType bool,
-	typeId int, byDate bool, startDate string, endDate string, byActivity bool, activityId int,
-	byDescription bool, description string, types []*model.EntryType,
-	activities []*model.EntryActivity) *vm.Search {
+func (m *SearchMapper) CreateSearchViewModel(byType bool, typeId int, byDate bool,
+	startDate time.Time, endDate time.Time, byActivity bool, activityId int, byDescription bool,
+	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.Search {
 	return &vm.Search{
-		ErrorMessage: errorMessage,
-		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, startDate, endDate,
-			byActivity, activityId, byDescription, description),
+		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, getDateString(startDate),
+			getDateString(endDate), byActivity, activityId, byDescription, description),
 		EntryTypes:      m.createEntryTypesViewModel(types),
 		EntryActivities: m.createEntryActivitiesViewModel(activities),
 	}

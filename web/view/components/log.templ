@@ -38,7 +38,7 @@ templ logSummaryView(summary *model.LogSummary) {
 
 templ logEntryList(entries *model.ListEntries) {
 	if len(entries.Days) > 0 {
-		@EntryList(entries.Days)
+		@EntryList(entries.Days, true, true)
 	} else {
 		<div class="container m-5 text-center">
 			<p class="p-5">

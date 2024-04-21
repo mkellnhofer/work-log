@@ -32,6 +32,12 @@ func HtmxRetarget(ctx echo.Context, target string) {
 	ctx.Response().Header().Set("HX-Retarget", target)
 }
 
+// HtmxRetarget sets the response headers "HX-Trigger" which instructs HTMX to trigger a client-side
+// event.
+func HtmxTrigger(ctx echo.Context, trigger string) {
+	ctx.Response().Header().Add("HX-Trigger", trigger)
+}
+
 // Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)

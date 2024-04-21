@@ -35,6 +35,7 @@ func (m *LogMapper) CreateLogEntriesViewModel(userContract *model.Contract, page
 	lesvm.HasPrevPage = pageNum > 1
 	lesvm.HasNextPage = (pageNum * pageSize) < cnt
 	lesvm.PrevPageNum = pageNum - 1
+	lesvm.PageNum = pageNum
 	lesvm.NextPageNum = pageNum + 1
 
 	// Create entries

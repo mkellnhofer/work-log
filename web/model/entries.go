@@ -5,6 +5,7 @@ type ListEntries struct {
 	HasPrevPage bool
 	HasNextPage bool
 	PrevPageNum int
+	PageNum     int
 	NextPageNum int
 	Days        []*ListEntriesDay
 }

@@ -144,9 +144,16 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 	</div>
 }
 
-// This template is used to render the search result.
+// This template is used to render the search result. When the HTMX event "wlChangedEntries" is
+// received, the search result is reloaded.
 templ SearchResult(entries *model.SearchEntries) {
-	<div id="wl-search-result">
+	<div
+		id="wl-search-result"
+		hx-get={ buildSearchPageHxGetUrl(entries.Query, entries.PageNum) }
+		hx-trigger="wlChangedEntries from:body"
+		hx-target="this"
+		hx-swap="outerHTML"
+	>
 		@searchEntryList(entries)
 		@searchPagingControl(entries.Query, entries.HasPrevPage, entries.PrevPageNum,
 			entries.HasNextPage, entries.NextPageNum)

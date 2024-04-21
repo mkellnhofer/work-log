@@ -56,6 +56,7 @@ func (m *SearchMapper) CreateSearchEntriesViewModel(query string, pageNum int, p
 	sesvm.HasPrevPage = pageNum > 1
 	sesvm.HasNextPage = (pageNum * pageSize) < cnt
 	sesvm.PrevPageNum = pageNum - 1
+	sesvm.PageNum = pageNum
 	sesvm.NextPageNum = pageNum + 1
 
 	// Create entries

@@ -303,6 +303,8 @@ func (c *EntryController) handleShowSuccess(eCtx echo.Context, t templ.Component
 }
 
 func (c *EntryController) handleExecuteSuccess(eCtx echo.Context) error {
+	// Set HTMX triggers
+	web.HtmxTrigger(eCtx, "wlChangedEntries")
 	// Return empty response
 	return eCtx.NoContent(http.StatusOK)
 }

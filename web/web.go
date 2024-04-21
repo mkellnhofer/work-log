@@ -26,6 +26,12 @@ func HtmxRedirectUrl(ctx echo.Context, url string) {
 	ctx.Response().Header().Add("HX-Push-Url", url)
 }
 
+// HtmxRetarget sets the response headers "HX-Retarget" which instructs HTMX to load the response
+// content into the element with the supplied CSS target selector.
+func HtmxRetarget(ctx echo.Context, target string) {
+	ctx.Response().Header().Set("HX-Retarget", target)
+}
+
 // Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)

@@ -10,6 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
+import (
+	"kellnhofer.com/work-log/web/view/components"
+)
+
 // This template is used to render the common elements for the main pages. The page content is
 // supplied as children.
 func MainPage() templ.Component {
@@ -40,6 +44,10 @@ func MainPage() templ.Component {
 				return templ_7745c5c3_Err
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = components.ModalContainer().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

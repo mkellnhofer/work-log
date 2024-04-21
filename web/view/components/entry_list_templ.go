@@ -428,15 +428,15 @@ func entryDayTableRowButtonsField(id int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = entryDayTableRowButton(buildActionURL("edit", id), "icon-edit", getText("actionEdit")).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryDayTableRowButton(buildActionUrl("edit", id), "icon-edit", getText("actionEdit")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = entryDayTableRowButton(buildActionURL("copy", id), "icon-copy", getText("actionCopy")).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryDayTableRowButton(buildActionUrl("copy", id), "icon-copy", getText("actionCopy")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = entryDayTableRowButton(buildActionURL("delete", id), "icon-delete", getText("actionDelete")).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryDayTableRowButton(buildActionUrl("delete", id), "icon-delete", getText("actionDelete")).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -451,7 +451,7 @@ func entryDayTableRowButtonsField(id int) templ.Component {
 	})
 }
 
-func entryDayTableRowButton(url templ.SafeURL, icon string, text string) templ.Component {
+func entryDayTableRowButton(url string, icon string, text string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -464,16 +464,20 @@ func entryDayTableRowButton(url templ.SafeURL, icon string, text string) templ.C
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"btn btn-link px-2 py-0 fs-6\" href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"btn btn-link px-2 py-0 fs-6\" href=\"#\" hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var20 templ.SafeURL = url
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var20)))
+		var templ_7745c5c3_Var20 string
+		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(url)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/entry_list.templ`, Line: 100, Col: 14}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"click\" hx-target=\"#wl-modal-container\" hx-swap=\"innerHTML\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -502,7 +506,7 @@ func entryDayTableRowButton(url templ.SafeURL, icon string, text string) templ.C
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/entry_list.templ`, Line: 98, Col: 47}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/entry_list.templ`, Line: 105, Col: 47}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -519,8 +523,8 @@ func entryDayTableRowButton(url templ.SafeURL, icon string, text string) templ.C
 	})
 }
 
-func buildActionURL(action string, id int) templ.SafeURL {
-	return toURL("../" + action + "/" + toString(id))
+func buildActionUrl(action string, id int) string {
+	return "/" + action + "/" + toString(id)
 }
 
 func entryDayTableRowTextField(content string) templ.Component {
@@ -543,7 +547,7 @@ func entryDayTableRowTextField(content string) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(content)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/entry_list.templ`, Line: 107, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/entry_list.templ`, Line: 114, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {

@@ -5,43 +5,49 @@ import (
 )
 
 // This template is used to render a modal to create a entry.
-templ CreateEntryModal(model *model.CreateEntry) {
-	@Modal(getText("createTitle"), getText("actionSave"), getText("actionCancel"),
-		templ.Attributes{"action": toURL("/create")}) {
-		@ErrorMessage(model.ErrorMessage)
-		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
+templ CreateEntryModal(entryData *model.EntryData) {
+	@entryModal("createTitle", "actionCreate", "actionCancel", "/create") {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to copy a entry.
-templ CopyEntryModal(model *model.CopyEntry) {
-	@Modal(getText("copyTitle"), getText("actionSave"), getText("actionCancel"),
-		templ.Attributes{"action": toURL("/copy/" + toString(model.Entry.Id))}) {
-		@ErrorMessage(model.ErrorMessage)
-		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
+templ CopyEntryModal(entryData *model.EntryData) {
+	@entryModal("copyTitle", "actionCreate", "actionCancel", "/create") {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to edit a entry.
-templ EditEntryModal(model *model.EditEntry) {
-	@Modal(getText("editTitle"), getText("actionSave"), getText("actionCancel"),
-		templ.Attributes{"action": toURL("/edit/" + toString(model.Entry.Id))}) {
-		@ErrorMessage(model.ErrorMessage)
-		@entryModalFormFields(model.EntryTypes, model.EntryActivities, model.Entry)
+templ EditEntryModal(entryData *model.EntryData) {
+	@entryModal("editTitle", "actionSave", "actionCancel", "/edit/"+toString(entryData.Entry.Id)) {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to delete a entry.
-templ DeleteEntryModal(model *model.DeleteEntry) {
-	@Modal(getText("deleteTitle"), getText("actionDelete"), getText("actionCancel"),
-		templ.Attributes{"action": toURL("/delete/" + toString(model.Id))}) {
-		@ErrorMessage(model.ErrorMessage)
+templ DeleteEntryModal(entryId int) {
+	@entryModal("deleteTitle", "actionDelete", "actionCancel", "/delete/"+toString(entryId)) {
 		<div class="form-row">
 			<div class="form-group col-12">
 				<label>{ getText("deleteMessage") }</label>
 			</div>
 		</div>
 	}
+}
+
+templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string, submitUrl string) {
+	@Modal(titleTextRef, submitTextRef, cancelTextRef, templ.Attributes{"hx-post": submitUrl},
+		templ.Attributes{"hx-post": "/cancel"}) {
+		@entryModalErrorMessageContainer("")
+		{ children... }
+	}
+}
+
+templ entryModalErrorMessageContainer(errorMessage string) {
+	<div id="wl-entry-modal-error">
+		@ErrorMessage(errorMessage)
+	</div>
 }
 
 templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,

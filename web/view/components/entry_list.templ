@@ -87,20 +87,27 @@ templ entryDayTableRowBlank() {
 
 templ entryDayTableRowButtonsField(id int) {
 	<td>
-		@entryDayTableRowButton(buildActionURL("edit", id), "icon-edit", getText("actionEdit"))
-		@entryDayTableRowButton(buildActionURL("copy", id), "icon-copy", getText("actionCopy"))
-		@entryDayTableRowButton(buildActionURL("delete", id), "icon-delete", getText("actionDelete"))
+		@entryDayTableRowButton(buildActionUrl("edit", id), "icon-edit", getText("actionEdit"))
+		@entryDayTableRowButton(buildActionUrl("copy", id), "icon-copy", getText("actionCopy"))
+		@entryDayTableRowButton(buildActionUrl("delete", id), "icon-delete", getText("actionDelete"))
 	</td>
 }
 
-templ entryDayTableRowButton(url templ.SafeURL, icon string, text string) {
-	<a class="btn btn-link px-2 py-0 fs-6" href={ url }>
+templ entryDayTableRowButton(url string, icon string, text string) {
+	<a
+		class="btn btn-link px-2 py-0 fs-6"
+		href="#"
+		hx-get={ url }
+		hx-trigger="click"
+		hx-target="#wl-modal-container"
+		hx-swap="innerHTML"
+	>
 		<i class={ "icon " + icon } aria-label={ text }></i>
 	</a>
 }
 
-func buildActionURL(action string, id int) templ.SafeURL {
-	return toURL("../" + action + "/" + toString(id))
+func buildActionUrl(action string, id int) string {
+	return "/" + action + "/" + toString(id)
 }
 
 templ entryDayTableRowTextField(content string) {

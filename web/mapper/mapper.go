@@ -145,7 +145,10 @@ func (m *Mapper) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.
 }
 
 func (m *Mapper) createEntryTypeViewModel(id int, description string) *vm.EntryType {
-	return vm.NewEntryType(id, description)
+	return &vm.EntryType{
+		Id:          id,
+		Description: description,
+	}
 }
 
 func (m *Mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
@@ -160,19 +163,21 @@ func (m *Mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryAc
 }
 
 func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
-	return vm.NewEntryActivity(id, description)
+	return &vm.EntryActivity{
+		Id:          id,
+		Description: description,
+	}
 }
 
-func (m *Mapper) createEntryViewModel(id int, typeId int, date string, startTime string,
-	endTime string, activityId int, description string) *vm.Entry {
+func (m *Mapper) createEntryViewModel(entry *model.Entry) *vm.Entry {
 	return &vm.Entry{
-		Id:          id,
-		TypeId:      typeId,
-		Date:        date,
-		StartTime:   startTime,
-		EndTime:     endTime,
-		ActivityId:  activityId,
-		Description: description,
+		Id:          entry.Id,
+		TypeId:      entry.TypeId,
+		Date:        getDateString(entry.StartTime),
+		StartTime:   getTimeString(entry.StartTime),
+		EndTime:     getTimeString(entry.EndTime),
+		ActivityId:  entry.ActivityId,
+		Description: entry.Description,
 	}
 }
 

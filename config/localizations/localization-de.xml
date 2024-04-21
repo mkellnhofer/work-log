@@ -30,9 +30,6 @@
     <message key="actionSearch"><text>Suchen</text></message>
     <message key="actionLogout"><text>Abmelden</text></message>
 
-    <!-- Main dialogs -->
-    <message key="dialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
-
     <!-- List view -->
     <message key="logTitle"><text>Protokoll</text></message>
     <message key="logSummaryHeading"><text>Arbeitszeitkonto:</text></message>
@@ -47,11 +44,6 @@
     <message key="searchListTitle"><text>Suchergebnis</text></message>
     <message key="searchListLabelNoEntries"><text>keine Einträge gefunden</text></message>
 
-    <!-- Create/edit/copy view -->
-    <message key="createTitle"><text>Erstellen</text></message>
-    <message key="editTitle"><text>Bearbeiten</text></message>
-    <message key="copyTitle"><text>Kopieren</text></message>
-
     <!-- Overview view -->
     <message key="overviewTitle"><text>Übersicht</text></message>
     <message key="overviewActionExport"><text>Exportieren</text></message>
@@ -63,6 +55,13 @@
     <message key="exportTitle"><text>%s Export</text></message>
     <message key="exportPropTitle"><text>%s Export - %s</text></message>
     <message key="exportPropDescription"><text>This file created by %s.</text></message>
+
+    <!-- Create/edit/copy view -->
+    <message key="createTitle"><text>Eintrag erstellen</text></message>
+    <message key="editTitle"><text>Eintrag bearbeiten</text></message>
+    <message key="copyTitle"><text>Eintrag kopieren</text></message>
+    <message key="deleteTitle"><text>Eintrag löschen</text></message>
+    <message key="deleteMessage"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
 
     <!-- Error view -->
     <message key="errorTitle"><text>Fehler!</text></message>

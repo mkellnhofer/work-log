@@ -6,7 +6,13 @@ import (
 
 // This template is used to render the action buttons on the log page.
 templ LogActions() {
-	<button class="btn btn-primary" type="button" aria-label={ getText("actionCreate") }>
+	<button
+		class="btn btn-primary"
+		hx-get="/create"
+		hx-trigger="click"
+		hx-target="#wl-modal-container"
+		hx-swap="innerHTML"
+	>
 		{ getText("actionCreate") }
 	</button>
 }
@@ -16,6 +22,8 @@ templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	<div id="wl-log-content">
 		@logSummaryView(summary)
 		@logEntryList(listEntries)
+		@logPagingControl(listEntries.HasPrevPage, listEntries.PrevPageNum, listEntries.HasNextPage,
+			listEntries.NextPageNum)
 	</div>
 }
 

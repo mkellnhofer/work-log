@@ -1,44 +1,56 @@
 package components
 
-// This template is used to render buttons that launch a modal. It gets the text for the button and
-// the attributes of the action that should be performed when the button is clicked.
-templ ModalLaunchButton(text string, actionAttrs templ.Attributes) {
-	<button
-		class="btn btn-primary"
-		data-bs-toggle="modal"
-		data-bs-target="#modal"
-		{ actionAttrs... }
-	>
-		{ text }
-	</button>
-}
-
-// This template is used to render a modal container, which holds the modals content. The modal
-// content is supplied as children.
+// This template is used to render the container which holds a modal.
 templ ModalContainer() {
-	<div id="modal" class="modal fade" tabindex="-1">
-		{ children... }
-	</div>
+	<div id="wl-modal-container"></div>
 }
 
-// This template is used to render a modal. It gets the texts for title, the submit/cancel buttons
-// and the attributes of the action that should be performed when the modals form is submitted. The
-// form content is supplied as children.
-templ Modal(title string, submitText string, cancelText string, actionAttrs templ.Attributes) {
-	<div class="modal-dialog modal-md modal-fullscreen-sm-down">
-		<div class="modal-content">
-			<form { actionAttrs... }>
-				<div class="modal-header">
-					<h1 class="modal-title fs-5">{ title }</h1>
-				</div>
-				<div class="modal-body">
-					{ children... }
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{ cancelText }</button>
-					<button type="submit" class="btn btn-primary" data-bs-dismiss="modal">{ submitText }</button>
-				</div>
-			</form>
+// This template is used to render a modal. It gets texts for the title and submit/cancel buttons,
+// as well as attributes which define what actions should be performed when the modal's form is
+// submitted/canceled. The form content is supplied as children.
+templ Modal(titleTextRef string, submitTextRef string, cancelTextRef string,
+	submitActionAttrs templ.Attributes, cancelActionAttrs templ.Attributes) {
+	<div id="wl-modal" class="modal show" tabindex="-1" role="dialog" style="display: block">
+		<div class="modal-dialog modal-md modal-fullscreen-sm-down">
+			@modalContent(titleTextRef, submitTextRef, cancelTextRef, submitActionAttrs, cancelActionAttrs) {
+				{ children... }
+			}
 		</div>
+	</div>
+	<div class="modal-backdrop show"></div>
+}
+
+templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef string,
+	submitActionAttrs templ.Attributes, cancelActionAttrs templ.Attributes) {
+	<div class="modal-content">
+		<form
+			action="#"
+			hx-trigger="click"
+			hx-target="#wl-modal-container"
+			hx-swap="innerHTML"
+		>
+			<div class="modal-header">
+				<h1 class="modal-title fs-5">{ getText(titleTextRef) }</h1>
+			</div>
+			<div class="modal-body">
+				{ children... }
+			</div>
+			<div class="modal-footer">
+				<button
+					type="button"
+					class="btn btn-secondary"
+					{ cancelActionAttrs... }
+				>
+					{ getText(cancelTextRef) }
+				</button>
+				<button
+					type="button"
+					class="btn btn-primary"
+					{ submitActionAttrs... }
+				>
+					{ getText(submitTextRef) }
+				</button>
+			</div>
+		</form>
 	</div>
 }

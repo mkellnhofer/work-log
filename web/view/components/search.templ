@@ -157,7 +157,7 @@ templ searchEntryList(entries *model.SearchEntries) {
 	if len(entries.Days) > 0 {
 		@EntryList(entries.Days, false, false)
 	} else {
-		<div class="container m-5 text-center">
+		<div class="m-5 text-center">
 			<p class="p-5">
 				{ getText("searchListLabelNoEntries") }
 			</p>

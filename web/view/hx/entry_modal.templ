@@ -1,0 +1,31 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/components"
+)
+
+// This template is used to render the modal dialog to create a new entry.
+templ EntryModalCreate(entryData *model.EntryData) {
+	@components.CreateEntryModal(entryData)
+}
+
+// This template is used to render the modal dialog to copy a entry.
+templ EntryModalCopy(entryData *model.EntryData) {
+	@components.CopyEntryModal(entryData)
+}
+
+// This template is used to render the modal dialog to edit a entry.
+templ EntryModalEdit(entryData *model.EntryData) {
+	@components.EditEntryModal(entryData)
+}
+
+// This template is used to render the modal dialog to delete a entry.
+templ EntryModalDelete(entryId int) {
+	@components.DeleteEntryModal(entryId)
+}
+
+// This template is used to render the error message in the modal dialog.
+templ EntryModalError(errorMessage string) {
+	@components.ErrorMessage(errorMessage)
+}

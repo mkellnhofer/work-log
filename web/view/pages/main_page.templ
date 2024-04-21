@@ -1,5 +1,9 @@
 package pages
 
+import (
+	"kellnhofer.com/work-log/web/view/components"
+)
+
 // This template is used to render the common elements for the main pages. The page content is
 // supplied as children.
 templ MainPage() {
@@ -7,6 +11,7 @@ templ MainPage() {
 		<div id="wl-container" class="wl-container px-2 pt-0 pb-2 py-sm-2">
 			{ children... }
 		</div>
+		@components.ModalContainer()
 	}
 }
 

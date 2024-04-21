@@ -1,5 +1,12 @@
 package model
 
+// EntryData stores data for the create/copy/edit entry view.
+type EntryData struct {
+	Entry           *Entry
+	EntryTypes      []*EntryType
+	EntryActivities []*EntryActivity
+}
+
 // Entry stores view data of a entry.
 type Entry struct {
 	Id          int
@@ -11,36 +18,14 @@ type Entry struct {
 	Description string
 }
 
-// CreateEntry stores data for the create entry view.
-type CreateEntry struct {
-	PreviousUrl     string
-	ErrorMessage    string
-	Entry           *Entry
-	EntryTypes      []*EntryType
-	EntryActivities []*EntryActivity
+// EntryType stores view data for a entry type.
+type EntryType struct {
+	Id          int
+	Description string
 }
 
-// CopyEntry stores data for the copy entry view.
-type CopyEntry struct {
-	PreviousUrl     string
-	ErrorMessage    string
-	Entry           *Entry
-	EntryTypes      []*EntryType
-	EntryActivities []*EntryActivity
-}
-
-// EditEntry stores data for the edit entry view.
-type EditEntry struct {
-	PreviousUrl     string
-	ErrorMessage    string
-	Entry           *Entry
-	EntryTypes      []*EntryType
-	EntryActivities []*EntryActivity
-}
-
-// DeleteEntry stores data for the delete entry view.
-type DeleteEntry struct {
-	PreviousUrl  string
-	ErrorMessage string
-	Id           int
+// EntryActivity stores view data for a entry activity.
+type EntryActivity struct {
+	Id          int
+	Description string
 }

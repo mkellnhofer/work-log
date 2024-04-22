@@ -126,22 +126,41 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 						class="checkbox"
 						name="by-description"
 						type="checkbox"
-						if searchInput.ByDescription {
+						if isSearchInputEmpty(searchInput) || searchInput.ByDescription {
 							checked
 						}
 					/>
 				</div>
-				<input class="form-control" name="description" type="text" value={ searchInput.Description }/>
+				<input
+					class="form-control"
+					name="description"
+					type="text"
+					value={ searchInput.Description }
+					if isSearchInputEmpty(searchInput) {
+						autofocus
+					}
+				/>
 			</div>
 		</div>
 	</div>
 	<div class="row">
 		<div class="col-12 py-3">
-			<button class="btn btn-primary" type="submit">
+			<button
+				class="btn btn-primary"
+				type="submit"
+				if !isSearchInputEmpty(searchInput) {
+					autofocus
+				}
+			>
 				{ getText("searchActionSearch") }
 			</button>
 		</div>
 	</div>
+}
+
+func isSearchInputEmpty(searchInput *model.SearchInput) bool {
+	return !searchInput.ByType && !searchInput.ByDate && !searchInput.ByActivity &&
+		!searchInput.ByDescription
 }
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is

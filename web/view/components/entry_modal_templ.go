@@ -294,7 +294,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <select class=\"form-control\" name=\"type\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label> <select class=\"form-control\" name=\"type\" autofocus>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -55,7 +55,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 	<div class="row g-3 pb-3">
 		<div class="col-12">
 			<label class="form-label" for="type">{ getText("formLabelType") }</label>
-			<select class="form-control" name="type">
+			<select class="form-control" name="type" autofocus>
 				for _, entryType := range entryTypes {
 					<option
 						value={ toString(entryType.Id) }

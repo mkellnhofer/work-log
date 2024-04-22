@@ -392,7 +392,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if searchInput.ByDescription {
+		if isSearchInputEmpty(searchInput) || searchInput.ByDescription {
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" checked")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -405,20 +405,40 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(searchInput.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 134, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 138, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div></div></div><div class=\"row\"><div class=\"col-12 py-3\"><button class=\"btn btn-primary\" type=\"submit\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if isSearchInputEmpty(searchInput) {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" autofocus")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></div></div></div><div class=\"row\"><div class=\"col-12 py-3\"><button class=\"btn btn-primary\" type=\"submit\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !isSearchInputEmpty(searchInput) {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" autofocus")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(getText("searchActionSearch"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 141, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 155, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -433,6 +453,11 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func isSearchInputEmpty(searchInput *model.SearchInput) bool {
+	return !searchInput.ByType && !searchInput.ByDate && !searchInput.ByActivity &&
+		!searchInput.ByDescription
 }
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is
@@ -457,7 +482,7 @@ func SearchResult(entries *model.SearchEntries) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchPageHxGetUrl(entries.Query, entries.PageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 152, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 171, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -513,7 +538,7 @@ func searchEntryList(entries *model.SearchEntries) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(getText("searchListLabelNoEntries"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 169, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 188, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {

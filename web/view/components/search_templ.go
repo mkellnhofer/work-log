@@ -121,7 +121,7 @@ func searchEntryFormContainer(search *model.Search) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"wl-search-form\" class=\"border rounded-2 mb-4 px-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"wl-search-form\" class=\"border rounded-2 mb-4 px-3 py-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -188,20 +188,20 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row\"><div class=\"col-12 col-sm-5 col-md-4 py-2\"><label class=\"mb-2\" for=\"type\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"row\"><div class=\"col-12 col-sm-5 col-md-4 pt-1\"><label class=\"mb-2\" for=\"wl-search-input-by-type\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelType"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 49, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 50, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input class=\"checkbox\" name=\"by-type\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input id=\"wl-search-input-by-type\" class=\"checkbox\" name=\"by-type\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -211,7 +211,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></div><select class=\"form-control\" name=\"type\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></div><select class=\"form-select\" name=\"type\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -223,7 +223,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(toString(entryType.Id))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 64, Col: 37}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 67, Col: 37}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -246,7 +246,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(entryType.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 69, Col: 30}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 72, Col: 30}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -257,20 +257,20 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"col-12 col-sm-7 col-md-4 py-2\"><label class=\"mb-2\" for=\"start-date\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div><div class=\"col-12 col-sm-7 col-md-4 py-1\"><label class=\"mb-2\" for=\"wl-search-input-by-date\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelFrom"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 76, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 80, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input class=\"checkbox\" name=\"by-date\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input id=\"wl-search-input-by-date\" class=\"checkbox\" name=\"by-date\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -287,7 +287,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(searchInput.StartDate)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 88, Col: 91}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 94, Col: 91}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -300,26 +300,26 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(searchInput.EndDate)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 89, Col: 87}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 95, Col: 87}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div></div><div class=\"col-12 col-sm-12 col-md-4 py-2\"><label class=\"mb-2\" for=\"activity\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\"></div></div><div class=\"col-12 col-sm-12 col-md-4 py-1\"><label class=\"mb-2\" for=\"wl-search-input-by-activity\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelActivity"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 93, Col: 68}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 100, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input class=\"checkbox\" name=\"by-activity\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input id=\"wl-search-input-by-activity\" class=\"checkbox\" name=\"by-activity\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -329,7 +329,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></div><select class=\"form-control\" name=\"activity\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("></div><select class=\"form-select\" name=\"activity\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -341,7 +341,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(toString(entryActivity.Id))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 108, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 117, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -364,7 +364,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(entryActivity.Description)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 113, Col: 34}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 122, Col: 34}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -375,20 +375,20 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div></div><div class=\"row\"><div class=\"col-12 py-2\"><label class=\"mb-2\" for=\"description\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div></div></div><div class=\"row\"><div class=\"col-12 py-1\"><label class=\"mb-2\" for=\"wl-search-input-by-description\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelDescription"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 122, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 132, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input class=\"checkbox\" name=\"by-description\" type=\"checkbox\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</label><div class=\"input-group\"><div class=\"input-group-text\"><input id=\"wl-search-input-by-description\" class=\"checkbox\" name=\"by-description\" type=\"checkbox\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -405,7 +405,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(searchInput.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 138, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 150, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -438,7 +438,7 @@ func searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*m
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(getText("searchActionSearch"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 155, Col: 35}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 167, Col: 35}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -482,7 +482,7 @@ func SearchResult(entries *model.SearchEntries) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchPageHxGetUrl(entries.Query, entries.PageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 171, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 183, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -538,7 +538,7 @@ func searchEntryList(entries *model.SearchEntries) templ.Component {
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(getText("searchListLabelNoEntries"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 188, Col: 41}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/search.templ`, Line: 200, Col: 41}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {

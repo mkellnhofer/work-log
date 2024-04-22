@@ -54,8 +54,10 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 	entry *model.Entry) {
 	<div class="row g-3 pb-3">
 		<div class="col-12">
-			<label class="form-label" for="type">{ getText("formLabelType") }</label>
-			<select class="form-control" name="type" autofocus>
+			<label class="form-label" for="wl-entry-form-type">
+				{ getText("formLabelType") }
+			</label>
+			<select id="wl-entry-form-type" class="form-select" name="type" autofocus>
 				for _, entryType := range entryTypes {
 					<option
 						value={ toString(entryType.Id) }
@@ -69,20 +71,46 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 			</select>
 		</div>
 		<div class="col-12 col-sm-4">
-			<label class="form-label" for="date">{ getText("formLabelDate") }</label>
-			<input class="form-control" name="date" type="date" value={ entry.Date }/>
+			<label class="form-label" for="wl-entry-form-date">
+				{ getText("formLabelDate") }
+			</label>
+			<input
+				id="wl-entry-form-date"
+				class="form-control"
+				name="date"
+				type="date"
+				value={ entry.Date }
+			/>
 		</div>
 		<div class="col-6 col-sm-4">
-			<label class="form-label" for="start-time">{ getText("formLabelStart") }</label>
-			<input class="form-control" name="start-time" type="time" value={ entry.StartTime }/>
+			<label class="form-label" for="wl-entry-form-start-time">
+				{ getText("formLabelStart") }
+			</label>
+			<input
+				id="wl-entry-form-start-time"
+				class="form-control"
+				name="start-time"
+				type="time"
+				value={ entry.StartTime }
+			/>
 		</div>
 		<div class="col-6 col-sm-4">
-			<label class="form-label" for="end-time">{ getText("formLabelEnd") }</label>
-			<input class="form-control" name="end-time" type="time" value={ entry.EndTime }/>
+			<label class="form-label" for="wl-entry-form-end-time">
+				{ getText("formLabelEnd") }
+			</label>
+			<input
+				id="wl-entry-form-end-time"
+				class="form-control"
+				name="end-time"
+				type="time"
+				value={ entry.EndTime }
+			/>
 		</div>
 		<div class="col-12">
-			<label class="form-label" for="activity">{ getText("formLabelActivity") }</label>
-			<select class="form-control" name="activity">
+			<label class="form-label" for="wl-entry-form-activity">
+				{ getText("formLabelActivity") }
+			</label>
+			<select id="wl-entry-form-activity" class="form-select" name="activity">
 				for _, entryActivity := range entryActivities {
 					<option
 						value={ toString(entryActivity.Id) }
@@ -96,8 +124,16 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 			</select>
 		</div>
 		<div class="col-12">
-			<label class="form-label" for="description">{ getText("formLabelDescription") }</label>
-			<input class="form-control" name="description" type="text" value={ entry.Description }/>
+			<label class="form-label" for="wl-entry-form-description">
+				{ getText("formLabelDescription") }
+			</label>
+			<input
+				id="wl-entry-form-description"
+				class="form-control"
+				name="description"
+				type="text"
+				value={ entry.Description }
+			/>
 		</div>
 	</div>
 }

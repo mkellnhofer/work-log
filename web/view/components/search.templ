@@ -24,7 +24,7 @@ templ searchErrorMessageContainer(errorMessage string) {
 }
 
 templ searchEntryFormContainer(search *model.Search) {
-	<div id="wl-search-form" class="border rounded-2 mb-4 px-3">
+	<div id="wl-search-form" class="border rounded-2 mb-4 px-3 py-1">
 		@SearchEntryForm(search)
 	</div>
 }
@@ -45,11 +45,14 @@ templ SearchEntryForm(search *model.Search) {
 templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
 	searchInput *model.SearchInput) {
 	<div class="row">
-		<div class="col-12 col-sm-5 col-md-4 py-2">
-			<label class="mb-2" for="type">{ getText("formLabelType") }</label>
+		<div class="col-12 col-sm-5 col-md-4 pt-1">
+			<label class="mb-2" for="wl-search-input-by-type">
+				{ getText("formLabelType") }
+			</label>
 			<div class="input-group">
 				<div class="input-group-text">
 					<input
+						id="wl-search-input-by-type"
 						class="checkbox"
 						name="by-type"
 						type="checkbox"
@@ -58,7 +61,7 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 						}
 					/>
 				</div>
-				<select class="form-control" name="type">
+				<select class="form-select" name="type">
 					for _, entryType := range entryTypes {
 						<option
 							value={ toString(entryType.Id) }
@@ -72,11 +75,14 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 				</select>
 			</div>
 		</div>
-		<div class="col-12 col-sm-7 col-md-4 py-2">
-			<label class="mb-2" for="start-date">{ getText("formLabelFrom") }</label>
+		<div class="col-12 col-sm-7 col-md-4 py-1">
+			<label class="mb-2" for="wl-search-input-by-date">
+				{ getText("formLabelFrom") }
+			</label>
 			<div class="input-group">
 				<div class="input-group-text">
 					<input
+						id="wl-search-input-by-date"
 						class="checkbox"
 						name="by-date"
 						type="checkbox"
@@ -89,11 +95,14 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 				<input class="form-control" name="end-date" type="date" value={ searchInput.EndDate }/>
 			</div>
 		</div>
-		<div class="col-12 col-sm-12 col-md-4 py-2">
-			<label class="mb-2" for="activity">{ getText("formLabelActivity") }</label>
+		<div class="col-12 col-sm-12 col-md-4 py-1">
+			<label class="mb-2" for="wl-search-input-by-activity">
+				{ getText("formLabelActivity") }
+			</label>
 			<div class="input-group">
 				<div class="input-group-text">
 					<input
+						id="wl-search-input-by-activity"
 						class="checkbox"
 						name="by-activity"
 						type="checkbox"
@@ -102,7 +111,7 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 						}
 					/>
 				</div>
-				<select class="form-control" name="activity">
+				<select class="form-select" name="activity">
 					for _, entryActivity := range entryActivities {
 						<option
 							value={ toString(entryActivity.Id) }
@@ -118,11 +127,14 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 		</div>
 	</div>
 	<div class="row">
-		<div class="col-12 py-2">
-			<label class="mb-2" for="description">{ getText("formLabelDescription") }</label>
+		<div class="col-12 py-1">
+			<label class="mb-2" for="wl-search-input-by-description">
+				{ getText("formLabelDescription") }
+			</label>
 			<div class="input-group">
 				<div class="input-group-text">
 					<input
+						id="wl-search-input-by-description"
 						class="checkbox"
 						name="by-description"
 						type="checkbox"

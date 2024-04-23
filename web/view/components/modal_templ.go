@@ -100,14 +100,14 @@ func modalContent(titleTextRef string, submitTextRef string, cancelTextRef strin
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"modal-content\"><form action=\"#\" hx-trigger=\"click\" hx-target=\"#wl-modal-container\" hx-swap=\"innerHTML\"><div class=\"modal-header\"><h1 class=\"modal-title fs-5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"modal-content\"><form action=\"#\" hx-target=\"#wl-modal-container\" hx-swap=\"innerHTML\"><div class=\"modal-header\"><h1 class=\"modal-title fs-5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(getText(titleTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 33, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 32, Col: 56}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -121,7 +121,7 @@ func modalContent(titleTextRef string, submitTextRef string, cancelTextRef strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" hx-trigger=\"click\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -136,13 +136,13 @@ func modalContent(titleTextRef string, submitTextRef string, cancelTextRef strin
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(getText(cancelTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 44, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 39, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button type=\"button\" class=\"btn btn-primary\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button> <button type=\"button\" class=\"btn btn-primary\" hx-trigger=\"click\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -157,7 +157,7 @@ func modalContent(titleTextRef string, submitTextRef string, cancelTextRef strin
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(getText(submitTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 51, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/components/modal.templ`, Line: 42, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

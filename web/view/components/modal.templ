@@ -25,7 +25,6 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 	<div class="modal-content">
 		<form
 			action="#"
-			hx-trigger="click"
 			hx-target="#wl-modal-container"
 			hx-swap="innerHTML"
 		>
@@ -36,18 +35,10 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 				{ children... }
 			</div>
 			<div class="modal-footer">
-				<button
-					type="button"
-					class="btn btn-secondary"
-					{ cancelActionAttrs... }
-				>
+				<button type="button" class="btn btn-secondary" hx-trigger="click" { cancelActionAttrs... }>
 					{ getText(cancelTextRef) }
 				</button>
-				<button
-					type="button"
-					class="btn btn-primary"
-					{ submitActionAttrs... }
-				>
+				<button type="button" class="btn btn-primary" hx-trigger="click" { submitActionAttrs... }>
 					{ getText(submitTextRef) }
 				</button>
 			</div>

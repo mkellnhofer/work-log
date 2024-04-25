@@ -3,8 +3,8 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io"
 	"strconv"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -14,6 +14,10 @@ import (
 	"kellnhofer.com/work-log/pkg/util/security"
 	"kellnhofer.com/work-log/web/middleware"
 )
+
+const pageSize = 7
+
+const dateTimeFormat = "2006-01-02 15:04"
 
 func getContext(eCtx echo.Context) context.Context {
 	return eCtx.Request().Context()
@@ -29,30 +33,6 @@ func getErrorCode(err error) int {
 		code = er.Code
 	}
 	return code
-}
-
-func getIdPathVar(ctx echo.Context) (int, error) {
-	v := ctx.Param("id")
-	if v == "" {
-		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Variable missing.)")
-		log.Debug(err.StackTrace())
-		return 0, err
-	}
-
-	id, pErr := strconv.Atoi(v)
-	if pErr != nil {
-		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (Variable must be numeric.)", pErr)
-		log.Debug(err.StackTrace())
-		return 0, err
-	}
-
-	if id <= 0 {
-		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Variable must be positive.)")
-		log.Debug(err.StackTrace())
-		return 0, err
-	}
-
-	return id, nil
 }
 
 func getErrorCodeQueryParam(ctx echo.Context) (int, error) {
@@ -71,13 +51,44 @@ func getErrorCodeQueryParam(ctx echo.Context) (int, error) {
 	return ec, nil
 }
 
+func getIdPathVar(ctx echo.Context) (int, error) {
+	v := ctx.Param("id")
+	if v == "" {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (Variable missing.)")
+		log.Debug(err.StackTrace())
+		return 0, err
+	}
+
+	return parseId(v, false)
+}
+
+func parseId(in string, allowZero bool) (int, error) {
+	id, cErr := strconv.Atoi(in)
+	if cErr != nil {
+		err := e.WrapError(e.ValIdInvalid, "Invalid ID. (ID must be numeric.)", cErr)
+		log.Debug(err.StackTrace())
+		return 0, err
+	}
+	if !allowZero && id <= 0 {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be positive.)")
+		log.Debug(err.StackTrace())
+		return 0, err
+	}
+	if id < 0 {
+		err := e.NewError(e.ValIdInvalid, "Invalid ID. (ID must be zero or positive.)")
+		log.Debug(err.StackTrace())
+		return 0, err
+	}
+	return id, nil
+}
+
 func getPageNumberQueryParam(ctx echo.Context) (int, bool, error) {
 	v := ctx.QueryParam("page")
 	if v == "" {
 		return 0, false, nil
 	}
 
-	page, pErr := strconv.Atoi(v)
+	pageNum, pErr := strconv.Atoi(v)
 	if pErr != nil {
 		err := e.WrapError(e.ValPageNumberInvalid, "Invalid page number. (Variable must be numeric.)",
 			pErr)
@@ -85,13 +96,25 @@ func getPageNumberQueryParam(ctx echo.Context) (int, bool, error) {
 		return 0, false, err
 	}
 
-	if page <= 0 {
+	if pageNum <= 0 {
 		err := e.NewError(e.ValPageNumberInvalid, "Invalid page number. (Variable must be positive.)")
 		log.Debug(err.StackTrace())
 		return 0, false, err
 	}
 
-	return page, true, nil
+	return pageNum, true, nil
+}
+
+func calculateOffsetLimitFromPageNumber(pageNum int) (int, int) {
+	page := pageNum
+	if page == 0 {
+		page = 1
+	}
+
+	offset := (page - 1) * pageSize
+	limit := pageSize
+
+	return offset, limit
 }
 
 func getSearchQueryParam(ctx echo.Context) (string, bool) {
@@ -114,10 +137,10 @@ func getMonthQueryParam(ctx echo.Context) (int, int, bool, error) {
 		return 0, 0, false, err
 	}
 
-	return parseMonthParam(v)
+	return parseMonth(v)
 }
 
-func parseMonthParam(v string) (int, int, bool, error) {
+func parseMonth(v string) (int, int, bool, error) {
 	if v == "" {
 		return 0, 0, false, nil
 	}
@@ -141,6 +164,26 @@ func parseMonthParam(v string) (int, int, bool, error) {
 	return year, month, true, nil
 }
 
+func parseDateTime(inDate string, inTime string, code int) (time.Time, error) {
+	dt := inDate + " " + inTime
+	out, pErr := time.ParseInLocation(dateTimeFormat, dt, time.Local)
+	if pErr != nil {
+		err := e.WrapError(code, fmt.Sprintf("Could not parse time %s.", inTime), pErr)
+		log.Debug(err.StackTrace())
+		return time.Now(), err
+	}
+	return out, nil
+}
+
+func validateStringLength(in string, length int, code int) error {
+	if len(in) > length {
+		err := e.NewError(code, fmt.Sprintf("String too long. (Must be <= %d characters.)", length))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
 func saveCurrentUrl(ctx echo.Context) {
 	sh := getContext(ctx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
 	s := sh.Get()
@@ -162,22 +205,4 @@ func getPreviousUrl(ctx echo.Context) string {
 	} else {
 		return constant.ViewPathDefault
 	}
-}
-
-func writeFile(r *echo.Response, fileName string, wt io.WriterTo) error {
-	// Write header
-	r.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
-	r.Header().Set("Content-Type", "application/octet-stream")
-	r.Header().Set("Content-Transfer-Encoding", "binary")
-	r.Header().Set("Expires", "0")
-
-	// Write body
-	_, wErr := wt.WriteTo(r.Writer)
-	if wErr != nil {
-		err := e.WrapError(e.SysUnknown, "Could not write response.", wErr)
-		log.Debug(err.StackTrace())
-		return err
-	}
-
-	return nil
 }

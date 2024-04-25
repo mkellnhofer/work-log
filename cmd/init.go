@@ -22,11 +22,14 @@ type Initializer struct {
 	userServ  *service.UserService
 	jobServ   *service.JobService
 
-	errVCtrl   *vc.ErrorController
-	authVCtrl  *vc.AuthController
-	entryVCtrl *vc.EntryController
-	entryACtrl *ac.EntryController
-	userACtrl  *ac.UserController
+	errVCtrl      *vc.ErrorController
+	authVCtrl     *vc.AuthController
+	entryVCtrl    *vc.EntryController
+	logVCtrl      *vc.LogController
+	overviewVCtrl *vc.OverviewController
+	searchVCtrl   *vc.SearchController
+	entryACtrl    *ac.EntryController
+	userACtrl     *ac.UserController
 
 	txMidw    *tx.TransactionMiddleware
 	errVMidw  *vm.ErrorMiddleware
@@ -114,6 +117,30 @@ func (i *Initializer) GetEntryViewController() *vc.EntryController {
 		i.entryVCtrl = vc.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.entryVCtrl
+}
+
+// GetLogViewController returns a initialized log view controller object.
+func (i *Initializer) GetLogViewController() *vc.LogController {
+	if i.logVCtrl == nil {
+		i.logVCtrl = vc.NewLogController(i.GetUserService(), i.GetEntryService())
+	}
+	return i.logVCtrl
+}
+
+// GetOverviewViewController returns a initialized overview view controller object.
+func (i *Initializer) GetOverviewViewController() *vc.OverviewController {
+	if i.overviewVCtrl == nil {
+		i.overviewVCtrl = vc.NewOverviewController(i.GetUserService(), i.GetEntryService())
+	}
+	return i.overviewVCtrl
+}
+
+// GetSearchViewController returns a initialized search view controller object.
+func (i *Initializer) GetSearchViewController() *vc.SearchController {
+	if i.searchVCtrl == nil {
+		i.searchVCtrl = vc.NewSearchController(i.GetUserService(), i.GetEntryService())
+	}
+	return i.searchVCtrl
 }
 
 // --- API controller functions ---

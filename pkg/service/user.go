@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"kellnhofer.com/work-log/pkg/constant"
 	"kellnhofer.com/work-log/pkg/db/repo"
 	"kellnhofer.com/work-log/pkg/db/tx"
 	e "kellnhofer.com/work-log/pkg/error"
@@ -285,37 +284,6 @@ func containsRole(roles []model.Role, role model.Role) bool {
 	return false
 }
 
-// --- User settings functions ---
-
-// GetSettingShowOverviewDetails gets the setting value for the "show overview details" setting.
-func (s *UserService) GetSettingShowOverviewDetails(ctx context.Context, userId int) (bool,
-	error) {
-	// Check permissions
-	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
-		return false, err
-	}
-
-	// Get setting
-	return s.uRepo.GetUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails)
-}
-
-func (s *UserService) createSettingShowOverviewDetails(ctx context.Context, userId int,
-	value bool) error {
-	return s.uRepo.CreateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
-}
-
-// UpdateSettingShowOverviewDetails updates the setting value for the "show overview details" setting.
-func (s *UserService) UpdateSettingShowOverviewDetails(ctx context.Context, userId int,
-	value bool) error {
-	// Check permissions
-	if err := s.checkHasCurrentUserChangeRight(ctx, userId); err != nil {
-		return err
-	}
-
-	// Update setting
-	return s.uRepo.UpdateUserBoolSetting(ctx, userId, constant.SettingKeyShowOverviewDetails, value)
-}
-
 // --- User contract functions ---
 
 // GetUserContractByUserId gets the contract information of a user by its ID.
@@ -550,10 +518,6 @@ func (s *UserService) CreateUserData(ctx context.Context, userData *model.UserDa
 		// Create roles
 		userRoles := []model.Role{model.RoleUser}
 		if err := s.setUserRoles(ctx, userData.Id, userRoles); err != nil {
-			return err
-		}
-		// Create settings
-		if err := s.createSettingShowOverviewDetails(ctx, userData.Id, true); err != nil {
 			return err
 		}
 		// Create contract

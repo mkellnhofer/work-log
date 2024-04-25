@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -15,10 +16,11 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/pkg/util/security"
-	view "kellnhofer.com/work-log/web"
+	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/middleware"
 	vm "kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/pages"
+	"kellnhofer.com/work-log/web/view/hx"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 // AuthController handles requests for login/logout endpoints.
@@ -45,23 +47,14 @@ func (c *AuthController) GetLoginHandler() echo.HandlerFunc {
 func (c *AuthController) PostLoginHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		log.Verb("Handle POST /login.")
+
+		if !web.IsHtmxRequest(eCtx) {
+			err := e.NewError(e.ValUnknown, "Not a HTMX request.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+
 		return c.handleExecuteLogin(eCtx)
-	}
-}
-
-// GetPasswordChangeHandler returns a handler for "GET /password_change".
-func (c *AuthController) GetPasswordChangeHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /password_change.")
-		return c.handleShowPasswordChange(eCtx)
-	}
-}
-
-// PostPasswordChangeHandler returns a handler for "POST /password_change".
-func (c *AuthController) PostPasswordChangeHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		log.Verb("Handle POST /password_change.")
-		return c.handleExecutePasswordChange(eCtx)
 	}
 }
 
@@ -73,201 +66,110 @@ func (c *AuthController) GetLogoutHandler() echo.HandlerFunc {
 	}
 }
 
-// --- Login handler functions ---
+// --- Handler functions ---
 
 func (c *AuthController) handleShowLogin(eCtx echo.Context) error {
-	// Get error code
-	ec, err := getErrorCodeQueryParam(eCtx)
+	// Get security context
+	secCtx := security.GetSecurityContext(getContext(eCtx))
+
+	// If user is not authenticated: Show form to enter credentials
+	if secCtx.IsAnonymousUser() {
+		return c.showEnterCredentials(eCtx)
+	}
+
+	// Get user
+	sysCtx := security.CreateSystemContext(getContext(eCtx))
+	userId := secCtx.UserId
+	user, err := c.uServ.GetUserById(sysCtx, userId)
 	if err != nil {
 		return err
 	}
 
-	// Create view model
-	model := c.createShowLoginViewModel(ec)
-
-	// Render
-	return view.Render(eCtx, http.StatusOK, pages.LoginPage(model))
-}
-
-func (c *AuthController) createShowLoginViewModel(ec int) *vm.Login {
-	lvm := vm.NewLogin()
-	if ec != 0 {
-		lvm.ErrorMessage = loc.GetErrorMessageString(ec)
+	// If user was not found: Abort
+	if user == nil {
+		err := e.NewError(e.AuthUnknown, "User is not authenticated.")
+		log.Debug(err.StackTrace())
+		return err
 	}
-	return lvm
+
+	// If user must change password: Show form to change password
+	if user.MustChangePassword {
+		return c.showChangePassword(eCtx)
+	}
+
+	// Redirect to home page
+	return c.redirectHome(eCtx)
 }
 
 func (c *AuthController) handleExecuteLogin(eCtx echo.Context) error {
-	// Create system context
-	syseCtx := security.CreateSystemContext(getContext(eCtx))
+	// Get step value
+	s := eCtx.FormValue("step")
+	step, cErr := strconv.Atoi(s)
+	if cErr != nil {
+		err := e.WrapError(e.AuthDataInvalid, "Invalid login step.", cErr)
+		log.Debug(err.StackTrace())
+		return err
+	}
 
+	// Handle specific step
+	switch step {
+	case vm.LoginStepEnterCredentials:
+		return c.handleEnterCredentials(eCtx)
+	case vm.LoginStepChangePassword:
+		return c.handleChangePassword(eCtx)
+	default:
+		err := e.WrapError(e.AuthDataInvalid, "Invalid login step.", cErr)
+		log.Debug(err.StackTrace())
+		return err
+	}
+}
+
+func (c *AuthController) handleEnterCredentials(eCtx echo.Context) error {
 	// Get form inputs
 	username := eCtx.FormValue("username")
 	password := eCtx.FormValue("password")
 
 	log.Debugf("User %s is trying to authenticate ...", username)
 
-	// Validate inputs
-	if err := validateLoginInputs(username, password); err != nil {
-		return c.handleLoginError(eCtx, err)
+	// If inputs are invalid: Show error
+	if err := c.validateEnterCredentialsInputs(username, password); err != nil {
+		return c.showEnterCredentialsError(eCtx, err)
 	}
 
 	// Find user
-	user, err := c.uServ.GetUserByUsername(syseCtx, username)
+	sysCtx := security.CreateSystemContext(getContext(eCtx))
+	user, err := c.uServ.GetUserByUsername(sysCtx, username)
 	if err != nil {
 		return err
 	}
+
+	// If no user was found: Show error
 	if user == nil {
-		err := e.NewError(e.AuthCredentialsInvalid, fmt.Sprintf("Invalid credentials. (Unknown "+
-			"username %s.)", username))
+		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials. (Unknown username.)")
 		log.Debug(err.StackTrace())
-		return c.handleLoginError(eCtx, err)
+		return c.showEnterCredentialsError(eCtx, err)
 	}
 
-	// Check password
-	if cpwErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); cpwErr != nil {
-		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials. (Wrong password.)", cpwErr)
-		log.Debug(err.StackTrace())
-		return c.handleLoginError(eCtx, err)
+	// If password does not match: Show error
+	if err := c.checkPassword(user.Password, password); err != nil {
+		return c.showEnterCredentialsError(eCtx, err)
 	}
 
 	log.Debugf("User %s has successfully authenticated.", username)
 
-	// Get session holder from context
-	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-
-	// Get current session
-	preSess := sessHolder.Get()
-
 	// Create new session
-	newSess := model.NewSession()
-	newSess.UserId = user.Id
+	sess := c.createNewSession(eCtx, user.Id)
 
-	// Set new session
-	sessHolder.Set(newSess)
-
-	// Set session cookie
-	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.Id, Path: "/",
-		HttpOnly: true}
-	eCtx.SetCookie(sessCookie)
-
-	// Was a previous request stored?
-	if preSess != nil && preSess.PreviousUrl != "" {
-		// Redirect to previous path
-		return c.handleLoginSuccess(eCtx, preSess.PreviousUrl)
-	} else {
-		// Redirect to root path
-		return c.handleLoginSuccess(eCtx, "/")
-	}
-}
-
-func (c *AuthController) handleLoginSuccess(eCtx echo.Context, url string) error {
-	return eCtx.Redirect(http.StatusFound, url)
-}
-
-func (c *AuthController) handleLoginError(eCtx echo.Context, err error) error {
-	code := e.SysUnknown
-	if er, ok := err.(*e.Error); ok {
-		code = er.Code
-	}
-	return eCtx.Redirect(http.StatusFound, fmt.Sprintf("/login?error=%d", code))
-}
-
-// --- Password change handler functions ---
-
-func (c *AuthController) handleShowPasswordChange(eCtx echo.Context) error {
-	// Get error code
-	ec, err := getErrorCodeQueryParam(eCtx)
-	if err != nil {
-		return err
+	// If user must change password: Show form to change password
+	if user.MustChangePassword {
+		return c.showChangePassword(eCtx)
 	}
 
-	// Create view model
-	model := c.createShowPasswordChangeViewModel(ec)
-
-	// Render
-	return view.Render(eCtx, http.StatusOK, pages.PasswordChangePage(model))
+	// Redirect user to saved URL
+	return c.redirectSavedUrl(eCtx, sess)
 }
 
-func (c *AuthController) createShowPasswordChangeViewModel(ec int) *vm.PasswordChange {
-	pcvm := vm.NewPasswordChange()
-	if ec != 0 {
-		pcvm.ErrorMessage = loc.GetErrorMessageString(ec)
-	}
-	return pcvm
-}
-
-func (c *AuthController) handleExecutePasswordChange(eCtx echo.Context) error {
-	// Get current user ID
-	userId := getCurrentUserId(getContext(eCtx))
-
-	log.Debugf("User %d is trying to change password ...", userId)
-
-	// Get form inputs
-	password1 := eCtx.FormValue("password1")
-	password2 := eCtx.FormValue("password2")
-
-	// Validate inputs
-	if err := validatePasswordChangeInputs(password1, password2); err != nil {
-		return c.handlePasswordChangeError(eCtx, err)
-	}
-
-	// Update password
-	upwErr := c.uServ.UpdateCurrentUserPassword(getContext(eCtx), password1)
-	if upwErr != nil {
-		return upwErr
-	}
-
-	log.Debugf("User %d has successfully changed password.", userId)
-
-	// Get session holder from context
-	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-
-	// Get current session
-	preSess := sessHolder.Get()
-
-	// Was a previous request stored?
-	if preSess != nil && preSess.PreviousUrl != "" {
-		// Redirect to previous path
-		return c.handlePasswordChangeSuccess(eCtx, preSess.PreviousUrl)
-	} else {
-		// Redirect to root path
-		return c.handlePasswordChangeSuccess(eCtx, "/")
-	}
-}
-
-func (c *AuthController) handlePasswordChangeSuccess(eCtx echo.Context, url string) error {
-	return eCtx.Redirect(http.StatusFound, url)
-}
-
-func (c *AuthController) handlePasswordChangeError(eCtx echo.Context, err error) error {
-	code := e.SysUnknown
-	if er, ok := err.(*e.Error); ok {
-		code = er.Code
-	}
-	return eCtx.Redirect(http.StatusFound, fmt.Sprintf("/password-change?error=%d", code))
-}
-
-// --- Logout handler functions ---
-
-func (c *AuthController) handleExecuteLogout(eCtx echo.Context) error {
-	// Get session holder from context
-	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-
-	// Close session
-	sessHolder.Clear()
-
-	// Redirect to login page
-	return c.handleLogoutSuccess(eCtx)
-}
-
-func (c *AuthController) handleLogoutSuccess(eCtx echo.Context) error {
-	return eCtx.Redirect(http.StatusFound, "/login")
-}
-
-// --- Validator functions ---
-
-func validateLoginInputs(username string, password string) error {
+func (c *AuthController) validateEnterCredentialsInputs(username string, password string) error {
 	if len(username) > model.MaxLengthUserUsername || len(password) > model.MaxLengthUserPassword {
 		err := e.NewError(e.AuthCredentialsInvalid, "Invalid credentials. (Invalid username or "+
 			"password length.)")
@@ -277,7 +179,63 @@ func validateLoginInputs(username string, password string) error {
 	return nil
 }
 
-func validatePasswordChangeInputs(password1 string, password2 string) error {
+func (c *AuthController) checkPassword(storedPassword string, enteredPassword string) error {
+	cpwErr := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(enteredPassword))
+	if cpwErr != nil {
+		err := e.WrapError(e.AuthCredentialsInvalid, "Invalid credentials. (Wrong password.)",
+			cpwErr)
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+func (c *AuthController) showEnterCredentialsError(eCtx echo.Context, err error) error {
+	// Get error message
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, em))
+}
+
+func (c *AuthController) handleChangePassword(eCtx echo.Context) error {
+	// Get security context
+	secCtx := security.GetSecurityContext(getContext(eCtx))
+
+	// If user is not authenticated: Abort
+	if secCtx.IsAnonymousUser() {
+		err := e.NewError(e.AuthUnknown, "User is not authenticated.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+
+	log.Debugf("User %d is trying to change password ...", secCtx.UserId)
+
+	// Get form inputs
+	password1 := eCtx.FormValue("password1")
+	password2 := eCtx.FormValue("password2")
+
+	// If inputs are invalid: Show error
+	if err := c.validateChangePasswordInputs(password1, password2); err != nil {
+		return c.handleChangePasswordError(eCtx, err)
+	}
+
+	// Update password
+	upwErr := c.uServ.UpdateCurrentUserPassword(getContext(eCtx), password1)
+	if upwErr != nil {
+		return upwErr
+	}
+
+	log.Debugf("User %d has successfully changed password.", secCtx.UserId)
+
+	// Get current session
+	sess := c.getCurrentSession(eCtx)
+
+	// Redirect user to saved URL
+	return c.redirectSavedUrl(eCtx, sess)
+}
+
+func (c *AuthController) validateChangePasswordInputs(password1 string, password2 string) error {
 	if len(password1) == 0 {
 		err := e.NewError(e.ValPasswordEmpty, "Password must not be empty.")
 		log.Debug(err.StackTrace())
@@ -307,4 +265,92 @@ func validatePasswordChangeInputs(password1 string, password2 string) error {
 		return err
 	}
 	return nil
+}
+
+func (c *AuthController) handleChangePasswordError(eCtx echo.Context, err error) error {
+	// Get error message
+	ec := getErrorCode(err)
+	em := loc.GetErrorMessageString(ec)
+	// Render
+	return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, em))
+}
+
+func (c *AuthController) createNewSession(eCtx echo.Context, userId int) *model.Session {
+	// Get session holder from context
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+
+	// Get current session
+	preSess := sessHolder.Get()
+
+	// Create new session
+	newSess := model.NewSession()
+	newSess.UserId = userId
+	newSess.PreviousUrl = preSess.PreviousUrl
+
+	// Set new session
+	sessHolder.Set(newSess)
+
+	// Set session cookie
+	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.Id, Path: "/",
+		HttpOnly: true}
+	eCtx.SetCookie(sessCookie)
+
+	return newSess
+}
+
+func (c *AuthController) getCurrentSession(eCtx echo.Context) *model.Session {
+	// Get session holder from context
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+
+	// Get current session
+	return sessHolder.Get()
+}
+
+func (c *AuthController) showEnterCredentials(eCtx echo.Context) error {
+	if web.IsHtmxRequest(eCtx) {
+		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, ""))
+	} else {
+		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepEnterCredentials))
+	}
+}
+
+func (c *AuthController) showChangePassword(eCtx echo.Context) error {
+	if web.IsHtmxRequest(eCtx) {
+		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, ""))
+	} else {
+		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepChangePassword))
+	}
+}
+
+func (c *AuthController) redirectHome(eCtx echo.Context) error {
+	return c.redirect(eCtx, constant.ViewPathDefault)
+}
+
+func (c *AuthController) redirectSavedUrl(eCtx echo.Context, sess *model.Session) error {
+	url := constant.ViewPathDefault
+	if sess != nil && sess.PreviousUrl != "" {
+		url = sess.PreviousUrl
+		sess.PreviousUrl = ""
+	}
+	return c.redirect(eCtx, url)
+}
+
+func (c *AuthController) redirect(eCtx echo.Context, url string) error {
+	if web.IsHtmxRequest(eCtx) {
+		web.HtmxRedirectUrl(eCtx, url)
+		return eCtx.NoContent(http.StatusOK)
+	} else {
+		return eCtx.Redirect(http.StatusFound, url)
+	}
+}
+
+func (c *AuthController) handleExecuteLogout(eCtx echo.Context) error {
+	// Get session holder from context
+	sessHolder := getContext(eCtx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
+
+	// Close session
+	sessHolder.Clear()
+
+	// Redirect to login page
+	return eCtx.Redirect(http.StatusFound, "/login")
 }

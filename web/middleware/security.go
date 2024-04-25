@@ -11,6 +11,7 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/pkg/util/security"
+	"kellnhofer.com/work-log/web"
 )
 
 // SecurityMiddleware creates the security context.
@@ -105,36 +106,31 @@ func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) err
 	// Get request
 	req := c.Request()
 
-	// Create system context
-	sysCtx := security.CreateSystemContext(req.Context())
-
-	// Get user ID
-	secCtx := req.Context().Value(constant.ContextKeySecurityContext).(*model.SecurityContext)
-	userId := secCtx.UserId
+	// Get security context
+	secCtx := security.GetSecurityContext(req.Context())
 
 	// Get session holder
 	sessHolder := req.Context().Value(constant.ContextKeySessionHolder).(*SessionHolder)
 	sess := sessHolder.Get()
 
 	// If user is not authenticated: Redirect to login page
-	if userId == model.AnonymousUserId {
+	if secCtx.IsAnonymousUser() {
 		log.Debugf("User must authenticate. (Session: '%s')", sess.GetShortId())
 		return m.redirectLogin(c, sess)
 	}
 
-	// Get requested path
-	reqPath := getRequestPath(req)
-
 	// Get user
+	sysCtx := security.CreateSystemContext(req.Context())
+	userId := secCtx.UserId
 	user, err := m.uServ.GetUserById(sysCtx, userId)
 	if err != nil {
 		return err
 	}
 
-	// If user must change password: Redirect to password change page
-	if reqPath != "/password-change" && user.MustChangePassword {
+	// If user must change password: Redirect to login page
+	if user.MustChangePassword {
 		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.GetShortId())
-		return m.redirectPasswordChange(c, sess)
+		return m.redirectLogin(c, sess)
 	}
 
 	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.GetShortId())
@@ -148,11 +144,6 @@ func (m *AuthCheckMiddleware) redirectLogin(c echo.Context, sess *model.Session)
 	return m.redirect(c, sess, "/login")
 }
 
-func (m *AuthCheckMiddleware) redirectPasswordChange(c echo.Context, sess *model.Session) error {
-	log.Debug("Redirecting to password change page ...")
-	return m.redirect(c, sess, "/password-change")
-}
-
 func (m *AuthCheckMiddleware) redirect(c echo.Context, sess *model.Session, url string) error {
 	// Get requested URL
 	reqUrl := getRequestUrl(c.Request())
@@ -160,8 +151,13 @@ func (m *AuthCheckMiddleware) redirect(c echo.Context, sess *model.Session, url 
 	// Save requested URL in session
 	sess.PreviousUrl = reqUrl
 
-	// Redirect to login page
-	return c.Redirect(http.StatusFound, url)
+	// Redirect
+	if web.IsHtmxRequest(c) {
+		web.HtmxRedirectUrl(c, url)
+		return c.NoContent(http.StatusOK)
+	} else {
+		return c.Redirect(http.StatusFound, url)
+	}
 }
 
 func getRequestUrl(r *http.Request) string {
@@ -172,8 +168,4 @@ func getRequestUrl(r *http.Request) string {
 		req = req + "?" + query
 	}
 	return req
-}
-
-func getRequestPath(r *http.Request) string {
-	return r.URL.EscapedPath()
 }

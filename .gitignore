@@ -6,3 +6,5 @@ cmd/__debug_*
 config/config.ini
 
 static/swagger-ui/swagger.json
+
+*templ.txt

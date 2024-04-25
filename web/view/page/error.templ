@@ -1,0 +1,13 @@
+package page
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/component"
+)
+
+// This template is used to render the full error page.
+templ ErrorPage(err *model.Error) {
+	@Page() {
+		@component.ErrorView(err.ErrorMessage)
+	}
+}

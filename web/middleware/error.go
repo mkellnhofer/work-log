@@ -8,6 +8,7 @@ import (
 
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
+	"kellnhofer.com/work-log/web"
 )
 
 // ErrorMiddleware catches errors and forwards to the error page.
@@ -50,5 +51,13 @@ func (m *ErrorMiddleware) handleError(c echo.Context, err error) {
 		log.Errorf("%s", tErr)
 		ec = e.SysUnknown
 	}
-	c.Redirect(http.StatusFound, fmt.Sprintf("/error?error=%d", ec))
+
+	url := fmt.Sprintf("/error?error=%d", ec)
+
+	if web.IsHtmxRequest(c) {
+		web.HtmxRedirectUrl(c, url)
+		c.NoContent(http.StatusOK)
+	} else {
+		c.Redirect(http.StatusFound, url)
+	}
 }

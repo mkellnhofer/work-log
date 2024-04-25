@@ -1,0 +1,30 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/component"
+)
+
+// This template is used to render parts of the page which need to be changed after the user has
+// navigated to the overview page.
+templ OverviewNav(overviewEntries *model.OverviewEntries) {
+	// OoB swaps
+	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+		@component.PageNavItems("overview")
+	</div>
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@component.OverviewActions(overviewEntries.CurrMonth)
+	</div>
+	// Regular swaps
+	@component.OverviewContent(overviewEntries)
+}
+
+// This template is used to render changes in the overview page after the user has requested the
+// previous/next month.
+templ OverviewPage(overviewEntries *model.OverviewEntries) {
+	// OoB swaps
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@component.OverviewActions(overviewEntries.CurrMonth)
+	</div>
+	@component.OverviewContent(overviewEntries)
+}

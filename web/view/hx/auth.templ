@@ -1,0 +1,17 @@
+package hx
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/component"
+)
+
+// This template is used to render changes in the login page.
+templ LoginPage(loginStep int, errorMessage string) {
+	switch loginStep {
+		case model.LoginStepEnterCredentials:
+			@component.EnterCredentialsContent(errorMessage)
+		case model.LoginStepChangePassword:
+			@component.ChangePasswordContent(errorMessage)
+		default:
+	}
+}

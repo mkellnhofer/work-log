@@ -1,0 +1,29 @@
+package page
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view/component"
+)
+
+templ authPage(actionAttrs templ.Attributes) {
+	@Page() {
+		<div class="wl-auth-container">
+			@component.AuthForm(actionAttrs) {
+				{ children... }
+			}
+		</div>
+	}
+}
+
+// This template is used to render the full login page.
+templ LoginPage(loginStep int) {
+	@authPage(templ.Attributes{"hx-post": "/login"}) {
+		switch loginStep {
+			case model.LoginStepEnterCredentials:
+				@component.EnterCredentialsContent("")
+			case model.LoginStepChangePassword:
+				@component.ChangePasswordContent("")
+			default:
+		}
+	}
+}

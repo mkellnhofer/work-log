@@ -4,7 +4,6 @@
     <message key="appName"><text>Work Log</text></message>
 
     <!-- Common actions -->
-    <message key="actionBack"><text>Zurück</text></message>
     <message key="actionPrevious"><text>Vorherige</text></message>
     <message key="actionNext"><text>Nächste</text></message>
     <message key="actionCancel"><text>Abbrechen</text></message>
@@ -23,26 +22,21 @@
     <message key="pwChangeLabelPassword2"><text>Neues Passwort: (wiederholen)</text></message>
     <message key="pwChangeActionSet"><text>Festlegen</text></message>
 
-    <!-- List view -->
-    <message key="listTitle"><text>Einträge</text></message>
-    <message key="listActionCreate"><text>Erstellen</text></message>
-    <message key="listActionEdit"><text>Bearbeiten</text></message>
-    <message key="listActionCopy"><text>Kopieren</text></message>
-    <message key="listActionDelete"><text>Löschen</text></message>
-    <message key="listActionSearch"><text>Suchen</text></message>
-    <message key="listActionShowOverview"><text>Übersicht</text></message>
-    <message key="listActionLogout"><text>Abmelden</text></message>
-    <message key="listSummaryHeading"><text>Arbeitszeitkonto:</text></message>
-    <message key="listSummaryLabelOvertimeHours"><text>Überstunden:</text></message>
-    <message key="listSummaryLabelRemainingVacationDays"><text>Resturlaubstage:</text></message>
-    <message key="listLabelNoEntries"><text>keine Einträge vorhanden</text></message>
-    <message key="listLabelBreak"><text>Pause</text></message>
-    <message key="listDialogMessageDelete"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
+    <!-- Main actions -->
+    <message key="actionCreate"><text>Erstellen</text></message>
+    <message key="actionEdit"><text>Bearbeiten</text></message>
+    <message key="actionCopy"><text>Kopieren</text></message>
+    <message key="actionDelete"><text>Löschen</text></message>
+    <message key="actionSearch"><text>Suchen</text></message>
+    <message key="actionLogout"><text>Abmelden</text></message>
 
-    <!-- Create/edit/copy view -->
-    <message key="createTitle"><text>Erstellen</text></message>
-    <message key="editTitle"><text>Bearbeiten</text></message>
-    <message key="copyTitle"><text>Kopieren</text></message>
+    <!-- List view -->
+    <message key="logTitle"><text>Protokoll</text></message>
+    <message key="logSummaryHeading"><text>Arbeitszeitkonto:</text></message>
+    <message key="logSummaryLabelOvertimeHours"><text>Überstunden:</text></message>
+    <message key="logSummaryLabelRemainingVacationDays"><text>Resturlaubstage:</text></message>
+    <message key="logLabelNoEntries"><text>keine Einträge vorhanden</text></message>
+    <message key="logLabelBreak"><text>Pause</text></message>
 
     <!-- Search view -->
     <message key="searchTitle"><text>Suchen</text></message>
@@ -53,15 +47,21 @@
     <!-- Overview view -->
     <message key="overviewTitle"><text>Übersicht</text></message>
     <message key="overviewActionExport"><text>Exportieren</text></message>
-    <message key="overviewActionShowActivities"><text>zeige Tätigkeiten</text></message>
     <message key="overviewHeadingSummary"><text>Zusammenfassung:</text></message>
     <message key="overviewHeadingEntries"><text>Einträge:</text></message>
-    <message key="overviewSummaryLabelTargetHours"><text>Soll:</text></message>
-    <message key="overviewSummaryLabelActualHours"><text>Ist:</text></message>
-    <message key="overviewSummaryLabelBalanceHours"><text>Saldo:</text></message>
+    <message key="overviewSummaryLabelTargetHours"><text>Soll</text></message>
+    <message key="overviewSummaryLabelActualHours"><text>Ist</text></message>
+    <message key="overviewSummaryLabelBalanceHours"><text>Saldo</text></message>
     <message key="exportTitle"><text>%s Export</text></message>
     <message key="exportPropTitle"><text>%s Export - %s</text></message>
     <message key="exportPropDescription"><text>This file created by %s.</text></message>
+
+    <!-- Create/edit/copy view -->
+    <message key="createTitle"><text>Eintrag erstellen</text></message>
+    <message key="editTitle"><text>Eintrag bearbeiten</text></message>
+    <message key="copyTitle"><text>Eintrag kopieren</text></message>
+    <message key="deleteTitle"><text>Eintrag löschen</text></message>
+    <message key="deleteMessage"><text>Wollen Sie den Eintrag wirklich löschen?</text></message>
 
     <!-- Error view -->
     <message key="errorTitle"><text>Fehler!</text></message>

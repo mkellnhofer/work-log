@@ -1,56 +1,44 @@
 package web
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
-	"golang.org/x/text/message"
 
 	e "kellnhofer.com/work-log/pkg/error"
-	"kellnhofer.com/work-log/pkg/loc"
 	"kellnhofer.com/work-log/pkg/log"
 )
 
-const dateFormat = "02.01.2006"
-const dateFormatShort = "02.01."
-const timeFormat = "15:04"
-
-var weekdayKeys = map[int]string{
-	0: "weekdaySun",
-	1: "weekdayMon",
-	2: "weekdayTue",
-	3: "weekdayWed",
-	4: "weekdayThu",
-	5: "weekdayFri",
-	6: "weekdaySat",
+// IsHtmxRequest returns true if request is a HTMX request.
+func IsHtmxRequest(ctx echo.Context) bool {
+	return ctx.Request().Header.Get("HX-Request") == "true"
 }
 
-var monthKeys = map[int]string{
-	1:  "monthJan",
-	2:  "monthFeb",
-	3:  "monthMar",
-	4:  "monthApr",
-	5:  "monthMay",
-	6:  "monthJun",
-	7:  "monthJul",
-	8:  "monthAug",
-	9:  "monthSep",
-	10: "monthOct",
-	11: "monthNov",
-	12: "monthDec",
+// HtmxPushUrl sets the response header "HX-Push-Url" which instructs HTMX to push the supplied URL
+// into the browser's page history.
+func HtmxPushUrl(ctx echo.Context, url string) {
+	ctx.Response().Header().Set("HX-Push-Url", url)
 }
 
-// --- Template functions ---
-
-func GetText(key string) string {
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf(key)
+// HtmxRedirectUrl sets the response headers "HX-Redirect" and "HX-Push-Url" which instructs HTMX to
+// do a client-side redirect to the supplied URL.
+func HtmxRedirectUrl(ctx echo.Context, url string) {
+	ctx.Response().Header().Add("HX-Redirect", url)
+	ctx.Response().Header().Add("HX-Push-Url", url)
 }
 
-// --- Render functions ---
+// HtmxRetarget sets the response headers "HX-Retarget" which instructs HTMX to load the response
+// content into the element with the supplied CSS target selector.
+func HtmxRetarget(ctx echo.Context, target string) {
+	ctx.Response().Header().Set("HX-Retarget", target)
+}
 
+// HtmxRetarget sets the response headers "HX-Trigger" which instructs HTMX to trigger a client-side
+// event.
+func HtmxTrigger(ctx echo.Context, trigger string) {
+	ctx.Response().Header().Add("HX-Trigger", trigger)
+}
+
+// Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 	ctx.Response().Writer.WriteHeader(statusCode)
 	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
@@ -61,64 +49,4 @@ func Render(ctx echo.Context, statusCode int, t templ.Component) error {
 		return err
 	}
 	return nil
-}
-
-// --- Time formatting functions ---
-
-// FormatDate returns the date string for a time.
-func FormatDate(t time.Time) string {
-	return t.Format(dateFormat)
-}
-
-// FormatShortDate returns the short date string for a time.
-func FormatShortDate(t time.Time) string {
-	return t.Format(dateFormatShort)
-}
-
-// FormatTime returns the time string for a time.
-func FormatTime(t time.Time) string {
-	return t.Format(timeFormat)
-}
-
-// FormatHours returns the hours string for a duration.
-func FormatHours(d time.Duration) string {
-	h := d.Hours()
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf("%.2f", h)
-}
-
-// FormatMinutes returns the minutes string for a duration.
-func FormatMinutes(d time.Duration) string {
-	m := d.Minutes()
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf("%d", int(m))
-}
-
-// GetWeekdayName returns the weekday string for a time.
-func GetWeekdayName(t time.Time) string {
-	wd := t.Weekday()
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf(weekdayKeys[int(wd)])
-}
-
-// GetShortWeekdayName returns the shortend weekday string for a time.
-func GetShortWeekdayName(t time.Time) string {
-	d := GetWeekdayName(t)
-	return fmt.Sprintf("%s.", d[0:2])
-}
-
-// GetMonthName returns the name of a month.
-func GetMonthName(m int) string {
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf(monthKeys[m])
-}
-
-// CreateDaysString return a formated days string
-func CreateDaysString(days float32) string {
-	return loc.CreateString("daysValue", days)
-}
-
-// CreateHoursString return a formated hours string
-func CreateHoursString(hours float32) string {
-	return loc.CreateString("hoursValue", hours)
 }

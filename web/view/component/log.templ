@@ -1,0 +1,73 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render the action buttons on the log page.
+templ LogActions() {
+	<button
+		class="btn btn-primary"
+		hx-get="/create"
+		hx-trigger="click"
+		hx-target="#wl-modal-container"
+		hx-swap="innerHTML"
+	>
+		{ getText("actionCreate") }
+	</button>
+}
+
+// This template is used to render the content of the log page. When the HTMX event "wlChangedEntries"
+// is received, the content is reloaded.
+templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
+	<div
+		id="wl-log-content"
+		hx-get={ buildLogPageHxGetUrl(listEntries.PageNum) }
+		hx-trigger="wlChangedEntries from:body"
+		hx-target="this"
+		hx-swap="outerHTML"
+	>
+		@logSummaryView(summary)
+		@logEntryList(listEntries)
+		@logPagingControl(listEntries.HasPrevPage, listEntries.PrevPageNum, listEntries.HasNextPage,
+			listEntries.NextPageNum)
+	</div>
+}
+
+templ logSummaryView(summary *model.LogSummary) {
+	if summary != nil {
+		<div class="border rounded-2 mb-4 p-3">
+			<h2>{ getText("logSummaryHeading") }</h2>
+			<p class="mb-0">
+				<span class="nowrap">
+					{ getText("logSummaryLabelOvertimeHours") } { summary.OvertimeHours }
+				</span>
+				<span>-</span>
+				<span class="nowrap">
+					{ getText("logSummaryLabelRemainingVacationDays") } { summary.RemainingVacationDays }
+				</span>
+			</p>
+		</div>
+	}
+}
+
+templ logEntryList(entries *model.ListEntries) {
+	if len(entries.Days) > 0 {
+		@EntryList(entries.Days, true, true)
+	} else {
+		<div class="container m-5 text-center">
+			<p class="p-5">
+				{ getText("logLabelNoEntries") }
+			</p>
+		</div>
+	}
+}
+
+templ logPagingControl(hasPrevPage bool, prevPageNum int, hasNextPage bool, nextPageNum int) {
+	@PagingControl("#wl-log-content", hasPrevPage, buildLogPageHxGetUrl(prevPageNum), hasNextPage,
+		buildLogPageHxGetUrl(nextPageNum))
+}
+
+func buildLogPageHxGetUrl(pageNum int) string {
+	return "log?page=" + toString(pageNum)
+}

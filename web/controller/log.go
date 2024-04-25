@@ -13,7 +13,7 @@ import (
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
-	"kellnhofer.com/work-log/web/view/pages"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 // LogController handles requests for log endpoints.
@@ -86,7 +86,7 @@ func (c *LogController) handleShowLog(eCtx echo.Context, ctx context.Context, pa
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Log(userInfo, summary, entries))
+	return web.Render(eCtx, http.StatusOK, page.Log(userInfo, summary, entries))
 }
 
 func (c *LogController) handleHxNavLog(eCtx echo.Context, ctx context.Context, pageNum int) error {

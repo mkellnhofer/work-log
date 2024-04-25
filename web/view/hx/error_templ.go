@@ -12,7 +12,7 @@ import "bytes"
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render the error message for unexpected errors. After an unexpected
@@ -34,7 +34,7 @@ func ErrorPage(err *model.Error) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.ErrorView(err.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.ErrorView(err.ErrorMessage).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

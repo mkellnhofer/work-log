@@ -19,7 +19,7 @@ import (
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
-	"kellnhofer.com/work-log/web/view/pages"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 // OverviewController handles requests for overview endpoints.
@@ -116,7 +116,7 @@ func (c *OverviewController) handleShowOverview(eCtx echo.Context, ctx context.C
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Overview(userInfo, overviewEntries))
+	return web.Render(eCtx, http.StatusOK, page.Overview(userInfo, overviewEntries))
 }
 
 func (c *OverviewController) handleHxNavOverview(eCtx echo.Context, ctx context.Context, year int,
@@ -146,14 +146,14 @@ func (c *OverviewController) handleHxGetOverviewPage(eCtx echo.Context, ctx cont
 func (c *OverviewController) handleExportOverview(eCtx echo.Context, ctx context.Context, year int,
 	month int) error {
 	// Get view data
-	model, err := c.getOverviewViewData(ctx, year, month)
+	data, err := c.getOverviewViewData(ctx, year, month)
 	if err != nil {
 		return err
 	}
 
 	// Create file
-	fileName := fmt.Sprintf("work-log-export-%s.xlsx", model.CurrMonth)
-	file := c.exportOverviewEntries(model)
+	fileName := fmt.Sprintf("work-log-export-%s.xlsx", data.CurrMonth)
+	file := c.exportOverviewEntries(data)
 
 	// Write file
 	return c.writeFile(eCtx.Response(), fileName, file)

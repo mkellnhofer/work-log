@@ -20,7 +20,7 @@ import (
 	"kellnhofer.com/work-log/web/middleware"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
-	"kellnhofer.com/work-log/web/view/pages"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 // AuthController handles requests for login/logout endpoints.
@@ -310,7 +310,7 @@ func (c *AuthController) showEnterCredentials(eCtx echo.Context) error {
 	if web.IsHtmxRequest(eCtx) {
 		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, ""))
 	} else {
-		return web.Render(eCtx, http.StatusOK, pages.LoginPage(vm.LoginStepEnterCredentials))
+		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepEnterCredentials))
 	}
 }
 
@@ -318,7 +318,7 @@ func (c *AuthController) showChangePassword(eCtx echo.Context) error {
 	if web.IsHtmxRequest(eCtx) {
 		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, ""))
 	} else {
-		return web.Render(eCtx, http.StatusOK, pages.LoginPage(vm.LoginStepChangePassword))
+		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepChangePassword))
 	}
 }
 

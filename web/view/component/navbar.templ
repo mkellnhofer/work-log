@@ -1,0 +1,162 @@
+package component
+
+// This template is used to render the navigation bar. It is composed of three main parts, the brand
+// icon, the page navigation and the page menu. The template gets the name of the current page, the
+// current available action buttons, and the user icon for the user menu dropdown.
+templ NavBar(currentPage string, actionButtons templ.Component, userIconSvg string) {
+	<header class="navbar navbar-expand-sm mb-3 border-bottom">
+		<nav class="container-xxl flex-wrap flex-sm-nowrap px-0" aria-label="Main navigation">
+			<button
+				class="navbar-toggler d-flex d-sm-none p-2"
+				type="button"
+				data-bs-toggle="offcanvas"
+				data-bs-target="#wl-navbar-nav-offcanvas"
+				aria-label="Open navigation"
+			>
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			@navBarBrand()
+			@navBarNav(currentPage)
+			@navBarPageMenu(actionButtons, userIconSvg)
+		</nav>
+	</header>
+}
+
+templ navBarBrand() {
+	<a class="navbar-brand d-none d-sm-block px-2" href="/" aria-label="Worklog">
+		<img
+			src="img/app-logo.svg"
+			alt="Logo"
+			width="38"
+			height="38"
+		/>
+	</a>
+}
+
+templ navBarNav(currentPage string) {
+	<div
+		id="wl-navbar-nav-offcanvas"
+		class="offcanvas offcanvas-sm offcanvas-start flex-grow-1"
+		tabindex="-1"
+		data-bs-scroll="true"
+		aria-labelledby="wl-navbar-nav-offcanvas-label"
+	>
+		@navBarNavOffHeader()
+		@navBarNavOffBody(currentPage)
+	</div>
+}
+
+templ navBarNavOffHeader() {
+	<div class="offcanvas-header px-4 pb-0">
+		<a class="pe-3" href="/" aria-label="Worklog">
+			<img
+				src="img/app-logo.svg"
+				alt="Logo"
+				width="38"
+				height="38"
+			/>
+		</a>
+		<h2 id="wl-navbar-nav-offcanvas-label" class="offcanvas-title me-auto">Worklog</h2>
+		<button
+			class="btn-close d-sm-none"
+			type="button"
+			data-bs-dismiss="offcanvas"
+			aria-label="Close navigation"
+		></button>
+	</div>
+}
+
+templ navBarNavOffBody(currentPage string) {
+	<div class="offcanvas-body p-4 pt-0 p-sm-0">
+		<hr class="d-sm-none"/>
+		@PageNav(currentPage)
+	</div>
+}
+
+templ navBarPageMenu(actionButtons templ.Component, userIconSvg string) {
+	@PageMenu(actionButtons, userIconSvg)
+}
+
+// This template is used to render the page navigation.
+templ PageNav(currentPage string) {
+	<ul id="wl-page-nav" class="navbar-nav justify-content flex-grow-1 pe-3">
+		@PageNavItems(currentPage)
+	</ul>
+}
+
+// This template is used to render the page navigation items. It gets the name of the current page,
+// so the corresponding item can be marked as active.
+templ PageNavItems(currentPage string) {
+	@pageNavItem("log", currentPage == "log", "logTitle")
+	@pageNavItem("search", currentPage == "search", "searchTitle")
+	@pageNavItem("overview", currentPage == "overview", "overviewTitle")
+}
+
+templ pageNavItem(hxGetUrl string, active bool, titleTextRef string) {
+	<li class="nav-item">
+		<a
+			if active {
+				class="nav-link active"
+				aria-current="true"
+			} else {
+				class="nav-link"
+			}
+			href="#"
+			hx-trigger="click"
+			hx-get={ hxGetUrl }
+			hx-target="#wl-page-content"
+			hx-swap="innerHTML"
+			hx-push-url="true"
+		>
+			{ getText(titleTextRef) }
+		</a>
+	</li>
+}
+
+// This template is used to render the page menu, which includes the action buttons and the user
+// menu. It gets the current available action buttons, and the user icon for the user menu dropdown.
+templ PageMenu(actionButtons templ.Component, userIconSvg string) {
+	<div class="d-flex align-items-center">
+		@pageMenuActions(actionButtons)
+		<div class="vr mx-2 my-1"></div>
+		@pageMenuUserActions(userIconSvg)
+	</div>
+}
+
+templ pageMenuActions(actionButtons templ.Component) {
+	<div id="wl-page-menu-actions" class="d-flex px-2">
+		@actionButtons
+	</div>
+}
+
+templ pageMenuUserActions(userIconSvg string) {
+	<div class="dropdown d-flex px-2">
+		@userMenuUserDropdownToggle(userIconSvg)
+		@userMenuUserDropdownMenu()
+	</div>
+}
+
+templ userMenuUserDropdownToggle(userIconSvg string) {
+	<a
+		class="dropdown-toggle nav-link px-0 py-2"
+		data-bs-toggle="dropdown"
+		data-bs-display="static"
+		aria-expanded="false"
+		aria-label="Toggle user menu"
+		href="#"
+	>
+		@UserIconView(userIconSvg)
+	</a>
+}
+
+templ userMenuUserDropdownMenu() {
+	<ul class="dropdown-menu dropdown-menu-end my-3">
+		<li>
+			@userMenuItem(getText("actionLogout"), toURL("logout"))
+		</li>
+	</ul>
+}
+
+templ userMenuItem(text string, url templ.SafeURL) {
+	<a class="dropdown-item" href={ url }>{ text }</a>
+}

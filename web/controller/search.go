@@ -21,7 +21,7 @@ import (
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
-	"kellnhofer.com/work-log/web/view/pages"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 const searchDateTimeFormat = "200601021504"
@@ -156,7 +156,7 @@ func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Conte
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.Search(userInfo, searchErrorMessage, search,
+	return web.Render(eCtx, http.StatusOK, page.Search(userInfo, searchErrorMessage, search,
 		searchEntries))
 }
 

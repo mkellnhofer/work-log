@@ -2,7 +2,7 @@ package hx
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render parts of the page which need to be changed after the user has
@@ -10,32 +10,32 @@ import (
 templ SearchNav(search *model.Search, searchEntries *model.SearchEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
-		@components.PageNavItems("search")
+		@component.PageNavItems("search")
 	</div>
 	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
-		@components.SearchActions()
+		@component.SearchActions()
 	</div>
 	// Regular swaps
-	@components.SearchContent("", search, searchEntries)
+	@component.SearchContent("", search, searchEntries)
 }
 
 // This template is used to render changes in the search page after the user has executed a search.
 templ Search(errorMessage string, search *model.Search, searchEntries *model.SearchEntries) {
 	// OoB swaps
 	<div id="wl-search-error" hx-swap-oob="innerHTML">
-		@components.ErrorMessage(errorMessage)
+		@component.ErrorMessage(errorMessage)
 	</div>
 	if search != nil {
 		<div id="wl-search-form" hx-swap-oob="innerHTML">
-			@components.SearchEntryForm(search)
+			@component.SearchEntryForm(search)
 		</div>
 	}
 	// Regular swaps
-	@components.SearchResult(searchEntries)
+	@component.SearchResult(searchEntries)
 }
 
 // This template is used to render changes in the search page after the user has requested the
 // previous/next entries.
 templ SearchPage(searchEntries *model.SearchEntries) {
-	@components.SearchResult(searchEntries)
+	@component.SearchResult(searchEntries)
 }

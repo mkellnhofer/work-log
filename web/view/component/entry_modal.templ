@@ -1,0 +1,139 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render a modal to create a entry.
+templ CreateEntryModal(entryData *model.EntryData) {
+	@entryModal("createTitle", "actionCreate", "actionCancel", "/create") {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
+	}
+}
+
+// This template is used to render a modal to copy a entry.
+templ CopyEntryModal(entryData *model.EntryData) {
+	@entryModal("copyTitle", "actionCreate", "actionCancel", "/create") {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
+	}
+}
+
+// This template is used to render a modal to edit a entry.
+templ EditEntryModal(entryData *model.EntryData) {
+	@entryModal("editTitle", "actionSave", "actionCancel", "/edit/"+toString(entryData.Entry.Id)) {
+		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
+	}
+}
+
+// This template is used to render a modal to delete a entry.
+templ DeleteEntryModal(entryId int) {
+	@entryModal("deleteTitle", "actionDelete", "actionCancel", "/delete/"+toString(entryId)) {
+		<div class="form-row">
+			<div class="form-group col-12">
+				<label>{ getText("deleteMessage") }</label>
+			</div>
+		</div>
+	}
+}
+
+templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string, submitUrl string) {
+	@Modal(titleTextRef, submitTextRef, cancelTextRef, templ.Attributes{"hx-post": submitUrl},
+		templ.Attributes{"hx-post": "/cancel"}) {
+		@entryModalErrorMessageContainer("")
+		{ children... }
+	}
+}
+
+templ entryModalErrorMessageContainer(errorMessage string) {
+	<div id="wl-entry-modal-error">
+		@ErrorMessage(errorMessage)
+	</div>
+}
+
+templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
+	entry *model.Entry) {
+	<div class="row g-3 pb-3">
+		<div class="col-12">
+			<label class="form-label" for="wl-entry-form-type">
+				{ getText("formLabelType") }
+			</label>
+			<select id="wl-entry-form-type" class="form-select" name="type" autofocus>
+				for _, entryType := range entryTypes {
+					<option
+						value={ toString(entryType.Id) }
+						if entryType.Id == entry.TypeId {
+							selected
+						}
+					>
+						{ entryType.Description }
+					</option>
+				}
+			</select>
+		</div>
+		<div class="col-12 col-sm-4">
+			<label class="form-label" for="wl-entry-form-date">
+				{ getText("formLabelDate") }
+			</label>
+			<input
+				id="wl-entry-form-date"
+				class="form-control"
+				name="date"
+				type="date"
+				value={ entry.Date }
+			/>
+		</div>
+		<div class="col-6 col-sm-4">
+			<label class="form-label" for="wl-entry-form-start-time">
+				{ getText("formLabelStart") }
+			</label>
+			<input
+				id="wl-entry-form-start-time"
+				class="form-control"
+				name="start-time"
+				type="time"
+				value={ entry.StartTime }
+			/>
+		</div>
+		<div class="col-6 col-sm-4">
+			<label class="form-label" for="wl-entry-form-end-time">
+				{ getText("formLabelEnd") }
+			</label>
+			<input
+				id="wl-entry-form-end-time"
+				class="form-control"
+				name="end-time"
+				type="time"
+				value={ entry.EndTime }
+			/>
+		</div>
+		<div class="col-12">
+			<label class="form-label" for="wl-entry-form-activity">
+				{ getText("formLabelActivity") }
+			</label>
+			<select id="wl-entry-form-activity" class="form-select" name="activity">
+				for _, entryActivity := range entryActivities {
+					<option
+						value={ toString(entryActivity.Id) }
+						if entryActivity.Id == entry.ActivityId {
+							selected
+						}
+					>
+						{ entryActivity.Description }
+					</option>
+				}
+			</select>
+		</div>
+		<div class="col-12">
+			<label class="form-label" for="wl-entry-form-description">
+				{ getText("formLabelDescription") }
+			</label>
+			<input
+				id="wl-entry-form-description"
+				class="form-control"
+				name="description"
+				type="text"
+				value={ entry.Description }
+			/>
+		</div>
+	</div>
+}

@@ -2,7 +2,7 @@ package hx
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render parts of the page which need to be changed after the user has
@@ -10,13 +10,13 @@ import (
 templ OverviewNav(overviewEntries *model.OverviewEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
-		@components.PageNavItems("overview")
+		@component.PageNavItems("overview")
 	</div>
 	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
-		@components.OverviewActions(overviewEntries.CurrMonth)
+		@component.OverviewActions(overviewEntries.CurrMonth)
 	</div>
 	// Regular swaps
-	@components.OverviewContent(overviewEntries)
+	@component.OverviewContent(overviewEntries)
 }
 
 // This template is used to render changes in the overview page after the user has requested the
@@ -24,7 +24,7 @@ templ OverviewNav(overviewEntries *model.OverviewEntries) {
 templ OverviewPage(overviewEntries *model.OverviewEntries) {
 	// OoB swaps
 	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
-		@components.OverviewActions(overviewEntries.CurrMonth)
+		@component.OverviewActions(overviewEntries.CurrMonth)
 	</div>
-	@components.OverviewContent(overviewEntries)
+	@component.OverviewContent(overviewEntries)
 }

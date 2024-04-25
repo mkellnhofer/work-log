@@ -1,0 +1,33 @@
+package component
+
+// This template is used to render a paging control. It gets the HTMX target which needs to be
+// updated when an page is requested, as well as URLs to load the previous/next page from.
+templ PagingControl(hxTarget string, hasPrevPage bool, prevPageHxGetUrl string, hasNextPage bool,
+	nextPageHxGetUrl string) {
+	<div class="d-flex justify-content-between mt-4 mb-3">
+		<div>
+			if hasPrevPage {
+				@pagingLink(hxTarget, prevPageHxGetUrl, "outerHTML show:#wl-container:bottom", "actionPrevious")
+			}
+		</div>
+		<div>
+			if hasNextPage {
+				@pagingLink(hxTarget, nextPageHxGetUrl, "outerHTML show:#wl-container:top", "actionNext")
+			}
+		</div>
+	</div>
+}
+
+templ pagingLink(hxTarget string, hxGetUrl string, hxSwap string, labelTextRef string) {
+	<a
+		class="btn btn-light"
+		href="#"
+		hx-trigger="click"
+		hx-get={ hxGetUrl }
+		hx-target={ hxTarget }
+		hx-swap={ hxSwap }
+		hx-push-url="true"
+	>
+		{ getText(labelTextRef) }
+	</a>
+}

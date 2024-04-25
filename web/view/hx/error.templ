@@ -2,7 +2,7 @@ package hx
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render the error message for unexpected errors. After an unexpected
@@ -10,6 +10,6 @@ import (
 templ ErrorPage(err *model.Error) {
 	// OoB swaps
 	<div id="wl-container" hx-swap-oob="innerHTML">
-		@components.ErrorView(err.ErrorMessage)
+		@component.ErrorView(err.ErrorMessage)
 	</div>
 }

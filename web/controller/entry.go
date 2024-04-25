@@ -178,10 +178,10 @@ func (c *EntryController) handleShowCreate(eCtx echo.Context, ctx context.Contex
 	}
 	entry.StartTime = time.Now()
 	entry.EndTime = time.Now()
-	model := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalCreate(model))
+	return c.handleShowSuccess(eCtx, hx.EntryModalCreate(entryViewData))
 }
 
 func (c *EntryController) handleExecuteCreate(eCtx echo.Context, ctx context.Context,
@@ -220,10 +220,10 @@ func (c *EntryController) handleShowCopy(eCtx echo.Context, ctx context.Context,
 	}
 
 	// Create view model
-	model := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalCopy(model))
+	return c.handleShowSuccess(eCtx, hx.EntryModalCopy(entryViewData))
 }
 
 func (c *EntryController) handleShowEdit(eCtx echo.Context, ctx context.Context, entryId int) error {
@@ -242,10 +242,10 @@ func (c *EntryController) handleShowEdit(eCtx echo.Context, ctx context.Context,
 	}
 
 	// Create view model
-	model := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalEdit(model))
+	return c.handleShowSuccess(eCtx, hx.EntryModalEdit(entryViewData))
 }
 
 func (c *EntryController) handleExecuteEdit(eCtx echo.Context, ctx context.Context, entryId int,

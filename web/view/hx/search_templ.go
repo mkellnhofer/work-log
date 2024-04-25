@@ -12,7 +12,7 @@ import "bytes"
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render parts of the page which need to be changed after the user has
@@ -34,7 +34,7 @@ func SearchNav(search *model.Search, searchEntries *model.SearchEntries) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.PageNavItems("search").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.PageNavItems("search").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +42,7 @@ func SearchNav(search *model.Search, searchEntries *model.SearchEntries) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.SearchActions().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchActions().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func SearchNav(search *model.Search, searchEntries *model.SearchEntries) templ.C
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.SearchContent("", search, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchContent("", search, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -79,7 +79,7 @@ func Search(errorMessage string, search *model.Search, searchEntries *model.Sear
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.ErrorMessage(errorMessage).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.ErrorMessage(errorMessage).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -92,7 +92,7 @@ func Search(errorMessage string, search *model.Search, searchEntries *model.Sear
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.SearchEntryForm(search).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = component.SearchEntryForm(search).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -101,7 +101,7 @@ func Search(errorMessage string, search *model.Search, searchEntries *model.Sear
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = components.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -127,7 +127,7 @@ func SearchPage(searchEntries *model.SearchEntries) templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = components.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

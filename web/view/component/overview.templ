@@ -1,0 +1,195 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render the action buttons on the overview page.
+templ OverviewActions(currMonth string) {
+	<a
+		class="btn btn-primary"
+		href={ toURL("/overview/export?month=" + currMonth) }
+		aria-label={ getText("overviewActionExport") }
+	>
+		{ getText("overviewActionExport") }
+	</a>
+}
+
+// This template is used to render the content of the overview page.
+templ OverviewContent(entries *model.OverviewEntries) {
+	<div id="wl-overview-content">
+		@overviewMonthButtons(entries.PrevMonth, entries.NextMonth, entries.CurrMonthName)
+		@overviewSummaryView(entries.Summary)
+		@overviewEntryList(entries.Days)
+	</div>
+}
+
+templ overviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
+	<div class="mb-4">
+		@overviewMonthButton(prevMonth, "#wl-overview-content", "actionPrevious", "&lt;")
+		<span class="mx-4">{ currMonthName }</span>
+		@overviewMonthButton(nextMonth, "#wl-overview-content", "actionNext", "&gt;")
+	</div>
+}
+
+templ overviewMonthButton(month string, hxTarget string, labelTextRef string, icon string) {
+	<a
+		class="btn btn-light"
+		href="#"
+		hx-trigger="click"
+		hx-get={ buildOverviewMonthHxGetUrl(month) }
+		hx-target={ hxTarget }
+		hx-swap="outerHTML"
+		hx-push-url="true"
+		aria-label={ getText(labelTextRef) }
+	>
+		@templ.Raw(icon)
+	</a>
+}
+
+func buildOverviewMonthHxGetUrl(month string) string {
+	return "overview?month=" + month
+}
+
+templ overviewSummaryView(summary *model.OverviewEntriesSummary) {
+	<div class="mb-3">
+		<h2>{ getText("overviewHeadingSummary") }</h2>
+	</div>
+	<div class="d-flex flex-wrap mb-3">
+		@overviewSummaryHoursView(summary.TargetHours, summary.ActualHours, summary.BalanceHours)
+		@overviewSummaryTypeHoursView(summary.ActualWorkHours, summary.ActualTravelHours,
+			summary.ActualVacationHours, summary.ActualHolidayHours, summary.ActualIllnessHours,
+			summary.ActualHours)
+	</div>
+}
+
+templ overviewSummaryHoursView(targetHours string, actualHours string, balanceHours string) {
+	<div class="table-responsive me-4">
+		<table class="table table-sm">
+			@overviewSummaryTableRow("overviewSummaryLabelTargetHours", targetHours)
+			@overviewSummaryTableRow("overviewSummaryLabelActualHours", actualHours)
+			@overviewSummaryTableRow("overviewSummaryLabelBalanceHours", balanceHours)
+		</table>
+	</div>
+}
+
+templ overviewSummaryTypeHoursView(actualWorkHours string, actualTravelHours string,
+	actualVacationHours string, actualHolidayHours string, actualIllnessHours string,
+	actualHours string) {
+	<div class="table-responsive me-4">
+		<table class="table table-sm">
+			@overviewSummaryTableRow("entryTypeWork", actualWorkHours)
+			@overviewSummaryTableRow("entryTypeTravel", actualTravelHours)
+			@overviewSummaryTableRow("entryTypeVacation", actualVacationHours)
+			@overviewSummaryTableRow("entryTypeHoliday", actualHolidayHours)
+			@overviewSummaryTableRow("entryTypeIllness", actualIllnessHours)
+			@overviewSummaryTableRow("", actualHours)
+		</table>
+	</div>
+}
+
+templ overviewSummaryTableRow(labelTextRef string, hours string) {
+	<tr>
+		<th class="wl-overview-summary-table-column-label">
+			if labelTextRef != "" {
+				{ getText(labelTextRef) }:
+			}
+		</th>
+		<td class="wl-overview-summary-table-column-hours">{ hours }</td>
+	</tr>
+}
+
+templ overviewEntryList(days []*model.OverviewEntriesDay) {
+	@overviewEntryListHeader()
+	@overviewEntryDaysTable(days)
+}
+
+templ overviewEntryListHeader() {
+	<div class="mb-3">
+		<h2>{ getText("overviewHeadingEntries") }</h2>
+	</div>
+}
+
+templ overviewEntryDaysTable(days []*model.OverviewEntriesDay) {
+	<div class="table-responsive table-responsive-xl mb-4">
+		<table class="table table-sm">
+			@overviewEntryDaysTableHeader()
+			@overviewEntryDaysTableBody(days)
+		</table>
+	</div>
+}
+
+templ overviewEntryDaysTableHeader() {
+	<thead>
+		<tr class="wl-overview-table-head">
+			<th class="wl-overview-table-column-date">{ getText("tableColDate") }</th>
+			<th class="wl-overview-table-column-type">{ getText("tableColType") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColStart") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColEnd") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColNet") }</th>
+			<th class="wl-overview-table-column-activity">{ getText("tableColActivity") }</th>
+			<th class="wl-overview-table-column-description">{ getText("tableColDescription") }</th>
+		</tr>
+	</thead>
+}
+
+templ overviewEntryDaysTableBody(days []*model.OverviewEntriesDay) {
+	<tbody>
+		for _, day := range days {
+			@overviewEntryDaysTableRow(day)
+		}
+	</tbody>
+}
+
+templ overviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
+	if len(day.Entries) > 0 {
+		for ei, entry := range day.Entries {
+			<tr
+				if day.IsWeekendDay {
+					class="wl-overview-table-row-weekend"
+				}
+			>
+				if ei == 0 {
+					<td>{ day.Weekday } { day.Date }</td>
+				} else {
+					<td></td>
+				}
+				<td>{ entry.EntryType }</td>
+				<td>{ entry.StartTime }</td>
+				<td>{ entry.EndTime }</td>
+				<td>{ entry.Duration }</td>
+				<td>{ entry.EntryActivity }</td>
+				<td>{ entry.Description }</td>
+			</tr>
+		}
+		if len(day.Entries) > 1 {
+			<tr
+				if day.IsWeekendDay {
+					class="wl-overview-table-row-weekend"
+				}
+			>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>{ day.WorkDuration }</td>
+				<td></td>
+				<td></td>
+			</tr>
+		}
+	} else {
+		<tr
+			if day.IsWeekendDay {
+				class="wl-overview-table-row-weekend"
+			}
+		>
+			<td>{ day.Weekday } { day.Date }</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td>-</td>
+			<td></td>
+			<td></td>
+		</tr>
+	}
+}

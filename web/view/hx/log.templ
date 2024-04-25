@@ -2,7 +2,7 @@ package hx
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render parts of the page which need to be changed after the user has
@@ -10,17 +10,17 @@ import (
 templ LogNav(summary *model.LogSummary, listEntries *model.ListEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
-		@components.PageNavItems("log")
+		@component.PageNavItems("log")
 	</div>
 	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
-		@components.LogActions()
+		@component.LogActions()
 	</div>
 	// Regular swaps
-	@components.LogContent(summary, listEntries)
+	@component.LogContent(summary, listEntries)
 }
 
 // This template is used to render changes in the log page after the user has requested the
 // previous/next entries.
 templ LogPage(summary *model.LogSummary, listEntries *model.ListEntries) {
-	@components.LogContent(summary, listEntries)
+	@component.LogContent(summary, listEntries)
 }

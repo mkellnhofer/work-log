@@ -12,7 +12,7 @@ import "bytes"
 
 import (
 	"kellnhofer.com/work-log/web/model"
-	"kellnhofer.com/work-log/web/view/components"
+	"kellnhofer.com/work-log/web/view/component"
 )
 
 // This template is used to render parts of the page which need to be changed after the user has
@@ -34,7 +34,7 @@ func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.PageNavItems("log").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.PageNavItems("log").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +42,7 @@ func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.LogActions().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.LogActions().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -76,7 +76,7 @@ func LogPage(summary *model.LogSummary, listEntries *model.ListEntries) templ.Co
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = components.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

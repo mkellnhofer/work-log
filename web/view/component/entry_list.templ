@@ -1,0 +1,115 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render a list of entries. It gets a list of days with their entries and
+// two flags which control the rendering of day header.
+templ EntryList(days []*model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
+	for _, day := range days {
+		@entryDayHeader(day, highlightWorkDuration, showBreakDuration)
+		@entryDayTable(day)
+	}
+}
+
+templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
+	<h3 class="mb-3 fw-bold">
+		<span>{ day.Date }</span>
+		<span>-</span>
+		<span>{ day.Weekday }</span>
+		<span>-</span>
+		<span
+			if highlightWorkDuration && !day.WasTargetWorkDurationReached {
+				class="wl-list-day-target-not-achieved"
+			}
+		>
+			{ day.WorkDuration }
+		</span>
+		if showBreakDuration {
+			<span>({ day.BreakDuration } { getText("logLabelBreak") })</span>
+		}
+	</h3>
+}
+
+templ entryDayTable(day *model.ListEntriesDay) {
+	<div class="table-responsive table-responsive-xl mb-4">
+		<table class="table table-sm align-middle">
+			<thead>
+				@entryDayTableHeaderRow()
+			</thead>
+			<tbody>
+				for _, entry := range day.Entries {
+					@entryDayTableRow(entry)
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+templ entryDayTableHeaderRow() {
+	<tr class="wl-list-table-head">
+		<th class="wl-list-table-column-buttons"></th>
+		<th class="wl-list-table-column-type">{ getText("tableColType") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColStart") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColEnd") }</th>
+		<th class="wl-list-table-column-time">{ getText("tableColNet") }</th>
+		<th class="wl-list-table-column-activity">{ getText("tableColActivity") }</th>
+		<th class="wl-list-table-column-description">{ getText("tableColDescription") }</th>
+	</tr>
+}
+
+templ entryDayTableRow(entry *model.ListEntry) {
+	if entry.IsMissing {
+		<tr class="wl-list-table-row-missing">
+			@entryDayTableRowBlank()
+		</tr>
+	} else if entry.IsOverlapping {
+		<tr class="wl-list-table-row-overlapping">
+			@entryDayTableRowBlank()
+		</tr>
+	} else {
+		<tr>
+			@entryDayTableRowButtonsField(entry.Id)
+			@entryDayTableRowTextField(entry.EntryType)
+			@entryDayTableRowTextField(entry.StartTime)
+			@entryDayTableRowTextField(entry.EndTime)
+			@entryDayTableRowTextField(entry.Duration)
+			@entryDayTableRowTextField(entry.EntryActivity)
+			@entryDayTableRowTextField(entry.Description)
+		</tr>
+	}
+}
+
+templ entryDayTableRowBlank() {
+	<td colspan="7"></td>
+}
+
+templ entryDayTableRowButtonsField(id int) {
+	<td>
+		@entryDayTableRowButton(buildActionUrl("edit", id), "icon-edit", getText("actionEdit"))
+		@entryDayTableRowButton(buildActionUrl("copy", id), "icon-copy", getText("actionCopy"))
+		@entryDayTableRowButton(buildActionUrl("delete", id), "icon-delete", getText("actionDelete"))
+	</td>
+}
+
+templ entryDayTableRowButton(url string, icon string, text string) {
+	<a
+		class="btn btn-link px-2 py-0 fs-6"
+		href="#"
+		hx-get={ url }
+		hx-trigger="click"
+		hx-target="#wl-modal-container"
+		hx-swap="innerHTML"
+	>
+		<i class={ "icon " + icon } aria-label={ text }></i>
+	</a>
+}
+
+func buildActionUrl(action string, id int) string {
+	return "/" + action + "/" + toString(id)
+}
+
+templ entryDayTableRowTextField(content string) {
+	<td>{ content }</td>
+}

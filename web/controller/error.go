@@ -11,7 +11,7 @@ import (
 	"kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
-	"kellnhofer.com/work-log/web/view/pages"
+	"kellnhofer.com/work-log/web/view/page"
 )
 
 // ErrorController handles requests for error endpoints.
@@ -44,16 +44,16 @@ func (c *ErrorController) GetErrorHandler() echo.HandlerFunc {
 
 func (c *ErrorController) handleShowError(eCtx echo.Context) error {
 	// Get view data
-	model := c.getErrorViewData(eCtx)
+	evd := c.getErrorViewData(eCtx)
 	// Render
-	return web.Render(eCtx, http.StatusOK, pages.ErrorPage(model))
+	return web.Render(eCtx, http.StatusOK, page.ErrorPage(evd))
 }
 
 func (c *ErrorController) handleHxShowError(eCtx echo.Context) error {
 	// Get view data
-	model := c.getErrorViewData(eCtx)
+	evd := c.getErrorViewData(eCtx)
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.ErrorPage(model))
+	return web.Render(eCtx, http.StatusOK, hx.ErrorPage(evd))
 }
 
 func (c *ErrorController) getErrorViewData(eCtx echo.Context) *vm.Error {

@@ -1,0 +1,50 @@
+package page
+
+import (
+	"kellnhofer.com/work-log/web/view/component"
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ mainPage(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo,
+	content templ.Component) {
+	@Page() {
+		<div id="wl-container" class="wl-container px-2 pt-0 pb-2 py-sm-2">
+			@component.NavBar(currentPage, actionButtons, userInfo.IconSvg)
+			<div id="wl-page-content">
+				@content
+			</div>
+		</div>
+		@component.ModalContainer()
+	}
+}
+
+// This template is used to render the full log page.
+templ Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model.ListEntries) {
+	@mainPage(
+		"log",
+		component.LogActions(),
+		userInfo,
+		component.LogContent(summary, listEntries),
+	)
+}
+
+// This template is used to render the full search page.
+templ Search(userInfo *model.UserInfo, errorMessage string, search *model.Search,
+	searchEntries *model.SearchEntries) {
+	@mainPage(
+		"search",
+		component.SearchActions(),
+		userInfo,
+		component.SearchContent(errorMessage, search, searchEntries),
+	)
+}
+
+// This template is used to render the full overview page.
+templ Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) {
+	@mainPage(
+		"overview",
+		component.OverviewActions(overviewEntries.CurrMonth),
+		userInfo,
+		component.OverviewContent(overviewEntries),
+	)
+}

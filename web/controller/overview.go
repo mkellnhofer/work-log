@@ -3,13 +3,12 @@ package controller
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/labstack/echo/v4"
+	"github.com/xuri/excelize/v2"
 
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/loc"
@@ -347,7 +346,7 @@ func (c *OverviewController) getCellName(col string, row int) string {
 	return col + strconv.Itoa(row)
 }
 
-func (c *OverviewController) writeFile(r *echo.Response, fileName string, wt io.WriterTo) error {
+func (c *OverviewController) writeFile(r *echo.Response, fileName string, file *excelize.File) error {
 	// Write header
 	r.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=\"%s\"", fileName))
 	r.Header().Set("Content-Type", "application/octet-stream")
@@ -355,7 +354,7 @@ func (c *OverviewController) writeFile(r *echo.Response, fileName string, wt io.
 	r.Header().Set("Expires", "0")
 
 	// Write body
-	_, wErr := wt.WriteTo(r.Writer)
+	_, wErr := file.WriteTo(r.Writer)
 	if wErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not write response.", wErr)
 		log.Debug(err.StackTrace())

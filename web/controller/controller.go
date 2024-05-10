@@ -8,11 +8,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"kellnhofer.com/work-log/pkg/constant"
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/util/security"
-	"kellnhofer.com/work-log/web/middleware"
 )
 
 const pageSize = 7
@@ -182,27 +180,4 @@ func validateStringLength(in string, length int, code int) error {
 		return err
 	}
 	return nil
-}
-
-func saveCurrentUrl(ctx echo.Context) {
-	sh := getContext(ctx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-	s := sh.Get()
-	r := ctx.Request()
-	path := r.URL.EscapedPath()
-	query := r.URL.RawQuery
-	req := path
-	if query != "" {
-		req = req + "?" + query
-	}
-	s.PreviousUrl = req
-}
-
-func getPreviousUrl(ctx echo.Context) string {
-	sh := getContext(ctx).Value(constant.ContextKeySessionHolder).(*middleware.SessionHolder)
-	s := sh.Get()
-	if s.PreviousUrl != "" {
-		return s.PreviousUrl
-	} else {
-		return constant.ViewPathDefault
-	}
 }

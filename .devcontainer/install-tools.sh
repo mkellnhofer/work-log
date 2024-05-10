@@ -1,7 +1,7 @@
 #!/bin/sh
 
 GO_SWAGGER_VERSION="0.30.5"
-TEMPL_VERSION="0.2.639"
+TEMPL_VERSION="0.2.680"
 
 ARCH=$(uname -m)
 

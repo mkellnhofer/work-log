@@ -610,7 +610,7 @@ func (r *EntryRepo) buildEntriesSortQueryClause(sort *model.EntriesSort) string 
 
 func (r *EntryRepo) getDateRange(ctx context.Context, query string, args ...interface{}) (
 	string, string, error) {
-	rows, err := r.db.Query(query, args...)
+	rows, err := r.getDbHandle(ctx).Query(query, args...)
 	if err != nil {
 		return "", "", err
 	}

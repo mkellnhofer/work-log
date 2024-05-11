@@ -40,7 +40,7 @@ func main() {
 	// Create router
 	e := echo.New()
 	e.Pre(middleware.RemoveTrailingSlash())
-	e.Use(middleware.Recover())
+	e.Use(middleware.Recover(), createLoggerMiddleware())
 
 	// Add view handlers
 	addViewHandlers(init, e)
@@ -118,7 +118,7 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 	g := e.Group(constant.ApiPath)
 
 	// Add protected middleware
-	g.Use(getCorsMiddleware(),
+	g.Use(createCorsMiddleware(),
 		init.GetTransactionMiddleware().CreateHandler,
 		init.GetErrorApiMiddleware().CreateHandler,
 		init.GetSecurityApiMiddleware().CreateHandler,
@@ -152,7 +152,22 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 	g.PUT("/users/:id/roles", userCtrl.UpdateUserRolesHandler())
 }
 
-func getCorsMiddleware() echo.MiddlewareFunc {
+func addSwaggerUiHandlers(e *echo.Echo) {
+	e.GET("/api", getSwaggerRootHandler())
+	e.Static("/api/", "static/swagger-ui/")
+}
+
+func getSwaggerRootHandler() echo.HandlerFunc {
+	return func(ctx echo.Context) error {
+		return ctx.Redirect(http.StatusMovedPermanently, "/api/swagger-ui.html")
+	}
+}
+
+func createLoggerMiddleware() echo.MiddlewareFunc {
+	return log.NewLoggerMiddleware().CreateHandler
+}
+
+func createCorsMiddleware() echo.MiddlewareFunc {
 	return middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{
@@ -166,15 +181,4 @@ func getCorsMiddleware() echo.MiddlewareFunc {
 		AllowHeaders:     []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 	})
-}
-
-func addSwaggerUiHandlers(e *echo.Echo) {
-	e.GET("/api", getSwaggerRootHandler())
-	e.Static("/api/", "static/swagger-ui/")
-}
-
-func getSwaggerRootHandler() echo.HandlerFunc {
-	return func(ctx echo.Context) error {
-		return ctx.Redirect(http.StatusMovedPermanently, "/api/swagger-ui.html")
-	}
 }

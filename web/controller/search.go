@@ -63,8 +63,6 @@ func NewSearchController(uServ *service.UserService, eServ *service.EntryService
 // GetSearchHandler returns a handler for "GET /search".
 func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /search.")
-
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 
 		searchQuery, pageNum, isPageReq, err := c.getSearchParams(eCtx)
@@ -99,8 +97,6 @@ func (c *SearchController) getSearchParams(eCtx echo.Context) (string, int, bool
 // PostSearchHandler returns a handler for "POST /search".
 func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle POST /search.")
-
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 		if !isHtmxReq {
 			err := e.NewError(e.ValUnknown, "Not a HTMX request.")

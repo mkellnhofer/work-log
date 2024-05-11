@@ -4,6 +4,8 @@ import (
 	"io"
 	l "log"
 	"os"
+
+	"github.com/labstack/echo/v4"
 )
 
 type level uint8
@@ -142,4 +144,32 @@ func Fatalf(msg string, v ...interface{}) {
 	if lvl <= fat {
 		l.Fatalf("[FATAL]: "+msg, v...)
 	}
+}
+
+// --- Logger middleware ---
+
+// LoggerMiddleware logs HTTP request information.
+type LoggerMiddleware struct {
+}
+
+// NewLoggerMiddleware create a new logger middleware.
+func NewLoggerMiddleware() *LoggerMiddleware {
+	return &LoggerMiddleware{}
+}
+
+// CreateHandler creates a new handler to process requests.
+func (m *LoggerMiddleware) CreateHandler(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		return m.process(next, c)
+	}
+}
+
+func (m *LoggerMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
+	req := c.Request()
+
+	if lvl <= deb {
+		Debugf("Request: %s: %s", req.Method, req.URL.RequestURI())
+	}
+
+	return next(c)
 }

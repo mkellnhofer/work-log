@@ -47,8 +47,6 @@ func NewOverviewController(uServ *service.UserService, eServ *service.EntryServi
 // GetOverviewHandler returns a handler for "GET /overview".
 func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /overview.")
-
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 
 		year, month, isPageReq, err := c.getOverviewParams(eCtx)
@@ -71,13 +69,10 @@ func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
 // GetOverviewExportHandler returns a handler for "GET /overview/export".
 func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /overview/export.")
-
 		year, month, _, err := c.getOverviewParams(eCtx)
 		if err != nil {
 			return err
 		}
-
 		return c.handleExportOverview(eCtx, getContext(eCtx), year, month)
 	}
 }

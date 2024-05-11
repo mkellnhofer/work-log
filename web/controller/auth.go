@@ -38,7 +38,6 @@ func NewAuthController(uServ *service.UserService) *AuthController {
 // GetLoginHandler returns a handler for "GET /login".
 func (c *AuthController) GetLoginHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /login.")
 		return c.handleShowLogin(eCtx)
 	}
 }
@@ -46,14 +45,11 @@ func (c *AuthController) GetLoginHandler() echo.HandlerFunc {
 // PostLoginHandler returns a handler for "POST /login".
 func (c *AuthController) PostLoginHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle POST /login.")
-
 		if !web.IsHtmxRequest(eCtx) {
 			err := e.NewError(e.ValUnknown, "Not a HTMX request.")
 			log.Debug(err.StackTrace())
 			return err
 		}
-
 		return c.handleExecuteLogin(eCtx)
 	}
 }
@@ -61,7 +57,6 @@ func (c *AuthController) PostLoginHandler() echo.HandlerFunc {
 // GetLogoutHandler returns a handler for "GET /logout".
 func (c *AuthController) GetLogoutHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle GET /logout.")
 		return c.handleExecuteLogout(eCtx)
 	}
 }

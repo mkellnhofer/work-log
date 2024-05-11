@@ -7,7 +7,6 @@ import (
 
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/loc"
-	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/web"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
@@ -28,11 +27,7 @@ func NewErrorController() *ErrorController {
 // GetErrorHandler returns a handler for "GET /error".
 func (c *ErrorController) GetErrorHandler() echo.HandlerFunc {
 	return func(ctx echo.Context) error {
-		log.Verb("Handle GET /error.")
-
-		isHtmx := web.IsHtmxRequest(ctx)
-
-		if !isHtmx {
+		if !web.IsHtmxRequest(ctx) {
 			return c.handleShowError(ctx)
 		} else {
 			return c.handleHxShowError(ctx)

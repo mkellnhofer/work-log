@@ -6,7 +6,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
@@ -41,8 +40,6 @@ func NewLogController(uServ *service.UserService, eServ *service.EntryService) *
 // GetLogHandler returns a handler for "GET /log".
 func (c *LogController) GetLogHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		log.Verb("Handle: GET /log")
-
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 		pageNum, isPageReq, err := c.getLogParams(eCtx)
 		if err != nil {

@@ -61,17 +61,15 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 						}
 					/>
 				</div>
-				<select class="form-select" name="type">
-					for _, entryType := range entryTypes {
-						<option
-							value={ toString(entryType.Id) }
-							if entryType.Id == searchInput.TypeId {
-								selected
-							}
-						>
-							{ entryType.Description }
-						</option>
-					}
+				<select
+					id="wl-searc-input-type"
+					class="form-select"
+					name="type"
+					hx-get="/search/activities"
+					hx-target="#wl-search-input-activity"
+					hx-swap="innerHTML"
+				>
+					@EntryTypeSelectOptions(entryTypes, searchInput.TypeId)
 				</select>
 			</div>
 		</div>
@@ -111,17 +109,8 @@ templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*
 						}
 					/>
 				</div>
-				<select class="form-select" name="activity">
-					for _, entryActivity := range entryActivities {
-						<option
-							value={ toString(entryActivity.Id) }
-							if entryActivity.Id == searchInput.ActivityId {
-								selected
-							}
-						>
-							{ entryActivity.Description }
-						</option>
-					}
+				<select id="wl-search-input-activity" class="form-select" name="activity">
+					@EntryActivitySelectOptions(entryActivities, searchInput.ActivityId)
 				</select>
 			</div>
 		</div>

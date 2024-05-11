@@ -1,0 +1,33 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+// This template is used to render the entry type options for entry forms.
+templ EntryTypeSelectOptions(types []*model.EntryType, selectedTypeId int) {
+	for _, t := range types {
+		<option
+			value={ toString(t.Id) }
+			if t.Id == selectedTypeId {
+				selected
+			}
+		>
+			{ t.Description }
+		</option>
+	}
+}
+
+// This template is used to render the entry activity options for entry forms.
+templ EntryActivitySelectOptions(activities []*model.EntryActivity, selectedActivityId int) {
+	for _, a := range activities {
+		<option
+			value={ toString(a.Id) }
+			if a.Id == selectedActivityId {
+				selected
+			}
+		>
+			{ a.Description }
+		</option>
+	}
+}

@@ -63,17 +63,15 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 			<label class="form-label" for="wl-entry-form-type">
 				{ getText("formLabelType") }
 			</label>
-			<select id="wl-entry-form-type" class="form-select" name="type" autofocus>
-				for _, entryType := range entryTypes {
-					<option
-						value={ toString(entryType.Id) }
-						if entryType.Id == entry.TypeId {
-							selected
-						}
-					>
-						{ entryType.Description }
-					</option>
-				}
+			<select
+				id="wl-entry-form-type"
+				class="form-select"
+				name="type"
+				hx-get="/entry-modal/activities"
+				hx-target="#wl-entry-form-activity"
+				autofocus
+			>
+				@EntryTypeSelectOptions(entryTypes, entry.TypeId)
 			</select>
 		</div>
 		<div class="col-12 col-sm-4">
@@ -117,16 +115,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				{ getText("formLabelActivity") }
 			</label>
 			<select id="wl-entry-form-activity" class="form-select" name="activity">
-				for _, entryActivity := range entryActivities {
-					<option
-						value={ toString(entryActivity.Id) }
-						if entryActivity.Id == entry.ActivityId {
-							selected
-						}
-					>
-						{ entryActivity.Description }
-					</option>
-				}
+				@EntryActivitySelectOptions(entryActivities, entry.ActivityId)
 			</select>
 		</div>
 		<div class="col-12">

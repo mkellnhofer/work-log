@@ -315,7 +315,8 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
-	//       ⦁ [-405]: Invalid time interval"
+	//       ⦁ [-405]: Invalid time interval\n
+	//       ⦁ [-412]: Entry activity not allowed"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':
@@ -457,7 +458,8 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
-	//       ⦁ [-405]: Invalid time interval"
+	//       ⦁ [-405]: Invalid time interval\n
+	//       ⦁ [-412]: Entry activity not allowed"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '401':

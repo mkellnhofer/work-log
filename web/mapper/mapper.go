@@ -136,7 +136,8 @@ func (m *Mapper) createEntriesViewModel(userContract *model.Contract, entries []
 	return ldsvm
 }
 
-func (m *Mapper) createEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
+// CreateEntryTypesViewModel creates a list of entry type view models.
+func (m *Mapper) CreateEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
 	etsvm := make([]*vm.EntryType, 0, 10)
 	for _, entryType := range entryTypes {
 		etsvm = append(etsvm, m.createEntryTypeViewModel(entryType.Id, entryType.Description))
@@ -151,7 +152,8 @@ func (m *Mapper) createEntryTypeViewModel(id int, description string) *vm.EntryT
 	}
 }
 
-func (m *Mapper) createEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
+// CreateEntryActivitiesViewModel creates a list of entry activity view models.
+func (m *Mapper) CreateEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
 ) []*vm.EntryActivity {
 	easvm := make([]*vm.EntryActivity, 0, 10)
 	easvm = append(easvm, m.createEntryActivityViewModel(0, "-"))
@@ -169,7 +171,8 @@ func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.En
 	}
 }
 
-func (m *Mapper) createEntryViewModel(entry *model.Entry) *vm.Entry {
+// CreateEntryViewModel creates a entry view model.
+func (m *Mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
 	return &vm.Entry{
 		Id:          entry.Id,
 		TypeId:      entry.TypeId,

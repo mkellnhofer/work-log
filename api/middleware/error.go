@@ -60,6 +60,7 @@ var httpStatusCodeMapping = map[int]int{
 	e.LogicUserAlreadyExists:              http.StatusConflict,
 	e.LogicContractWorkingHoursInvalid:    http.StatusBadRequest,
 	e.LogicContractVacationDaysInvalid:    http.StatusBadRequest,
+	e.LogicEntryActivityNotAllowed:        http.StatusBadRequest,
 }
 
 func getHttpStatusCode(errorCode int) int {

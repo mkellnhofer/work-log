@@ -67,6 +67,7 @@ const (
 	LogicUserAlreadyExists              = -409
 	LogicContractWorkingHoursInvalid    = -410
 	LogicContractVacationDaysInvalid    = -411
+	LogicEntryActivityNotAllowed        = -412
 
 	// System errors
 	SysUnknown             = -500

@@ -146,11 +146,11 @@ func (s *EntryService) CreateEntry(ctx context.Context, entry *model.Entry) erro
 	}
 
 	// Check if entry type exists
-	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
+	if err := s.checkEntryTypeExists(entry.TypeId); err != nil {
 		return err
 	}
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(ctx, entry.ActivityId); err != nil {
+	if err := s.checkEntryActivityExistsAllowed(ctx, entry.TypeId, entry.ActivityId); err != nil {
 		return err
 	}
 
@@ -172,7 +172,7 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) erro
 	}
 
 	// Check if entry exists
-	if err := s.checkIfEntryExists(entry.Id, existingEntry); err != nil {
+	if err := s.checkEntryExists(entry.Id, existingEntry); err != nil {
 		return err
 	}
 
@@ -182,11 +182,11 @@ func (s *EntryService) UpdateEntry(ctx context.Context, entry *model.Entry) erro
 	}
 
 	// Check if entry type exists
-	if err := s.checkIfEntryTypeExists(entry.TypeId); err != nil {
+	if err := s.checkEntryTypeExists(entry.TypeId); err != nil {
 		return err
 	}
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(ctx, entry.ActivityId); err != nil {
+	if err := s.checkEntryActivityExistsAllowed(ctx, entry.TypeId, entry.ActivityId); err != nil {
 		return err
 	}
 
@@ -208,7 +208,7 @@ func (s *EntryService) DeleteEntryById(ctx context.Context, id int) error {
 	}
 
 	// Check if entry exists
-	if err := s.checkIfEntryExists(id, existingEntry); err != nil {
+	if err := s.checkEntryExists(id, existingEntry); err != nil {
 		return err
 	}
 
@@ -235,7 +235,7 @@ func (s *EntryService) DeleteEntryByIdAndUserId(ctx context.Context, id int, use
 	}
 
 	// Check if entry exists
-	if err := s.checkIfEntryExists(id, existingEntry); err != nil {
+	if err := s.checkEntryExists(id, existingEntry); err != nil {
 		return err
 	}
 
@@ -255,7 +255,7 @@ func (s *EntryService) GetMonthEntriesByUserId(ctx context.Context, userId int, 
 	return s.eRepo.GetMonthEntries(ctx, userId, year, month)
 }
 
-func (s *EntryService) checkIfEntryExists(id int, entry *model.Entry) error {
+func (s *EntryService) checkEntryExists(id int, entry *model.Entry) error {
 	if entry == nil {
 		err := e.NewError(e.LogicEntryNotFound, fmt.Sprintf("Could not find entry %d.", id))
 		log.Debug(err.StackTrace())
@@ -311,12 +311,13 @@ func (s *EntryService) GetEntryTypesMap(ctx context.Context) (map[int]*model.Ent
 	return m, nil
 }
 
-func (s *EntryService) checkIfEntryTypeExists(id int) error {
-	exist := id == model.EntryTypeIdWork || id == model.EntryTypeIdTravel ||
-		id == model.EntryTypeIdVacation || id == model.EntryTypeIdHoliday ||
-		id == model.EntryTypeIdIllness
+func (s *EntryService) checkEntryTypeExists(typeId int) error {
+	exist := typeId == model.EntryTypeIdWork || typeId == model.EntryTypeIdTravel ||
+		typeId == model.EntryTypeIdVacation || typeId == model.EntryTypeIdHoliday ||
+		typeId == model.EntryTypeIdIllness
 	if !exist {
-		err := e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find entry type %d.", id))
+		err := e.NewError(e.LogicEntryTypeNotFound, fmt.Sprintf("Could not find entry type %d.",
+			typeId))
 		log.Debug(err.StackTrace())
 		return err
 	}
@@ -355,15 +356,15 @@ func (s *EntryService) GetEntryActivitiesMap(ctx context.Context) (map[int]*mode
 }
 
 // CreateEntryActivity creates a new entry activity.
-func (s *EntryService) CreateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) error {
+func (s *EntryService) CreateEntryActivity(ctx context.Context, entryActivity *model.EntryActivity,
+) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
 	}
 
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
+	if err := s.checkEntryActivityExists(ctx, entryActivity.Id); err != nil {
 		return err
 	}
 
@@ -372,15 +373,15 @@ func (s *EntryService) CreateEntryActivity(ctx context.Context,
 }
 
 // UpdateEntryActivity updates an entry activity.
-func (s *EntryService) UpdateEntryActivity(ctx context.Context,
-	entryActivity *model.EntryActivity) error {
+func (s *EntryService) UpdateEntryActivity(ctx context.Context, entryActivity *model.EntryActivity,
+) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
 	}
 
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(ctx, entryActivity.Id); err != nil {
+	if err := s.checkEntryActivityExists(ctx, entryActivity.Id); err != nil {
 		return err
 	}
 
@@ -389,51 +390,62 @@ func (s *EntryService) UpdateEntryActivity(ctx context.Context,
 }
 
 // DeleteEntryActivityById deletes an entry activity.
-func (s *EntryService) DeleteEntryActivityById(ctx context.Context, id int) error {
+func (s *EntryService) DeleteEntryActivityById(ctx context.Context, actId int) error {
 	// Check permissions
 	if err := checkHasCurrentUserRight(ctx, model.RightChangeEntryCharacts); err != nil {
 		return err
 	}
 
 	// Check if entry activity exists
-	if err := s.checkIfEntryActivityExists(ctx, id); err != nil {
+	if err := s.checkEntryActivityExists(ctx, actId); err != nil {
 		return err
 	}
 
 	// Check if entries with this activity exist
-	if err := s.checkIfEntryActivityIsUsed(ctx, id); err != nil {
+	if err := s.checkEntryActivityIsUsed(ctx, actId); err != nil {
 		return err
 	}
 
 	// Delete entry activity
-	return s.eRepo.DeleteEntryActivityById(ctx, id)
+	return s.eRepo.DeleteEntryActivityById(ctx, actId)
 }
 
-func (s *EntryService) checkIfEntryActivityExists(ctx context.Context, id int) error {
-	if id == 0 {
+func (s *EntryService) checkEntryActivityExistsAllowed(ctx context.Context, typeId int, actId int,
+) error {
+	if typeId != model.EntryTypeIdWork && actId != 0 {
+		err := e.NewError(e.LogicEntryActivityNotAllowed, fmt.Sprintf("The entry activity %d is "+
+			"not allowed for the entry type %d.", actId, typeId))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return s.checkEntryActivityExists(ctx, actId)
+}
+
+func (s *EntryService) checkEntryActivityExists(ctx context.Context, actId int) error {
+	if actId == 0 {
 		return nil
 	}
-	exists, err := s.eRepo.ExistsEntryActivityById(ctx, id)
+	exists, err := s.eRepo.ExistsEntryActivityById(ctx, actId)
 	if err != nil {
 		return err
 	}
 	if !exists {
 		err := e.NewError(e.LogicEntryActivityNotFound, fmt.Sprintf("Could not find entry activity "+
-			"%d.", id))
+			"%d.", actId))
 		log.Debug(err.StackTrace())
 		return err
 	}
 	return nil
 }
 
-func (s *EntryService) checkIfEntryActivityIsUsed(ctx context.Context, id int) error {
-	existsEntry, err := s.eRepo.ExistsEntryByActivityId(ctx, id)
+func (s *EntryService) checkEntryActivityIsUsed(ctx context.Context, actId int) error {
+	existsEntry, err := s.eRepo.ExistsEntryByActivityId(ctx, actId)
 	if err != nil {
 		return err
 	}
 	if existsEntry {
 		err := e.NewError(e.LogicEntryActivityDeleteNotAllowed, fmt.Sprintf("Could not delete entry "+
-			"activity %d. There are still entries for this activity.", id))
+			"activity %d. There are still entries for this activity.", actId))
 		log.Debug(err.StackTrace())
 		return err
 	}

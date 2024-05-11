@@ -50,13 +50,13 @@ func (c *baseController) getEntry(ctx context.Context, entryId int, userId int) 
 	return entry, nil
 }
 
-func (c *baseController) getEntryMasterData(ctx context.Context) ([]*model.EntryType,
+func (c *baseController) getEntryMasterData(ctx context.Context, entryTypeId int) ([]*model.EntryType,
 	[]*model.EntryActivity, error) {
 	entryTypes, err := c.getEntryTypes(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
-	entryActivities, err := c.getEntryActivities(ctx)
+	entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -67,7 +67,11 @@ func (c *baseController) getEntryTypes(ctx context.Context) ([]*model.EntryType,
 	return c.eServ.GetEntryTypes(ctx)
 }
 
-func (c *baseController) getEntryActivities(ctx context.Context) ([]*model.EntryActivity, error) {
+func (c *baseController) getEntryActivities(ctx context.Context, entryTypeId int,
+) ([]*model.EntryActivity, error) {
+	if entryTypeId != model.EntryTypeIdWork {
+		return []*model.EntryActivity{}, nil
+	}
 	return c.eServ.GetEntryActivities(ctx)
 }
 

@@ -60,6 +60,15 @@ func getIdPathVar(ctx echo.Context) (int, error) {
 	return parseId(v, false)
 }
 
+func getTypeIdQueryParam(ctx echo.Context) (int, error) {
+	v := ctx.QueryParam("type")
+	if v == "" {
+		return 0, nil
+	}
+
+	return parseId(v, false)
+}
+
 func parseId(in string, allowZero bool) (int, error) {
 	id, cErr := strconv.Atoi(in)
 	if cErr != nil {

@@ -24,8 +24,8 @@ func (m *SearchMapper) CreateSearchViewModel(byType bool, typeId int, byDate boo
 	return &vm.Search{
 		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, getDateString(startDate),
 			getDateString(endDate), byActivity, activityId, byDescription, description),
-		EntryTypes:      m.createEntryTypesViewModel(types),
-		EntryActivities: m.createEntryActivitiesViewModel(activities),
+		EntryTypes:      m.CreateEntryTypesViewModel(types),
+		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
 	}
 }
 

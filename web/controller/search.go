@@ -94,6 +94,19 @@ func (c *SearchController) getSearchParams(eCtx echo.Context) (string, int, bool
 	return searchQuery, pageNum, pageNumAvail, nil
 }
 
+// GetActivitiesHandler returns a handler for "GET /search/activities".
+func (c *SearchController) GetActivitiesHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		isHtmxReq := web.IsHtmxRequest(eCtx)
+		if !isHtmxReq {
+			err := e.NewError(e.ValUnknown, "Not a HTMX request.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		return c.handleHxGetActivities(eCtx, getContext(eCtx))
+	}
+}
+
 // PostSearchHandler returns a handler for "POST /search".
 func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
@@ -174,6 +187,25 @@ func (c *SearchController) handleHxNavSearch(eCtx echo.Context, ctx context.Cont
 	return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav(search, searchEntries))
 }
 
+func (c *SearchController) handleHxGetActivities(eCtx echo.Context, ctx context.Context) error {
+	entryTypeId, err := getTypeIdQueryParam(eCtx)
+	if err != nil {
+		return err
+	}
+
+	// Get entry master data
+	entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
+	if err != nil {
+		return err
+	}
+
+	// Create view model
+	viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
+
+	// Render
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchActivityOptions(viewData))
+}
+
 func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.Context,
 	searchInputs *searchInput) error {
 	// Create search filter
@@ -219,26 +251,26 @@ func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.
 
 func (c *SearchController) getSearchViewData(ctx context.Context, searchFilter *model.EntriesFilter,
 ) (*vm.Search, error) {
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	// Create default values
 	filter := searchFilter
 	if filter == nil {
 		filter = model.NewEntriesFilter()
 	}
 	typeId := filter.TypeId
-	if !filter.ByType && len(entryTypes) > 0 {
-		typeId = entryTypes[0].Id
+	if !filter.ByType {
+		typeId = model.EntryTypeIdWork
 	}
 	sTime := filter.StartTime
 	eTime := filter.EndTime
 	if !filter.ByTime {
 		sTime = time.Now()
 		eTime = time.Now()
+	}
+
+	// Get entry master data
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, typeId)
+	if err != nil {
+		return nil, err
 	}
 
 	// Create view model

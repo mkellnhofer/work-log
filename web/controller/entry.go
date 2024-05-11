@@ -47,6 +47,15 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 
 // --- Endpoints ---
 
+// GetActivitiesHandler returns a handler for "GET /entry-modal/activities".
+func (c *EntryController) GetActivitiesHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		return c.wrapHandler(eCtx, func(ctx context.Context) error {
+			return c.handleGetActivities(eCtx, ctx)
+		})
+	}
+}
+
 // GetCreateHandler returns a handler for "GET /entry-modal/create".
 func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
@@ -164,18 +173,35 @@ func (c *EntryController) getEntryInput(eCtx echo.Context) *entryInput {
 
 // --- Handler functions ---
 
+func (c *EntryController) handleGetActivities(eCtx echo.Context, ctx context.Context) error {
+	entryTypeId, err := getTypeIdQueryParam(eCtx)
+	if err != nil {
+		return err
+	}
+
+	// Get entry master data
+	entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
+	if err != nil {
+		return err
+	}
+
+	// Create view model
+	viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
+
+	// Render
+	return c.handleShowSuccess(eCtx, hx.EntryModalActivityOptions(viewData))
+}
+
 func (c *EntryController) handleShowCreate(eCtx echo.Context, ctx context.Context) error {
 	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, model.EntryTypeIdWork)
 	if err != nil {
 		return err
 	}
 
 	// Create view model
 	entry := model.NewEntry()
-	if len(entryTypes) > 0 {
-		entry.TypeId = entryTypes[0].Id
-	}
+	entry.TypeId = model.EntryTypeIdWork
 	entry.StartTime = time.Now()
 	entry.EndTime = time.Now()
 	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
@@ -214,7 +240,7 @@ func (c *EntryController) handleShowCopy(eCtx echo.Context, ctx context.Context,
 		return err
 	}
 	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
 	if err != nil {
 		return err
 	}
@@ -236,7 +262,7 @@ func (c *EntryController) handleShowEdit(eCtx echo.Context, ctx context.Context,
 		return err
 	}
 	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx)
+	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
 	if err != nil {
 		return err
 	}

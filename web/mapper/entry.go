@@ -5,7 +5,7 @@ import (
 	vm "kellnhofer.com/work-log/web/model"
 )
 
-// EntryMapper creates view models for the create/edit/copy/delete entry page.
+// EntryMapper creates view models for the create/edit/copy/delete entry modal.
 type EntryMapper struct {
 	Mapper
 }
@@ -15,12 +15,12 @@ func NewEntryMapper() *EntryMapper {
 	return &EntryMapper{}
 }
 
-// CreateInitialCreateViewModel creates a view model for the create entry page.
+// CreateEntryDataViewModel creates a view model for the entry modal.
 func (m *EntryMapper) CreateEntryDataViewModel(entry *model.Entry, types []*model.EntryType,
 	activities []*model.EntryActivity) *vm.EntryData {
 	return &vm.EntryData{
-		Entry:           m.createEntryViewModel(entry),
-		EntryTypes:      m.createEntryTypesViewModel(types),
-		EntryActivities: m.createEntryActivitiesViewModel(activities),
+		Entry:           m.CreateEntryViewModel(entry),
+		EntryTypes:      m.CreateEntryTypesViewModel(types),
+		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
 	}
 }

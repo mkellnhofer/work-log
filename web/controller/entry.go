@@ -47,7 +47,7 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 
 // --- Endpoints ---
 
-// GetCreateHandler returns a handler for "GET /create".
+// GetCreateHandler returns a handler for "GET /entry-modal/create".
 func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -56,7 +56,7 @@ func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
 	}
 }
 
-// PostCreateHandler returns a handler for "POST /create".
+// PostCreateHandler returns a handler for "POST /entry-modal/create".
 func (c *EntryController) PostCreateHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -66,7 +66,7 @@ func (c *EntryController) PostCreateHandler() echo.HandlerFunc {
 	}
 }
 
-// GetCopyHandler returns a handler for "GET /copy/{id}".
+// GetCopyHandler returns a handler for "GET /entry-modal/copy/{id}".
 func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -79,7 +79,7 @@ func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
 	}
 }
 
-// GetEditHandler returns a handler for "GET /edit/{id}".
+// GetEditHandler returns a handler for "GET /entry-modal/edit/{id}".
 func (c *EntryController) GetEditHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -92,7 +92,7 @@ func (c *EntryController) GetEditHandler() echo.HandlerFunc {
 	}
 }
 
-// PostEditHandler returns a handler for "POST /edit/{id}".
+// PostEditHandler returns a handler for "POST /entry-modal/edit/{id}".
 func (c *EntryController) PostEditHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -106,7 +106,7 @@ func (c *EntryController) PostEditHandler() echo.HandlerFunc {
 	}
 }
 
-// GetDeleteHandler returns a handler for "GET /delete/{id}".
+// GetDeleteHandler returns a handler for "GET /entry-modal/delete/{id}".
 func (c *EntryController) GetDeleteHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -119,7 +119,7 @@ func (c *EntryController) GetDeleteHandler() echo.HandlerFunc {
 	}
 }
 
-// PostDeleteHandler returns a handler for "POST /delete/{id}".
+// PostDeleteHandler returns a handler for "POST /entry-modal/delete/{id}".
 func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
@@ -132,11 +132,11 @@ func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
 	}
 }
 
-// PostCancelHandler returns a handler for "POST /cancel".
+// PostCancelHandler returns a handler for "POST /entry-modal/cancel".
 func (c *EntryController) PostCancelHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			return c.handleExecuteSuccess(eCtx)
+			return eCtx.NoContent(http.StatusOK)
 		})
 	}
 }

@@ -6,28 +6,29 @@ import (
 
 // This template is used to render a modal to create a entry.
 templ CreateEntryModal(entryData *model.EntryData) {
-	@entryModal("createTitle", "actionCreate", "actionCancel", "/create") {
+	@entryModal("createTitle", "actionCreate", "actionCancel", "create", "cancel") {
 		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to copy a entry.
 templ CopyEntryModal(entryData *model.EntryData) {
-	@entryModal("copyTitle", "actionCreate", "actionCancel", "/create") {
+	@entryModal("copyTitle", "actionCreate", "actionCancel", "create", "cancel") {
 		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to edit a entry.
 templ EditEntryModal(entryData *model.EntryData) {
-	@entryModal("editTitle", "actionSave", "actionCancel", "/edit/"+toString(entryData.Entry.Id)) {
+	@entryModal("editTitle", "actionSave", "actionCancel", "edit/"+toString(entryData.Entry.Id),
+		"cancel") {
 		@entryModalFormFields(entryData.EntryTypes, entryData.EntryActivities, entryData.Entry)
 	}
 }
 
 // This template is used to render a modal to delete a entry.
 templ DeleteEntryModal(entryId int) {
-	@entryModal("deleteTitle", "actionDelete", "actionCancel", "/delete/"+toString(entryId)) {
+	@entryModal("deleteTitle", "actionDelete", "actionCancel", "delete/"+toString(entryId), "cancel") {
 		<div class="form-row">
 			<div class="form-group col-12">
 				<label>{ getText("deleteMessage") }</label>
@@ -36,12 +37,17 @@ templ DeleteEntryModal(entryId int) {
 	}
 }
 
-templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string, submitUrl string) {
-	@Modal(titleTextRef, submitTextRef, cancelTextRef, templ.Attributes{"hx-post": submitUrl},
-		templ.Attributes{"hx-post": "/cancel"}) {
+templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string, submitPath string,
+	cancelPath string) {
+	@Modal(titleTextRef, submitTextRef, cancelTextRef, entryModalHxPostAttrs(submitPath),
+		entryModalHxPostAttrs(cancelPath)) {
 		@entryModalErrorMessageContainer("")
 		{ children... }
 	}
+}
+
+func entryModalHxPostAttrs(actionPath string) templ.Attributes {
+	return templ.Attributes{"hx-post": "/entry-modal/" + actionPath}
 }
 
 templ entryModalErrorMessageContainer(errorMessage string) {

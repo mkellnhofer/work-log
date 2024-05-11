@@ -524,7 +524,7 @@ func entryDayTableRowButton(url string, icon string, text string) templ.Componen
 }
 
 func buildActionUrl(action string, id int) string {
-	return "/" + action + "/" + toString(id)
+	return "/entry-modal/" + action + "/" + toString(id)
 }
 
 func entryDayTableRowTextField(content string) templ.Component {

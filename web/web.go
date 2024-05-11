@@ -38,13 +38,35 @@ func HtmxTrigger(ctx echo.Context, trigger string) {
 	ctx.Response().Header().Add("HX-Trigger", trigger)
 }
 
-// Render renders a template.
-func Render(ctx echo.Context, statusCode int, t templ.Component) error {
+// Render renders a page template.
+func RenderPage(ctx echo.Context, statusCode int, t templ.Component) error {
+	return render(ctx, statusCode, true, t)
+}
+
+// RenderHx renders a HTMX template.
+func RenderHx(ctx echo.Context, statusCode int, t templ.Component) error {
+	return render(ctx, statusCode, false, t)
+}
+
+var cspRules = "default-src 'self';" +
+	"script-src 'self';" +
+	"img-src 'self' data:;" +
+	"style-src 'self' 'unsafe-inline';" +
+	"font-src 'self';" +
+	"form-action 'self';" +
+	"base-uri 'self';"
+
+func render(ctx echo.Context, statusCode int, addCspHeader bool, t templ.Component) error {
 	req := ctx.Request()
 	res := ctx.Response()
 
 	res.Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
 	res.Header().Add(echo.HeaderCacheControl, "no-store")
+
+	if addCspHeader {
+		res.Header().Add("Content-Security-Policy", cspRules)
+		res.Header().Add("X-Content-Security-Policy", cspRules)
+	}
 
 	res.Writer.WriteHeader(statusCode)
 

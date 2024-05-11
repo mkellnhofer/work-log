@@ -83,7 +83,7 @@ func (c *LogController) handleShowLog(eCtx echo.Context, ctx context.Context, pa
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, page.Log(userInfo, summary, entries))
+	return web.RenderPage(eCtx, http.StatusOK, page.Log(userInfo, summary, entries))
 }
 
 func (c *LogController) handleHxNavLog(eCtx echo.Context, ctx context.Context, pageNum int) error {
@@ -94,7 +94,7 @@ func (c *LogController) handleHxNavLog(eCtx echo.Context, ctx context.Context, p
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.LogNav(summary, entries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.LogNav(summary, entries))
 }
 
 func (c *LogController) handleHxGetLogPage(eCtx echo.Context, ctx context.Context, pageNum int,
@@ -106,7 +106,7 @@ func (c *LogController) handleHxGetLogPage(eCtx echo.Context, ctx context.Contex
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.LogPage(summary, entries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.LogPage(summary, entries))
 }
 
 func (c *LogController) getLogViewData(ctx context.Context, pageNum int) (*vm.LogSummary,

@@ -110,7 +110,7 @@ func (c *OverviewController) handleShowOverview(eCtx echo.Context, ctx context.C
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, page.Overview(userInfo, overviewEntries))
+	return web.RenderPage(eCtx, http.StatusOK, page.Overview(userInfo, overviewEntries))
 }
 
 func (c *OverviewController) handleHxNavOverview(eCtx echo.Context, ctx context.Context, year int,
@@ -122,7 +122,7 @@ func (c *OverviewController) handleHxNavOverview(eCtx echo.Context, ctx context.
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.OverviewNav(overviewEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.OverviewNav(overviewEntries))
 }
 
 func (c *OverviewController) handleHxGetOverviewPage(eCtx echo.Context, ctx context.Context, year int,
@@ -134,7 +134,7 @@ func (c *OverviewController) handleHxGetOverviewPage(eCtx echo.Context, ctx cont
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.OverviewPage(overviewEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.OverviewPage(overviewEntries))
 }
 
 func (c *OverviewController) handleExportOverview(eCtx echo.Context, ctx context.Context, year int,

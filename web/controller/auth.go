@@ -190,7 +190,7 @@ func (c *AuthController) showEnterCredentialsError(eCtx echo.Context, err error)
 	ec := getErrorCode(err)
 	em := loc.GetErrorMessageString(ec)
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, em))
+	return web.RenderHx(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, em))
 }
 
 func (c *AuthController) handleChangePassword(eCtx echo.Context) error {
@@ -267,7 +267,7 @@ func (c *AuthController) handleChangePasswordError(eCtx echo.Context, err error)
 	ec := getErrorCode(err)
 	em := loc.GetErrorMessageString(ec)
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, em))
+	return web.RenderHx(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, em))
 }
 
 func (c *AuthController) createNewSession(eCtx echo.Context, userId int) *model.Session {
@@ -303,17 +303,17 @@ func (c *AuthController) getCurrentSession(eCtx echo.Context) *model.Session {
 
 func (c *AuthController) showEnterCredentials(eCtx echo.Context) error {
 	if web.IsHtmxRequest(eCtx) {
-		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, ""))
+		return web.RenderHx(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepEnterCredentials, ""))
 	} else {
-		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepEnterCredentials))
+		return web.RenderPage(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepEnterCredentials))
 	}
 }
 
 func (c *AuthController) showChangePassword(eCtx echo.Context) error {
 	if web.IsHtmxRequest(eCtx) {
-		return web.Render(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, ""))
+		return web.RenderHx(eCtx, http.StatusOK, hx.LoginPage(vm.LoginStepChangePassword, ""))
 	} else {
-		return web.Render(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepChangePassword))
+		return web.RenderPage(eCtx, http.StatusOK, page.LoginPage(vm.LoginStepChangePassword))
 	}
 }
 

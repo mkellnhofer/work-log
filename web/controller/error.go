@@ -41,14 +41,14 @@ func (c *ErrorController) handleShowError(eCtx echo.Context) error {
 	// Get view data
 	evd := c.getErrorViewData(eCtx)
 	// Render
-	return web.Render(eCtx, http.StatusOK, page.ErrorPage(evd))
+	return web.RenderPage(eCtx, http.StatusOK, page.ErrorPage(evd))
 }
 
 func (c *ErrorController) handleHxShowError(eCtx echo.Context) error {
 	// Get view data
 	evd := c.getErrorViewData(eCtx)
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.ErrorPage(evd))
+	return web.RenderHx(eCtx, http.StatusOK, hx.ErrorPage(evd))
 }
 
 func (c *ErrorController) getErrorViewData(eCtx echo.Context) *vm.Error {

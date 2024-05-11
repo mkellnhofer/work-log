@@ -152,7 +152,7 @@ func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Conte
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, page.Search(userInfo, searchErrorMessage, search,
+	return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, searchErrorMessage, search,
 		searchEntries))
 }
 
@@ -171,7 +171,7 @@ func (c *SearchController) handleHxNavSearch(eCtx echo.Context, ctx context.Cont
 	searchEntries := &vm.SearchEntries{}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.SearchNav(search, searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav(search, searchEntries))
 }
 
 func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.Context,
@@ -181,7 +181,7 @@ func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.
 	if err != nil {
 		searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
 		searchEntries := &vm.SearchEntries{}
-		return web.Render(eCtx, http.StatusOK, hx.Search(searchErrorMessage, nil, searchEntries))
+		return web.RenderHx(eCtx, http.StatusOK, hx.Search(searchErrorMessage, nil, searchEntries))
 	}
 
 	// Create view model
@@ -196,7 +196,7 @@ func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.
 
 	// Render
 	web.HtmxPushUrl(eCtx, "/search?query="+searchEntries.Query)
-	return web.Render(eCtx, http.StatusOK, hx.Search("", search, searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.Search("", search, searchEntries))
 }
 
 func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.Context, query string,
@@ -214,7 +214,7 @@ func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.
 	}
 
 	// Render
-	return web.Render(eCtx, http.StatusOK, hx.SearchPage(searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchPage(searchEntries))
 }
 
 func (c *SearchController) getSearchViewData(ctx context.Context, searchFilter *model.EntriesFilter,

@@ -299,7 +299,7 @@ func (c *EntryController) handleExecuteDelete(eCtx echo.Context, ctx context.Con
 
 func (c *EntryController) handleShowSuccess(eCtx echo.Context, t templ.Component) error {
 	// Render
-	return web.Render(eCtx, http.StatusOK, t)
+	return web.RenderHx(eCtx, http.StatusOK, t)
 }
 
 func (c *EntryController) handleExecuteSuccess(eCtx echo.Context) error {
@@ -315,7 +315,7 @@ func (c *EntryController) handleExecuteError(eCtx echo.Context, err error) error
 	em := loc.GetErrorMessageString(ec)
 	// Render
 	web.HtmxRetarget(eCtx, "#wl-entry-modal-error")
-	return web.Render(eCtx, http.StatusOK, hx.EntryModalError(em))
+	return web.RenderHx(eCtx, http.StatusOK, hx.EntryModalError(em))
 }
 
 // --- Model converter functions ---

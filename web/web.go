@@ -40,9 +40,15 @@ func HtmxTrigger(ctx echo.Context, trigger string) {
 
 // Render renders a template.
 func Render(ctx echo.Context, statusCode int, t templ.Component) error {
-	ctx.Response().Writer.WriteHeader(statusCode)
-	ctx.Response().Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
-	tErr := t.Render(ctx.Request().Context(), ctx.Response().Writer)
+	req := ctx.Request()
+	res := ctx.Response()
+
+	res.Header().Set(echo.HeaderContentType, echo.MIMETextHTML)
+	res.Header().Add(echo.HeaderCacheControl, "no-store")
+
+	res.Writer.WriteHeader(statusCode)
+
+	tErr := t.Render(req.Context(), res.Writer)
 	if tErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not render template.", tErr)
 		log.Debug(err.StackTrace())

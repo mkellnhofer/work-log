@@ -10,9 +10,18 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 )
 
-func checkIdValid(name string, id int) error {
+func checkIdPositive(name string, id int) error {
 	if id <= int(0) {
 		err := e.NewError(e.ValIdInvalid, fmt.Sprintf("'%s' must be positive.", name))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+func checkIdZeroPositive(name string, id int) error {
+	if id < int(0) {
+		err := e.NewError(e.ValIdInvalid, fmt.Sprintf("'%s' must be zero or positive.", name))
 		log.Debug(err.StackTrace())
 		return err
 	}

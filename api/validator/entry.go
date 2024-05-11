@@ -75,7 +75,7 @@ func ValidateUpdateEntry(data *vm.UpdateEntry) error {
 // --- Basic entry validation functions ---
 
 func checkEntryUserId(id int) error {
-	return checkIdValid("userId", id)
+	return checkIdPositive("userId", id)
 }
 
 func checkEntryStartTime(timestamp string) error {
@@ -87,11 +87,11 @@ func checkEntryEndTime(timestamp string) error {
 }
 
 func checkEntryTypeId(id int) error {
-	return checkIdValid("typeId", id)
+	return checkIdPositive("typeId", id)
 }
 
 func checkEntryActivityId(id int) error {
-	return checkIdValid("activityId", id)
+	return checkIdZeroPositive("activityId", id)
 }
 
 func checkEntryDescription(desc string) error {

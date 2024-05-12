@@ -1,9 +1,14 @@
 package component
 
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
+)
+
 // This template is used to render the navigation bar. It is composed of three main parts, the brand
 // icon, the page navigation and the page menu. The template gets the name of the current page, the
-// current available action buttons, and the user icon for the user menu dropdown.
-templ NavBar(currentPage string, actionButtons templ.Component, userIconSvg string) {
+// current available action buttons, and the user information for the user menu dropdown.
+templ NavBar(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo) {
 	<header class="navbar navbar-expand-sm mb-3 border-bottom">
 		<nav class="container-xxl flex-wrap flex-sm-nowrap px-0" aria-label="Main navigation">
 			<button
@@ -17,7 +22,7 @@ templ NavBar(currentPage string, actionButtons templ.Component, userIconSvg stri
 			</button>
 			@navBarBrand()
 			@navBarNav(currentPage)
-			@navBarPageMenu(actionButtons, userIconSvg)
+			@navBarPageMenu(actionButtons, view.CreateUserIconSvg(userInfo.Initials))
 		</nav>
 	</header>
 }

@@ -31,7 +31,6 @@ func (m *Mapper) CreateUserInfoViewModel(user *model.User) *vm.UserInfo {
 	return &vm.UserInfo{
 		Id:       user.Id,
 		Initials: getUserInitials(user.Name),
-		IconSvg:  createUserIconSvg(user.Name),
 	}
 }
 
@@ -269,11 +268,6 @@ func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuratio
 
 // --- User info helpers ---
 
-var userIconColors = []string{
-	"#df5755", "#e24970", "#977dc8", "#439dde", "#3eaabd",
-	"#57aa5a", "#8dbe5a", "#f7c04c", "#f7a951", "#f76b4f",
-}
-
 func getUserInitials(name string) string {
 	words := strings.Fields(name)
 	initials := ""
@@ -281,30 +275,6 @@ func getUserInitials(name string) string {
 		initials = initials + string(word[0])
 	}
 	return strings.ToUpper(initials)
-}
-
-func createUserIconSvg(name string) string {
-	initials := getUserInitials(name)
-
-	color := userIconColors[(int(initials[0])+int(initials[1]))%len(userIconColors)]
-
-	return `
-		<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-			<g>
-				<circle
-					style="fill:` + color + `;"
-					cx="16"
-					cy="16"
-					r="16"
-				/>
-				<text
-					style="font-size:13;font-family:FreeSans;text-anchor:middle;fill:#FFF;"
-					x="16"
-					y="21"
-				>` + initials + `</text>
-			</g>
-		</svg>
-	`
 }
 
 // --- Date and time helpers ---

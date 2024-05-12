@@ -10,10 +10,15 @@ import "context"
 import "io"
 import "bytes"
 
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
+)
+
 // This template is used to render the navigation bar. It is composed of three main parts, the brand
 // icon, the page navigation and the page menu. The template gets the name of the current page, the
-// current available action buttons, and the user icon for the user menu dropdown.
-func NavBar(currentPage string, actionButtons templ.Component, userIconSvg string) templ.Component {
+// current available action buttons, and the user information for the user menu dropdown.
+func NavBar(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -38,7 +43,7 @@ func NavBar(currentPage string, actionButtons templ.Component, userIconSvg strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = navBarPageMenu(actionButtons, userIconSvg).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = navBarPageMenu(actionButtons, view.CreateUserIconSvg(userInfo.Initials)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -295,7 +300,7 @@ func pageNavItem(hxGetUrl string, active bool, titleTextRef string) templ.Compon
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(hxGetUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 106, Col: 20}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 111, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -308,7 +313,7 @@ func pageNavItem(hxGetUrl string, active bool, titleTextRef string) templ.Compon
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(getText(titleTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 111, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 116, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -528,7 +533,7 @@ func userMenuItem(text string, url templ.SafeURL) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 161, Col: 45}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 166, Col: 45}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {

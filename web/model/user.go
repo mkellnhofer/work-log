@@ -4,5 +4,4 @@ package model
 type UserInfo struct {
 	Id       int
 	Initials string
-	IconSvg  string
 }

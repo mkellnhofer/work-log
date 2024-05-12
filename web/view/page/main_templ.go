@@ -39,7 +39,7 @@ func mainPage(currentPage string, actionButtons templ.Component, userInfo *model
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = component.NavBar(currentPage, actionButtons, userInfo.IconSvg).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = component.NavBar(currentPage, actionButtons, userInfo).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

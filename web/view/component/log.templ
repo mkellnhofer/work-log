@@ -2,6 +2,7 @@ package component
 
 import (
 	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
 )
 
 // This template is used to render the action buttons on the log page.
@@ -28,7 +29,7 @@ templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 		hx-swap="outerHTML"
 	>
 		@logSummary(summary)
-		@logEntryList(listEntries)
+		@logEntries(listEntries)
 		@logPagingControl(listEntries.HasPrevPage, listEntries.PrevPageNum, listEntries.HasNextPage,
 			listEntries.NextPageNum)
 	</div>
@@ -36,22 +37,90 @@ templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 
 templ logSummary(summary *model.LogSummary) {
 	if summary != nil {
-		<div class="border rounded-2 mb-4 p-3">
-			<h2>{ getText("logSummaryHeading") }</h2>
-			<p class="mb-0">
-				@logSummaryItem("logSummaryLabelOvertimeHours", summary.OvertimeHours, "hoursUnit")
-				<span> - </span>
-				@logSummaryItem("logSummaryLabelRemainingVacationDays", summary.RemainingVacationDays,
-					"daysUnit")
-			</p>
+		<div class="border rounded-2 mb-4 px-3 px-md-2 pt-3 pt-md-2 pb-1 pb-md-0">
+			<div class="row align-items-center">
+				@logSummaryMonthActualTarget(summary)
+				@logSummaryMonthProgress(summary)
+				@logSummaryTotalOvertime(summary)
+				@logSummaryTotalVacation(summary)
+			</div>
 		</div>
 	}
 }
 
-templ logSummaryItem(labelTextRef string, value string, unitTextRef string) {
-	<span class="nowrap">
-		{ getText(labelTextRef) + " " + value + " " + getText(unitTextRef)}
-	</span>
+templ logSummaryMonthActualTarget(summary *model.LogSummary) {
+	<div class="col-12 col-sm-3 col-md-3 text-center">
+		<h2 class="fw-bold">{ getText("logSummaryHeaderCurrentMonth") }</h2>
+		<p class="mb-2">
+			<span class="fs-5">{ summary.MonthActualHours }</span>
+			<span>/</span>
+			<span>{ summary.MonthTargetHours + " " + getText("hoursUnit") }</span>
+		</p>
+	</div>
+}
+
+templ logSummaryMonthProgress(summary *model.LogSummary) {
+	<div class="col-12 col-sm-9 col-md-5 text-center">
+		@logSummaryMonthProgressBar(summary)
+		@logSummaryMonthProgressBarLabels(summary)
+	</div>
+}
+
+templ logSummaryMonthProgressBar(summary *model.LogSummary) {
+	<div class="mb-2">
+		@templ.Raw(view.CreateLogSummaryProgressSvg(summary.CurrentLoggedPercent,
+			summary.CurrentOvertimePercent, summary.CurrentUndertimePercent))
+	</div>
+}
+
+templ logSummaryMonthProgressBarLabels(summary *model.LogSummary) {
+	<div class="mb-2">
+		@logSummaryMonthProgressBarLabel(view.LogSummaryProgressColorLog, "logSummaryProgressLabelLog",
+			summary.CurrentLoggedHours)
+		@logSummaryMonthProgressBarLabel(view.LogSummaryProgressColorRem, "logSummaryProgressLabelRem",
+			summary.CurrentRemainingHours)
+		if summary.CurrentOvertimePercent > 0 {
+			@logSummaryMonthProgressBarLabel(view.LogSummaryProgressColorOvr, "logSummaryProgressLabelOvr",
+				summary.CurrentOvertimeHours)
+		}
+		if summary.CurrentUndertimePercent > 0 {
+			@logSummaryMonthProgressBarLabel(view.LogSummaryProgressColorUnd, "logSummaryProgressLabelUnd",
+				summary.CurrentUndertimeHours)
+		}
+	</div>
+}
+
+templ logSummaryMonthProgressBarLabel(color string, labelTextRef string, value string) {
+	<p class="d-inline-block mb-1 px-2">
+		<span { templ.Attributes{"style": "color:" + color + ";"}... }>●</span>
+		<span>{ getText(labelTextRef) + ":" }</span>
+		<span class="fw-bold">{ value + getText("hoursShortUnit") }</span>
+	</p>
+}
+
+templ logSummaryTotalOvertime(summary *model.LogSummary) {
+	<div class="col-6 col-md-2 pt-1 text-center">
+		<h3 class="fw-bold">{ getText("logSummaryHeaderOvertime") }</h3>
+		<p>{ summary.TotalOvertimeHours + " " + getText("hoursUnit") }</p>
+	</div>
+}
+
+templ logSummaryTotalVacation(summary *model.LogSummary) {
+	<div class="col-6 col-md-2 pt-1 text-center">
+		<h3 class="fw-bold">{ getText("logSummaryHeaderRemainingVacation") }</h3>
+		<p>{ summary.TotalRemainingVacationDays + " " + getText("daysUnit") }</p>
+	</div>
+}
+
+templ logEntries(entries *model.ListEntries) {
+	@logEntriesHeader()
+	@logEntryList(entries)
+}
+
+templ logEntriesHeader() {
+	<div class="mb-4">
+		<h2 class="fw-bold">{ getText("logHeadingEntries") }</h2>
+	</div>
 }
 
 templ logEntryList(entries *model.ListEntries) {

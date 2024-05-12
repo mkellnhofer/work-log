@@ -365,9 +365,3 @@ func formatHours(d time.Duration) string {
 	printer := message.NewPrinter(loc.LngTag)
 	return printer.Sprintf("%.2f", h)
 }
-
-func formatMinutes(d time.Duration) string {
-	m := d.Minutes()
-	printer := message.NewPrinter(loc.LngTag)
-	return printer.Sprintf("%d", int(m))
-}

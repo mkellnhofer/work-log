@@ -1,6 +1,7 @@
 package view
 
 import (
+	"strconv"
 	"strings"
 
 	"golang.org/x/text/message"
@@ -40,6 +41,55 @@ func CreateUserIconSvg(initials string) string {
 			>` + initials + `</text>
 		`
 	})
+}
+
+// --- Functions to render the log summary progress SVG ---
+
+var LogSummaryProgressColorLog = "#999999"
+var LogSummaryProgressColorRem = "#d6d6d6"
+var LogSummaryProgressColorOvr = "#0c63e4"
+var LogSummaryProgressColorUnd = "#f1b523"
+
+// CreateLogSummaryProgressSvg creates a log summary progress bar.
+func CreateLogSummaryProgressSvg(logged int, overtime int, undertime int) string {
+	return createSvg("0 0 1000 10", "100%", "10", func() string {
+		return createLogSummaryProgressSvgMask() +
+			createLogSummaryProgressSvgLogRem(logged) +
+			createLogSummaryProgressSvgOvrUnd(logged, overtime, undertime)
+	})
+}
+
+func createLogSummaryProgressSvgLogRem(logged int) string {
+	return createLogSummaryProgressSvgRect(0, 100, LogSummaryProgressColorRem) +
+		createLogSummaryProgressSvgRect(0, logged, LogSummaryProgressColorLog)
+}
+
+func createLogSummaryProgressSvgOvrUnd(logged int, overtime int, undertime int) string {
+	if overtime > undertime {
+		return createLogSummaryProgressSvgRect(logged-overtime, logged, LogSummaryProgressColorOvr)
+	} else {
+		return createLogSummaryProgressSvgRect(logged, logged+undertime, LogSummaryProgressColorUnd)
+	}
+}
+
+func createLogSummaryProgressSvgMask() string {
+	return `
+		<mask id="msk">
+			<rect width="100%" height="100%" fill="black" />
+			<rect width="100%" height="100%" ry="100%" fill="white" />
+		</mask>
+	`
+}
+
+func createLogSummaryProgressSvgRect(start int, end int, color string) string {
+	return `
+		<rect
+			x="` + strconv.Itoa(start) + `%"
+			width="` + strconv.Itoa(end-start) + `%"
+			height="100%"
+			fill="` + color + `"
+			mask="url(#msk)" />
+	`
 }
 
 // --- Helper functions ---

@@ -465,7 +465,21 @@ func (s *EntryService) GetTotalWorkSummaryByUserId(ctx context.Context, userId i
 	// Get work summary
 	start := time.Time{}
 	now := time.Now()
-	end := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.Local)
+	end := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, time.Local)
+	return s.eRepo.GetWorkSummary(ctx, userId, start, end)
+}
+
+// GetWorkSummaryByUserId gets the month work summary of an user.
+func (s *EntryService) GetMonthWorkSummaryByUserId(ctx context.Context, userId int, year int,
+	month time.Month) (*model.WorkSummary, error) {
+	// Check permissions
+	if err := s.checkHasCurrentUserGetRight(ctx, userId); err != nil {
+		return nil, err
+	}
+
+	// Get work summary
+	start := time.Date(year, month, 1, 0, 0, 0, 0, time.Local)
+	end := time.Date(year, month+1, 1, 0, 0, 0, 0, time.Local)
 	return s.eRepo.GetWorkSummary(ctx, userId, start, end)
 }
 

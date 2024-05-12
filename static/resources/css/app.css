@@ -29,10 +29,6 @@ p, th, td {
   color: #000000;
 }
 
-.nowrap {
-  white-space: nowrap;
-}
-
 .nav-link {
   font-size: 1.2rem;
 }

@@ -32,9 +32,14 @@
 
     <!-- List view -->
     <message key="logTitle"><text>Log</text></message>
-    <message key="logSummaryHeading"><text>Working time account:</text></message>
-    <message key="logSummaryLabelOvertimeHours"><text>Overtime hours:</text></message>
-    <message key="logSummaryLabelRemainingVacationDays"><text>Remaining vacation days:</text></message>
+    <message key="logSummaryHeaderCurrentMonth"><text>Current Month</text></message>
+    <message key="logSummaryProgressLabelLog"><text>Logged</text></message>
+    <message key="logSummaryProgressLabelRem"><text>Remaining</text></message>
+    <message key="logSummaryProgressLabelOvr"><text>Overtime</text></message>
+    <message key="logSummaryProgressLabelUnd"><text>Undertime</text></message>
+    <message key="logSummaryHeaderOvertime"><text>Total Overtime</text></message>
+    <message key="logSummaryHeaderRemainingVacation"><text>Remaining Vacation</text></message>
+    <message key="logHeadingEntries"><text>Entries</text></message>
     <message key="logLabelNoEntries"><text>no entries exist</text></message>
     <message key="logLabelBreak"><text>Break</text></message>
 
@@ -47,8 +52,8 @@
     <!-- Overview view -->
     <message key="overviewTitle"><text>Overview</text></message>
     <message key="overviewActionExport"><text>Export</text></message>
-    <message key="overviewHeadingSummary"><text>Summary:</text></message>
-    <message key="overviewHeadingEntries"><text>Entries:</text></message>
+    <message key="overviewHeadingSummary"><text>Summary</text></message>
+    <message key="overviewHeadingEntries"><text>Entries</text></message>
     <message key="overviewSummaryLabelTargetHours"><text>Target</text></message>
     <message key="overviewSummaryLabelActualHours"><text>Actual</text></message>
     <message key="overviewSummaryLabelBalanceHours"><text>Balance</text></message>

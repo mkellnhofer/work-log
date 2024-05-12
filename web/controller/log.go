@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -137,14 +138,23 @@ func (c *LogController) getLogViewData(ctx context.Context, pageNum int) (*vm.Lo
 
 func (c *LogController) getLogSummaryViewData(ctx context.Context, userId int,
 	userContract *model.Contract) (*vm.LogSummary, error) {
-	// Get work summary data
-	workSummary, err := c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
+	// Get total work summary data
+	totalWorkSummary, err := c.eServ.GetTotalWorkSummaryByUserId(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get month work summary data
+	now := time.Now()
+	year, month := now.Year(), now.Month()
+	monthWorkSummary, err := c.eServ.GetMonthWorkSummaryByUserId(ctx, userId, year, month)
 	if err != nil {
 		return nil, err
 	}
 
 	// Create view model
-	return c.mapper.CreateLogSummaryViewModel(userContract, workSummary), nil
+	return c.mapper.CreateLogSummaryViewModel(userContract, now, totalWorkSummary, monthWorkSummary),
+		nil
 }
 
 func (c *LogController) getLogEntriesViewData(ctx context.Context, userId int,

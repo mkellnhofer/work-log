@@ -64,6 +64,7 @@ p, th, td {
   width: 100%;
   max-width: 400px;
   margin: auto;
+  padding-bottom: 40px;
 }
 
 .wl-auth-form > img {

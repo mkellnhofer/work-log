@@ -8,8 +8,10 @@ import (
 // two flags which control the rendering of day header.
 templ EntryList(days []*model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
 	for _, day := range days {
-		@entryDayHeader(day, highlightWorkDuration, showBreakDuration)
-		@entryDayTable(day)
+		<div class="mb-3">
+			@entryDayHeader(day, highlightWorkDuration, showBreakDuration)
+			@entryDayTable(day)
+		</div>
 	}
 }
 
@@ -33,7 +35,7 @@ templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, show
 }
 
 templ entryDayTable(day *model.ListEntriesDay) {
-	<div class="table-responsive table-responsive-xl mb-4">
+	<div class="table-responsive table-responsive-xl">
 		<table class="table table-sm align-middle">
 			<thead>
 				@entryDayTableHeaderRow()

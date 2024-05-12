@@ -90,7 +90,7 @@ p, th, td {
 }
 
 .wl-list-table-head {
-  background-color: #f5f5f5;
+  background-color: #fafafa;
 }
 
 .wl-list-table-column-buttons {
@@ -119,7 +119,7 @@ p, th, td {
 }
 
 .wl-list-table-row-overlapping {
-  background-color: #ffbda8;
+  background-color: #ff8585;
 }
 
 .wl-overview-summary-table-column-label {
@@ -131,7 +131,7 @@ p, th, td {
 }
 
 .wl-overview-table-head {
-  background-color: #f5f5f5;
+  background-color: #fafafa;
 }
 
 .wl-overview-table-column-date {
@@ -156,5 +156,5 @@ p, th, td {
 }
 
 .wl-overview-table-row-weekend {
-  background-color: #f9f9f9;
+  background-color: #fcfcfc;
 }

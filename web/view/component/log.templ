@@ -27,28 +27,31 @@ templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
-		@logSummaryView(summary)
+		@logSummary(summary)
 		@logEntryList(listEntries)
 		@logPagingControl(listEntries.HasPrevPage, listEntries.PrevPageNum, listEntries.HasNextPage,
 			listEntries.NextPageNum)
 	</div>
 }
 
-templ logSummaryView(summary *model.LogSummary) {
+templ logSummary(summary *model.LogSummary) {
 	if summary != nil {
 		<div class="border rounded-2 mb-4 p-3">
 			<h2>{ getText("logSummaryHeading") }</h2>
 			<p class="mb-0">
-				<span class="nowrap">
-					{ getText("logSummaryLabelOvertimeHours") } { summary.OvertimeHours }
-				</span>
-				<span>-</span>
-				<span class="nowrap">
-					{ getText("logSummaryLabelRemainingVacationDays") } { summary.RemainingVacationDays }
-				</span>
+				@logSummaryItem("logSummaryLabelOvertimeHours", summary.OvertimeHours, "hoursUnit")
+				<span> - </span>
+				@logSummaryItem("logSummaryLabelRemainingVacationDays", summary.RemainingVacationDays,
+					"daysUnit")
 			</p>
 		</div>
 	}
+}
+
+templ logSummaryItem(labelTextRef string, value string, unitTextRef string) {
+	<span class="nowrap">
+		{ getText(labelTextRef) + " " + value + " " + getText(unitTextRef)}
+	</span>
 }
 
 templ logEntryList(entries *model.ListEntries) {

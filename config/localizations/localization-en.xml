@@ -93,8 +93,9 @@
     <message key="entryTypeIllness"><text>Illness</text></message>
 
     <!-- Date/time -->
-    <message key="daysValue"><text>%.1f days</text></message>
-    <message key="hoursValue"><text>%.2f hours</text></message>
+    <message key="daysUnit"><text>days</text></message>
+    <message key="hoursUnit"><text>hours</text></message>
+    <message key="hoursShortUnit"><text>h</text></message>
     <message key="weekdaySun"><text>Sunday</text></message>
     <message key="weekdayMon"><text>Monday</text></message>
     <message key="weekdayTue"><text>Tuesday</text></message>

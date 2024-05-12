@@ -95,7 +95,7 @@ templ overviewSummaryTableRow(labelTextRef string, hours string) {
 				{ getText(labelTextRef) }:
 			}
 		</th>
-		<td class="wl-overview-summary-table-column-hours">{ hours }</td>
+		<td class="wl-overview-summary-table-column-hours">{ hours + " " + getText("hoursUnit") }</td>
 	</tr>
 }
 

@@ -58,8 +58,8 @@ func (m *LogMapper) createSummaryViewModel(userContract *model.Contract,
 
 	// Create summary
 	return &vm.LogSummary{
-		OvertimeHours:         createHoursString(overtimeHours),
-		RemainingVacationDays: createDaysString(remainingVacationDays),
+		OvertimeHours:         getHoursString(overtimeHours),
+		RemainingVacationDays: getDaysString(remainingVacationDays),
 	}
 }
 

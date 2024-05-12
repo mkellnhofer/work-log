@@ -97,14 +97,14 @@ func (m *OverviewMapper) createSummaryViewModel(year int, month int, userContrac
 
 	// Create summary
 	return &vm.OverviewEntriesSummary{
-		ActualWorkHours:     createRoundedHoursString(actWork),
-		ActualTravelHours:   createRoundedHoursString(actTrav),
-		ActualVacationHours: createRoundedHoursString(actVaca),
-		ActualHolidayHours:  createRoundedHoursString(actHoli),
-		ActualIllnessHours:  createRoundedHoursString(actIlln),
-		TargetHours:         createRoundedHoursString(tar),
-		ActualHours:         createRoundedHoursString(act),
-		BalanceHours:        createRoundedHoursString(bal),
+		ActualWorkHours:     getRoundedHoursString(actWork),
+		ActualTravelHours:   getRoundedHoursString(actTrav),
+		ActualVacationHours: getRoundedHoursString(actVaca),
+		ActualHolidayHours:  getRoundedHoursString(actHoli),
+		ActualIllnessHours:  getRoundedHoursString(actIlln),
+		TargetHours:         getRoundedHoursString(tar),
+		ActualHours:         getRoundedHoursString(act),
+		BalanceHours:        getRoundedHoursString(bal),
 	}
 }
 

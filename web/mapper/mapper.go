@@ -340,21 +340,24 @@ func formatTime(t time.Time) string {
 	return t.Format("15:04")
 }
 
-func createDaysString(days float32) string {
-	return loc.CreateString("daysValue", days)
+func getDaysString(days float32) string {
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf("%.1f", days)
 }
 
-func createHoursString(hours float32) string {
-	return loc.CreateString("hoursValue", hours)
-}
-
-func createRoundedHoursString(d time.Duration) string {
-	return createHoursString(getRoundedHours(d))
+func getRoundedHoursString(d time.Duration) string {
+	hours := getRoundedHours(d)
+	return getHoursString(hours)
 }
 
 func getRoundedHours(d time.Duration) float32 {
-	rd := roundDuration(d)
+	rd := d.Round(time.Minute)
 	return float32(rd.Hours())
+}
+
+func getHoursString(hours float32) string {
+	printer := message.NewPrinter(loc.LngTag)
+	return printer.Sprintf("%.2f", hours)
 }
 
 func formatHours(d time.Duration) string {
@@ -367,8 +370,4 @@ func formatMinutes(d time.Duration) string {
 	m := d.Minutes()
 	printer := message.NewPrinter(loc.LngTag)
 	return printer.Sprintf("%d", int(m))
-}
-
-func roundDuration(d time.Duration) time.Duration {
-	return d.Round(time.Minute)
 }

@@ -8,7 +8,7 @@ import (
 templ mainPage(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo,
 	content templ.Component) {
 	@Page() {
-		<div id="wl-container" class="wl-container px-2 pt-0 pb-2 py-sm-2">
+		<div id="wl-container" class="wl-container px-2">
 			@component.NavBar(currentPage, actionButtons, userInfo.IconSvg)
 			<div id="wl-page-content">
 				@content

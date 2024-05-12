@@ -4,7 +4,7 @@ package component
 // updated when an page is requested, as well as URLs to load the previous/next page from.
 templ PagingControl(hxTarget string, hasPrevPage bool, prevPageHxGetUrl string, hasNextPage bool,
 	nextPageHxGetUrl string) {
-	<div class="d-flex justify-content-between mt-4 mb-3">
+	<div class="d-flex justify-content-between py-sm-3 py-2">
 		<div>
 			if hasPrevPage {
 				@pagingLink(hxTarget, prevPageHxGetUrl, "outerHTML show:#wl-container:bottom", "actionPrevious")

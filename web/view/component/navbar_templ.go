@@ -278,7 +278,7 @@ func pageNavItem(hxGetUrl string, active bool, titleTextRef string) templ.Compon
 			return templ_7745c5c3_Err
 		}
 		if active {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" class=\"nav-link active\" aria-current=\"true\"")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" class=\"nav-link active fw-bold\" aria-current=\"true\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

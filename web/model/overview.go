@@ -12,14 +12,14 @@ type OverviewEntries struct {
 
 // OverviewEntriesSummary stores data for the summary in the overview entries view.
 type OverviewEntriesSummary struct {
-	ActualWorkHours     string
-	ActualTravelHours   string
-	ActualVacationHours string
-	ActualHolidayHours  string
-	ActualIllnessHours  string
-	TargetHours         string
-	ActualHours         string
-	BalanceHours        string
+	MonthTargetHours  string
+	MonthActualHours  string
+	MonthBalanceHours string
+
+	TypePercentages     map[int]int
+	RemainingPercentage int
+	TypeHours           map[int]string
+	RemainingHours      string
 }
 
 // OverviewEntriesDay stores view data for a day.

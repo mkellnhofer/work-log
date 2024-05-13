@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"math"
 	"sort"
 	"strings"
 	"time"
@@ -345,11 +346,6 @@ func getDaysString(days float32) string {
 	return printer.Sprintf("%.1f", days)
 }
 
-func getRoundedHoursString(d time.Duration) string {
-	hours := getRoundedHours(d)
-	return getHoursString(hours)
-}
-
 func getRoundedHours(d time.Duration) float32 {
 	rd := d.Round(time.Minute)
 	return float32(rd.Hours())
@@ -364,4 +360,16 @@ func formatHours(d time.Duration) string {
 	h := d.Hours()
 	printer := message.NewPrinter(loc.LngTag)
 	return printer.Sprintf("%.2f", h)
+}
+
+// --- Misc helpers ---
+
+func (m *Mapper) calculatePercentage(actual float32, total float32) int {
+	if actual == 0 || total == 0 {
+		return 0
+	}
+
+	percentage := (actual / total) * 100
+
+	return int(math.Round(float64(percentage)))
 }

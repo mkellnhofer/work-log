@@ -52,14 +52,17 @@
     <!-- Overview view -->
     <message key="overviewTitle"><text>Übersicht</text></message>
     <message key="overviewActionExport"><text>Exportieren</text></message>
-    <message key="overviewHeadingSummary"><text>Zusammenfassung</text></message>
+    <message key="overviewSummaryHeaderActTrg"><text>Zielerreichung</text></message>
+    <message key="overviewSummaryProgressLabelRem"><text>Verbleibend</text></message>
     <message key="overviewHeadingEntries"><text>Einträge</text></message>
-    <message key="overviewSummaryLabelTargetHours"><text>Soll</text></message>
-    <message key="overviewSummaryLabelActualHours"><text>Ist</text></message>
-    <message key="overviewSummaryLabelBalanceHours"><text>Saldo</text></message>
-    <message key="exportTitle"><text>%s Export</text></message>
-    <message key="exportPropTitle"><text>%s Export - %s</text></message>
-    <message key="exportPropDescription"><text>This file created by %s.</text></message>
+    <message key="overviewExportTitle"><text>%s Export</text></message>
+    <message key="overviewExportPropTitle"><text>%s Export - %s</text></message>
+    <message key="overviewExportPropDescription"><text>This file created by %s.</text></message>
+    <message key="overviewExportHeadingSummary"><text>Summary:</text></message>
+    <message key="overviewExportHeadingEntries"><text>Einträge:</text></message>
+    <message key="overviewExportSummaryLabelTarget"><text>Soll</text></message>
+    <message key="overviewExportSummaryLabelActual"><text>Ist</text></message>
+    <message key="overviewExportSummaryLabelBalance"><text>Saldo</text></message>
 
     <!-- Create/edit/copy view -->
     <message key="createTitle"><text>Eintrag erstellen</text></message>

@@ -20,8 +20,8 @@ func NewOverviewMapper() *OverviewMapper {
 }
 
 // CreateOverviewEntriesViewModel creates a view model for the overview page.
-func (m *OverviewMapper) CreateOverviewEntriesViewModel(year int, month int,
-	userContract *model.Contract, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+func (m *OverviewMapper) CreateOverviewEntriesViewModel(userContract *model.Contract, year int,
+	month int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.OverviewEntries {
 	oesvm := &vm.OverviewEntries{}
 
@@ -51,7 +51,7 @@ func (m *OverviewMapper) CreateOverviewEntriesViewModel(year int, month int,
 	oesvm.NextMonth = fmt.Sprintf("%d%02d", ny, nm)
 
 	// Calculate summary
-	oesvm.Summary = m.createSummaryViewModel(year, month, userContract, entries)
+	oesvm.Summary = m.createSummaryViewModel(userContract, year, month, entries)
 
 	// Create entries
 	oesvm.Days = m.createEntriesViewModel(year, month, entries, entryTypesMap,
@@ -60,25 +60,86 @@ func (m *OverviewMapper) CreateOverviewEntriesViewModel(year int, month int,
 	return oesvm
 }
 
-func (m *OverviewMapper) createSummaryViewModel(year int, month int, userContract *model.Contract,
+func (m *OverviewMapper) createSummaryViewModel(userContract *model.Contract, year int, month int,
 	entries []*model.Entry) *vm.OverviewEntriesSummary {
-	// Calculate type durations
-	var actWork, actTrav, actVaca, actHoli, actIlln time.Duration
+	// Calculate monthly actual hours per type
+	monthTypeActualHours := m.calculateMonthTypeActualHours(entries)
+
+	// Calculate monthly target, actual and balance
+	monthTargetHours := m.calculateMonthTargetHours(userContract, year, month)
+	monthActualHours := m.calculateMonthActualHours(monthTypeActualHours)
+	monthBalanceHours := monthTargetHours - monthActualHours
+	monthTotalHours := m.calculateMonthTotalHours(monthActualHours, monthTargetHours)
+	monthRemainingHours := m.calculateMonthRemainingHours(monthActualHours, monthTargetHours)
+
+	// Calculate monthly actual percentages per type
+	monthTypeActualPercent := m.calculateMonthTypeActualPercentages(monthTypeActualHours,
+		monthTotalHours)
+	monthActualPercent := m.calculateMonthActualPercentage(monthTypeActualPercent)
+	monthRemainingPercent := 100 - monthActualPercent
+
+	// Create summary
+	return &vm.OverviewEntriesSummary{
+		MonthTargetHours:    getHoursString(monthTargetHours),
+		MonthActualHours:    getHoursString(monthActualHours),
+		MonthBalanceHours:   getHoursString(monthBalanceHours),
+		TypePercentages:     monthTypeActualPercent,
+		RemainingPercentage: monthRemainingPercent,
+		TypeHours: map[int]string{
+			model.EntryTypeIdWork:     getHoursString(monthTypeActualHours[model.EntryTypeIdWork]),
+			model.EntryTypeIdTravel:   getHoursString(monthTypeActualHours[model.EntryTypeIdTravel]),
+			model.EntryTypeIdVacation: getHoursString(monthTypeActualHours[model.EntryTypeIdVacation]),
+			model.EntryTypeIdHoliday:  getHoursString(monthTypeActualHours[model.EntryTypeIdHoliday]),
+			model.EntryTypeIdIllness:  getHoursString(monthTypeActualHours[model.EntryTypeIdIllness]),
+		},
+		RemainingHours: getHoursString(monthRemainingHours),
+	}
+}
+
+func (m *OverviewMapper) calculateMonthTypeActualHours(entries []*model.Entry) map[int]float32 {
+	// Calculate actual durations
+	var workDuration, travDuration, vacaDuration, holiDuration, illnDuration time.Duration
 	for _, entry := range entries {
 		duration := entry.EndTime.Sub(entry.StartTime)
-
 		switch entry.TypeId {
 		case model.EntryTypeIdWork:
-			actWork = actWork + duration
+			workDuration = workDuration + duration
 		case model.EntryTypeIdTravel:
-			actTrav = actTrav + duration
+			travDuration = travDuration + duration
 		case model.EntryTypeIdVacation:
-			actVaca = actVaca + duration
+			vacaDuration = vacaDuration + duration
 		case model.EntryTypeIdHoliday:
-			actHoli = actHoli + duration
+			holiDuration = holiDuration + duration
 		case model.EntryTypeIdIllness:
-			actIlln = actIlln + duration
+			illnDuration = illnDuration + duration
 		}
+	}
+
+	// Return rounded hours
+	return map[int]float32{
+		model.EntryTypeIdWork:     getRoundedHours(workDuration),
+		model.EntryTypeIdTravel:   getRoundedHours(travDuration),
+		model.EntryTypeIdVacation: getRoundedHours(vacaDuration),
+		model.EntryTypeIdHoliday:  getRoundedHours(holiDuration),
+		model.EntryTypeIdIllness:  getRoundedHours(illnDuration),
+	}
+}
+
+func (m *OverviewMapper) calculateMonthActualHours(actualHours map[int]float32) float32 {
+	return actualHours[model.EntryTypeIdWork] +
+		actualHours[model.EntryTypeIdTravel] +
+		actualHours[model.EntryTypeIdVacation] +
+		actualHours[model.EntryTypeIdHoliday] +
+		actualHours[model.EntryTypeIdIllness]
+}
+
+func (m *OverviewMapper) calculateMonthTargetHours(userContract *model.Contract, year int,
+	month int) float32 {
+	// Get target working durations
+	targetWorkDurations := m.convertWorkingHours(userContract.WorkingHours)
+	// Abort if no target working durations were set
+	if len(targetWorkDurations) == 0 {
+		return 0.0
 	}
 
 	// Calculate days
@@ -86,26 +147,58 @@ func (m *OverviewMapper) createSummaryViewModel(year int, month int, userContrac
 	end := start.AddDate(0, 1, 0)
 	workDays := util.CalculateWorkingDays(start, end)
 
-	// Get target working durations
-	targetWorkDurations := m.convertWorkingHours(userContract.WorkingHours)
-
-	// Calculate target, actual and balance durations
-	var tar time.Duration = time.Duration(workDays) * m.findWorkingDurationForDate(
+	// Calculate actual and target durations
+	monthTargetWorkDuration := time.Duration(workDays) * m.findWorkingDurationForDate(
 		targetWorkDurations, start)
-	var act time.Duration = actWork + actTrav + actVaca + actHoli + actIlln
-	var bal time.Duration = act - tar
 
-	// Create summary
-	return &vm.OverviewEntriesSummary{
-		ActualWorkHours:     getRoundedHoursString(actWork),
-		ActualTravelHours:   getRoundedHoursString(actTrav),
-		ActualVacationHours: getRoundedHoursString(actVaca),
-		ActualHolidayHours:  getRoundedHoursString(actHoli),
-		ActualIllnessHours:  getRoundedHoursString(actIlln),
-		TargetHours:         getRoundedHoursString(tar),
-		ActualHours:         getRoundedHoursString(act),
-		BalanceHours:        getRoundedHoursString(bal),
+	// Return rounded hours
+	return getRoundedHours(monthTargetWorkDuration)
+}
+
+func (m *OverviewMapper) calculateMonthTotalHours(actualHours float32, targetHours float32) float32 {
+	totalHours := targetHours
+	if actualHours > totalHours {
+		totalHours = actualHours
 	}
+	return totalHours
+}
+
+func (m *OverviewMapper) calculateMonthRemainingHours(actualHours float32, targetHours float32,
+) float32 {
+	remainingHours := targetHours - actualHours
+	if remainingHours < 0 {
+		remainingHours = 0
+	}
+	return remainingHours
+}
+
+func (m *OverviewMapper) calculateMonthTypeActualPercentages(actualHours map[int]float32,
+	totalHours float32) map[int]int {
+	wk, wv := m.calculateMonthTypeActualPercentage(model.EntryTypeIdWork, actualHours, totalHours)
+	tk, tv := m.calculateMonthTypeActualPercentage(model.EntryTypeIdTravel, actualHours, totalHours)
+	vk, vv := m.calculateMonthTypeActualPercentage(model.EntryTypeIdVacation, actualHours, totalHours)
+	hk, hv := m.calculateMonthTypeActualPercentage(model.EntryTypeIdHoliday, actualHours, totalHours)
+	ik, iv := m.calculateMonthTypeActualPercentage(model.EntryTypeIdIllness, actualHours, totalHours)
+	return map[int]int{
+		wk: wv,
+		tk: tv,
+		vk: vv,
+		hk: hv,
+		ik: iv,
+	}
+}
+
+func (m *OverviewMapper) calculateMonthTypeActualPercentage(id int, actualHours map[int]float32,
+	totalHours float32) (int, int) {
+	return id, m.calculatePercentage(actualHours[id], totalHours)
+}
+
+func (m *OverviewMapper) calculateMonthActualPercentage(typeActualPercent map[int]int) int {
+	return typeActualPercent[model.EntryTypeIdWork] +
+		typeActualPercent[model.EntryTypeIdTravel] +
+		typeActualPercent[model.EntryTypeIdVacation] +
+		typeActualPercent[model.EntryTypeIdHoliday] +
+		typeActualPercent[model.EntryTypeIdIllness]
 }
 
 func (m *OverviewMapper) createEntriesViewModel(year int, month int, entries []*model.Entry,

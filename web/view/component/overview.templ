@@ -2,6 +2,7 @@ package component
 
 import (
 	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
 )
 
 // This template is used to render the action buttons on the overview page.
@@ -19,7 +20,7 @@ templ OverviewActions(currMonth string) {
 templ OverviewContent(entries *model.OverviewEntries) {
 	<div id="wl-overview-content">
 		@overviewMonthButtons(entries.PrevMonth, entries.NextMonth, entries.CurrMonthName)
-		@overviewSummaryView(entries.Summary)
+		@overviewSummary(entries.Summary)
 		@overviewEntryList(entries.Days)
 	</div>
 }
@@ -51,52 +52,77 @@ func buildOverviewMonthHxGetUrl(month string) string {
 	return "overview?month=" + month
 }
 
-templ overviewSummaryView(summary *model.OverviewEntriesSummary) {
-	<div class="mb-3">
-		<h2>{ getText("overviewHeadingSummary") }</h2>
-	</div>
-	<div class="d-flex flex-wrap mb-3">
-		@overviewSummaryHoursView(summary.TargetHours, summary.ActualHours, summary.BalanceHours)
-		@overviewSummaryTypeHoursView(summary.ActualWorkHours, summary.ActualTravelHours,
-			summary.ActualVacationHours, summary.ActualHolidayHours, summary.ActualIllnessHours,
-			summary.ActualHours)
+templ overviewSummary(summary *model.OverviewEntriesSummary) {
+	<div class="border rounded-2 mb-4 px-3 pt-3 pb-2">
+		<div class="row align-items-center">
+			@overviewSummaryActualTarget(summary)
+			@overviewSummaryProgress(summary)
+		</div>
 	</div>
 }
 
-templ overviewSummaryHoursView(targetHours string, actualHours string, balanceHours string) {
-	<div class="table-responsive me-4">
-		<table class="table table-sm">
-			@overviewSummaryTableRow("overviewSummaryLabelTargetHours", targetHours)
-			@overviewSummaryTableRow("overviewSummaryLabelActualHours", actualHours)
-			@overviewSummaryTableRow("overviewSummaryLabelBalanceHours", balanceHours)
-		</table>
+templ overviewSummaryActualTarget(summary *model.OverviewEntriesSummary) {
+	<div class="col-12 col-sm-3 text-center">
+		<h2 class="fw-bold">{ getText("overviewSummaryHeaderActTrg") }</h2>
+		<p class="mb-2">
+			<span class="fs-5">{ summary.MonthActualHours }</span>
+			<span>/</span>
+			<span>{ summary.MonthTargetHours + " " + getText("hoursUnit") }</span>
+		</p>
 	</div>
 }
 
-templ overviewSummaryTypeHoursView(actualWorkHours string, actualTravelHours string,
-	actualVacationHours string, actualHolidayHours string, actualIllnessHours string,
-	actualHours string) {
-	<div class="table-responsive me-4">
-		<table class="table table-sm">
-			@overviewSummaryTableRow("entryTypeWork", actualWorkHours)
-			@overviewSummaryTableRow("entryTypeTravel", actualTravelHours)
-			@overviewSummaryTableRow("entryTypeVacation", actualVacationHours)
-			@overviewSummaryTableRow("entryTypeHoliday", actualHolidayHours)
-			@overviewSummaryTableRow("entryTypeIllness", actualIllnessHours)
-			@overviewSummaryTableRow("", actualHours)
-		</table>
+templ overviewSummaryProgress(summary *model.OverviewEntriesSummary) {
+	<div class="col-12 col-sm-9 text-center">
+		@overviewSummaryProgressBar(summary)
+		@overviewSummaryProgressBarLabels(summary)
 	</div>
 }
 
-templ overviewSummaryTableRow(labelTextRef string, hours string) {
-	<tr>
-		<th class="wl-overview-summary-table-column-label">
-			if labelTextRef != "" {
-				{ getText(labelTextRef) }:
-			}
-		</th>
-		<td class="wl-overview-summary-table-column-hours">{ hours + " " + getText("hoursUnit") }</td>
-	</tr>
+templ overviewSummaryProgressBar(summary *model.OverviewEntriesSummary) {
+	<div class="mb-2 mx-sm-3">
+		@templ.Raw(view.CreateOverviewSummaryProgressSvg(summary.TypePercentages))
+	</div>
+}
+
+templ overviewSummaryProgressBarLabels(summary *model.OverviewEntriesSummary) {
+	<div class="mb-2">
+		@overviewSummaryProgressBarLabel(
+			model.EntryTypeColors[model.EntryTypeIdWork],
+			"entryTypeWork",
+			summary.TypeHours[model.EntryTypeIdWork],
+		)
+		@overviewSummaryProgressBarLabel(
+			model.EntryTypeColors[model.EntryTypeIdTravel],
+			"entryTypeTravel",
+			summary.TypeHours[model.EntryTypeIdTravel],
+		)
+		@overviewSummaryProgressBarLabel(
+			model.EntryTypeColors[model.EntryTypeIdVacation],
+			"entryTypeVacation",
+			summary.TypeHours[model.EntryTypeIdVacation],
+		)
+		@overviewSummaryProgressBarLabel(
+			model.EntryTypeColors[model.EntryTypeIdHoliday],
+			"entryTypeHoliday",
+			summary.TypeHours[model.EntryTypeIdHoliday],
+		)
+		@overviewSummaryProgressBarLabel(
+			model.EntryTypeColors[model.EntryTypeIdIllness],
+			"entryTypeIllness",
+			summary.TypeHours[model.EntryTypeIdIllness],
+		)
+		@overviewSummaryProgressBarLabel(view.OverviewSummaryProgressColorRem,
+			"overviewSummaryProgressLabelRem", summary.RemainingHours)
+	</div>
+}
+
+templ overviewSummaryProgressBarLabel(color string, labelTextRef string, value string) {
+	<p class="d-inline-block mb-2 px-2">
+		<span { templ.Attributes{"style": "color:" + color + ";"}... }>●</span>
+		<span>{ getText(labelTextRef) + ":" }</span>
+		<span class="fw-bold">{ value + getText("hoursShortUnit") }</span>
+	</p>
 }
 
 templ overviewEntryList(days []*model.OverviewEntriesDay) {
@@ -105,8 +131,8 @@ templ overviewEntryList(days []*model.OverviewEntriesDay) {
 }
 
 templ overviewEntryListHeader() {
-	<div class="mb-3">
-		<h2>{ getText("overviewHeadingEntries") }</h2>
+	<div class="mb-4">
+		<h2 class="fw-bold">{ getText("overviewHeadingEntries") }</h2>
 	</div>
 }
 

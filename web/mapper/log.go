@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"math"
 	"time"
 
 	"kellnhofer.com/work-log/pkg/model"
@@ -280,16 +279,4 @@ func (m *LogMapper) calculateTotalRemainingVacationDays(userContract *model.Cont
 	}
 
 	return remainingVacationDays
-}
-
-func (m *LogMapper) calculatePercentage(actual float32, total float32) int {
-	// Abort if actual or total is zero
-	if actual == 0 || total == 0 {
-		return 0
-	}
-	// Calculate the percentage
-	percentage := (actual / total) * 100
-
-	// Return rounded percentage
-	return int(math.Round(float64(percentage)))
 }

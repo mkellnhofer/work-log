@@ -18,6 +18,23 @@ type Entry struct {
 	Description string
 }
 
+const (
+	EntryTypeIdWork     int = 1
+	EntryTypeIdTravel   int = 2
+	EntryTypeIdVacation int = 3
+	EntryTypeIdHoliday  int = 4
+	EntryTypeIdIllness  int = 5
+)
+
+// EntryTypeColors defines colors for each entry type.
+var EntryTypeColors = map[int]string{
+	EntryTypeIdWork:     "#0c63e4",
+	EntryTypeIdTravel:   "#6aa6ff",
+	EntryTypeIdVacation: "#04a17a",
+	EntryTypeIdHoliday:  "#12dfab",
+	EntryTypeIdIllness:  "#e8571e",
+}
+
 // EntryType stores view data for a entry type.
 type EntryType struct {
 	Id          int

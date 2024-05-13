@@ -7,6 +7,7 @@ import (
 	"golang.org/x/text/message"
 
 	"kellnhofer.com/work-log/pkg/loc"
+	"kellnhofer.com/work-log/web/model"
 )
 
 // GetText returns a localized text.
@@ -52,27 +53,55 @@ var LogSummaryProgressColorUnd = "#f1b523"
 
 // CreateLogSummaryProgressSvg creates a log summary progress bar.
 func CreateLogSummaryProgressSvg(logged int, overtime int, undertime int) string {
-	return createSvg("0 0 1000 10", "100%", "10", func() string {
-		return createLogSummaryProgressSvgMask() +
-			createLogSummaryProgressSvgLogRem(logged) +
+	return createProgressSvg(func() string {
+		return createLogSummaryProgressSvgLogRem(logged) +
 			createLogSummaryProgressSvgOvrUnd(logged, overtime, undertime)
 	})
 }
 
 func createLogSummaryProgressSvgLogRem(logged int) string {
-	return createLogSummaryProgressSvgRect(0, 100, LogSummaryProgressColorRem) +
-		createLogSummaryProgressSvgRect(0, logged, LogSummaryProgressColorLog)
+	return createProgressSvgRect(0, 100, LogSummaryProgressColorRem) +
+		createProgressSvgRect(0, logged, LogSummaryProgressColorLog)
 }
 
 func createLogSummaryProgressSvgOvrUnd(logged int, overtime int, undertime int) string {
 	if overtime > undertime {
-		return createLogSummaryProgressSvgRect(logged-overtime, logged, LogSummaryProgressColorOvr)
+		return createProgressSvgRect(logged-overtime, logged, LogSummaryProgressColorOvr)
 	} else {
-		return createLogSummaryProgressSvgRect(logged, logged+undertime, LogSummaryProgressColorUnd)
+		return createProgressSvgRect(logged, logged+undertime, LogSummaryProgressColorUnd)
 	}
 }
 
-func createLogSummaryProgressSvgMask() string {
+// --- Functions to render the overview summary progress SVG ---
+
+var OverviewSummaryProgressColorRem = "#d6d6d6"
+
+// CreateOverviewSummaryProgressSvg creates a overview summary progress bar.
+func CreateOverviewSummaryProgressSvg(typeProgress map[int]int) string {
+	return createProgressSvg(func() string {
+		ws, we := 0, typeProgress[model.EntryTypeIdWork]
+		ts, te := we, we+typeProgress[model.EntryTypeIdTravel]
+		vs, ve := te, te+typeProgress[model.EntryTypeIdVacation]
+		hs, he := ve, ve+typeProgress[model.EntryTypeIdHoliday]
+		is, ie := he, he+typeProgress[model.EntryTypeIdIllness]
+		return createProgressSvgRect(0, 100, OverviewSummaryProgressColorRem) +
+			createProgressSvgRect(ws, we, model.EntryTypeColors[model.EntryTypeIdWork]) +
+			createProgressSvgRect(ts, te, model.EntryTypeColors[model.EntryTypeIdTravel]) +
+			createProgressSvgRect(vs, ve, model.EntryTypeColors[model.EntryTypeIdVacation]) +
+			createProgressSvgRect(hs, he, model.EntryTypeColors[model.EntryTypeIdHoliday]) +
+			createProgressSvgRect(is, ie, model.EntryTypeColors[model.EntryTypeIdIllness])
+	})
+}
+
+// --- Progress SVG functions ---
+
+func createProgressSvg(bodyFunc func() string) string {
+	return createSvg("0 0 1000 10", "100%", "10", func() string {
+		return createProgressSvgMask() + bodyFunc()
+	})
+}
+
+func createProgressSvgMask() string {
 	return `
 		<mask id="msk">
 			<rect width="100%" height="100%" fill="black" />
@@ -81,7 +110,7 @@ func createLogSummaryProgressSvgMask() string {
 	`
 }
 
-func createLogSummaryProgressSvgRect(start int, end int, color string) string {
+func createProgressSvgRect(start int, end int, color string) string {
 	return `
 		<rect
 			x="` + strconv.Itoa(start) + `%"

@@ -53,8 +53,11 @@ func (m *OverviewMapper) CreateOverviewEntriesViewModel(userContract *model.Cont
 	// Calculate summary
 	oesvm.Summary = m.createSummaryViewModel(userContract, year, month, entries)
 
-	// Create entries
-	oesvm.Days = m.createEntriesViewModel(year, month, entries, entryTypesMap,
+	// Create weeks
+	oesvm.Weeks = m.createWeeksViewModel(year, month, entries)
+
+	// Create entry das
+	oesvm.EntriesDays = m.createEntriesDaysViewModel(year, month, entries, entryTypesMap,
 		entryActivitiesMap)
 
 	return oesvm
@@ -201,84 +204,184 @@ func (m *OverviewMapper) calculateMonthActualPercentage(typeActualPercent map[in
 		typeActualPercent[model.EntryTypeIdIllness]
 }
 
-func (m *OverviewMapper) createEntriesViewModel(year int, month int, entries []*model.Entry,
+func (m *OverviewMapper) createWeeksViewModel(year int, month int, entries []*model.Entry,
+) []*vm.OverviewWeek {
+	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
+
+	// Create weeks
+	wsvm := make([]*vm.OverviewWeek, 0, 6)
+	curEntryIndex := 0
+	for {
+		// Create and add new week
+		wvm := &vm.OverviewWeek{
+			WeekDays: make([]*vm.OverviewWeekDay, 7),
+		}
+		wsvm = append(wsvm, wvm)
+
+		// Create days
+		for di := 0; di < 7; di++ {
+			// Create and add new day
+			if m.getIsoWeekdayIndex(curDate) == di {
+				curEntryIndex, wvm.WeekDays[di] = m.createWeekDay(curDate, curEntryIndex, entries)
+				curDate = curDate.Add(24 * time.Hour)
+			}
+
+			// If next month is reached: Abort
+			if curDate.Month() != time.Month(month) {
+				return wsvm
+			}
+		}
+	}
+}
+
+func (m *OverviewMapper) createWeekDay(curDate time.Time, curEntryIndex int, entries []*model.Entry,
+) (int, *vm.OverviewWeekDay) {
+	// Create entries
+	entryIndex := curEntryIndex
+
+	// Create day
+	dvm := &vm.OverviewWeekDay{
+		Date:         formatShorterDate(curDate),
+		IsWeekendDay: curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday,
+		IsType:       make(map[int]bool),
+	}
+
+	// Calculate start/end time and daily duration
+	isType := make(map[int]bool)
+	var startTime, endTime time.Time
+	var dailyDuration time.Duration
+	for {
+		// If there are no entries: Abort (No more entries exist for this day)
+		if len(entries) == 0 || len(entries) == entryIndex {
+			break
+		}
+
+		// Get entry
+		entry := entries[entryIndex]
+		entryDate := entry.StartTime
+
+		// If entry date does not match: Abort (All enties have been added for this day)
+		_, _, cd := curDate.Date()
+		_, _, ed := entryDate.Date()
+		if cd != ed {
+			break
+		}
+
+		// Set flag for type
+		isType[entry.TypeId] = true
+
+		// Calculate duration
+		if startTime.IsZero() {
+			startTime = entry.StartTime
+		}
+		endTime = entry.EndTime
+		duration := entry.EndTime.Sub(entry.StartTime)
+		dailyDuration = dailyDuration + duration
+
+		// Update entry index
+		entryIndex++
+	}
+
+	// Set start/end time and hours
+	if !startTime.IsZero() && !endTime.IsZero() {
+		dvm.IsType = isType
+		dvm.StartTime = formatTime(startTime)
+		dvm.EndTime = formatTime(endTime)
+		dvm.Hours = formatHours(dailyDuration)
+		dailyBreakDuration := endTime.Sub(startTime) - dailyDuration
+		if dailyBreakDuration > 0 {
+			dvm.BreakHours = formatHours(dailyBreakDuration)
+		}
+	}
+
+	// Retrn upaded entry index and new day
+	return entryIndex, dvm
+}
+
+func (m *OverviewMapper) createEntriesDaysViewModel(year int, month int, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
 ) []*vm.OverviewEntriesDay {
-	dsvm := make([]*vm.OverviewEntriesDay, 0, 31)
-
 	curDate := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.Local)
 
 	// Create days
-	entryIndex := 0
+	dsvm := make([]*vm.OverviewEntriesDay, 0, 31)
+	curEntryIndex := 0
 	for {
 		// Create and add new day
-		dvm := &vm.OverviewEntriesDay{
-			Date:         formatShortDate(curDate),
-			Weekday:      getShortWeekdayName(curDate),
-			IsWeekendDay: curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday,
-			Entries:      make([]*vm.OverviewEntry, 0, 10),
-		}
+		var dvm *vm.OverviewEntriesDay
+		curEntryIndex, dvm = m.createEntriesDay(curDate, curEntryIndex, entries, entryTypesMap,
+			entryActivitiesMap)
 		dsvm = append(dsvm, dvm)
-
-		// Create entries
-		var colWorkDuration time.Duration
-		var dailyWorkDuration time.Duration
-		preEntryTypeId := 0
-		var evm *vm.OverviewEntry
-		for {
-			// If there are no entries: Abort (No entries exist for this day)
-			if len(entries) == 0 || len(entries) == entryIndex {
-				break
-			}
-			// Get entry
-			entry := entries[entryIndex]
-			entryDate := entry.StartTime
-			// If entry date does not match: Abort (All enties have been added for this day)
-			_, _, cd := curDate.Date()
-			_, _, ed := entryDate.Date()
-			if cd != ed {
-				colWorkDuration = 0
-				preEntryTypeId = 0
-				break
-			}
-
-			// Reset collected work duration
-			if entry.TypeId != preEntryTypeId {
-				colWorkDuration = 0
-			}
-
-			// Calculate work duration
-			duration := entry.EndTime.Sub(entry.StartTime)
-			colWorkDuration = colWorkDuration + duration
-			dailyWorkDuration = dailyWorkDuration + duration
-
-			// Create and add new entry
-			evm = &vm.OverviewEntry{
-				Id:        entry.Id,
-				EntryType: m.getEntryTypeDescription(entryTypesMap, entry.TypeId),
-				StartTime: formatTime(entry.StartTime),
-				EndTime:   formatTime(entry.EndTime),
-				Duration:  formatHours(duration),
-				EntryActivity: m.getEntryActivityDescription(entryActivitiesMap,
-					entry.ActivityId),
-				Description: entry.Description,
-			}
-			dvm.Entries = append(dvm.Entries, evm)
-
-			// Update previous entry type ID
-			preEntryTypeId = entry.TypeId
-
-			// Update entry index
-			entryIndex++
-		}
-		dvm.WorkDuration = formatHours(dailyWorkDuration)
 
 		// If next month is reached: Abort
 		curDate = curDate.Add(24 * time.Hour)
 		if curDate.Month() != time.Month(month) {
-			break
+			return dsvm
 		}
 	}
+}
 
-	return dsvm
+func (m *OverviewMapper) createEntriesDay(curDate time.Time, curEntryIndex int,
+	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) (int, *vm.OverviewEntriesDay) {
+	// Create new day
+	dvm := &vm.OverviewEntriesDay{
+		Date:         formatShortDate(curDate),
+		Weekday:      getShortWeekdayName(curDate),
+		IsWeekendDay: curDate.Weekday() == time.Saturday || curDate.Weekday() == time.Sunday,
+		Entries:      make([]*vm.OverviewEntry, 0, 10),
+	}
+
+	// Create entries
+	entryIndex := curEntryIndex
+	var prevEntry *model.Entry
+	var dailyDuration time.Duration
+	for {
+		// If there are no entries: Abort (No more entries exist for this day)
+		if len(entries) == 0 || len(entries) == entryIndex {
+			break
+		}
+
+		// Get entry
+		entry := entries[entryIndex]
+		entryDate := entry.StartTime
+
+		// If entry date does not match: Abort (All enties have been added for this day)
+		_, _, cd := curDate.Date()
+		_, _, ed := entryDate.Date()
+		if cd != ed {
+			prevEntry = nil
+			break
+		}
+
+		// If there is a time gap to the pervious entry: Create and add new blank entry
+		if prevEntry != nil && prevEntry.EndTime != entry.StartTime {
+			dvm.Entries = append(dvm.Entries, &vm.OverviewEntry{IsMissing: true})
+		}
+
+		// Calculate daily duration
+		duration := entry.EndTime.Sub(entry.StartTime)
+		dailyDuration = dailyDuration + duration
+
+		// Create and add new entry
+		evm := &vm.OverviewEntry{
+			Id:          entry.Id,
+			TypeId:      entry.TypeId,
+			Type:        m.getEntryTypeDescription(entryTypesMap, entry.TypeId),
+			StartTime:   formatTime(entry.StartTime),
+			EndTime:     formatTime(entry.EndTime),
+			Duration:    formatHours(duration),
+			Activity:    m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
+			Description: entry.Description,
+		}
+		dvm.Entries = append(dvm.Entries, evm)
+
+		// Update entry index
+		entryIndex++
+		prevEntry = entry
+	}
+	dvm.Hours = formatHours(dailyDuration)
+
+	// Retrn upaded entry index and new day
+	return entryIndex, dvm
 }

@@ -337,6 +337,10 @@ func formatShortDate(t time.Time) string {
 	return t.Format("02.01.")
 }
 
+func formatShorterDate(t time.Time) string {
+	return t.Format("_2.")
+}
+
 func formatTime(t time.Time) string {
 	return t.Format("15:04")
 }
@@ -372,4 +376,12 @@ func (m *Mapper) calculatePercentage(actual float32, total float32) int {
 	percentage := (actual / total) * 100
 
 	return int(math.Round(float64(percentage)))
+}
+
+func (m *Mapper) getIsoWeekdayIndex(t time.Time) int {
+	weekday := t.Weekday()
+	if weekday == time.Sunday {
+		return 6
+	}
+	return int(weekday) - 1
 }

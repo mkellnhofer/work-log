@@ -18,17 +18,18 @@ templ OverviewActions(currMonth string) {
 
 // This template is used to render the content of the overview page.
 templ OverviewContent(entries *model.OverviewEntries) {
-	<div id="wl-overview-content">
+	<div id="wl-overview-content" class="pb-3">
 		@overviewMonthButtons(entries.PrevMonth, entries.NextMonth, entries.CurrMonthName)
 		@overviewSummary(entries.Summary)
-		@overviewEntryList(entries.Days)
+		@overviewDays(entries.Weeks)
+		@overviewEntries(entries.EntriesDays)
 	</div>
 }
 
 templ overviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
 	<div class="mb-4">
 		@overviewMonthButton(prevMonth, "#wl-overview-content", "actionPrevious", "&lt;")
-		<span class="mx-4">{ currMonthName }</span>
+		<span class="fw-bold mx-4">{ currMonthName }</span>
 		@overviewMonthButton(nextMonth, "#wl-overview-content", "actionNext", "&gt;")
 	</div>
 }
@@ -125,27 +126,140 @@ templ overviewSummaryProgressBarLabel(color string, labelTextRef string, value s
 	</p>
 }
 
-templ overviewEntryList(days []*model.OverviewEntriesDay) {
-	@overviewEntryListHeader()
-	@overviewEntryDaysTable(days)
+templ overviewDays(weeks []*model.OverviewWeek) {
+	@overviewDaysHeader()
+	@overviewDaysTable(weeks)
 }
 
-templ overviewEntryListHeader() {
+templ overviewDaysHeader() {
+	<div class="mb-4">
+		<h2 class="fw-bold">{ getText("overviewHeadingDays") }</h2>
+	</div>
+}
+
+templ overviewDaysTable(weeks []*model.OverviewWeek) {
+	<div class="table-responsive table-responsive-xl mb-4">
+		<table class="table table-sm table-bordered mb-0">
+			@overviewDaysTableHeader()
+			@overviewDaysTableBody(weeks)
+		</table>
+	</div>
+}
+
+templ overviewDaysTableHeader() {
+	<thead>
+		<tr class="wl-overview-table-head text-center">
+			<th class="col-1">{ getText("weekdayMon") }</th>
+			<th class="col-1">{ getText("weekdayTue") }</th>
+			<th class="col-1">{ getText("weekdayWed") }</th>
+			<th class="col-1">{ getText("weekdayThu") }</th>
+			<th class="col-1">{ getText("weekdayFri") }</th>
+			<th class="col-1">{ getText("weekdaySat") }</th>
+			<th class="col-1">{ getText("weekdaySun") }</th>
+		</tr>
+	</thead>
+}
+
+templ overviewDaysTableBody(weeks []*model.OverviewWeek) {
+	<tbody>
+		for _, week := range weeks {
+			@overviewDaysTableRow(week)
+		}
+	</tbody>
+}
+
+templ overviewDaysTableRow(week *model.OverviewWeek) {
+	<tr>
+		for _, weekDay := range week.WeekDays {
+			@overviewDaysTableCell(weekDay)
+		}
+	</tr>
+}
+
+templ overviewDaysTableCell(weekDay *model.OverviewWeekDay) {
+	if weekDay != nil {
+		<td
+			if weekDay.IsWeekendDay {
+				class="wl-overview-table-weekend p-0"
+			} else {
+				class="p-0"
+			}
+		>
+			@overviewDaysTableCellHeader(weekDay)
+			@overviewDaysTableCellBody(weekDay)
+		</td>
+	} else {
+		<td class="wl-overview-table-nonrelevant"></td>
+	}
+}
+
+templ overviewDaysTableCellHeader(weekDay *model.OverviewWeekDay) {
+	<div class="d-flex">
+		@overviewDaysTableCellHeaderMarker(weekDay.IsType, model.EntryTypeIdWork)
+		@overviewDaysTableCellHeaderMarker(weekDay.IsType, model.EntryTypeIdTravel)
+		@overviewDaysTableCellHeaderMarker(weekDay.IsType, model.EntryTypeIdVacation)
+		@overviewDaysTableCellHeaderMarker(weekDay.IsType, model.EntryTypeIdHoliday)
+		@overviewDaysTableCellHeaderMarker(weekDay.IsType, model.EntryTypeIdIllness)
+	</div>
+	<div class="position-relative">
+		<p class="position-absolute top-0 start-0 fs-7 p-2">{ weekDay.Date }</p>
+	</div>
+}
+
+templ overviewDaysTableCellHeaderMarker(isType map[int]bool, typeId int) {
+	if isType[typeId] {
+		<div
+			class="flex-fill border-top border-2"
+			{ createBorderColorStyle(model.EntryTypeColors[typeId])... }
+		></div>
+	}
+}
+
+templ overviewDaysTableCellBody(weekDay *model.OverviewWeekDay) {
+	<div class="mt-3 mt-md-0 p-2 text-center">
+		if weekDay.Hours != "" {
+			@overviewDaysTableCellBodyData(weekDay)
+		} else {
+			@overviewDaysTableCellBodyEmpty()
+		}
+	</div>
+}
+
+templ overviewDaysTableCellBodyData(weekDay *model.OverviewWeekDay) {
+	<p class="fs-6 fw-bold mt-2 mb-1">{ weekDay.Hours + getText("hoursShortUnit") }</p>
+	<p class="fs-7 mb-1">{ weekDay.StartTime + " - " + weekDay.EndTime }</p>
+	if weekDay.BreakHours != "" {
+		<p class="fs-7 mb-2">
+			{ "( " + weekDay.BreakHours + getText("hoursShortUnit") + " " + getText("labelBreak") + " )" }
+		</p>
+	}
+}
+
+templ overviewDaysTableCellBodyEmpty() {
+	<p class="fs-6 fw-bold my-2">-</p>
+}
+
+templ overviewEntries(entriesDays []*model.OverviewEntriesDay) {
+	@overviewEntriesHeader()
+	@overviewEntriesTable(entriesDays)
+}
+
+templ overviewEntriesHeader() {
 	<div class="mb-4">
 		<h2 class="fw-bold">{ getText("overviewHeadingEntries") }</h2>
 	</div>
 }
 
-templ overviewEntryDaysTable(days []*model.OverviewEntriesDay) {
+templ overviewEntriesTable(entriesDays []*model.OverviewEntriesDay) {
 	<div class="table-responsive table-responsive-xl mb-4">
-		<table class="table table-sm">
-			@overviewEntryDaysTableHeader()
-			@overviewEntryDaysTableBody(days)
+		<table class="table table-sm mb-0">
+			@overviewEntriesTableHeader()
+			@overviewEntriesTableBody(entriesDays)
 		</table>
 	</div>
 }
 
-templ overviewEntryDaysTableHeader() {
+templ overviewEntriesTableHeader() {
 	<thead>
 		<tr class="wl-overview-table-head">
 			<th class="wl-overview-table-column-date">{ getText("tableColDate") }</th>
@@ -159,63 +273,88 @@ templ overviewEntryDaysTableHeader() {
 	</thead>
 }
 
-templ overviewEntryDaysTableBody(days []*model.OverviewEntriesDay) {
+templ overviewEntriesTableBody(entriesDays []*model.OverviewEntriesDay) {
 	<tbody>
-		for _, day := range days {
-			@overviewEntryDaysTableRow(day)
+		for _, entriesDay := range entriesDays {
+			@overviewEntryDaysTableRow(entriesDay)
 		}
 	</tbody>
 }
 
-templ overviewEntryDaysTableRow(day *model.OverviewEntriesDay) {
-	if len(day.Entries) > 0 {
-		for ei, entry := range day.Entries {
+templ overviewEntryDaysTableRow(entriesDay *model.OverviewEntriesDay) {
+	if len(entriesDay.Entries) > 0 {
+		@overviewEntryDaysTableRowData(entriesDay)
+	} else {
+		@overviewEntryDaysTableRowEmpty(entriesDay)
+	}
+}
+
+templ overviewEntryDaysTableRowData(entriesDay *model.OverviewEntriesDay) {
+	for ei, entry := range entriesDay.Entries {
+		if entry.IsMissing {
+			<tr><td colspan="7"></td></tr>
+		} else {
 			<tr
-				if day.IsWeekendDay {
-					class="wl-overview-table-row-weekend"
+				if entriesDay.IsWeekendDay {
+					class="wl-overview-table-weekend"
 				}
 			>
 				if ei == 0 {
-					<td>{ day.Weekday } { day.Date }</td>
+					<td class="fw-bold">{ entriesDay.Weekday } { entriesDay.Date }</td>
 				} else {
 					<td></td>
 				}
-				<td>{ entry.EntryType }</td>
+				<td class="p-0">
+					<div
+						class="border-start border-2 ps-2 p-1"
+						{ createBorderColorStyle(model.EntryTypeColors[entry.TypeId])... }
+					>
+						{ entry.Type }
+					</div>
+				</td>
 				<td>{ entry.StartTime }</td>
 				<td>{ entry.EndTime }</td>
-				<td>{ entry.Duration }</td>
-				<td>{ entry.EntryActivity }</td>
+				<td
+					if len(entriesDay.Entries) == 1 {
+						class="fw-bold"
+					}
+				>
+					{ entry.Duration }
+				</td>
+				<td>{ entry.Activity }</td>
 				<td>{ entry.Description }</td>
 			</tr>
 		}
-		if len(day.Entries) > 1 {
-			<tr
-				if day.IsWeekendDay {
-					class="wl-overview-table-row-weekend"
-				}
-			>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td></td>
-				<td>{ day.WorkDuration }</td>
-				<td></td>
-				<td></td>
-			</tr>
-		}
-	} else {
+	}
+	if len(entriesDay.Entries) > 1 {
 		<tr
-			if day.IsWeekendDay {
-				class="wl-overview-table-row-weekend"
+			if entriesDay.IsWeekendDay {
+				class="wl-overview-table-weekend"
 			}
 		>
-			<td>{ day.Weekday } { day.Date }</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-			<td>-</td>
-			<td></td>
-			<td></td>
+			<td colspan="4"></td>
+			<td class="fw-bold">{ entriesDay.Hours }</td>
+			<td colspan="2"></td>
 		</tr>
 	}
+}
+
+templ overviewEntryDaysTableRowEmpty(entriesDay *model.OverviewEntriesDay) {
+	<tr
+		if entriesDay.IsWeekendDay {
+			class="wl-overview-table-weekend"
+		}
+	>
+		<td class="fw-bold">{ entriesDay.Weekday } { entriesDay.Date }</td>
+		<td>-</td>
+		<td>-</td>
+		<td>-</td>
+		<td>-</td>
+		<td></td>
+		<td></td>
+	</tr>
+}
+
+func createBorderColorStyle(color string) templ.Attributes {
+	return templ.Attributes{"style": "border-color:" + color + " !important;"}
 }

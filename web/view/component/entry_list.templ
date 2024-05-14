@@ -29,7 +29,7 @@ templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, show
 			{ day.WorkDuration }
 		</span>
 		if showBreakDuration {
-			<span>({ day.BreakDuration } { getText("logLabelBreak") })</span>
+			<span>({ day.BreakDuration } { getText("labelBreak") })</span>
 		}
 	</h3>
 }
@@ -63,11 +63,11 @@ templ entryDayTableHeaderRow() {
 
 templ entryDayTableRow(entry *model.ListEntry) {
 	if entry.IsMissing {
-		<tr class="wl-list-table-row-missing">
+		<tr class="wl-list-table-missing">
 			@entryDayTableRowBlank()
 		</tr>
 	} else if entry.IsOverlapping {
-		<tr class="wl-list-table-row-overlapping">
+		<tr class="wl-list-table-overlapping">
 			@entryDayTableRowBlank()
 		</tr>
 	} else {

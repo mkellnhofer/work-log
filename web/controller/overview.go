@@ -315,7 +315,7 @@ func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.OverviewE
 	// Create table body
 	startRow := 18
 	curRow := startRow
-	for _, day := range overviewEntries.Days {
+	for _, day := range overviewEntries.EntriesDays {
 		f.SetCellValue(sheet, c.getCellName("A", curRow), day.Weekday+" "+day.Date)
 		if len(day.Entries) == 0 {
 			f.SetCellValue(sheet, c.getCellName("B", curRow), "-")
@@ -325,17 +325,20 @@ func (c *OverviewController) exportOverviewEntries(overviewEntries *vm.OverviewE
 			curRow++
 		} else {
 			for _, entry := range day.Entries {
-				f.SetCellValue(sheet, c.getCellName("B", curRow), entry.EntryType)
+				if entry.TypeId == 0 {
+					continue
+				}
+				f.SetCellValue(sheet, c.getCellName("B", curRow), entry.Type)
 				f.SetCellValue(sheet, c.getCellName("C", curRow), entry.StartTime)
 				f.SetCellValue(sheet, c.getCellName("D", curRow), entry.EndTime)
 				f.SetCellValue(sheet, c.getCellName("E", curRow), entry.Duration)
-				f.SetCellValue(sheet, c.getCellName("F", curRow), entry.EntryActivity)
+				f.SetCellValue(sheet, c.getCellName("F", curRow), entry.Activity)
 				f.SetCellValue(sheet, c.getCellName("G", curRow), entry.Description)
 				curRow++
 			}
 		}
 		if len(day.Entries) > 1 {
-			f.SetCellValue(sheet, c.getCellName("E", curRow), day.WorkDuration)
+			f.SetCellValue(sheet, c.getCellName("E", curRow), day.Hours)
 			curRow++
 		}
 	}

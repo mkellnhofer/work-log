@@ -139,9 +139,9 @@ func entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, showB
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var7 string
-			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(getText("logLabelBreak"))
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(getText("labelBreak"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 32, Col: 58}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 32, Col: 55}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -321,7 +321,7 @@ func entryDayTableRow(entry *model.ListEntry) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		if entry.IsMissing {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"wl-list-table-row-missing\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"wl-list-table-missing\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -334,7 +334,7 @@ func entryDayTableRow(entry *model.ListEntry) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		} else if entry.IsOverlapping {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"wl-list-table-row-overlapping\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"wl-list-table-overlapping\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

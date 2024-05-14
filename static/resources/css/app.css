@@ -25,6 +25,10 @@ p, th, td {
   font-size: 0.95em;
 }
 
+.fs-7 {
+  font-size: 0.8rem !important;
+}
+
 .icon {
   color: #000000;
 }
@@ -36,6 +40,7 @@ p, th, td {
 .table {
   --bs-table-bg: transparent;
   --bs-table-accent-bg: transparent;
+  border-style: hidden;
 }
 
 @media (min-width: 700px) and (min-height: 700px) {
@@ -110,12 +115,12 @@ p, th, td {
   min-width: 250px;
 }
 
-.wl-list-table-row-missing {
-  background-color: #fafafa;
+.wl-list-table-missing {
+  background-color: #fafafa !important;
 }
 
-.wl-list-table-row-overlapping {
-  background-color: #ff8585;
+.wl-list-table-overlapping {
+  background-color: #ff8585 !important;
 }
 
 .wl-overview-summary-table-column-label {
@@ -151,6 +156,10 @@ p, th, td {
   min-width: 250px;
 }
 
-.wl-overview-table-row-weekend {
-  background-color: #fcfcfc;
+.wl-overview-table-nonrelevant {
+  background-color: #fafafa !important;
+}
+
+.wl-overview-table-weekend {
+  background-color: #fdfdfd !important;
 }

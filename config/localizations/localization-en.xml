@@ -41,7 +41,6 @@
     <message key="logSummaryHeaderRemainingVacation"><text>Remaining Vacation</text></message>
     <message key="logHeadingEntries"><text>Entries</text></message>
     <message key="logLabelNoEntries"><text>no entries exist</text></message>
-    <message key="logLabelBreak"><text>Break</text></message>
 
     <!-- Search view -->
     <message key="searchTitle"><text>Search</text></message>
@@ -54,6 +53,7 @@
     <message key="overviewActionExport"><text>Export</text></message>
     <message key="overviewSummaryHeaderActTrg"><text>Target Achievement</text></message>
     <message key="overviewSummaryProgressLabelRem"><text>Remaining</text></message>
+    <message key="overviewHeadingDays"><text>Days</text></message>
     <message key="overviewHeadingEntries"><text>Entries</text></message>
     <message key="overviewExportTitle"><text>%s Export</text></message>
     <message key="overviewExportPropTitle"><text>%s Export - %s</text></message>
@@ -123,6 +123,7 @@
     <message key="monthOct"><text>October</text></message>
     <message key="monthNov"><text>November</text></message>
     <message key="monthDec"><text>December</text></message>
+    <message key="labelBreak"><text>Break</text></message>
 
     <!-- Errors -->
     <message key="errAuthUnknown"><text>An unknown authentication error occurred.</text></message>

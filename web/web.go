@@ -1,6 +1,9 @@
 package web
 
 import (
+	"fmt"
+	"io"
+
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
 
@@ -73,6 +76,23 @@ func render(ctx echo.Context, statusCode int, addCspHeader bool, t templ.Compone
 	tErr := t.Render(req.Context(), res.Writer)
 	if tErr != nil {
 		err := e.WrapError(e.SysUnknown, "Could not render template.", tErr)
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+// WriteFile writes a file.
+func WriteFile(ctx echo.Context, fileName string, file io.WriterTo) error {
+	res := ctx.Response()
+
+	res.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+	res.Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)
+	res.Header().Add(echo.HeaderCacheControl, "no-store")
+
+	_, wErr := file.WriteTo(res.Writer)
+	if wErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not write response.", wErr)
 		log.Debug(err.StackTrace())
 		return err
 	}

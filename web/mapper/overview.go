@@ -71,7 +71,7 @@ func (m *OverviewMapper) createSummaryViewModel(userContract *model.Contract, ye
 	// Calculate monthly target, actual and balance
 	monthTargetHours := m.calculateMonthTargetHours(userContract, year, month)
 	monthActualHours := m.calculateMonthActualHours(monthTypeActualHours)
-	monthBalanceHours := monthTargetHours - monthActualHours
+	monthBalanceHours := monthActualHours - monthTargetHours
 	monthTotalHours := m.calculateMonthTotalHours(monthActualHours, monthTargetHours)
 	monthRemainingHours := m.calculateMonthRemainingHours(monthActualHours, monthTargetHours)
 

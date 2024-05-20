@@ -1,0 +1,17 @@
+
+/* latin */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300 600;
+  font-stretch: 100%;
+  src: url(../font/opensans-latin.woff2) format('woff2');
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 300 600;
+  font-stretch: 100%;
+  src: url(../font/opensans-latin-ext.woff2) format('woff2');
+}

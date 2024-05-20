@@ -36,9 +36,9 @@ func CreateUserIconSvg(initials string) string {
 				r="16"
 			/>
 			<text
-				style="font-size:13;font-family:FreeSans;text-anchor:middle;fill:#FFF;"
+				style="font-size:0.7em;text-anchor:middle;fill:#FFF;"
 				x="16"
-				y="21"
+				y="20"
 			>` + initials + `</text>
 		`
 	})

@@ -22,7 +22,7 @@ templ AuthForm(actionAttrs templ.Attributes) {
 
 // This template is used to render the form to enter credentials.
 templ EnterCredentialsContent(errorMessage string) {
-	<h2 class="fs-3 mb-3">{ getText("loginTitle") }</h2>
+	<h1 class="mb-3">{ getText("loginTitle") }</h1>
 	@ErrorMessage(errorMessage)
 	<input name="step" type="hidden" value={ toString(model.LoginStepEnterCredentials) }/>
 	<div class="mb-3">
@@ -40,7 +40,7 @@ templ EnterCredentialsContent(errorMessage string) {
 
 // This template is used to render the form to change the password.
 templ ChangePasswordContent(errorMessage string) {
-	<h2 class="fs-3 mb-3">{ getText("pwChangeTitle") }</h2>
+	<h1 class="mb-3">{ getText("pwChangeTitle") }</h1>
 	<p class="fs-6">{ getText("pwChangeMessage") }</p>
 	@ErrorMessage(errorMessage)
 	<input name="step" type="hidden" value={ toString(model.LoginStepChangePassword) }/>

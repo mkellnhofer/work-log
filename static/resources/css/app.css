@@ -4,21 +4,23 @@ html {
 
 body {
   height: 100%;
+  font-family: "Open Sans", sans-serif;
+  font-weight: 380;
 }
 
 h1 {
-  font-size: 1.8em;
-  font-weight: 400;
+  font-size: 1.6em;
+  font-weight: 600;
 }
 
 h2 {
   font-size: 1.2em;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 h3 {
   font-size: 1.0em;
-  font-weight: 400;
+  font-weight: 550;
 }
 
 p, th, td {
@@ -26,7 +28,15 @@ p, th, td {
 }
 
 .fs-7 {
-  font-size: 0.8rem !important;
+  font-size: 0.8rem;
+}
+
+th {
+  font-weight: 550 !important;
+}
+
+.fw-bold {
+  font-weight: 550 !important;
 }
 
 .icon {
@@ -54,7 +64,7 @@ p, th, td {
 }
 
 @media (min-width: 700px) and (min-height: 700px) {
-  .form-control {
+  .form-control, .form-select {
     font-size: 0.9rem;
   }
 }
@@ -78,10 +88,15 @@ p, th, td {
   padding-bottom: 40px;
 }
 
-.wl-auth-form > img {
+.wl-auth-form img {
   height: 70px;
   display: block;
   margin: 0 auto 0 auto;
+}
+
+.wl-auth-form h1 {
+  font-size: 1.7em;
+  font-weight: 450;
 }
 
 .wl-container {

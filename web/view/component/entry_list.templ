@@ -16,7 +16,7 @@ templ EntryList(days []*model.ListEntriesDay, highlightWorkDuration bool, showBr
 }
 
 templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {
-	<h3 class="mb-3 fw-bold">
+	<h3 class="mb-3">
 		<span>{ day.Date }</span>
 		<span>-</span>
 		<span>{ day.Weekday }</span>

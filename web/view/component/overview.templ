@@ -57,7 +57,7 @@ templ overviewMonthButton(month string, hxTarget string, labelTextRef string, ic
 
 templ overviewMonth(currMonthName string) {
 	<li class="page-item px-4 pt-2">
-		<h3 class="fw-bold">{ currMonthName }</h3>
+		<h3>{ currMonthName }</h3>
 	</li>
 }
 
@@ -76,7 +76,7 @@ templ overviewSummary(summary *model.OverviewEntriesSummary) {
 
 templ overviewSummaryActualTarget(summary *model.OverviewEntriesSummary) {
 	<div class="col-12 col-sm-3 text-center">
-		<h2 class="fw-bold">{ getText("overviewSummaryHeaderActTrg") }</h2>
+		<h2>{ getText("overviewSummaryHeaderActTrg") }</h2>
 		<p class="mb-2">
 			<span class="fs-5">{ summary.MonthActualHours }</span>
 			<span>/</span>
@@ -145,7 +145,7 @@ templ overviewDays(weeks []*model.OverviewWeek) {
 
 templ overviewDaysHeader() {
 	<div class="mb-4">
-		<h2 class="fw-bold">{ getText("overviewHeadingDays") }</h2>
+		<h2>{ getText("overviewHeadingDays") }</h2>
 	</div>
 }
 
@@ -258,7 +258,7 @@ templ overviewEntries(entriesDays []*model.OverviewEntriesDay) {
 
 templ overviewEntriesHeader() {
 	<div class="mb-4">
-		<h2 class="fw-bold">{ getText("overviewHeadingEntries") }</h2>
+		<h2>{ getText("overviewHeadingEntries") }</h2>
 	</div>
 }
 

@@ -49,7 +49,7 @@ templ logSummary(summary *model.LogSummary) {
 
 templ logSummaryMonthActualTarget(summary *model.LogSummary) {
 	<div class="col-12 col-sm-3 col-md-3 text-center">
-		<h2 class="fw-bold">{ getText("logSummaryHeaderCurrentMonth") }</h2>
+		<h2>{ getText("logSummaryHeaderCurrentMonth") }</h2>
 		<p class="mb-2">
 			<span class="fs-5">{ summary.MonthActualHours }</span>
 			<span>/</span>
@@ -99,14 +99,14 @@ templ logSummaryMonthProgressBarLabel(color string, labelTextRef string, value s
 
 templ logSummaryTotalOvertime(summary *model.LogSummary) {
 	<div class="col-6 col-md-2 pt-1 text-center">
-		<h3 class="fw-bold">{ getText("logSummaryHeaderOvertime") }</h3>
+		<h3>{ getText("logSummaryHeaderOvertime") }</h3>
 		<p>{ summary.TotalOvertimeHours + " " + getText("hoursUnit") }</p>
 	</div>
 }
 
 templ logSummaryTotalVacation(summary *model.LogSummary) {
 	<div class="col-6 col-md-2 pt-1 text-center">
-		<h3 class="fw-bold">{ getText("logSummaryHeaderRemainingVacation") }</h3>
+		<h3>{ getText("logSummaryHeaderRemainingVacation") }</h3>
 		<p>{ summary.TotalRemainingVacationDays + " " + getText("daysUnit") }</p>
 	</div>
 }
@@ -118,7 +118,7 @@ templ logEntries(entries *model.ListEntries) {
 
 templ logEntriesHeader() {
 	<div class="mb-4">
-		<h2 class="fw-bold">{ getText("logHeadingEntries") }</h2>
+		<h2>{ getText("logHeadingEntries") }</h2>
 	</div>
 }
 

@@ -169,14 +169,14 @@ func isSearchInputEmpty(searchInput *model.SearchInput) bool {
 templ SearchResult(entries *model.SearchEntries) {
 	<div
 		id="wl-search-result"
-		hx-get={ buildSearchPageHxGetUrl(entries.Query, entries.PageNum) }
+		hx-get={ "search?query=" + entries.Query + "&page=" + toString(entries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
 		@searchEntryList(entries)
-		@searchPagingControl(entries.Query, entries.HasPrevPage, entries.PrevPageNum,
-			entries.HasNextPage, entries.NextPageNum)
+		@searchPagingControl(entries.Query, entries.FirstPageNum, entries.CurrentPageNum,
+			entries.LastPageNum)
 	</div>
 }
 
@@ -192,12 +192,7 @@ templ searchEntryList(entries *model.SearchEntries) {
 	}
 }
 
-templ searchPagingControl(query string, hasPrevPage bool, prevPageNum int, hasNextPage bool,
-	nextPageNum int) {
-	@PagingControl("#wl-search-result", hasPrevPage, buildSearchPageHxGetUrl(query, prevPageNum),
-		hasNextPage, buildSearchPageHxGetUrl(query, nextPageNum))
-}
-
-func buildSearchPageHxGetUrl(query string, pageNum int) string {
-	return "search?query=" + query + "&page=" + toString(pageNum)
+templ searchPagingControl(query string, firstPageNum int, currentPageNum int, lastPageNum int) {
+	@PagingControl("#wl-search-result", "search?query="+query+"&page=%d", firstPageNum,
+		currentPageNum, lastPageNum)
 }

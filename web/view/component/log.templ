@@ -23,15 +23,14 @@ templ LogActions() {
 templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	<div
 		id="wl-log-content"
-		hx-get={ buildLogPageHxGetUrl(listEntries.PageNum) }
+		hx-get={ "log?page=" + toString(listEntries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
 		@logSummary(summary)
 		@logEntries(listEntries)
-		@logPagingControl(listEntries.HasPrevPage, listEntries.PrevPageNum, listEntries.HasNextPage,
-			listEntries.NextPageNum)
+		@logPagingControl(listEntries.FirstPageNum, listEntries.CurrentPageNum, listEntries.LastPageNum)
 	</div>
 }
 
@@ -127,7 +126,7 @@ templ logEntryList(entries *model.ListEntries) {
 	if len(entries.Days) > 0 {
 		@EntryList(entries.Days, true, true)
 	} else {
-		<div class="container m-5 text-center">
+		<div class="m-5 text-center">
 			<p class="p-5">
 				{ getText("logLabelNoEntries") }
 			</p>
@@ -135,11 +134,6 @@ templ logEntryList(entries *model.ListEntries) {
 	}
 }
 
-templ logPagingControl(hasPrevPage bool, prevPageNum int, hasNextPage bool, nextPageNum int) {
-	@PagingControl("#wl-log-content", hasPrevPage, buildLogPageHxGetUrl(prevPageNum), hasNextPage,
-		buildLogPageHxGetUrl(nextPageNum))
-}
-
-func buildLogPageHxGetUrl(pageNum int) string {
-	return "log?page=" + toString(pageNum)
+templ logPagingControl(firstPageNum int, currentPageNum int, lastPageNum int) {
+	@PagingControl("#wl-log-content", "log?page=%d", firstPageNum, currentPageNum, lastPageNum)
 }

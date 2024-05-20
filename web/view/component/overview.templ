@@ -28,25 +28,37 @@ templ OverviewContent(entries *model.OverviewEntries) {
 
 templ overviewMonthButtons(prevMonth string, nextMonth string, currMonthName string) {
 	<div class="mb-4">
-		@overviewMonthButton(prevMonth, "#wl-overview-content", "actionPrevious", "&lt;")
-		<span class="fw-bold mx-4">{ currMonthName }</span>
-		@overviewMonthButton(nextMonth, "#wl-overview-content", "actionNext", "&gt;")
+		<nav>
+			<ul class="pagination">
+				@overviewMonthButton(prevMonth, "#wl-overview-content", "actionPrevious", "&lt;")
+				@overviewMonth(currMonthName)
+				@overviewMonthButton(nextMonth, "#wl-overview-content", "actionNext", "&gt;")
+			</ul>
+		</nav>
 	</div>
 }
 
 templ overviewMonthButton(month string, hxTarget string, labelTextRef string, icon string) {
-	<a
-		class="btn btn-light"
-		href="#"
-		hx-trigger="click"
-		hx-get={ buildOverviewMonthHxGetUrl(month) }
-		hx-target={ hxTarget }
-		hx-swap="outerHTML"
-		hx-push-url="true"
-		aria-label={ getText(labelTextRef) }
-	>
-		@templ.Raw(icon)
-	</a>
+	<li class="page-item">
+		<a
+			class="page-link"
+			href="#"
+			hx-trigger="click"
+			hx-get={ buildOverviewMonthHxGetUrl(month) }
+			hx-target={ hxTarget }
+			hx-swap="outerHTML"
+			hx-push-url="true"
+			aria-label={ getText(labelTextRef) }
+		>
+			@templ.Raw(icon)
+		</a>
+	</li>
+}
+
+templ overviewMonth(currMonthName string) {
+	<li class="page-item px-4 pt-2">
+		<h3 class="fw-bold">{ currMonthName }</h3>
+	</li>
 }
 
 func buildOverviewMonthHxGetUrl(month string) string {

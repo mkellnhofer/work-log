@@ -166,7 +166,8 @@ func (c *LogController) getLogEntriesViewData(ctx context.Context, userId int,
 	}
 
 	// Create view model
-	return c.mapper.CreateLogEntriesViewModel(userContract, pageNum, pageSize, cnt, entries,
+	totPageNum := calculateNumberOfTotalPages(cnt, pageSize)
+	return c.mapper.CreateLogEntriesViewModel(userContract, pageNum, totPageNum, entries,
 		entryTypesMap, entryActivitiesMap), nil
 }
 

@@ -385,3 +385,40 @@ func (m *Mapper) getIsoWeekdayIndex(t time.Time) int {
 	}
 	return int(weekday) - 1
 }
+
+func (m *Mapper) calcPageNavFirstLastPageNums(curPageNum int, maxPageNum int, maxPageNavItems int,
+) (int, int) {
+	// Abort if max page number is below range
+	if maxPageNum <= 0 {
+		return 1, 1
+	}
+	// Abort if current page number is below range
+	if curPageNum <= 0 {
+		return 1, min(maxPageNum, maxPageNavItems)
+	}
+	// Abort if current page number is above range
+	if curPageNum > maxPageNum {
+		return max(1, maxPageNum-maxPageNavItems+1), maxPageNum
+	}
+
+	// Culculate number of previous/next pages
+	prevPages := curPageNum - 1
+	nextPages := maxPageNum - curPageNum
+
+	// Case: prev + next < max
+	if prevPages+nextPages < maxPageNavItems-1 {
+		return curPageNum - prevPages, curPageNum + nextPages
+	}
+	// Case: prev < next
+	if prevPages < maxPageNavItems/2 {
+		firstPageNum := curPageNum - prevPages
+		return firstPageNum, firstPageNum + maxPageNavItems - 1
+	}
+	// Case: prev > next
+	if nextPages < maxPageNavItems/2 {
+		lastPageNum := curPageNum + nextPages
+		return lastPageNum - maxPageNavItems + 1, lastPageNum
+	}
+	// Case: prev == next
+	return curPageNum - maxPageNavItems/2, curPageNum + maxPageNavItems/2
+}

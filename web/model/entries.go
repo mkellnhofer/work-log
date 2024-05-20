@@ -2,12 +2,10 @@ package model
 
 // ListEntries stores data for the list entries view.
 type ListEntries struct {
-	HasPrevPage bool
-	HasNextPage bool
-	PrevPageNum int
-	PageNum     int
-	NextPageNum int
-	Days        []*ListEntriesDay
+	FirstPageNum   int
+	CurrentPageNum int
+	LastPageNum    int
+	Days           []*ListEntriesDay
 }
 
 // ListEntriesDay stores view data for a day.

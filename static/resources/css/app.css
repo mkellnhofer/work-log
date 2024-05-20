@@ -30,11 +30,21 @@ p, th, td {
 }
 
 .icon {
-  color: #000000;
+  color: var(--bs-black);
 }
 
 .nav-link {
   font-size: 1.2rem;
+}
+
+.page-link {
+  --bs-pagination-color: var(--bs-black);
+}
+
+@media (min-width: 700px) and (min-height: 700px) {
+  .page-link {
+    font-size: 0.9rem;
+  }
 }
 
 .table {
@@ -44,13 +54,13 @@ p, th, td {
 }
 
 @media (min-width: 700px) and (min-height: 700px) {
-  .btn {
+  .form-control {
     font-size: 0.9rem;
   }
 }
 
 @media (min-width: 700px) and (min-height: 700px) {
-  .form-control {
+  .btn {
     font-size: 0.9rem;
   }
 }

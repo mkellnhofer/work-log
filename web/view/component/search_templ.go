@@ -404,9 +404,9 @@ func SearchResult(entries *model.SearchEntries) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
-		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchPageHxGetUrl(entries.Query, entries.PageNum))
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs("search?query=" + entries.Query + "&page=" + toString(entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 172, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 172, Col: 88}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -420,8 +420,8 @@ func SearchResult(entries *model.SearchEntries) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchPagingControl(entries.Query, entries.HasPrevPage, entries.PrevPageNum,
-			entries.HasNextPage, entries.NextPageNum).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = searchPagingControl(entries.Query, entries.FirstPageNum, entries.CurrentPageNum,
+			entries.LastPageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -480,8 +480,7 @@ func searchEntryList(entries *model.SearchEntries) templ.Component {
 	})
 }
 
-func searchPagingControl(query string, hasPrevPage bool, prevPageNum int, hasNextPage bool,
-	nextPageNum int) templ.Component {
+func searchPagingControl(query string, firstPageNum int, currentPageNum int, lastPageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -494,8 +493,8 @@ func searchPagingControl(query string, hasPrevPage bool, prevPageNum int, hasNex
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = PagingControl("#wl-search-result", hasPrevPage, buildSearchPageHxGetUrl(query, prevPageNum),
-			hasNextPage, buildSearchPageHxGetUrl(query, nextPageNum)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = PagingControl("#wl-search-result", "search?query="+query+"&page=%d", firstPageNum,
+			currentPageNum, lastPageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -504,8 +503,4 @@ func searchPagingControl(query string, hasPrevPage bool, prevPageNum int, hasNex
 		}
 		return templ_7745c5c3_Err
 	})
-}
-
-func buildSearchPageHxGetUrl(query string, pageNum int) string {
-	return "search?query=" + query + "&page=" + toString(pageNum)
 }

@@ -29,17 +29,15 @@ func (m *LogMapper) CreateLogSummaryViewModel(userContract *model.Contract, now 
 }
 
 // CreateLogEntriesViewModel creates a entries view model for the log page.
-func (m *LogMapper) CreateLogEntriesViewModel(userContract *model.Contract, pageNum int, pageSize int,
-	cnt int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
+func (m *LogMapper) CreateLogEntriesViewModel(userContract *model.Contract, curPageNum int,
+	totPageNum int, entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
 	lesvm := &vm.ListEntries{}
 
-	// Calculate previous/next page numbers
-	lesvm.HasPrevPage = pageNum > 1
-	lesvm.HasNextPage = (pageNum * pageSize) < cnt
-	lesvm.PrevPageNum = pageNum - 1
-	lesvm.PageNum = pageNum
-	lesvm.NextPageNum = pageNum + 1
+	// Calculate paging nav numbers
+	lesvm.CurrentPageNum = curPageNum
+	lesvm.FirstPageNum, lesvm.LastPageNum = m.calcPageNavFirstLastPageNums(curPageNum, totPageNum,
+		vm.PageNavItems)
 
 	// Create entries
 	lesvm.Days = m.createEntriesViewModel(userContract, entries, entryTypesMap, entryActivitiesMap,

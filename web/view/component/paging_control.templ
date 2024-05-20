@@ -1,33 +1,81 @@
 package component
 
+import (
+	"fmt"
+)
+
 // This template is used to render a paging control. It gets the HTMX target which needs to be
-// updated when an page is requested, as well as URLs to load the previous/next page from.
-templ PagingControl(hxTarget string, hasPrevPage bool, prevPageHxGetUrl string, hasNextPage bool,
-	nextPageHxGetUrl string) {
-	<div class="d-flex justify-content-between py-sm-3 py-2">
-		<div>
-			if hasPrevPage {
-				@pagingLink(hxTarget, prevPageHxGetUrl, "outerHTML show:#wl-container:bottom", "actionPrevious")
-			}
-		</div>
-		<div>
-			if hasNextPage {
-				@pagingLink(hxTarget, nextPageHxGetUrl, "outerHTML show:#wl-container:top", "actionNext")
-			}
-		</div>
+// updated when an page is requested, as well as template URL and range to load the previous/next
+// pages from.
+templ PagingControl(hxTarget string, hxGetUrlTemplate string, firstPageNum int, currentPageNum int,
+	lastPageNum int) {
+	<div class="py-sm-3 py-2">
+		@pagingNav(hxTarget, hxGetUrlTemplate, firstPageNum, currentPageNum, lastPageNum)
 	</div>
 }
 
-templ pagingLink(hxTarget string, hxGetUrl string, hxSwap string, labelTextRef string) {
-	<a
-		class="btn btn-light"
-		href="#"
-		hx-trigger="click"
-		hx-get={ hxGetUrl }
-		hx-target={ hxTarget }
-		hx-swap={ hxSwap }
-		hx-push-url="true"
-	>
-		{ getText(labelTextRef) }
-	</a>
+templ pagingNav(hxTarget string, hxGetUrlTemplate string, firstPageNum int,
+	currentPageNum int, lastPageNum int) {
+	<nav>
+		<ul class="pagination justify-content-center">
+			if firstPageNum != lastPageNum {
+				@pagingNavItems(hxTarget, hxGetUrlTemplate, firstPageNum, currentPageNum, lastPageNum)
+			}
+		</ul>
+	</nav>
+}
+
+templ pagingNavItems(hxTarget string, hxGetUrlTemplate string, firstPageNum int,
+	currentPageNum int, lastPageNum int) {
+	@pagingNavPrevItem(firstPageNum == currentPageNum, false, hxTarget, hxGetUrlTemplate,
+		currentPageNum-1, "<", "actionPrevious")
+	for pageNum := firstPageNum; pageNum <= lastPageNum; pageNum++ {
+		if pageNum < currentPageNum {
+			@pagingNavPrevItem(false, false, hxTarget, hxGetUrlTemplate, pageNum, toString(pageNum), "")
+		} else if pageNum > currentPageNum {
+			@pagingNavNextItem(false, false, hxTarget, hxGetUrlTemplate, pageNum, toString(pageNum), "")
+		} else {
+			@pagingNavItem(false, true, "", "", "", pageNum, toString(pageNum), "")
+		}
+	}
+	@pagingNavNextItem(lastPageNum == currentPageNum, false, hxTarget, hxGetUrlTemplate,
+		currentPageNum+1, ">", "actionNext")
+}
+
+templ pagingNavPrevItem(isDisabled bool, isActive bool, hxTarget string, hxGetUrlTemplate string,
+	num int, text string, labelTextRef string) {
+	@pagingNavItem(isDisabled, isActive, hxTarget, hxGetUrlTemplate,
+		"outerHTML show:#wl-container:bottom", num, text, labelTextRef)
+}
+
+templ pagingNavNextItem(isDisabled bool, isActive bool, hxTarget string, hxGetUrlTemplate string,
+	num int, text string, labelTextRef string) {
+	@pagingNavItem(isDisabled, isActive, hxTarget, hxGetUrlTemplate,
+		"outerHTML show:#wl-container:top", num, text, labelTextRef)
+}
+
+templ pagingNavItem(isDisabled bool, isActive bool, hxTarget string, hxGetUrlTemplate string,
+	hxSwap string, num int, text string, labelTextRef string) {
+	if isDisabled {
+		<li class="page-item disabled"><span class="page-link">{ text }</span></li>
+	} else if isActive {
+		<li class="page-item active"><span class="page-link fw-bold">{ text }</span></li>
+	} else {
+		<li class="page-item">
+			<a
+				class="page-link"
+				href="#"
+				hx-trigger="click"
+				hx-get={ fmt.Sprintf(hxGetUrlTemplate, num) }
+				hx-target={ hxTarget }
+				hx-swap={ hxSwap }
+				hx-push-url="true"
+				if labelTextRef != "" {
+					aria-label={ getText(labelTextRef) }
+				}
+			>
+				{ text }
+			</a>
+		</li>
+	}
 }

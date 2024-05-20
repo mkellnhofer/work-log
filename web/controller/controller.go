@@ -190,3 +190,12 @@ func validateStringLength(in string, length int, code int) error {
 	}
 	return nil
 }
+
+func calculateNumberOfTotalPages(items int, pageSize int) int {
+	page := items / pageSize
+	remaining := items % pageSize
+	if remaining > 0 {
+		return page + 1
+	}
+	return page
+}

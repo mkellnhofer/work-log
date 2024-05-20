@@ -46,18 +46,16 @@ func (m *SearchMapper) createSearchInputViewModel(byType bool, typeId int, byDat
 }
 
 // CreateSearchEntriesViewModel creates a view model for the search result page.
-func (m *SearchMapper) CreateSearchEntriesViewModel(query string, pageNum int, pageSize int, cnt int,
+func (m *SearchMapper) CreateSearchEntriesViewModel(query string, curPageNum int, totPageNum int,
 	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
 	entryActivitiesMap map[int]*model.EntryActivity) *vm.SearchEntries {
 	sesvm := &vm.SearchEntries{}
 	sesvm.Query = query
 
-	// Calculate previous/next page numbers
-	sesvm.HasPrevPage = pageNum > 1
-	sesvm.HasNextPage = (pageNum * pageSize) < cnt
-	sesvm.PrevPageNum = pageNum - 1
-	sesvm.PageNum = pageNum
-	sesvm.NextPageNum = pageNum + 1
+	// Calculate paging nav numbers
+	sesvm.CurrentPageNum = curPageNum
+	sesvm.FirstPageNum, sesvm.LastPageNum = m.calcPageNavFirstLastPageNums(curPageNum, totPageNum,
+		vm.PageNavItems)
 
 	// Create entries
 	sesvm.Days = m.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)

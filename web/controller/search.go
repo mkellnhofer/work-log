@@ -304,8 +304,9 @@ func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
 	}
 
 	// Create view model
-	return c.mapper.CreateSearchEntriesViewModel(query, pageNum, pageSize, cnt, entries,
-		entryTypesMap, entryActivitiesMap), nil
+	totPageNum := calculateNumberOfTotalPages(cnt, pageSize)
+	return c.mapper.CreateSearchEntriesViewModel(query, pageNum, totPageNum, entries, entryTypesMap,
+		entryActivitiesMap), nil
 }
 
 // --- Search query functions ---

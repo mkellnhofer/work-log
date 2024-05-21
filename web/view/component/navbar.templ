@@ -12,7 +12,7 @@ templ NavBar(currentPage string, actionButtons templ.Component, userInfo *model.
 	<header class="navbar navbar-expand-sm mb-3 border-bottom">
 		<nav class="container-xxl flex-wrap flex-sm-nowrap px-0" aria-label="Main navigation">
 			<button
-				class="navbar-toggler d-flex d-sm-none p-2"
+				class="btn d-flex d-sm-none p-2"
 				type="button"
 				data-bs-toggle="offcanvas"
 				data-bs-target="#wl-navbar-nav-offcanvas"
@@ -123,7 +123,7 @@ templ pageNavItem(hxGetUrl string, active bool, titleTextRef string) {
 templ PageMenu(actionButtons templ.Component, userIconSvg string) {
 	<div class="d-flex align-items-center">
 		@pageMenuActions(actionButtons)
-		<div class="vr mx-2 my-1"></div>
+		<div class="vr mx-2 my-2"></div>
 		@pageMenuUserActions(userIconSvg)
 	</div>
 }
@@ -155,13 +155,16 @@ templ userMenuUserDropdownToggle(userIconSvg string) {
 }
 
 templ userMenuUserDropdownMenu() {
-	<ul class="dropdown-menu dropdown-menu-end my-3">
+	<ul class="dropdown-menu dropdown-menu-end">
 		<li>
-			@userMenuItem(getText("actionLogout"), toURL("logout"))
+			@userMenuItem(getText("actionLogout"), "right-to-bracket", toURL("logout"))
 		</li>
 	</ul>
 }
 
-templ userMenuItem(text string, url templ.SafeURL) {
-	<a class="dropdown-item" href={ url }>{ text }</a>
+templ userMenuItem(text string, icon string, url templ.SafeURL) {
+	<a class="dropdown-item" href={ url }>
+		<svg class="ico me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+		<span>{ text }</span>
+	</a>
 }

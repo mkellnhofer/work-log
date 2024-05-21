@@ -89,22 +89,22 @@ templ entryDayTableRowBlank() {
 
 templ entryDayTableRowButtonsField(id int) {
 	<td>
-		@entryDayTableRowButton(buildActionUrl("edit", id), "icon-edit", getText("actionEdit"))
-		@entryDayTableRowButton(buildActionUrl("copy", id), "icon-copy", getText("actionCopy"))
-		@entryDayTableRowButton(buildActionUrl("delete", id), "icon-delete", getText("actionDelete"))
+		@entryDayTableRowButton(buildActionUrl("edit", id), "pen", getText("actionEdit"))
+		@entryDayTableRowButton(buildActionUrl("copy", id), "copy", getText("actionCopy"))
+		@entryDayTableRowButton(buildActionUrl("delete", id), "trash", getText("actionDelete"))
 	</td>
 }
 
 templ entryDayTableRowButton(url string, icon string, text string) {
 	<a
-		class="btn btn-link px-2 py-0 fs-6"
+		class="btn btn-link px-2 py-0"
 		href="#"
 		hx-get={ url }
 		hx-trigger="click"
 		hx-target="#wl-modal-container"
 		hx-swap="innerHTML"
 	>
-		<i class={ "icon " + icon } aria-label={ text }></i>
+		<svg class="ico" aria-label={ text }><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
 	</a>
 }
 

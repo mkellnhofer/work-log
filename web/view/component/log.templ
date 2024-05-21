@@ -118,7 +118,10 @@ templ logEntries(entries *model.ListEntries) {
 
 templ logEntriesHeader() {
 	<div class="mb-4">
-		<h2>{ getText("logHeadingEntries") }</h2>
+		<h2>
+			<svg class="ico-large me-3"><use xlink:href="img/ico.svg#list"></use></svg>
+			<span>{ getText("logHeadingEntries") }</span>
+		</h2>
 	</div>
 }
 

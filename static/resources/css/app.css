@@ -59,12 +59,7 @@ th {
 
 .page-link {
   --bs-pagination-color: var(--bs-black);
-}
-
-@media (min-width: 700px) and (min-height: 700px) {
-  .page-link {
-    font-size: 0.9rem;
-  }
+  font-size: 0.9rem;
 }
 
 .table {
@@ -73,16 +68,12 @@ th {
   border-style: hidden;
 }
 
-@media (min-width: 700px) and (min-height: 700px) {
-  .form-control, .form-select {
-    font-size: 0.9rem;
-  }
+.form-control, .form-select {
+  font-size: 0.9rem;
 }
 
-@media (min-width: 700px) and (min-height: 700px) {
-  .btn {
-    font-size: 0.9rem;
-  }
+.btn {
+  font-size: 0.9rem;
 }
 
 .wl-auth-container {

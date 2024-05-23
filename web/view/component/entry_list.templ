@@ -89,23 +89,38 @@ templ entryDayTableRowBlank() {
 
 templ entryDayTableRowButtonsField(id int) {
 	<td>
-		@entryDayTableRowButton(buildActionUrl("edit", id), "pen", getText("actionEdit"))
-		@entryDayTableRowButton(buildActionUrl("copy", id), "copy", getText("actionCopy"))
-		@entryDayTableRowButton(buildActionUrl("delete", id), "trash", getText("actionDelete"))
+		<div class="dropdown position-static">
+			<a
+				class="btn btn-link px-2 py-0"
+				href="#"
+				data-bs-toggle="dropdown"
+				aria-expanded="false"
+			>
+				<svg class="ico"><use xlink:href="img/ico.svg#ellipsis-vertical"></use></svg>
+			</a>
+			<ul class="dropdown-menu">
+				@entryDayTableRowButton(buildActionUrl("edit", id), "pen", getText("actionEdit"))
+				@entryDayTableRowButton(buildActionUrl("copy", id), "copy", getText("actionCopy"))
+				@entryDayTableRowButton(buildActionUrl("delete", id), "trash", getText("actionDelete"))
+			</ul>
+		</div>
 	</td>
 }
 
 templ entryDayTableRowButton(url string, icon string, text string) {
-	<a
-		class="btn btn-link px-2 py-0"
-		href="#"
-		hx-get={ url }
-		hx-trigger="click"
-		hx-target="#wl-modal-container"
-		hx-swap="innerHTML"
-	>
-		<svg class="ico" aria-label={ text }><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
-	</a>
+	<li>
+		<a
+			class="dropdown-item"
+			href="#"
+			hx-get={ url }
+			hx-trigger="click"
+			hx-target="#wl-modal-container"
+			hx-swap="innerHTML"
+		>
+			<svg class="ico ms-1 me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+			<span>{ text }</span>
+		</a>
+	</li>
 }
 
 func buildActionUrl(action string, id int) string {

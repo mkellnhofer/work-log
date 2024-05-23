@@ -27,6 +27,7 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 			action="#"
 			hx-target="#wl-modal-container"
 			hx-swap="innerHTML"
+			{ submitActionAttrs... }
 		>
 			<div class="modal-header">
 				<h2 class="modal-title">{ getText(titleTextRef) }</h2>
@@ -38,7 +39,7 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 				<button type="button" class="btn btn-secondary" hx-trigger="click" { cancelActionAttrs... }>
 					{ getText(cancelTextRef) }
 				</button>
-				<button type="button" class="btn btn-primary" hx-trigger="click" { submitActionAttrs... }>
+				<button type="submit" class="btn btn-primary">
 					{ getText(submitTextRef) }
 				</button>
 			</div>

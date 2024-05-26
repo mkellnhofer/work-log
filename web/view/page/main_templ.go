@@ -106,7 +106,7 @@ func Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model
 }
 
 // This template is used to render the full search page.
-func Search(userInfo *model.UserInfo, errorMessage string, search *model.Search,
+func Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQuery,
 	searchEntries *model.SearchEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)

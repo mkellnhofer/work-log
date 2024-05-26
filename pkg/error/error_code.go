@@ -46,9 +46,8 @@ const (
 	ValStartTimeInvalid     = -321
 	ValEndTimeInvalid       = -322
 	ValDescriptionTooLong   = -323
-	ValSearchInvalid        = -324
-	ValSearchQueryInvalid   = -325
-	ValMonthInvalid         = -326
+	ValSearchQueryInvalid   = -324
+	ValMonthInvalid         = -325
 	ValPasswordEmpty        = -330
 	ValPasswordTooShort     = -331
 	ValPasswordTooLong      = -332

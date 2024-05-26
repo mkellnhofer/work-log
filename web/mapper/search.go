@@ -17,31 +17,24 @@ func NewSearchMapper() *SearchMapper {
 	return &SearchMapper{}
 }
 
-// CreateSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateSearchViewModel(byType bool, typeId int, byDate bool,
-	startDate time.Time, endDate time.Time, byActivity bool, activityId int, byDescription bool,
-	description string, types []*model.EntryType, activities []*model.EntryActivity) *vm.Search {
-	return &vm.Search{
-		SearchInput: m.createSearchInputViewModel(byType, typeId, byDate, getDateString(startDate),
-			getDateString(endDate), byActivity, activityId, byDescription, description),
+// CreateAdvancedSearchViewModel creates a view model for the search page.
+func (m *SearchMapper) CreateSearchQueryViewModel(isAdvanced bool, byType bool, typeId int,
+	byDate bool, startDate time.Time, endDate time.Time, byActivity bool, activityId int, text string,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchQuery {
+	return &vm.SearchQuery{
+		IsAdvanced: isAdvanced,
+		Input: &vm.SearchQueryInput{
+			ByType:     byType,
+			TypeId:     typeId,
+			ByDate:     byDate,
+			StartDate:  getDateString(startDate),
+			EndDate:    getDateString(endDate),
+			ByActivity: byActivity,
+			ActivityId: activityId,
+			Text:       text,
+		},
 		EntryTypes:      m.CreateEntryTypesViewModel(types),
 		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
-	}
-}
-
-func (m *SearchMapper) createSearchInputViewModel(byType bool, typeId int, byDate bool,
-	startDate string, endDate string, byActivity bool, activityId int, byDescription bool,
-	description string) *vm.SearchInput {
-	return &vm.SearchInput{
-		ByType:        byType,
-		TypeId:        typeId,
-		ByDate:        byDate,
-		StartDate:     startDate,
-		EndDate:       endDate,
-		ByActivity:    byActivity,
-		ActivityId:    activityId,
-		ByDescription: byDescription,
-		Description:   description,
 	}
 }
 

@@ -124,12 +124,13 @@ func calculateOffsetLimitFromPageNumber(pageNum int) (int, int) {
 	return offset, limit
 }
 
-func getSearchQueryParam(ctx echo.Context) (string, bool) {
-	v := ctx.QueryParam("query")
-	if v == "" {
-		return "", false
-	}
-	return v, true
+func getSearchAdvancedParam(ctx echo.Context) bool {
+	v := ctx.QueryParam("adv")
+	return v == "1"
+}
+
+func getSearchQueryParam(ctx echo.Context) string {
+	return ctx.QueryParam("query")
 }
 
 func getMonthQueryParam(ctx echo.Context) (int, int, bool, error) {

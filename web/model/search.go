@@ -1,23 +1,23 @@
 package model
 
-// Search stores data for the search view.
-type Search struct {
-	SearchInput     *SearchInput
+// SearchQuery stores data for the search form view.
+type SearchQuery struct {
+	IsAdvanced      bool
+	Input           *SearchQueryInput
 	EntryTypes      []*EntryType
 	EntryActivities []*EntryActivity
 }
 
-// SearchInput stores view data of a search.
-type SearchInput struct {
-	ByType        bool
-	TypeId        int
-	ByDate        bool
-	StartDate     string
-	EndDate       string
-	ByActivity    bool
-	ActivityId    int
-	ByDescription bool
-	Description   string
+// SearchQueryInput stores view data of a search form fields.
+type SearchQueryInput struct {
+	ByType     bool
+	TypeId     int
+	ByDate     bool
+	StartDate  string
+	EndDate    string
+	ByActivity bool
+	ActivityId int
+	Text       string
 }
 
 // SearchEntries stores data for the search entries view.

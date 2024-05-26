@@ -29,7 +29,7 @@ templ Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *mode
 }
 
 // This template is used to render the full search page.
-templ Search(userInfo *model.UserInfo, errorMessage string, search *model.Search,
+templ Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQuery,
 	searchEntries *model.SearchEntries) {
 	@mainPage(
 		"search",

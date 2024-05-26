@@ -44,7 +44,9 @@
 
     <!-- Search view -->
     <message key="searchTitle"><text>Suchen</text></message>
-    <message key="searchActionSearch"><text>Suchen</text></message>
+    <message key="searchFormTitle"><text>Erweiterte Suche</text></message>
+    <message key="searchFormTextPlaceholder"><text>Suchen</text></message>
+    <message key="searchFormActionSearch"><text>Suchen</text></message>
     <message key="searchListTitle"><text>Suchergebnis</text></message>
     <message key="searchListLabelNoEntries"><text>keine Einträge gefunden</text></message>
 
@@ -139,7 +141,6 @@
     <message key="errValStartTimeInvalid"><text>Startzeit ungültig!</text></message>
     <message key="errValEndTimeInvalid"><text>Endzeit ungültig!</text></message>
     <message key="errValDescriptionTooLong"><text>Beschreibung darf nicht länger als 200 Zeichen sein!</text></message>
-    <message key="errValSearchInvalid"><text>Suche ungültig! (Es muss mindestens ein Merkmal gewählt werden.)</text></message>
     <message key="errValSearchQueryInvalid"><text>Suchabfrage ungültig!</text></message>
     <message key="errValMonthInvalid"><text>Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)</text></message>
     <message key="errValPasswordEmpty"><text>Passwort darf nicht leer sein!</text></message>

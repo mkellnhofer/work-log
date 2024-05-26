@@ -48,7 +48,7 @@ func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 
-		year, month, isPageReq, err := c.getOverviewParams(eCtx)
+		year, month, isPageReq, err := c.getGetOverviewParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
 // GetOverviewExportHandler returns a handler for "GET /overview/export".
 func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		year, month, _, err := c.getOverviewParams(eCtx)
+		year, month, _, err := c.getGetOverviewParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 	}
 }
 
-func (c *OverviewController) getOverviewParams(eCtx echo.Context) (int, int, bool, error) {
+func (c *OverviewController) getGetOverviewParams(eCtx echo.Context) (int, int, bool, error) {
 	// Get year and month
 	y, m, avail, err := getMonthQueryParam(eCtx)
 	if err != nil {

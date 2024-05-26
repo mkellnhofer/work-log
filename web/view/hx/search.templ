@@ -7,7 +7,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the search page.
-templ SearchNav(search *model.Search, searchEntries *model.SearchEntries) {
+templ SearchNav(search *model.SearchQuery, searchEntries *model.SearchEntries) {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
 		@component.PageNavItems("search")
@@ -20,27 +20,27 @@ templ SearchNav(search *model.Search, searchEntries *model.SearchEntries) {
 }
 
 // This template is used to render changes in the search page after the user has executed a search.
-templ Search(errorMessage string, search *model.Search, searchEntries *model.SearchEntries) {
+templ Search(errorMessage string, search *model.SearchQuery, searchEntries *model.SearchEntries) {
 	// OoB swaps
 	<div id="wl-search-error" hx-swap-oob="innerHTML">
 		@component.ErrorMessage(errorMessage)
 	</div>
-	if search != nil {
-		<div id="wl-search-form" hx-swap-oob="innerHTML">
-			@component.SearchEntryForm(search)
-		</div>
-	}
 	// Regular swaps
-	@component.SearchResult(searchEntries)
+	@component.SearchResult(search.IsAdvanced, searchEntries)
+}
+
+// This template is used to render the search form.
+templ SearchForm(isAdvanced bool) {
+	@component.SearchForm(isAdvanced)
 }
 
 // This template is used to render the entry activity options for the search form.
-templ SearchActivityOptions(entryActivities []*model.EntryActivity) {
+templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 	@component.EntryActivitySelectOptions(entryActivities, 0)
 }
 
 // This template is used to render changes in the search page after the user has requested the
 // previous/next entries.
-templ SearchPage(searchEntries *model.SearchEntries) {
-	@component.SearchResult(searchEntries)
+templ SearchPage(isAdvanced bool, searchEntries *model.SearchEntries) {
+	@component.SearchResult(isAdvanced, searchEntries)
 }

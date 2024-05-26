@@ -35,6 +35,10 @@ th {
   font-weight: 550 !important;
 }
 
+label {
+  font-weight: 500 !important;
+}
+
 .fw-bold {
   font-weight: 550 !important;
 }
@@ -62,13 +66,17 @@ th {
   font-size: 0.9rem;
 }
 
+.alert {
+  --bs-alert-padding-y: 0.5rem;
+}
+
 .table {
   --bs-table-bg: transparent;
   --bs-table-accent-bg: transparent;
   border-style: hidden;
 }
 
-.form-control, .form-select {
+.form-label, .form-control, .form-select {
   font-size: 0.9rem;
 }
 

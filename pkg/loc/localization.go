@@ -105,7 +105,6 @@ var errorMessageKeys = map[int]string{
 	e.ValStartTimeInvalid:     "errValStartTimeInvalid",
 	e.ValEndTimeInvalid:       "errValEndTimeInvalid",
 	e.ValDescriptionTooLong:   "errValDescriptionTooLong",
-	e.ValSearchInvalid:        "errValSearchInvalid",
 	e.ValSearchQueryInvalid:   "errValSearchQueryInvalid",
 	e.ValMonthInvalid:         "errValMonthInvalid",
 	e.ValPasswordEmpty:        "errValPasswordEmpty",

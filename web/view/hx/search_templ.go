@@ -17,7 +17,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the search page.
-func SearchNav(search *model.Search, searchEntries *model.SearchEntries) templ.Component {
+func SearchNav(search *model.SearchQuery, searchEntries *model.SearchEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -62,7 +62,7 @@ func SearchNav(search *model.Search, searchEntries *model.SearchEntries) templ.C
 }
 
 // This template is used to render changes in the search page after the user has executed a search.
-func Search(errorMessage string, search *model.Search, searchEntries *model.SearchEntries) templ.Component {
+func Search(errorMessage string, search *model.SearchQuery, searchEntries *model.SearchEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -87,21 +87,32 @@ func Search(errorMessage string, search *model.Search, searchEntries *model.Sear
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		if search != nil {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"wl-search-form\" hx-swap-oob=\"innerHTML\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = component.SearchEntryForm(search).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
+		templ_7745c5c3_Err = component.SearchResult(search.IsAdvanced, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+// This template is used to render the search form.
+func SearchForm(isAdvanced bool) templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var3 == nil {
+			templ_7745c5c3_Var3 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = component.SearchForm(isAdvanced).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +124,7 @@ func Search(errorMessage string, search *model.Search, searchEntries *model.Sear
 }
 
 // This template is used to render the entry activity options for the search form.
-func SearchActivityOptions(entryActivities []*model.EntryActivity) templ.Component {
+func SearchFormActivityOptions(entryActivities []*model.EntryActivity) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -121,9 +132,9 @@ func SearchActivityOptions(entryActivities []*model.EntryActivity) templ.Compone
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var3 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var3 == nil {
-			templ_7745c5c3_Var3 = templ.NopComponent
+		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var4 == nil {
+			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = component.EntryActivitySelectOptions(entryActivities, 0).Render(ctx, templ_7745c5c3_Buffer)
@@ -139,7 +150,7 @@ func SearchActivityOptions(entryActivities []*model.EntryActivity) templ.Compone
 
 // This template is used to render changes in the search page after the user has requested the
 // previous/next entries.
-func SearchPage(searchEntries *model.SearchEntries) templ.Component {
+func SearchPage(isAdvanced bool, searchEntries *model.SearchEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -147,12 +158,12 @@ func SearchPage(searchEntries *model.SearchEntries) templ.Component {
 			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var5 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var5 == nil {
+			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = component.SearchResult(searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchResult(isAdvanced, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

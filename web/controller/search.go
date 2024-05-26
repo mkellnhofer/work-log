@@ -27,15 +27,14 @@ import (
 const searchDateTimeFormat = "200601021504"
 
 type searchInput struct {
-	byType        string
-	typeId        string
-	byDate        string
-	startDate     string
-	endDate       string
-	byActivity    string
-	activityId    string
-	byDescription string
-	description   string
+	byType     string
+	typeId     string
+	byDate     string
+	startDate  string
+	endDate    string
+	byActivity string
+	activityId string
+	text       string
 }
 
 // SearchController handles requests for search endpoints.
@@ -65,7 +64,7 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 
-		searchQuery, pageNum, isPageReq, err := c.getSearchParams(eCtx)
+		isAdvanced, searchQuery, pageNum, isPageReq, err := c.getGetSearchParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -73,29 +72,30 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 		ctx := getContext(eCtx)
 
 		if !isHtmxReq {
-			return c.handleShowSearch(eCtx, ctx, searchQuery, pageNum)
+			return c.handleShowSearch(eCtx, ctx, isAdvanced, searchQuery, pageNum)
 		} else if !isPageReq {
 			return c.handleHxNavSearch(eCtx, ctx)
 		} else {
-			return c.handleHxGetSearchPage(eCtx, ctx, searchQuery, pageNum)
+			return c.handleHxGetSearchPage(eCtx, ctx, isAdvanced, searchQuery, pageNum)
 		}
 	}
 }
 
-func (c *SearchController) getSearchParams(eCtx echo.Context) (string, int, bool, error) {
-	searchQuery, _ := getSearchQueryParam(eCtx)
+func (c *SearchController) getGetSearchParams(eCtx echo.Context) (bool, string, int, bool, error) {
+	isAdvanced := getSearchAdvancedParam(eCtx)
+	searchQuery := getSearchQueryParam(eCtx)
 	pageNum, pageNumAvail, err := getPageNumberQueryParam(eCtx)
 	if err != nil {
-		return "", 0, false, err
+		return false, "", 0, false, err
 	}
 	if !pageNumAvail {
 		pageNum = 1
 	}
-	return searchQuery, pageNum, pageNumAvail, nil
+	return isAdvanced, searchQuery, pageNum, pageNumAvail, nil
 }
 
-// GetActivitiesHandler returns a handler for "GET /search/activities".
-func (c *SearchController) GetActivitiesHandler() echo.HandlerFunc {
+// GetFormHandler returns a handler for "GET /search/form".
+func (c *SearchController) GetFormHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 		if !isHtmxReq {
@@ -103,7 +103,20 @@ func (c *SearchController) GetActivitiesHandler() echo.HandlerFunc {
 			log.Debug(err.StackTrace())
 			return err
 		}
-		return c.handleHxGetActivities(eCtx, getContext(eCtx))
+		return c.handleHxGetForm(eCtx, getSearchAdvancedParam(eCtx))
+	}
+}
+
+// GetActivitiesHandler returns a handler for "GET /search/form/activities".
+func (c *SearchController) GetFormActivitiesHandler() echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		isHtmxReq := web.IsHtmxRequest(eCtx)
+		if !isHtmxReq {
+			err := e.NewError(e.ValUnknown, "Not a HTMX request.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		return c.handleHxGetFormActivities(eCtx, getContext(eCtx))
 	}
 }
 
@@ -118,30 +131,30 @@ func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
 		}
 
 		ctx := getContext(eCtx)
-		input := c.getSearchInput(eCtx)
+		isAdvanced := getSearchAdvancedParam(eCtx)
+		input := c.getPostSearchInput(eCtx)
 
-		return c.handleHxExecuteSearch(eCtx, ctx, input)
+		return c.handleHxExecuteSearch(eCtx, ctx, isAdvanced, input)
 	}
 }
 
-func (c *SearchController) getSearchInput(eCtx echo.Context) *searchInput {
+func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
 	return &searchInput{
-		byType:        eCtx.FormValue("by-type"),
-		typeId:        eCtx.FormValue("type"),
-		byDate:        eCtx.FormValue("by-date"),
-		startDate:     eCtx.FormValue("start-date"),
-		endDate:       eCtx.FormValue("end-date"),
-		byActivity:    eCtx.FormValue("by-activity"),
-		activityId:    eCtx.FormValue("activity"),
-		byDescription: eCtx.FormValue("by-description"),
-		description:   eCtx.FormValue("description"),
+		byType:     eCtx.FormValue("by-type"),
+		typeId:     eCtx.FormValue("type"),
+		byDate:     eCtx.FormValue("by-date"),
+		startDate:  eCtx.FormValue("start-date"),
+		endDate:    eCtx.FormValue("end-date"),
+		byActivity: eCtx.FormValue("by-activity"),
+		activityId: eCtx.FormValue("activity"),
+		text:       eCtx.FormValue("text"),
 	}
 }
 
 // --- Handler functions ---
 
-func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Context, query string,
-	pageNum int) error {
+func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Context, isAdvanced bool,
+	query string, pageNum int) error {
 	// Create search filter
 	searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
 	searchErrorMessage := ""
@@ -155,7 +168,7 @@ func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Conte
 	if err != nil {
 		return err
 	}
-	search, err := c.getSearchViewData(ctx, searchFilter)
+	searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
 	if err != nil {
 		return err
 	}
@@ -165,7 +178,7 @@ func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Conte
 	}
 
 	// Render
-	return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, searchErrorMessage, search,
+	return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, searchErrorMessage, searchQuery,
 		searchEntries))
 }
 
@@ -177,17 +190,22 @@ func (c *SearchController) handleHxNavSearch(eCtx echo.Context, ctx context.Cont
 	}
 
 	// Create view model
-	search, err := c.getSearchViewData(ctx, searchFilter)
+	searchQuery, err := c.getSearchQueryViewData(ctx, false, searchFilter)
 	if err != nil {
 		return err
 	}
 	searchEntries := &vm.SearchEntries{}
 
 	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav(search, searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav(searchQuery, searchEntries))
 }
 
-func (c *SearchController) handleHxGetActivities(eCtx echo.Context, ctx context.Context) error {
+func (c *SearchController) handleHxGetForm(eCtx echo.Context, isAdvanced bool) error {
+	// Render
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchForm(isAdvanced))
+}
+
+func (c *SearchController) handleHxGetFormActivities(eCtx echo.Context, ctx context.Context) error {
 	entryTypeId, err := getTypeIdQueryParam(eCtx)
 	if err != nil {
 		return err
@@ -203,11 +221,11 @@ func (c *SearchController) handleHxGetActivities(eCtx echo.Context, ctx context.
 	viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
 
 	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchActivityOptions(viewData))
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchFormActivityOptions(viewData))
 }
 
 func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.Context,
-	searchInputs *searchInput) error {
+	isAdvanced bool, searchInputs *searchInput) error {
 	// Create search filter
 	searchFilter, err := c.createSearchFilter(getCurrentUserId(ctx), searchInputs)
 	if err != nil {
@@ -217,7 +235,7 @@ func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.
 	}
 
 	// Create view model
-	search, err := c.getSearchViewData(ctx, searchFilter)
+	searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
 	if err != nil {
 		return err
 	}
@@ -226,13 +244,20 @@ func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.
 		return err
 	}
 
+	// Push search URL into browser history
+	url := "/search?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
+	url = url + "query=" + searchEntries.Query
+	web.HtmxPushUrl(eCtx, url)
+
 	// Render
-	web.HtmxPushUrl(eCtx, "/search?query="+searchEntries.Query)
-	return web.RenderHx(eCtx, http.StatusOK, hx.Search("", search, searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.Search("", searchQuery, searchEntries))
 }
 
-func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.Context, query string,
-	pageNum int) error {
+func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.Context,
+	isAdvanced bool, query string, pageNum int) error {
 	// Create search filter
 	searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
 	if err != nil {
@@ -246,11 +271,11 @@ func (c *SearchController) handleHxGetSearchPage(eCtx echo.Context, ctx context.
 	}
 
 	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchPage(searchEntries))
+	return web.RenderHx(eCtx, http.StatusOK, hx.SearchPage(isAdvanced, searchEntries))
 }
 
-func (c *SearchController) getSearchViewData(ctx context.Context, searchFilter *model.EntriesFilter,
-) (*vm.Search, error) {
+func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvanced bool,
+	searchFilter *model.EntriesFilter) (*vm.SearchQuery, error) {
 	// Create default values
 	filter := searchFilter
 	if filter == nil {
@@ -274,8 +299,8 @@ func (c *SearchController) getSearchViewData(ctx context.Context, searchFilter *
 	}
 
 	// Create view model
-	return c.mapper.CreateSearchViewModel(filter.ByType, typeId, filter.ByTime, sTime, eTime,
-		filter.ByActivity, filter.ActivityId, filter.ByDescription, filter.Description, entryTypes,
+	return c.mapper.CreateSearchQueryViewModel(isAdvanced, filter.ByType, typeId, filter.ByTime,
+		sTime, eTime, filter.ByActivity, filter.ActivityId, filter.Description, entryTypes,
 		entryActivities), nil
 }
 
@@ -319,14 +344,14 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 
 	var err error
 
-	// Convert type ID
+	// Create type ID filter
 	filter.ByType = input.byType == "on"
 	filter.TypeId, err = parseId(input.typeId, false)
 	if err != nil {
 		return nil, err
 	}
 
-	// Convert start/end time
+	// Create start/end time filter
 	filter.ByTime = input.byDate == "on"
 	filter.StartTime, err = parseDateTime(input.startDate, "00:00", e.ValStartDateInvalid)
 	if err != nil {
@@ -343,26 +368,25 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 		return nil, err
 	}
 
-	// Convert activity ID
+	// Create activity ID filter
 	filter.ByActivity = input.byActivity == "on"
 	filter.ActivityId, err = parseId(input.activityId, true)
 	if err != nil {
 		return nil, err
 	}
 
-	// Validate description
-	filter.ByDescription = input.byDescription == "on"
-	if err = validateStringLength(input.description, model.MaxLengthEntryDescription,
+	// Create description filter
+	if err = validateStringLength(input.text, model.MaxLengthEntryDescription,
 		e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}
-	filter.Description = input.description
+	filter.ByDescription = input.text != ""
+	filter.Description = input.text
 
-	// Check if search query is empty
+	// If search query is empty: Create empty description filter
 	if !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription {
-		err := e.NewError(e.ValSearchInvalid, "Search query is empty.")
-		log.Debug(err.StackTrace())
-		return nil, err
+		filter.ByDescription = true
+		filter.Description = ""
 	}
 
 	return filter, nil

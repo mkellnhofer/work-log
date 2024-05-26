@@ -42,7 +42,7 @@ func NewLogController(uServ *service.UserService, eServ *service.EntryService) *
 func (c *LogController) GetLogHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		isHtmxReq := web.IsHtmxRequest(eCtx)
-		pageNum, isPageReq, err := c.getLogParams(eCtx)
+		pageNum, isPageReq, err := c.getGetLogParams(eCtx)
 		if err != nil {
 			return err
 		}
@@ -59,7 +59,7 @@ func (c *LogController) GetLogHandler() echo.HandlerFunc {
 	}
 }
 
-func (c *LogController) getLogParams(eCtx echo.Context) (int, bool, error) {
+func (c *LogController) getGetLogParams(eCtx echo.Context) (int, bool, error) {
 	pageNum, avail, err := getPageNumberQueryParam(eCtx)
 	if err != nil {
 		return 0, false, err

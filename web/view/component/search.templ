@@ -9,11 +9,11 @@ templ SearchActions() {
 }
 
 // This template is used to render the content of the search page.
-templ SearchContent(errorMessage string, search *model.Search, searchEntries *model.SearchEntries) {
+templ SearchContent(errorMessage string, search *model.SearchQuery, searchEntries *model.SearchEntries) {
 	<div id="wl-search-content">
 		@searchErrorMessageContainer(errorMessage)
-		@searchEntryFormContainer(search)
-		@SearchResult(searchEntries)
+		@searchFormContainer(search.IsAdvanced, search.Input, search.EntryTypes, search.EntryActivities)
+		@SearchResult(search.IsAdvanced, searchEntries)
 	</div>
 }
 
@@ -23,160 +23,282 @@ templ searchErrorMessageContainer(errorMessage string) {
 	</div>
 }
 
-templ searchEntryFormContainer(search *model.Search) {
-	<div id="wl-search-form" class="border rounded-2 mb-3 px-3 py-1">
-		@SearchEntryForm(search)
+templ searchFormContainer(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
+	entryActivities []*model.EntryActivity) {
+	<div id="wl-search-form" class="mb-4">
+		@searchForm(isAdvanced,
+			searchFormTypeControl(input.ByType, entryTypes, input.TypeId),
+			searchFormDateControl(input.ByDate, input.StartDate, input.EndDate),
+			searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId),
+			searchFormTextControl(isSearchQueryInputEmpty(input), input.Text),
+			searchFormSubmitButton(isSearchQueryInputEmpty(input)))
 	</div>
+}
+
+templ searchForm(isAdvanced bool, typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component, submitButton templ.Component) {
+	<form
+		action="#"
+		hx-post={ buildSearchUrl(isAdvanced) }
+		hx-target="#wl-search-result"
+		hx-swap="outerHTML"
+	>
+		if isAdvanced {
+			@searchAdvancedFormControls(typeControl, dateControl, activityControl, textControl,
+				submitButton)
+		} else {
+			@searchStandardFormControls(typeControl, dateControl, activityControl, textControl,
+				submitButton)
+		}
+	</form>
 }
 
 // This template is used to render the search form. After the form has been submitted, the search
 // results are loaded into the search result container.
-templ SearchEntryForm(search *model.Search) {
+templ SearchForm(isAdvanced bool) {
 	<form
 		action="#"
-		hx-post="/search"
+		hx-post={ buildSearchUrl(isAdvanced) }
 		hx-target="#wl-search-result"
 		hx-swap="outerHTML"
 	>
-		@searchEntryFormControls(search.EntryTypes, search.EntryActivities, search.SearchInput)
+		if isAdvanced {
+			@searchAdvancedFormControls(preserveElementStub("wl-search-input-group-type"),
+				preserveElementStub("wl-search-input-group-date"),
+				preserveElementStub("wl-search-input-group-activity"),
+				preserveElementStub("wl-search-input-group-text"),
+				preserveElementStub("wl-search-input-submit"))
+		} else {
+			@searchStandardFormControls(preserveElementStub("wl-search-input-group-type"),
+				preserveElementStub("wl-search-input-group-date"),
+				preserveElementStub("wl-search-input-group-activity"),
+				preserveElementStub("wl-search-input-group-text"),
+				preserveElementStub("wl-search-input-submit"))
+		}
 	</form>
 }
 
-templ searchEntryFormControls(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,
-	searchInput *model.SearchInput) {
-	<div class="row">
-		<div class="col-12 col-sm-5 col-md-4 pt-1">
-			<label class="mb-2" for="wl-search-input-by-type">
-				{ getText("formLabelType") }
-			</label>
-			<div class="input-group">
-				<div class="input-group-text">
-					<input
-						id="wl-search-input-by-type"
-						class="checkbox"
-						name="by-type"
-						type="checkbox"
-						if searchInput.ByType {
-							checked
-						}
-					/>
-				</div>
-				<select
-					id="wl-searc-input-type"
-					class="form-select"
-					name="type"
-					hx-get="/search/activities"
-					hx-target="#wl-search-input-activity"
-					hx-swap="innerHTML"
-				>
-					@EntryTypeSelectOptions(entryTypes, searchInput.TypeId)
-				</select>
-			</div>
-		</div>
-		<div class="col-12 col-sm-7 col-md-4 py-1">
-			<label class="mb-2" for="wl-search-input-by-date">
-				{ getText("formLabelFrom") }
-			</label>
-			<div class="input-group">
-				<div class="input-group-text">
-					<input
-						id="wl-search-input-by-date"
-						class="checkbox"
-						name="by-date"
-						type="checkbox"
-						if searchInput.ByDate {
-							checked
-						}
-					/>
-				</div>
-				<input class="form-control" name="start-date" type="date" value={ searchInput.StartDate }/>
-				<input class="form-control" name="end-date" type="date" value={ searchInput.EndDate }/>
-			</div>
-		</div>
-		<div class="col-12 col-sm-12 col-md-4 py-1">
-			<label class="mb-2" for="wl-search-input-by-activity">
-				{ getText("formLabelActivity") }
-			</label>
-			<div class="input-group">
-				<div class="input-group-text">
-					<input
-						id="wl-search-input-by-activity"
-						class="checkbox"
-						name="by-activity"
-						type="checkbox"
-						if searchInput.ByActivity {
-							checked
-						}
-					/>
-				</div>
-				<select id="wl-search-input-activity" class="form-select" name="activity">
-					@EntryActivitySelectOptions(entryActivities, searchInput.ActivityId)
-				</select>
-			</div>
-		</div>
+func buildSearchUrl(isAdvanced bool) string {
+	if isAdvanced {
+		return "/search?adv=1"
+	}
+	return "/search"
+}
+
+templ searchStandardFormControls(typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component, submitButton templ.Component) {
+	<div class="d-none">
+		@typeControl
+		@dateControl
+		@activityControl
 	</div>
-	<div class="row">
-		<div class="col-12 py-1">
-			<label class="mb-2" for="wl-search-input-by-description">
-				{ getText("formLabelDescription") }
-			</label>
-			<div class="input-group">
-				<div class="input-group-text">
-					<input
-						id="wl-search-input-by-description"
-						class="checkbox"
-						name="by-description"
-						type="checkbox"
-						if isSearchInputEmpty(searchInput) || searchInput.ByDescription {
-							checked
-						}
-					/>
-				</div>
-				<input
-					class="form-control"
-					name="description"
-					type="text"
-					value={ searchInput.Description }
-					if isSearchInputEmpty(searchInput) {
-						autofocus
-					}
-				/>
-			</div>
+	<div class="row py-1">
+		<div class="col-auto">
+			@searchFormShowAdvancedToggle()
 		</div>
-	</div>
-	<div class="row">
-		<div class="col-12 py-3">
-			<button
-				class="btn btn-primary"
-				type="submit"
-				if !isSearchInputEmpty(searchInput) {
-					autofocus
-				}
-			>
-				{ getText("searchActionSearch") }
-			</button>
+		<div class="col px-0 px-md-2">
+			@textControl
+		</div>
+		<div class="col-auto">
+			@submitButton
 		</div>
 	</div>
 }
 
-func isSearchInputEmpty(searchInput *model.SearchInput) bool {
-	return !searchInput.ByType && !searchInput.ByDate && !searchInput.ByActivity &&
-		!searchInput.ByDescription
+templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component, submitButton templ.Component) {
+	<div class="row mb-1">
+		<div class="col d-flex">
+			@searchFormShowStandardToggle()
+			<h2 class="my-1">{ getText("searchFormTitle") }</h2>
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col-12 col-md-3 mb-2 mb-md-0">
+			<label class="form-label" for="wl-search-input-by-type">
+				{ getText("formLabelType") }
+			</label>
+			@typeControl
+		</div>
+		<div class="col-12 col-md-5 mb-2 mb-md-0">
+			<label class="form-label" for="wl-search-input-by-date">
+				{ getText("formLabelDate") }
+			</label>
+			@dateControl
+		</div>
+		<div class="col-12 col-md-4 mb-2 mb-md-0">
+			<label class="form-label" for="wl-search-input-by-activity">
+				{ getText("formLabelActivity") }
+			</label>
+			@activityControl
+		</div>
+	</div>
+	<div class="row mb-4">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-text">
+				{ getText("formLabelDescription") }
+			</label>
+			@textControl
+		</div>
+	</div>
+	<div class="row">
+		@submitButton
+	</div>
+}
+
+templ searchFormShowAdvancedToggle() {
+	<button
+		class="btn px-0"
+		href="#"
+		hx-get="/search/form?adv=1"
+		hx-target="#wl-search-form"
+		hx-swap="innerHTML"
+	>
+		<svg class="ico"><use xlink:href="img/ico.svg#angle-down"></use></svg>
+	</button>
+}
+
+templ searchFormShowStandardToggle() {
+	<button
+		class="btn me-3 px-0"
+		href="#"
+		hx-get="/search/form?adv=0"
+		hx-target="#wl-search-form"
+		hx-swap="innerHTML"
+	>
+		<svg class="ico"><use xlink:href="img/ico.svg#angle-up"></use></svg>
+	</button>
+}
+
+templ searchFormTypeControl(byType bool, types []*model.EntryType, typeId int) {
+	<div id="wl-search-input-group-type" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-type"
+				class="checkbox"
+				name="by-type"
+				type="checkbox"
+				if byType {
+					checked
+				}
+			/>
+		</div>
+		<select
+			id="wl-searc-input-type"
+			class="form-select"
+			name="type"
+			hx-get="/search/form/activities"
+			hx-target="#wl-search-input-activity"
+			hx-swap="innerHTML"
+		>
+			@EntryTypeSelectOptions(types, typeId)
+		</select>
+	</div>
+}
+
+templ searchFormDateControl(byDate bool, startDate string, endDate string) {
+	<div id="wl-search-input-group-date" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-date"
+				class="checkbox"
+				name="by-date"
+				type="checkbox"
+				if byDate {
+					checked
+				}
+			/>
+		</div>
+		<input class="form-control" name="start-date" type="date" value={ startDate }/>
+		<input class="form-control" name="end-date" type="date" value={ endDate }/>
+	</div>
+}
+
+templ searchFormActivityControl(byActivity bool, activities []*model.EntryActivity,
+	activityId int) {
+	<div id="wl-search-input-group-activity" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-activity"
+				class="checkbox"
+				name="by-activity"
+				type="checkbox"
+				if byActivity {
+					checked
+				}
+			/>
+		</div>
+		<select id="wl-search-input-activity" class="form-select" name="activity">
+			@EntryActivitySelectOptions(activities, activityId)
+		</select>
+	</div>
+}
+
+templ searchFormTextControl(isEmptySearch bool, text string) {
+	<div id="wl-search-input-group-text" class="input-group">
+		<input
+			id="wl-search-input-text"
+			class="form-control"
+			name="text"
+			type="search"
+			placeholder={ getText("searchFormTextPlaceholder") }
+			value={ text }
+			if isEmptySearch {
+				autofocus
+			}
+		/>
+	</div>
+}
+
+templ searchFormSubmitButton(isEmptySearch bool) {
+	<div id="wl-search-input-submit" class="col-auto">
+		<button
+			class="btn btn-primary"
+			type="submit"
+			if !isEmptySearch {
+				autofocus
+			}
+		>
+			{ getText("searchFormActionSearch") }
+		</button>
+	</div>
+}
+
+func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
+	return !input.ByType && !input.ByDate && !input.ByActivity && input.Text == ""
 }
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is
 // received, the search result is reloaded.
-templ SearchResult(entries *model.SearchEntries) {
+templ SearchResult(isAdvanced bool, entries *model.SearchEntries) {
 	<div
 		id="wl-search-result"
-		hx-get={ "search?query=" + entries.Query + "&page=" + toString(entries.CurrentPageNum) }
+		hx-get={ buildCurrentSearchUrl(isAdvanced, entries.Query, entries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
+		@searchResultHeader()
 		@searchEntryList(entries)
-		@searchPagingControl(entries.Query, entries.FirstPageNum, entries.CurrentPageNum,
+		@searchPagingControl(isAdvanced, entries.Query, entries.FirstPageNum, entries.CurrentPageNum,
 			entries.LastPageNum)
+	</div>
+}
+
+func buildCurrentSearchUrl(isAdvanced bool, query string, currentPageNum int) string {
+	url := "search?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
+	return url + "query=" + query + "&page=" + toString(currentPageNum)
+}
+
+templ searchResultHeader() {
+	<div class="mb-4">
+		<h2>
+			<svg class="ico-large me-3"><use xlink:href="img/ico.svg#magnifying-glass"></use></svg>
+			<span>Result</span>
+		</h2>
 	</div>
 }
 
@@ -192,7 +314,16 @@ templ searchEntryList(entries *model.SearchEntries) {
 	}
 }
 
-templ searchPagingControl(query string, firstPageNum int, currentPageNum int, lastPageNum int) {
-	@PagingControl("#wl-search-result", "search?query="+query+"&page=%d", firstPageNum,
+templ searchPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
+	lastPageNum int) {
+	@PagingControl("#wl-search-result", buildSearchUrlTemplate(isAdvanced, query), firstPageNum,
 		currentPageNum, lastPageNum)
+}
+
+func buildSearchUrlTemplate(isAdvanced bool, query string) string {
+	url := "search?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
+	return url + "query=" + query + "&page=%d"
 }

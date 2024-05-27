@@ -92,16 +92,43 @@ templ searchStandardFormControls(typeControl templ.Component, dateControl templ.
 		@dateControl
 		@activityControl
 	</div>
-	<div class="row py-1">
-		<div class="col-auto">
-			@searchFormShowAdvancedToggle()
-		</div>
-		<div class="col px-0 px-md-2">
+	<div class="d-flex flex-row">
+		<div class="flex-fill me-2 me-md-3">
 			@textControl
 		</div>
-		<div class="col-auto">
+		<div>
 			@submitButton
 		</div>
+		<div>
+			@searchFormMoreMenu()
+		</div>
+	</div>
+}
+
+templ searchFormMoreMenu() {
+	<div class="dropdown">
+		<a
+			class="btn btn-link"
+			href="#"
+			data-bs-toggle="dropdown"
+			aria-expanded="false"
+		>
+			<svg class="ico"><use xlink:href="img/ico.svg#ellipsis"></use></svg>
+		</a>
+		<ul class="dropdown-menu dropdown-menu-end">
+			<li>
+				<a
+					class="dropdown-item"
+					href="#"
+					hx-get="/search/form?adv=1"
+					hx-target="#wl-search-form"
+					hx-swap="innerHTML"
+				>
+					<svg class="ico ms-1 me-3"><use xlink:href="img/ico.svg#filter"></use></svg>
+					<span>{ getText("searchFormActionShowAdvanced") }</span>
+				</a>
+			</li>
+		</ul>
 	</div>
 }
 
@@ -109,8 +136,7 @@ templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.
 	activityControl templ.Component, textControl templ.Component, submitButton templ.Component) {
 	<div class="row mb-1">
 		<div class="col d-flex">
-			@searchFormShowStandardToggle()
-			<h2 class="my-1">{ getText("searchFormTitle") }</h2>
+			<h2>{ getText("searchFormTitleAdvanced") }</h2>
 		</div>
 	</div>
 	<div class="row mb-2">
@@ -144,30 +170,6 @@ templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.
 	<div class="row">
 		@submitButton
 	</div>
-}
-
-templ searchFormShowAdvancedToggle() {
-	<button
-		class="btn px-0"
-		href="#"
-		hx-get="/search/form?adv=1"
-		hx-target="#wl-search-form"
-		hx-swap="innerHTML"
-	>
-		<svg class="ico"><use xlink:href="img/ico.svg#angle-down"></use></svg>
-	</button>
-}
-
-templ searchFormShowStandardToggle() {
-	<button
-		class="btn me-3 px-0"
-		href="#"
-		hx-get="/search/form?adv=0"
-		hx-target="#wl-search-form"
-		hx-swap="innerHTML"
-	>
-		<svg class="ico"><use xlink:href="img/ico.svg#angle-up"></use></svg>
-	</button>
 }
 
 templ searchFormTypeControl(byType bool, types []*model.EntryType, typeId int) {

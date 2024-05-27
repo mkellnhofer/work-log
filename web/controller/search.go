@@ -230,8 +230,8 @@ func (c *SearchController) handleHxExecuteSearch(eCtx echo.Context, ctx context.
 	searchFilter, err := c.createSearchFilter(getCurrentUserId(ctx), searchInputs)
 	if err != nil {
 		searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
-		searchEntries := &vm.SearchEntries{}
-		return web.RenderHx(eCtx, http.StatusOK, hx.Search(searchErrorMessage, nil, searchEntries))
+		return web.RenderHx(eCtx, http.StatusOK, hx.Search(searchErrorMessage, &vm.SearchQuery{},
+			&vm.SearchEntries{}))
 	}
 
 	// Create view model

@@ -44,9 +44,10 @@
 
     <!-- Search view -->
     <message key="searchTitle"><text>Suchen</text></message>
-    <message key="searchFormTitle"><text>Erweiterte Suche</text></message>
+    <message key="searchFormTitleAdvanced"><text>Erweiterte Suche</text></message>
     <message key="searchFormTextPlaceholder"><text>Suchen</text></message>
     <message key="searchFormActionSearch"><text>Suchen</text></message>
+    <message key="searchFormActionShowAdvanced"><text>Erweiterte Suche</text></message>
     <message key="searchListTitle"><text>Suchergebnis</text></message>
     <message key="searchListLabelNoEntries"><text>keine Einträge gefunden</text></message>
 

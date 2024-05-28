@@ -40,7 +40,7 @@
     <message key="logSummaryHeaderOvertime"><text>Total Overtime</text></message>
     <message key="logSummaryHeaderRemainingVacation"><text>Remaining Vacation</text></message>
     <message key="logHeadingEntries"><text>Entries</text></message>
-    <message key="logLabelNoEntries"><text>no entries exist</text></message>
+    <message key="logLabelNoEntries"><text>No entries exist</text></message>
 
     <!-- Search view -->
     <message key="searchTitle"><text>Search</text></message>
@@ -49,7 +49,8 @@
     <message key="searchFormActionSearch"><text>Search</text></message>
     <message key="searchFormActionShowAdvanced"><text>Advanced Search</text></message>
     <message key="searchListTitle"><text>Search Result</text></message>
-    <message key="searchListLabelNoEntries"><text>no entries found</text></message>
+    <message key="searchListLabelNoSearchQuery"><text>Enter your query ...</text></message>
+    <message key="searchListLabelNoEntries"><text>No entries found</text></message>
 
     <!-- Overview view -->
     <message key="overviewTitle"><text>Overview</text></message>

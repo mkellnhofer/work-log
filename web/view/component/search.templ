@@ -305,14 +305,12 @@ templ searchResultHeader() {
 }
 
 templ searchEntryList(entries *model.SearchEntries) {
-	if len(entries.Days) > 0 {
-		@EntryList(entries.Days, false, false)
+	if entries.Query == "" {
+		@EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery"))
+	} else if len(entries.Days) == 0 {
+		@EntriesPlaceholder("xmark", getText("searchListLabelNoEntries"))
 	} else {
-		<div class="m-5 text-center">
-			<p class="p-5">
-				{ getText("searchListLabelNoEntries") }
-			</p>
-		</div>
+		@EntryList(entries.Days, false, false)
 	}
 }
 

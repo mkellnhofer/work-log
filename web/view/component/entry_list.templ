@@ -4,6 +4,18 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
+// This template is used to render a entries placeholder. It gets the icon and text to display.
+templ EntriesPlaceholder(icon string, text string) {
+	<div class="position-absolute start-50 top-50 translate-middle">
+		<div class="d-flex justify-content-center align-items-center">
+			<div class="my-3 text-center">
+				<svg class="ico-large mb-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+				<p class="fs-6">{ text }</p>
+			</div>
+		</div>
+	</div>
+}
+
 // This template is used to render a list of entries. It gets a list of days with their entries and
 // two flags which control the rendering of day header.
 templ EntryList(days []*model.ListEntriesDay, highlightWorkDuration bool, showBreakDuration bool) {

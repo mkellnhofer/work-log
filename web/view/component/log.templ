@@ -126,14 +126,10 @@ templ logEntriesHeader() {
 }
 
 templ logEntryList(entries *model.ListEntries) {
-	if len(entries.Days) > 0 {
-		@EntryList(entries.Days, true, true)
+	if len(entries.Days) == 0 {
+		@EntriesPlaceholder("xmark", getText("logLabelNoEntries"))
 	} else {
-		<div class="m-5 text-center">
-			<p class="p-5">
-				{ getText("logLabelNoEntries") }
-			</p>
-		</div>
+		@EntryList(entries.Days, true, true)
 	}
 }
 

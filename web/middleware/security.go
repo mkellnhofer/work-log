@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 
@@ -149,7 +150,9 @@ func (m *AuthCheckMiddleware) redirect(c echo.Context, sess *model.Session, url 
 	reqUrl := getRequestUrl(c.Request())
 
 	// Save requested URL in session
-	sess.PreviousUrl = reqUrl
+	if canUrlBeUsedAsPreviousUrl(reqUrl) {
+		sess.PreviousUrl = reqUrl
+	}
 
 	// Redirect
 	if web.IsHtmxRequest(c) {
@@ -168,4 +171,10 @@ func getRequestUrl(r *http.Request) string {
 		req = req + "?" + query
 	}
 	return req
+}
+
+func canUrlBeUsedAsPreviousUrl(url string) bool {
+	return url == "/log" || strings.HasPrefix(url, "/log?") ||
+		url == "/search" || strings.HasPrefix(url, "/search?") ||
+		url == "/overview" || strings.HasPrefix(url, "/overview?")
 }

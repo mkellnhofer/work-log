@@ -82,7 +82,7 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 
 	// Register public handlers
 	e.GET("/", getRootHandler())
-	e.GET("/error", errCtrl.GetErrorHandler(), pubRoute...)
+	e.GET("/error", errCtrl.GetErrorHandler())
 	e.GET("/login", authCtrl.GetLoginHandler(), pubRoute...)
 	e.POST("/login", authCtrl.PostLoginHandler(), pubRoute...)
 	// Register protected handlers

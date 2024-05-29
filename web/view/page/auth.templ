@@ -7,10 +7,12 @@ import (
 
 templ authPage(actionAttrs templ.Attributes) {
 	@Page() {
-		<div class="wl-auth-container">
-			@component.AuthForm(actionAttrs) {
-				{ children... }
-			}
+		<div class="wl-container">
+			<div class="position-absolute start-50 top-50 translate-middle">
+				@component.AuthForm(actionAttrs) {
+					{ children... }
+				}
+			</div>
 		</div>
 	}
 }

@@ -88,30 +88,6 @@ label {
   --bs-dropdown-padding-y: 0.3rem;
 }
 
-.wl-auth-container {
-  height: 100%;
-  display: flex;
-  padding: 20px;
-}
-
-.wl-auth-form {
-  width: 100%;
-  max-width: 400px;
-  margin: auto;
-  padding-bottom: 40px;
-}
-
-.wl-auth-form img {
-  height: 70px;
-  display: block;
-  margin: 0 auto 0 auto;
-}
-
-.wl-auth-form h1 {
-  font-size: 1.7em;
-  font-weight: 450;
-}
-
 .wl-container {
   width: 100%;
   margin-right: auto;
@@ -122,6 +98,25 @@ label {
   .wl-container {
     width: 930px;
   }
+}
+
+.wl-auth-form {
+  width: 100%;
+}
+
+@media (min-width: 950px) {
+  .wl-auth-form {
+    width: 400px;
+  }
+}
+
+.wl-auth-form img {
+  height: 70px;
+}
+
+.wl-auth-form h1 {
+  font-size: 1.7em;
+  font-weight: 450;
 }
 
 .wl-list-day-target-not-achieved {

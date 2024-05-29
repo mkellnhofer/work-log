@@ -29,7 +29,7 @@ func AuthForm(actionAttrs templ.Attributes) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"wl-auth-form\" class=\"wl-auth-form\"><img class=\"mb-4\" src=\"img/app-auth-logo.svg\"><form action=\"#\" hx-target=\"this\" hx-swap=\"innerHTML\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"wl-auth-form\" class=\"wl-auth-form\"><img class=\"d-block mx-auto mb-4\" src=\"img/app-auth-logo.svg\"><form action=\"#\" hx-target=\"this\" hx-swap=\"innerHTML\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

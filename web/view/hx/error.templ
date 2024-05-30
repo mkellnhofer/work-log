@@ -9,7 +9,7 @@ import (
 // error has occurred, the error view is swapped into the main container.
 templ ErrorPage(err *model.Error) {
 	// OoB swaps
-	<div id="wl-container" hx-swap-oob="innerHTML">
+	<div id="app" hx-swap-oob="innerHTML">
 		@component.ErrorView(err.ErrorMessage)
 	</div>
 }

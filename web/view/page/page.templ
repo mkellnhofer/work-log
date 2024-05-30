@@ -16,7 +16,9 @@ templ Page() {
 			<link rel="stylesheet" href="/css/font.css"/>
 		</head>
 		<body>
-			{ children... }
+			<div id="app" hx-history-elt>
+				{ children... }
+			</div>
 			<script type="text/javascript" src="/js/bootstrap.min.js"></script>
 			<script type="text/javascript" src="/js/htmx.min.js"></script>
 			<script type="text/javascript" src="/js/app.js"></script>

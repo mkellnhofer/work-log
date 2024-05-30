@@ -38,7 +38,7 @@ func Page() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"shortcut icon\" type=\"image/png\" href=\"/img/favicon.png\"><link rel=\"stylesheet\" href=\"/css/bootstrap.min.css\"><link rel=\"stylesheet\" href=\"/css/app.css\"><link rel=\"stylesheet\" href=\"/css/font.css\"></head><body>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</title><link rel=\"shortcut icon\" type=\"image/png\" href=\"/img/favicon.png\"><link rel=\"stylesheet\" href=\"/css/bootstrap.min.css\"><link rel=\"stylesheet\" href=\"/css/app.css\"><link rel=\"stylesheet\" href=\"/css/font.css\"></head><body><div id=\"app\" hx-history-elt>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -46,7 +46,7 @@ func Page() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script type=\"text/javascript\" src=\"/js/bootstrap.min.js\"></script><script type=\"text/javascript\" src=\"/js/htmx.min.js\"></script><script type=\"text/javascript\" src=\"/js/app.js\"></script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><script type=\"text/javascript\" src=\"/js/bootstrap.min.js\"></script><script type=\"text/javascript\" src=\"/js/htmx.min.js\"></script><script type=\"text/javascript\" src=\"/js/app.js\"></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

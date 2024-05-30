@@ -88,6 +88,9 @@ CREATE TABLE entry_activity (
   PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+INSERT INTO entry_activity (id, description)
+  VALUES (1, 'General'), (2, 'Meeting'), (3, 'Organization');
+
 CREATE TABLE entry (
   id INT NOT NULL AUTO_INCREMENT,
   user_id INT NOT NULL,

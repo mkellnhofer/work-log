@@ -25,7 +25,12 @@ var userIconColors = []string{
 
 // CreateUserIconSvg creates a user icon from the user's initials.
 func CreateUserIconSvg(initials string) string {
-	color := userIconColors[(int(initials[0])+int(initials[1]))%len(userIconColors)]
+	initialsNum := 0
+	for _, initial := range initials {
+		initialsNum += int(initial)
+	}
+
+	color := userIconColors[initialsNum%len(userIconColors)]
 
 	return createSvg("0 0 32 32", "32", "32", func() string {
 		return `

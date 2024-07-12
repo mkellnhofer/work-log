@@ -2,7 +2,8 @@
 
 A simple Go web application for tracking working hours and activities.
 
-![Screenshot](screenshot-small.png)
+![Screenshot](screenshot-1.png)
+![Screenshot](screenshot-2.png)
 
 ## Features
 
@@ -10,7 +11,7 @@ A simple Go web application for tracking working hours and activities.
   - with role-based permissions (admin, evaluator and user)
   - with contract details like first work day, daily working hours and annual vacation days
 - UI
-  - Log View (screenshot): to show recent entries (with summary and gap/conflict highlighting)
+  - Log View: to show recent entries (with summary and gap/conflict highlighting)
   - Search View: to search entries by type, date, ...
   - Overview View: to show a monthly overview and export a timesheet
   - responsive 

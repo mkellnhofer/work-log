@@ -2,15 +2,18 @@
 
 GO_SWAGGER_VERSION="0.30.5"
 TEMPL_VERSION="0.2.680"
+DART_SASS_VERSION="1.77.8"
 
 ARCH=$(uname -m)
 
 if [ "$ARCH" == "x86_64" ]; then
   GO_SWAGGER_BINARY_NAME="swagger_linux_amd64"
   TEMPL_BUNDLE_NAME="templ_Linux_x86_64.tar.gz"
+  DART_SASS_BUNDLE_NAME="dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
 elif [ "$ARCH" == "aarch64" ]; then
   GO_SWAGGER_BINARY_NAME="swagger_linux_arm64"
   TEMPL_BUNDLE_NAME="templ_Linux_arm64.tar.gz"
+  DART_SASS_BUNDLE_NAME="dart-sass-${DART_SASS_VERSION}-linux-arm64.tar.gz"
 else
   echo "Unsupported architecture '${ARCH}'. Aborting."
   exit 1
@@ -25,3 +28,8 @@ echo "Downloading Templ (${TEMPL_BUNDLE_NAME}) ..."
 TEMPL_DL_URL="https://github.com/a-h/templ/releases/download/v${TEMPL_VERSION}/${TEMPL_BUNDLE_NAME}"
 curl -L "${TEMPL_DL_URL}" | sudo tar -xz -C /usr/local/bin templ
 sudo chmod +x /usr/local/bin/templ
+
+echo "Downloading Dart Sass (${DART_SASS_VERSION}) ..."
+DART_SASS_DL_URL="https://github.com/sass/dart-sass/releases/download/${DART_SASS_VERSION}/${DART_SASS_BUNDLE_NAME}"
+curl -L "${DART_SASS_DL_URL}" | sudo tar -xz -C /opt
+sudo ln -s /opt/dart-sass/sass /usr/local/bin/sass

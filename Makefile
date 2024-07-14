@@ -1,3 +1,11 @@
+sass:
+	sass \
+		scss/bootstrap-custom.scss \
+		static/resources/css/bootstrap.min.css \
+		--style=compressed \
+		--no-source-map \
+		--silence-deprecation=mixed-decls
+
 build: clean swagger-spec go-build package
 
 build-arm-linux: clean swagger-spec go-build-arm-linux package

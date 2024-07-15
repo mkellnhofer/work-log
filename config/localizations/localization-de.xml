@@ -2,6 +2,7 @@
 <localization language="de-DE">
     <!-- General -->
     <message key="appName"><text>Work Log</text></message>
+    <message key="appWelcomeTitle"><text>Willkommen bei Work Log!</text></message>
 
     <!-- Common actions -->
     <message key="actionPrevious"><text>Vorherige</text></message>
@@ -10,16 +11,15 @@
     <message key="actionSave"><text>Speichern</text></message>
 
     <!-- Login view -->
-    <message key="loginTitle"><text>Anmelden</text></message>
-    <message key="loginLabelUsername"><text>Benutzername:</text></message>
-    <message key="loginLabelPassword"><text>Passwort:</text></message>
+    <message key="loginMessage"><text>Weiter geht's – einfach anmelden ...</text></message>
+    <message key="loginLabelUsername"><text>Benutzername</text></message>
+    <message key="loginLabelPassword"><text>Passwort</text></message>
     <message key="loginActionLogin"><text>Anmelden</text></message>
 
     <!-- Password change view -->
-    <message key="pwChangeTitle"><text>Benutzerkonto einrichten</text></message>
     <message key="pwChangeMessage"><text>Sie müssen ein neues Passwort für ihr Benutzerkonto festlegen.</text></message>
-    <message key="pwChangeLabelPassword1"><text>Neues Passwort:</text></message>
-    <message key="pwChangeLabelPassword2"><text>Neues Passwort: (wiederholen)</text></message>
+    <message key="pwChangeLabelPassword1"><text>Neues Passwort</text></message>
+    <message key="pwChangeLabelPassword2"><text>Neues Passwort (wiederholen)</text></message>
     <message key="pwChangeActionSet"><text>Festlegen</text></message>
 
     <!-- Main actions -->

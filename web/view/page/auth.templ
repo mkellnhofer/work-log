@@ -7,8 +7,8 @@ import (
 
 templ authPage(actionAttrs templ.Attributes) {
 	@Page() {
-		<div class="wl-container">
-			<div class="position-absolute start-50 top-50 translate-middle">
+		<div class="position-absolute top-50 translate-middle-y w-100">
+			<div class="d-flex justify-content-center">
 				@component.AuthForm(actionAttrs) {
 					{ children... }
 				}

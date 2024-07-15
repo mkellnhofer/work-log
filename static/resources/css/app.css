@@ -24,8 +24,6 @@ body {
 
 .wl-container {
   width: 100%;
-  margin-right: auto;
-  margin-left: auto;
 }
 
 @media (min-width: 950px) {
@@ -38,19 +36,25 @@ body {
   width: 100%;
 }
 
-@media (min-width: 950px) {
+@media (min-width: 400px) {
   .wl-auth-form {
-    width: 400px;
+    width: 332px;
+  }
+}
+
+@media (min-width: 576px) {
+  .wl-auth-form {
+    width: 350px;
   }
 }
 
 .wl-auth-form img {
-  height: 70px;
+  height: 55px;
 }
 
 .wl-auth-form h1 {
-  font-size: 1.7em;
-  font-weight: 450;
+  font-size: 1.4em;
+  font-weight: 400;
 }
 
 .wl-list-day-target-not-achieved {

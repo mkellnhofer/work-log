@@ -22,6 +22,18 @@ body {
   border-style: hidden;
 }
 
+@media (min-width: 576px) {
+  .border-sm {
+    border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);
+  }
+}
+
+@media (min-width: 576px) {
+  .shadow-sm-sm {
+    box-shadow: var(--bs-box-shadow-sm);
+  }
+}
+
 .wl-container {
   width: 100%;
 }
@@ -29,6 +41,18 @@ body {
 @media (min-width: 950px) {
   .wl-container {
     width: 930px;
+  }
+}
+
+@media (min-width: 576px) {
+  .wl-auth-background {
+    position: fixed;
+    bottom: 0;
+    height: 200%;
+    width: 400%;
+    transform: translateX(-50%) translateY(60%) rotate(65deg);
+    background: linear-gradient(to top, #ffffff77, #ffffffff), url(../img/app-background.svg);
+    opacity: 0.6;
   }
 }
 
@@ -45,6 +69,7 @@ body {
 @media (min-width: 576px) {
   .wl-auth-form {
     width: 350px;
+    background: #ffffffff;
   }
 }
 

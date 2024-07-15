@@ -7,6 +7,7 @@ import (
 
 templ authPage(actionAttrs templ.Attributes) {
 	@Page() {
+		<div class="wl-auth-background"></div>
 		<div class="position-absolute top-50 translate-middle-y w-100">
 			<div class="d-flex justify-content-center">
 				@component.AuthForm(actionAttrs) {

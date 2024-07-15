@@ -12,4 +12,56 @@ $spacers: (
   6: $spacer * 2.5,
 );
 
+// Body defaults
+$body-color: #343a40;
+
+// Font family
+$font-family-sans-serif: "Open Sans", sans-serif;
+
+// Base font sizes
+$font-size-base: 0.95rem;
+$font-sizes: (
+  1: 1.6rem,
+  2: 1.2rem,
+  3: 1.0rem,
+  4: 1.0rem,
+  5: 0.95rem,
+  6: 0.9rem,
+  7: 0.85rem,
+);
+
+// Headings font sizes
+$h1-font-size: 1.6rem;
+$h2-font-size: 1.2rem;
+$h3-font-size: 1.0rem;
+$h4-font-size: 1.0rem;
+$h5-font-size: 1.0rem;
+$h6-font-size: 1.0rem;
+
+// Font weights
+$font-weight-base:   380;
+$font-weight-light:  300;
+$font-weight-normal: 380;
+$font-weight-bold:   550;
+
+// Table overwrites
+$table-bg: transparent;
+$table-accent-bg: transparent;
+$table-color: #343a40;
+$table-th-font-weight: 550;
+
+// Form overwrites
+$form-label-font-size: 0.9rem;
+$form-label-font-weight: 500;
+$input-font-size: 0.9rem;
+$input-placeholder-color: var(--bs-gray-500);
+
+// Misc component overwrites
+$alert-padding-y: 0.5rem;
+$btn-font-size: 0.9rem;
+$dropdown-padding-y: 0.3rem;
+$nav-link-font-size: 1.2rem;
+$pagination-font-size: 0.9rem;
+$pagination-color: var(--bs-black);
+
 @import "vendor/bootstrap/bootstrap";

@@ -51,7 +51,7 @@ templ logSummaryMonthActualTarget(summary *model.LogSummary) {
 	<div class="col-12 col-sm-3 col-md-3 text-center">
 		<h2>{ getText("logSummaryHeaderCurrentMonth") }</h2>
 		<p class="mb-2">
-			<span class="fs-5">{ summary.MonthActualHours }</span>
+			<span class="fs-2">{ summary.MonthActualHours }</span>
 			<span>/</span>
 			<span>{ summary.MonthTargetHours + " " + getText("hoursUnit") }</span>
 		</p>

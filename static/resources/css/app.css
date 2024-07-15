@@ -4,88 +4,22 @@ html {
 
 body {
   height: 100%;
-  font-family: "Open Sans", sans-serif;
-  font-weight: 380;
-}
-
-h1 {
-  font-size: 1.6em;
-  font-weight: 600;
-}
-
-h2 {
-  font-size: 1.2em;
-  font-weight: 600;
-}
-
-h3 {
-  font-size: 1.0em;
-  font-weight: 550;
-}
-
-p, th, td, li {
-  font-size: 0.95em;
-}
-
-.fs-7 {
-  font-size: 0.8rem;
-}
-
-th {
-  font-weight: 550 !important;
-}
-
-label {
-  font-weight: 500 !important;
-}
-
-.fw-bold {
-  font-weight: 550 !important;
 }
 
 .ico {
   margin-top: -2px;
   width: 14px;
   height: 14px;
-  color: var(--bs-black);
 }
 
 .ico-large {
   margin-top: -5px;
   width: 20px;
   height: 20px;
-  color: var(--bs-black);
-}
-
-.nav-link {
-  font-size: 1.2rem;
-}
-
-.page-link {
-  --bs-pagination-color: var(--bs-black);
-  font-size: 0.9rem;
-}
-
-.alert {
-  --bs-alert-padding-y: 0.5rem;
 }
 
 .table {
-  --bs-table-bg: transparent;
-  --bs-table-accent-bg: transparent;
   border-style: hidden;
-}
-
-.form-label, .form-control, .form-select {
-  font-size: 0.9rem;
-}
-
-.btn {
-  font-size: 0.9rem;
-}
-
-.dropdown-menu {
-  --bs-dropdown-padding-y: 0.3rem;
 }
 
 .wl-container {

@@ -9,7 +9,8 @@ templ ContentLoader(id string, hxGetUrl string) {
 		hx-get={ hxGetUrl }
 		hx-target="this"
 		hx-swap="outerHTML">
-		// TODO!!!: Add spinner here
-		<p class="position-absolute top-50 start-50 translate-middle">Loading...</p>
+		<div class="position-absolute top-50 start-50 translate-middle delayed-fade-in">
+			<svg class="ico-spin"><use xlink:href="img/ico.svg#spinner"></use></svg>
+		</div>
 	</div>
 }

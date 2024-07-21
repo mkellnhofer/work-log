@@ -51,7 +51,7 @@ func ContentLoader(id string, hxGetUrl string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"this\" hx-swap=\"outerHTML\"><p class=\"position-absolute top-50 start-50 translate-middle\">Loading...</p></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"this\" hx-swap=\"outerHTML\"><div class=\"position-absolute top-50 start-50 translate-middle delayed-fade-in\"><svg class=\"ico-spin\"><use xlink:href=\"img/ico.svg#spinner\"></use></svg></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

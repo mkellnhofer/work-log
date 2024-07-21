@@ -10,7 +10,6 @@ import (
 
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/loc"
-	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
@@ -49,115 +48,87 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 
 // GetActivitiesHandler returns a handler for "GET /entry-modal/activities".
 func (c *EntryController) GetActivitiesHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			return c.handleGetActivities(eCtx, ctx)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		return c.handleGetActivities(eCtx, ctx)
+	})
 }
 
 // GetCreateHandler returns a handler for "GET /entry-modal/create".
 func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			return c.handleShowCreate(eCtx, ctx)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		return c.handleShowCreate(eCtx, ctx)
+	})
 }
 
 // PostCreateHandler returns a handler for "POST /entry-modal/create".
 func (c *EntryController) PostCreateHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			input := c.getEntryInput(eCtx)
-			return c.handleExecuteCreate(eCtx, ctx, input)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		input := c.getEntryInput(eCtx)
+		return c.handleExecuteCreate(eCtx, ctx, input)
+	})
 }
 
 // GetCopyHandler returns a handler for "GET /entry-modal/copy/{id}".
 func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			id, err := getIdPathVar(eCtx)
-			if err != nil {
-				return err
-			}
-			return c.handleShowCopy(eCtx, ctx, id)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
+		return c.handleShowCopy(eCtx, ctx, id)
+	})
 }
 
 // GetEditHandler returns a handler for "GET /entry-modal/edit/{id}".
 func (c *EntryController) GetEditHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			id, err := getIdPathVar(eCtx)
-			if err != nil {
-				return err
-			}
-			return c.handleShowEdit(eCtx, ctx, id)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
+		return c.handleShowEdit(eCtx, ctx, id)
+	})
 }
 
 // PostEditHandler returns a handler for "POST /entry-modal/edit/{id}".
 func (c *EntryController) PostEditHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			id, err := getIdPathVar(eCtx)
-			if err != nil {
-				return err
-			}
-			input := c.getEntryInput(eCtx)
-			return c.handleExecuteEdit(eCtx, ctx, id, input)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
+		input := c.getEntryInput(eCtx)
+		return c.handleExecuteEdit(eCtx, ctx, id, input)
+	})
 }
 
 // GetDeleteHandler returns a handler for "GET /entry-modal/delete/{id}".
 func (c *EntryController) GetDeleteHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			id, err := getIdPathVar(eCtx)
-			if err != nil {
-				return err
-			}
-			return c.handleShowDelete(eCtx, ctx, id)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
+		return c.handleShowDelete(eCtx, ctx, id)
+	})
 }
 
 // PostDeleteHandler returns a handler for "POST /entry-modal/delete/{id}".
 func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			id, err := getIdPathVar(eCtx)
-			if err != nil {
-				return err
-			}
-			return c.handleExecuteDelete(eCtx, ctx, id)
-		})
-	}
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		id, err := getIdPathVar(eCtx)
+		if err != nil {
+			return err
+		}
+		return c.handleExecuteDelete(eCtx, ctx, id)
+	})
 }
 
 // PostCancelHandler returns a handler for "POST /entry-modal/cancel".
 func (c *EntryController) PostCancelHandler() echo.HandlerFunc {
-	return func(eCtx echo.Context) error {
-		return c.wrapHandler(eCtx, func(ctx context.Context) error {
-			return eCtx.NoContent(http.StatusOK)
-		})
-	}
-}
-
-func (c *EntryController) wrapHandler(eCtx echo.Context, hf func(context.Context) error) error {
-	isHtmxReq := web.IsHtmxRequest(eCtx)
-	if !isHtmxReq {
-		err := e.NewError(e.ValUnknown, "Not a HTMX request.")
-		log.Debug(err.StackTrace())
-		return err
-	}
-	return hf(getContext(eCtx))
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		return eCtx.NoContent(http.StatusOK)
+	})
 }
 
 func (c *EntryController) getEntryInput(eCtx echo.Context) *entryInput {

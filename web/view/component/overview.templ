@@ -6,14 +6,19 @@ import (
 )
 
 // This template is used to render the action buttons on the overview page.
-templ OverviewActions(currMonth string) {
+templ OverviewActions(month string) {
 	<a
 		class="btn btn-primary"
-		href={ toURL("/overview/export?month=" + currMonth) }
+		href={ toURL("/overview/export?month=" + month) }
 		aria-label={ getText("overviewActionExport") }
 	>
 		{ getText("overviewActionExport") }
 	</a>
+}
+
+// This template is used to render the content loader for the overview page.
+templ OverviewContentLoader(month string) {
+	@ContentLoader("wl-overview-content", "overview/content?month=" + month)
 }
 
 // This template is used to render the content of the overview page.
@@ -44,7 +49,7 @@ templ overviewMonthButton(month string, hxTarget string, labelTextRef string, ic
 			class="page-link"
 			href="#"
 			hx-trigger="click"
-			hx-get={ buildOverviewMonthHxGetUrl(month) }
+			hx-get={ "overview?month=" + month }
 			hx-target={ hxTarget }
 			hx-swap="outerHTML"
 			hx-push-url="true"
@@ -59,10 +64,6 @@ templ overviewMonth(currMonthName string) {
 	<li class="page-item px-4 pt-2">
 		<h3>{ currMonthName }</h3>
 	</li>
-}
-
-func buildOverviewMonthHxGetUrl(month string) string {
-	return "overview?month=" + month
 }
 
 templ overviewSummary(summary *model.OverviewEntriesSummary) {

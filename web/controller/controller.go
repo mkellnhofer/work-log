@@ -172,6 +172,10 @@ func parseMonth(v string) (int, int, bool, error) {
 	return year, month, true, nil
 }
 
+func formatMonth(year int, month int) string {
+	return fmt.Sprintf("%d%02d", year, month)
+}
+
 func parseDateTime(inDate string, inTime string, code int) (time.Time, error) {
 	dt := inDate + " " + inTime
 	out, pErr := time.ParseInLocation(dateTimeFormat, dt, time.Local)

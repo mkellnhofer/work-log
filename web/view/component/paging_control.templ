@@ -9,9 +9,11 @@ import (
 // pages from.
 templ PagingControl(hxTarget string, hxGetUrlTemplate string, firstPageNum int, currentPageNum int,
 	lastPageNum int) {
-	<div class="py-sm-3 py-2">
-		@pagingNav(hxTarget, hxGetUrlTemplate, firstPageNum, currentPageNum, lastPageNum)
-	</div>
+	if currentPageNum >= firstPageNum && currentPageNum <= lastPageNum {
+		<div class="py-sm-3 py-2">
+			@pagingNav(hxTarget, hxGetUrlTemplate, firstPageNum, currentPageNum, lastPageNum)
+		</div>
+	}
 }
 
 templ pagingNav(hxTarget string, hxGetUrlTemplate string, firstPageNum int,

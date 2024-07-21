@@ -19,32 +19,31 @@ templ mainPage(currentPage string, actionButtons templ.Component, userInfo *mode
 }
 
 // This template is used to render the full log page.
-templ Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model.ListEntries) {
+templ Log(userInfo *model.UserInfo, pageNum int) {
 	@mainPage(
 		"log",
 		component.LogActions(),
 		userInfo,
-		component.LogContent(summary, listEntries),
+		component.LogContentLoader(pageNum),
 	)
 }
 
 // This template is used to render the full search page.
-templ Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQuery,
-	searchEntries *model.SearchEntries) {
+templ Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum int) {
 	@mainPage(
 		"search",
 		component.SearchActions(),
 		userInfo,
-		component.SearchContent(errorMessage, search, searchEntries),
+		component.SearchContentLoader(isAdvanced, query, pageNum),
 	)
 }
 
 // This template is used to render the full overview page.
-templ Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) {
+templ Overview(userInfo *model.UserInfo, month string) {
 	@mainPage(
 		"overview",
-		component.OverviewActions(overviewEntries.CurrMonth),
+		component.OverviewActions(month),
 		userInfo,
-		component.OverviewContent(overviewEntries),
+		component.OverviewContentLoader(month),
 	)
 }

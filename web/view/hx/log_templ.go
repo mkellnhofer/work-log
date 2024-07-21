@@ -17,7 +17,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the log page.
-func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Component {
+func LogNav(pageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -50,7 +50,7 @@ func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.LogContent(summary, listEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.LogContentLoader(pageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -63,7 +63,7 @@ func LogNav(summary *model.LogSummary, listEntries *model.ListEntries) templ.Com
 
 // This template is used to render changes in the log page after the user has requested the
 // previous/next entries.
-func LogPage(summary *model.LogSummary, listEntries *model.ListEntries) templ.Component {
+func LogContent(summary *model.LogSummary, listEntries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

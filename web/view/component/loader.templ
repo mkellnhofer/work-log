@@ -1,0 +1,15 @@
+package component
+
+// This template is used to render a content loader. It loads it's content from the supplied URL
+// once it has been added to the page.
+templ ContentLoader(id string, hxGetUrl string) {
+	<div
+		id={ id }
+		hx-trigger="load"
+		hx-get={ hxGetUrl }
+		hx-target="this"
+		hx-swap="outerHTML">
+		// TODO!!!: Add spinner here
+		<p class="position-absolute top-50 start-50 translate-middle">Loading...</p>
+	</div>
+}

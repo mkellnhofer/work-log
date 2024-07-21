@@ -18,12 +18,17 @@ templ LogActions() {
 	</button>
 }
 
+// This template is used to render the content loader for the log page.
+templ LogContentLoader(pageNum int) {
+	@ContentLoader("wl-log-content", "log/content?page=" + toString(pageNum))
+}
+
 // This template is used to render the content of the log page. When the HTMX event "wlChangedEntries"
 // is received, the content is reloaded.
 templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	<div
 		id="wl-log-content"
-		hx-get={ "log?page=" + toString(listEntries.CurrentPageNum) }
+		hx-get={ "log/content?page=" + toString(listEntries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"

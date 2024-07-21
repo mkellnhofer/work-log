@@ -8,6 +8,22 @@ import (
 templ SearchActions() {
 }
 
+// This template is used to render the content loader for the search page.
+templ SearchContentLoader(isAdvanced bool, query string, pageNum int) {
+	@ContentLoader("wl-search-content", buildSearchContentUrl(isAdvanced, query, pageNum))
+}
+
+func buildSearchContentUrl(isAdvanced bool, query string, pageNum int) string {
+	url := "search/content?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
+	if query != "" {
+		url = url + "query=" + query + "&page=" + toString(pageNum)
+	}
+	return url
+}
+
 // This template is used to render the content of the search page.
 templ SearchContent(errorMessage string, search *model.SearchQuery, searchEntries *model.SearchEntries) {
 	<div id="wl-search-content">
@@ -40,7 +56,7 @@ templ searchForm(isAdvanced bool, typeControl templ.Component, dateControl templ
 	<form
 		action="#"
 		hx-post={ buildSearchUrl(isAdvanced) }
-		hx-target="#wl-search-result"
+		hx-target="#wl-search-content"
 		hx-swap="outerHTML"
 	>
 		if isAdvanced {
@@ -59,7 +75,7 @@ templ SearchForm(isAdvanced bool) {
 	<form
 		action="#"
 		hx-post={ buildSearchUrl(isAdvanced) }
-		hx-target="#wl-search-result"
+		hx-target="#wl-search-content"
 		hx-swap="outerHTML"
 	>
 		if isAdvanced {
@@ -274,7 +290,7 @@ func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
 // received, the search result is reloaded.
 templ SearchResult(isAdvanced bool, entries *model.SearchEntries) {
 	<div
-		id="wl-search-result"
+		id="wl-search-content"
 		hx-get={ buildCurrentSearchUrl(isAdvanced, entries.Query, entries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
@@ -316,14 +332,14 @@ templ searchEntryList(entries *model.SearchEntries) {
 
 templ searchPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
 	lastPageNum int) {
-	@PagingControl("#wl-search-result", buildSearchUrlTemplate(isAdvanced, query), firstPageNum,
+	@PagingControl("#wl-search-content", buildSearchPageUrlTemplate(isAdvanced, query), firstPageNum,
 		currentPageNum, lastPageNum)
 }
 
-func buildSearchUrlTemplate(isAdvanced bool, query string) string {
-	url := "search?"
+func buildSearchPageUrlTemplate(isAdvanced bool, query string) string {
+	templ := "search?"
 	if isAdvanced {
-		url = url + "adv=1&"
+		templ = templ + "adv=1&"
 	}
-	return url + "query=" + query + "&page=%d"
+	return templ + "query=" + query + "&page=%d"
 }

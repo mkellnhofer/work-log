@@ -17,7 +17,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the overview page.
-func OverviewNav(overviewEntries *model.OverviewEntries) templ.Component {
+func OverviewNav(month string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -42,7 +42,7 @@ func OverviewNav(overviewEntries *model.OverviewEntries) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.OverviewActions(overviewEntries.CurrMonth).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.OverviewActions(month).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -50,7 +50,7 @@ func OverviewNav(overviewEntries *model.OverviewEntries) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.OverviewContent(overviewEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.OverviewContentLoader(month).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -63,7 +63,7 @@ func OverviewNav(overviewEntries *model.OverviewEntries) templ.Component {
 
 // This template is used to render changes in the overview page after the user has requested the
 // previous/next month.
-func OverviewPage(overviewEntries *model.OverviewEntries) templ.Component {
+func OverviewContent(overviewEntries *model.OverviewEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {

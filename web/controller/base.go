@@ -4,19 +4,53 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/labstack/echo/v4"
+
 	e "kellnhofer.com/work-log/pkg/error"
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
+	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 )
+
+type handlerFunc func(eCtx echo.Context, ctx context.Context, isHtmxReq bool) error
+type hxHandlerFunc func(eCtx echo.Context, ctx context.Context) error
+type resourceHandlerFunc func(eCtx echo.Context, ctx context.Context) error
 
 type baseController struct {
 	uServ *service.UserService
 	eServ *service.EntryService
 
 	mapper *mapper.Mapper
+}
+
+func (c *baseController) handler(hf handlerFunc) echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		isHtmxReq := web.IsHtmxRequest(eCtx)
+		ctx := getContext(eCtx)
+		return hf(eCtx, ctx, isHtmxReq)
+	}
+}
+
+func (c *baseController) hxHandler(hf hxHandlerFunc) echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		isHtmxReq := web.IsHtmxRequest(eCtx)
+		if !isHtmxReq {
+			err := e.NewError(e.ValUnknown, "Not a HTMX request.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+		ctx := getContext(eCtx)
+		return hf(eCtx, ctx)
+	}
+}
+
+func (c *baseController) resourceHandler(hf resourceHandlerFunc) echo.HandlerFunc {
+	return func(eCtx echo.Context) error {
+		return hf(eCtx, getContext(eCtx))
+	}
 }
 
 func (c *baseController) getUser(ctx context.Context, userId int) (*model.User, error) {

@@ -76,7 +76,7 @@ func mainPage(currentPage string, actionButtons templ.Component, userInfo *model
 }
 
 // This template is used to render the full log page.
-func Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model.ListEntries) templ.Component {
+func Log(userInfo *model.UserInfo, pageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -93,7 +93,7 @@ func Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model
 			"log",
 			component.LogActions(),
 			userInfo,
-			component.LogContent(summary, listEntries),
+			component.LogContentLoader(pageNum),
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -106,8 +106,7 @@ func Log(userInfo *model.UserInfo, summary *model.LogSummary, listEntries *model
 }
 
 // This template is used to render the full search page.
-func Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQuery,
-	searchEntries *model.SearchEntries) templ.Component {
+func Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -124,7 +123,7 @@ func Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQ
 			"search",
 			component.SearchActions(),
 			userInfo,
-			component.SearchContent(errorMessage, search, searchEntries),
+			component.SearchContentLoader(isAdvanced, query, pageNum),
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -137,7 +136,7 @@ func Search(userInfo *model.UserInfo, errorMessage string, search *model.SearchQ
 }
 
 // This template is used to render the full overview page.
-func Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) templ.Component {
+func Overview(userInfo *model.UserInfo, month string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -152,9 +151,9 @@ func Overview(userInfo *model.UserInfo, overviewEntries *model.OverviewEntries) 
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
 			"overview",
-			component.OverviewActions(overviewEntries.CurrMonth),
+			component.OverviewActions(month),
 			userInfo,
-			component.OverviewContent(overviewEntries),
+			component.OverviewContentLoader(month),
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

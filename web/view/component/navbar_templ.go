@@ -31,7 +31,7 @@ func NavBar(currentPage string, actionButtons templ.Component, userInfo *model.U
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar navbar-expand-sm mb-3 border-bottom\"><nav class=\"container-xxl flex-wrap flex-sm-nowrap px-0\" aria-label=\"Main navigation\"><button class=\"btn d-flex d-sm-none p-2\" type=\"button\" data-bs-toggle=\"offcanvas\" data-bs-target=\"#wl-navbar-nav-offcanvas\" aria-label=\"Open navigation\"><span class=\"navbar-toggler-icon\"></span></button>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"navbar navbar-expand-sm sticky-top bg-white mb-3 border-bottom\"><nav class=\"container-xxl flex-wrap flex-sm-nowrap px-0\" aria-label=\"Main navigation\"><button class=\"btn d-flex d-sm-none p-2\" type=\"button\" data-bs-toggle=\"offcanvas\" data-bs-target=\"#wl-navbar-nav-offcanvas\" aria-label=\"Open navigation\"><span class=\"navbar-toggler-icon\"></span></button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

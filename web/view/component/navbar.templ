@@ -9,7 +9,7 @@ import (
 // icon, the page navigation and the page menu. The template gets the name of the current page, the
 // current available action buttons, and the user information for the user menu dropdown.
 templ NavBar(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo) {
-	<header class="navbar navbar-expand-sm mb-3 border-bottom">
+	<header class="navbar navbar-expand-sm sticky-top bg-white mb-3 border-bottom">
 		<nav class="container-xxl flex-wrap flex-sm-nowrap px-0" aria-label="Main navigation">
 			<button
 				class="btn d-flex d-sm-none p-2"

@@ -57,167 +57,112 @@ func NewSearchController(uServ *service.UserService, eServ *service.EntryService
 	}
 }
 
-// --- Endpoints ---
-
 // GetSearchHandler returns a handler for "GET /search".
 func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
-	return c.handler(func(eCtx echo.Context, ctx context.Context, isHtmxReq bool) error {
-		isAdvanced, searchQuery, pageNum, isPageReq, err := c.getGetSearchParams(eCtx)
+	return c.handler(func(eCtx echo.Context, ctx context.Context) error {
+		userInfo, err := c.getUserInfoViewData(ctx)
 		if err != nil {
 			return err
 		}
 
-		if !isHtmxReq {
-			return c.handleShowSearch(eCtx, ctx, isAdvanced, searchQuery, pageNum)
-		} else if !isPageReq {
-			return c.handleNavSearch(eCtx)
-		} else {
-			return c.handleGetSearchContent(eCtx, ctx, isAdvanced, searchQuery, pageNum)
-		}
-	})
-}
-
-// GetSearchContentHandler returns a handler for "GET /search/content".
-func (c *SearchController) GetSearchContentHandler() echo.HandlerFunc {
-	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		isAdvanced, searchQuery, pageNum, _, err := c.getGetSearchParams(eCtx)
+		isAdvanced, query, pageNum, _, err := c.getGetSearchParams(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleGetSearchContent(eCtx, ctx, isAdvanced, searchQuery, pageNum)
+
+		return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, isAdvanced, query, pageNum))
 	})
 }
 
-// GetFormHandler returns a handler for "GET /search/form".
-func (c *SearchController) GetFormHandler() echo.HandlerFunc {
+// GetHxNavHandler returns a handler for "GET /hx/search".
+func (c *SearchController) GetHxNavHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return c.handleGetForm(eCtx, getSearchAdvancedParam(eCtx))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav())
 	})
 }
 
-// GetActivitiesHandler returns a handler for "GET /search/form/activities".
-func (c *SearchController) GetFormActivitiesHandler() echo.HandlerFunc {
+// GetHxContentHandler returns a handler for "GET /hx/search/content".
+func (c *SearchController) GetHxContentHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return c.handleGetFormActivities(eCtx, ctx)
+		isAdvanced, query, pageNum, _, err := c.getGetSearchParams(eCtx)
+		if err != nil {
+			return err
+		}
+
+		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		if err != nil {
+			return err
+		}
+
+		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
+		if err != nil {
+			return err
+		}
+
+		searchEntries, err := c.getSearchEntriesViewData(ctx, searchFilter, pageNum)
+		if err != nil {
+			return err
+		}
+
+		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, searchFilter, pageNum))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
 	})
 }
 
-// PostSearchHandler returns a handler for "POST /search".
-func (c *SearchController) PostSearchHandler() echo.HandlerFunc {
+// GetHxFormHandler returns a handler for "GET /hx/search/form".
+func (c *SearchController) GetHxFormHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		isAdvanced := getSearchAdvancedParam(eCtx)
-		input := c.getPostSearchInput(eCtx)
-		return c.handleExecuteSearch(eCtx, ctx, isAdvanced, input)
+		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, nil, 1))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchForm(isAdvanced))
 	})
 }
 
-func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
-	return &searchInput{
-		byType:     eCtx.FormValue("by-type"),
-		typeId:     eCtx.FormValue("type"),
-		byDate:     eCtx.FormValue("by-date"),
-		startDate:  eCtx.FormValue("start-date"),
-		endDate:    eCtx.FormValue("end-date"),
-		byActivity: eCtx.FormValue("by-activity"),
-		activityId: eCtx.FormValue("activity"),
-		text:       eCtx.FormValue("text"),
-	}
+// GetHxFormActivitiesHandler returns a handler for "GET /hx/search/form/activities".
+func (c *SearchController) GetHxFormActivitiesHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		entryTypeId, err := getTypeIdQueryParam(eCtx)
+		if err != nil {
+			return err
+		}
+
+		entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
+		if err != nil {
+			return err
+		}
+
+		viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
+
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchFormActivityOptions(viewData))
+	})
 }
 
-// --- Handler functions ---
+// PostHxFormHandler returns a handler for "POST /hx/search/form".
+func (c *SearchController) PostHxFormHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		isAdvanced := getSearchAdvancedParam(eCtx)
 
-func (c *SearchController) handleShowSearch(eCtx echo.Context, ctx context.Context, isAdvanced bool,
-	query string, pageNum int) error {
-	// Create view model
-	userInfo, err := c.getUserInfoViewData(ctx)
-	if err != nil {
-		return err
-	}
+		userId := getCurrentUserId(ctx)
+		searchInput := c.getPostSearchInput(eCtx)
+		searchFilter, err := c.createSearchFilter(userId, searchInput)
+		if err != nil {
+			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
+			return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent(searchErrorMessage, nil, nil))
+		}
 
-	// Render
-	return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, isAdvanced, query, pageNum))
-}
+		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
+		if err != nil {
+			return err
+		}
 
-func (c *SearchController) handleNavSearch(eCtx echo.Context) error {
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav(false, "", 1))
-}
+		searchEntries, err := c.getSearchEntriesViewData(ctx, searchFilter, 1)
+		if err != nil {
+			return err
+		}
 
-func (c *SearchController) handleGetSearchContent(eCtx echo.Context, ctx context.Context,
-	isAdvanced bool, query string, pageNum int) error {
-	// Create search filter
-	searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
-	if err != nil {
-		return err
-	}
-	searchEntries, err := c.getSearchEntriesViewData(ctx, searchFilter, pageNum)
-	if err != nil {
-		return err
-	}
-
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
-}
-
-func (c *SearchController) handleGetForm(eCtx echo.Context, isAdvanced bool) error {
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchForm(isAdvanced))
-}
-
-func (c *SearchController) handleGetFormActivities(eCtx echo.Context, ctx context.Context) error {
-	entryTypeId, err := getTypeIdQueryParam(eCtx)
-	if err != nil {
-		return err
-	}
-
-	// Get entry master data
-	entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
-
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchFormActivityOptions(viewData))
-}
-
-func (c *SearchController) handleExecuteSearch(eCtx echo.Context, ctx context.Context,
-	isAdvanced bool, searchInputs *searchInput) error {
-	// Create search filter
-	searchFilter, err := c.createSearchFilter(getCurrentUserId(ctx), searchInputs)
-	if err != nil {
-		searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent(searchErrorMessage, nil, nil))
-	}
-
-	// Create view model
-	searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
-	if err != nil {
-		return err
-	}
-	searchEntries, err := c.getSearchEntriesViewData(ctx, searchFilter, 1)
-	if err != nil {
-		return err
-	}
-
-	// Push search URL into browser history
-	url := "/search?"
-	if isAdvanced {
-		url = url + "adv=1&"
-	}
-	url = url + "query=" + searchEntries.Query
-	web.HtmxPushUrl(eCtx, url)
-
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
+		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, searchFilter, 1))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
+	})
 }
 
 func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvanced bool,
@@ -282,6 +227,19 @@ func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
 
 // --- Search query functions ---
 
+func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
+	return &searchInput{
+		byType:     eCtx.FormValue("by-type"),
+		typeId:     eCtx.FormValue("type"),
+		byDate:     eCtx.FormValue("by-date"),
+		startDate:  eCtx.FormValue("start-date"),
+		endDate:    eCtx.FormValue("end-date"),
+		byActivity: eCtx.FormValue("by-activity"),
+		activityId: eCtx.FormValue("activity"),
+		text:       eCtx.FormValue("text"),
+	}
+}
+
 func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*model.EntriesFilter,
 	error) {
 	filter := model.NewEntriesFilter()
@@ -343,6 +301,10 @@ func (c *SearchController) isSearchFilterEmpty(filter *model.EntriesFilter) bool
 }
 
 func (c *SearchController) buildSearchQueryString(filter *model.EntriesFilter) string {
+	if filter == nil {
+		return ""
+	}
+
 	var qps []string
 	// Add parameter/value for entry type
 	if filter.ByType {
@@ -452,6 +414,22 @@ func (c *SearchController) parseSearchDateRange(dateRange string) (time.Time, ti
 
 func (c *SearchController) parseSearchDate(date string) (time.Time, error) {
 	return time.ParseInLocation(searchDateTimeFormat, date, time.Local)
+}
+
+func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.EntriesFilter,
+	pageNum int) string {
+	url := "/search?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
+	query := c.buildSearchQueryString(searchFilter)
+	if query != "" {
+		url = url + "query=" + query + "&"
+	}
+	if pageNum != 0 {
+		url = url + buildPageNumberQueryParam(pageNum)
+	}
+	return url
 }
 
 // --- Helper functions ---

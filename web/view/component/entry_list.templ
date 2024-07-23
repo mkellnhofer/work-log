@@ -119,12 +119,12 @@ templ entryDayTableRowButtonsField(id int) {
 	</td>
 }
 
-templ entryDayTableRowButton(url string, icon string, text string) {
+templ entryDayTableRowButton(hxGetUrl string, icon string, text string) {
 	<li>
 		<a
 			class="dropdown-item"
 			href="#"
-			hx-get={ url }
+			hx-get={ hxGetUrl }
 			hx-trigger="click"
 			hx-target="#wl-modal-container"
 			hx-swap="innerHTML"
@@ -136,7 +136,7 @@ templ entryDayTableRowButton(url string, icon string, text string) {
 }
 
 func buildActionUrl(action string, id int) string {
-	return "/entry-modal/" + action + "/" + toString(id)
+	return hx("/entry-modal/" + action + "/" + toString(id))
 }
 
 templ entryDayTableRowTextField(content string) {

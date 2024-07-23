@@ -47,7 +47,7 @@ templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string
 }
 
 func entryModalHxPostAttrs(actionPath string) templ.Attributes {
-	return templ.Attributes{"hx-post": "/entry-modal/" + actionPath}
+	return templ.Attributes{"hx-post": hx("/entry-modal/" + actionPath)}
 }
 
 templ entryModalErrorMessageContainer(errorMessage string) {
@@ -67,7 +67,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				id="wl-entry-form-type"
 				class="form-select"
 				name="type"
-				hx-get="/entry-modal/activities"
+				hx-get={ hx("/entry-modal/activities") }
 				hx-target="#wl-entry-form-activity"
 				autofocus
 			>

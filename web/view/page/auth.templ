@@ -20,7 +20,7 @@ templ authPage(actionAttrs templ.Attributes) {
 
 // This template is used to render the full login page.
 templ LoginPage(loginStep int) {
-	@authPage(templ.Attributes{"hx-post": "/login"}) {
+	@authPage(templ.Attributes{"hx-post": hx("login")}) {
 		switch loginStep {
 			case model.LoginStepEnterCredentials:
 				@component.EnterCredentialsContent("")

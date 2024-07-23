@@ -71,7 +71,6 @@ templ pagingNavItem(isDisabled bool, isActive bool, hxTarget string, hxGetUrlTem
 				hx-get={ fmt.Sprintf(hxGetUrlTemplate, num) }
 				hx-target={ hxTarget }
 				hx-swap={ hxSwap }
-				hx-push-url="true"
 				if labelTextRef != "" {
 					aria-label={ getText(labelTextRef) }
 				}

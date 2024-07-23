@@ -1,8 +1,34 @@
 package component
 
 import (
+	"fmt"
 	"kellnhofer.com/work-log/web/model"
 )
+
+func buildSearchContentUrl(isAdvanced bool, query string, pageNum int) string {
+	template := buildSearchContentUrlTemplate(isAdvanced, query)
+	return fmt.Sprintf(template, pageNum)
+}
+
+func buildSearchContentUrlTemplate(isAdvanced bool, query string) string {
+	params := ""
+	if isAdvanced {
+		params = params + "adv=1&"
+	}
+	if query != "" {
+		params = params + "query=" + query + "&"
+	}
+	params = params + "page=%d"
+	return hx("/search/content?" + params)
+}
+
+func buildSearchFormUrl(isAdvanced bool) string {
+	params := ""
+	if isAdvanced {
+		params = params + "adv=1"
+	}
+	return hx("/search/form?" + params)
+}
 
 // This template is used to render the action buttons on the search page.
 templ SearchActions() {
@@ -13,23 +39,12 @@ templ SearchContentLoader(isAdvanced bool, query string, pageNum int) {
 	@ContentLoader("wl-search-content", buildSearchContentUrl(isAdvanced, query, pageNum))
 }
 
-func buildSearchContentUrl(isAdvanced bool, query string, pageNum int) string {
-	url := "search/content?"
-	if isAdvanced {
-		url = url + "adv=1&"
-	}
-	if query != "" {
-		url = url + "query=" + query + "&page=" + toString(pageNum)
-	}
-	return url
-}
-
 // This template is used to render the content of the search page.
 templ SearchContent(errorMessage string, search *model.SearchQuery, searchEntries *model.SearchEntries) {
 	<div id="wl-search-content">
 		@searchErrorMessageContainer(errorMessage)
 		@searchFormContainer(search.IsAdvanced, search.Input, search.EntryTypes, search.EntryActivities)
-		@SearchResult(search.IsAdvanced, searchEntries)
+		@searchResult(search.IsAdvanced, searchEntries)
 	</div>
 }
 
@@ -55,7 +70,7 @@ templ searchForm(isAdvanced bool, typeControl templ.Component, dateControl templ
 	activityControl templ.Component, textControl templ.Component, submitButton templ.Component) {
 	<form
 		action="#"
-		hx-post={ buildSearchUrl(isAdvanced) }
+		hx-post={ buildSearchFormUrl(isAdvanced) }
 		hx-target="#wl-search-content"
 		hx-swap="outerHTML"
 	>
@@ -74,7 +89,7 @@ templ searchForm(isAdvanced bool, typeControl templ.Component, dateControl templ
 templ SearchForm(isAdvanced bool) {
 	<form
 		action="#"
-		hx-post={ buildSearchUrl(isAdvanced) }
+		hx-post={ buildSearchFormUrl(isAdvanced) }
 		hx-target="#wl-search-content"
 		hx-swap="outerHTML"
 	>
@@ -92,13 +107,6 @@ templ SearchForm(isAdvanced bool) {
 				preserveElementStub("wl-search-input-submit"))
 		}
 	</form>
-}
-
-func buildSearchUrl(isAdvanced bool) string {
-	if isAdvanced {
-		return "/search?adv=1"
-	}
-	return "/search"
 }
 
 templ searchStandardFormControls(typeControl templ.Component, dateControl templ.Component,
@@ -136,7 +144,7 @@ templ searchFormMoreMenu() {
 				<a
 					class="dropdown-item"
 					href="#"
-					hx-get="/search/form?adv=1"
+					hx-get={ buildSearchFormUrl(true) }
 					hx-target="#wl-search-form"
 					hx-swap="innerHTML"
 				>
@@ -205,7 +213,7 @@ templ searchFormTypeControl(byType bool, types []*model.EntryType, typeId int) {
 			id="wl-searc-input-type"
 			class="form-select"
 			name="type"
-			hx-get="/search/form/activities"
+			hx-get={ hx("/search/form/activities") }
 			hx-target="#wl-search-input-activity"
 			hx-swap="innerHTML"
 		>
@@ -288,27 +296,19 @@ func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is
 // received, the search result is reloaded.
-templ SearchResult(isAdvanced bool, entries *model.SearchEntries) {
+templ searchResult(isAdvanced bool, entries *model.SearchEntries) {
 	<div
-		id="wl-search-content"
-		hx-get={ buildCurrentSearchUrl(isAdvanced, entries.Query, entries.CurrentPageNum) }
+		id="wl-search-result"
+		hx-get={ buildSearchContentUrl(isAdvanced, entries.Query, entries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
 		@searchResultHeader()
-		@searchEntryList(entries)
-		@searchPagingControl(isAdvanced, entries.Query, entries.FirstPageNum, entries.CurrentPageNum,
-			entries.LastPageNum)
+		@searchResultEntryList(entries)
+		@searchResultPagingControl(isAdvanced, entries.Query, entries.FirstPageNum,
+			entries.CurrentPageNum, entries.LastPageNum)
 	</div>
-}
-
-func buildCurrentSearchUrl(isAdvanced bool, query string, currentPageNum int) string {
-	url := "search?"
-	if isAdvanced {
-		url = url + "adv=1&"
-	}
-	return url + "query=" + query + "&page=" + toString(currentPageNum)
 }
 
 templ searchResultHeader() {
@@ -320,7 +320,7 @@ templ searchResultHeader() {
 	</div>
 }
 
-templ searchEntryList(entries *model.SearchEntries) {
+templ searchResultEntryList(entries *model.SearchEntries) {
 	if entries.Query == "" {
 		@EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery"))
 	} else if len(entries.Days) == 0 {
@@ -330,16 +330,8 @@ templ searchEntryList(entries *model.SearchEntries) {
 	}
 }
 
-templ searchPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
+templ searchResultPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
 	lastPageNum int) {
-	@PagingControl("#wl-search-content", buildSearchPageUrlTemplate(isAdvanced, query), firstPageNum,
-		currentPageNum, lastPageNum)
-}
-
-func buildSearchPageUrlTemplate(isAdvanced bool, query string) string {
-	templ := "search?"
-	if isAdvanced {
-		templ = templ + "adv=1&"
-	}
-	return templ + "query=" + query + "&page=%d"
+	@PagingControl("#wl-search-content", buildSearchContentUrlTemplate(isAdvanced, query),
+		firstPageNum, currentPageNum, lastPageNum)
 }

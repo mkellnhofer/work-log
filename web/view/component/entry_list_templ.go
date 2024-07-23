@@ -506,7 +506,7 @@ func entryDayTableRowButtonsField(id int) templ.Component {
 	})
 }
 
-func entryDayTableRowButton(url string, icon string, text string) templ.Component {
+func entryDayTableRowButton(hxGetUrl string, icon string, text string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -524,9 +524,9 @@ func entryDayTableRowButton(url string, icon string, text string) templ.Componen
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var23 string
-		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(url)
+		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(hxGetUrl)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 127, Col: 15}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 127, Col: 20}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -570,7 +570,7 @@ func entryDayTableRowButton(url string, icon string, text string) templ.Componen
 }
 
 func buildActionUrl(action string, id int) string {
-	return "/entry-modal/" + action + "/" + toString(id)
+	return hx("/entry-modal/" + action + "/" + toString(id))
 }
 
 func entryDayTableRowTextField(content string) templ.Component {

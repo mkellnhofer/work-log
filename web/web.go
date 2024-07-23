@@ -3,6 +3,7 @@ package web
 import (
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/labstack/echo/v4"
@@ -19,7 +20,10 @@ func IsHtmxRequest(ctx echo.Context) bool {
 // HtmxPushUrl sets the response header "HX-Push-Url" which instructs HTMX to push the supplied URL
 // into the browser's page history.
 func HtmxPushUrl(ctx echo.Context, url string) {
-	ctx.Response().Header().Set("HX-Push-Url", url)
+	currentUrl := ctx.Request().Header.Get("HX-Current-Url")
+	if !strings.HasSuffix(currentUrl, url) {
+		ctx.Response().Header().Set("HX-Push-Url", url)
+	}
 }
 
 // HtmxRedirectUrl sets the response headers "HX-Redirect" and "HX-Push-Url" which instructs HTMX to
@@ -35,7 +39,7 @@ func HtmxRetarget(ctx echo.Context, target string) {
 	ctx.Response().Header().Set("HX-Retarget", target)
 }
 
-// HtmxRetarget sets the response headers "HX-Trigger" which instructs HTMX to trigger a client-side
+// HtmxTrigger sets the response headers "HX-Trigger" which instructs HTMX to trigger a client-side
 // event.
 func HtmxTrigger(ctx echo.Context, trigger string) {
 	ctx.Response().Header().Add("HX-Trigger", trigger)

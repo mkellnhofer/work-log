@@ -5,11 +5,26 @@ import (
 	"kellnhofer.com/work-log/web/view"
 )
 
+func buildOverviewExportUrl(month string) string {
+	return "/overview/export?" + buildOverviewUrlParam(month)
+}
+
+func buildOverviewContentUrl(month string) string {
+	return hx("/overview/content?" + buildOverviewUrlParam(month))
+}
+
+func buildOverviewUrlParam(month string) string {
+	if month != "" {
+		return "month=" + month
+	}
+	return ""
+}
+
 // This template is used to render the action buttons on the overview page.
 templ OverviewActions(month string) {
 	<a
 		class="btn btn-primary"
-		href={ toURL("/overview/export?month=" + month) }
+		href={ toURL(buildOverviewExportUrl(month)) }
 		aria-label={ getText("overviewActionExport") }
 	>
 		{ getText("overviewActionExport") }
@@ -18,7 +33,7 @@ templ OverviewActions(month string) {
 
 // This template is used to render the content loader for the overview page.
 templ OverviewContentLoader(month string) {
-	@ContentLoader("wl-overview-content", "overview/content?month=" + month)
+	@ContentLoader("wl-overview-content", buildOverviewContentUrl(month))
 }
 
 // This template is used to render the content of the overview page.
@@ -49,10 +64,9 @@ templ overviewMonthButton(month string, hxTarget string, labelTextRef string, ic
 			class="page-link"
 			href="#"
 			hx-trigger="click"
-			hx-get={ "overview?month=" + month }
+			hx-get={ buildOverviewContentUrl(month) }
 			hx-target={ hxTarget }
 			hx-swap="outerHTML"
-			hx-push-url="true"
 			aria-label={ getText(labelTextRef) }
 		>
 			@templ.Raw(icon)

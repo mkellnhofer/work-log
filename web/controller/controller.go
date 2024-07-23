@@ -89,6 +89,10 @@ func parseId(in string, allowZero bool) (int, error) {
 	return id, nil
 }
 
+func buildPageNumberQueryParam(pageNum int) string {
+	return "page=" + strconv.Itoa(pageNum)
+}
+
 func getPageNumberQueryParam(ctx echo.Context) (int, bool, error) {
 	v := ctx.QueryParam("page")
 	if v == "" {
@@ -131,6 +135,10 @@ func getSearchAdvancedParam(ctx echo.Context) bool {
 
 func getSearchQueryParam(ctx echo.Context) string {
 	return ctx.QueryParam("query")
+}
+
+func buildMonthQueryParam(year int, month int) string {
+	return "month=" + formatMonth(year, month)
 }
 
 func getMonthQueryParam(ctx echo.Context) (int, int, bool, error) {

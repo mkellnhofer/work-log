@@ -41,34 +41,52 @@ func NewOverviewController(uServ *service.UserService, eServ *service.EntryServi
 	}
 }
 
-// --- Endpoints ---
-
 // GetOverviewHandler returns a handler for "GET /overview".
 func (c *OverviewController) GetOverviewHandler() echo.HandlerFunc {
-	return c.handler(func(eCtx echo.Context, ctx context.Context, isHtmxReq bool) error {
-		year, month, err := c.getGetOverviewParams(eCtx)
+	return c.handler(func(eCtx echo.Context, ctx context.Context) error {
+		userInfo, err := c.getUserInfoViewData(ctx)
 		if err != nil {
 			return err
 		}
 
+		year, month, err := c.getGetOverviewParams(eCtx)
+		if err != nil {
+			return err
+		}
 		monthStr := formatMonth(year, month)
 
-		if !isHtmxReq {
-			return c.handleShowOverview(eCtx, ctx, monthStr)
-		} else {
-			return c.handleNavOverview(eCtx, monthStr)
-		}
+		return web.RenderPage(eCtx, http.StatusOK, page.Overview(userInfo, monthStr))
 	})
 }
 
-// GetOverviewContentHandler returns a handler for "GET /overview/content".
-func (c *OverviewController) GetOverviewContentHandler() echo.HandlerFunc {
+// GetHxNavHandler returns a handler for "GET /hx/overview".
+func (c *OverviewController) GetHxNavHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		year, month, err := c.getGetOverviewParams(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleOverviewContent(eCtx, ctx, year, month)
+
+		web.HtmxPushUrl(eCtx, c.buildOverviewUrl(year, month))
+		return web.RenderHx(eCtx, http.StatusOK, hx.OverviewNav())
+	})
+}
+
+// GetHxContentHandler returns a handler for "GET /hx/overview/content".
+func (c *OverviewController) GetHxContentHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		year, month, err := c.getGetOverviewParams(eCtx)
+		if err != nil {
+			return err
+		}
+
+		overviewEntries, err := c.getOverviewViewData(ctx, year, month)
+		if err != nil {
+			return err
+		}
+
+		web.HtmxPushUrl(eCtx, c.buildOverviewUrl(year, month))
+		return web.RenderHx(eCtx, http.StatusOK, hx.OverviewContent(overviewEntries))
 	})
 }
 
@@ -79,52 +97,17 @@ func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 		if err != nil {
 			return err
 		}
-		return c.handleExportOverview(eCtx, ctx, year, month)
+
+		overviewEntries, err := c.getOverviewViewData(ctx, year, month)
+		if err != nil {
+			return err
+		}
+
+		fileName := fmt.Sprintf("work-log-export-%s.xlsx", overviewEntries.CurrMonth)
+		file := c.exporter.ExportOverviewEntries(overviewEntries)
+
+		return web.WriteFile(eCtx, fileName, file)
 	})
-}
-
-// --- Handler functions ---
-
-func (c *OverviewController) handleShowOverview(eCtx echo.Context, ctx context.Context, month string,
-) error {
-	userInfo, err := c.getUserInfoViewData(ctx)
-	if err != nil {
-		return err
-	}
-
-	return web.RenderPage(eCtx, http.StatusOK, page.Overview(userInfo, month))
-}
-
-func (c *OverviewController) handleNavOverview(eCtx echo.Context, month string) error {
-	return web.RenderHx(eCtx, http.StatusOK, hx.OverviewNav(month))
-}
-
-func (c *OverviewController) handleOverviewContent(eCtx echo.Context, ctx context.Context, year int,
-	month int) error {
-	// Get view data
-	overviewEntries, err := c.getOverviewViewData(ctx, year, month)
-	if err != nil {
-		return err
-	}
-
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.OverviewContent(overviewEntries))
-}
-
-func (c *OverviewController) handleExportOverview(eCtx echo.Context, ctx context.Context, year int,
-	month int) error {
-	// Get view data
-	data, err := c.getOverviewViewData(ctx, year, month)
-	if err != nil {
-		return err
-	}
-
-	// Create file
-	fileName := fmt.Sprintf("work-log-export-%s.xlsx", data.CurrMonth)
-	file := c.exporter.ExportOverviewEntries(data)
-
-	// Write file
-	return web.WriteFile(eCtx, fileName, file)
 }
 
 func (c *OverviewController) getOverviewViewData(ctx context.Context, year int, month int,
@@ -153,6 +136,13 @@ func (c *OverviewController) getOverviewViewData(ctx context.Context, year int, 
 }
 
 // --- Helper functions ---
+
+func (c *OverviewController) buildOverviewUrl(year int, month int) string {
+	if year != 0 && month != 0 {
+		return "/overview?" + buildMonthQueryParam(year, month)
+	}
+	return "/overview"
+}
 
 func (c *OverviewController) getGetOverviewParams(ctx echo.Context) (int, int, error) {
 	// Get year and month

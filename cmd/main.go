@@ -80,32 +80,45 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	overviewCtrl := init.GetOverviewViewController()
 	searchCtrl := init.GetSearchViewController()
 
-	// Register public handlers
+	// General handlers
 	e.GET("/", getRootHandler())
 	e.GET("/error", errCtrl.GetErrorHandler())
+
+	// Auth related handlers
 	e.GET("/login", authCtrl.GetLoginHandler(), pubRoute...)
-	e.POST("/login", authCtrl.PostLoginHandler(), pubRoute...)
-	// Register protected handlers
 	e.GET("/logout", authCtrl.GetLogoutHandler(), proRoute...)
+	e.POST("/hx/login", authCtrl.PostHxLoginHandler(), pubRoute...)
+
+	// Log related handlers
 	e.GET("/log", logCtrl.GetLogHandler(), proRoute...)
-	e.GET("/log/content", logCtrl.GetLogContentHandler(), proRoute...)
+	e.GET("/hx/log", logCtrl.GetHxNavHandler(), proRoute...)
+	e.GET("/hx/log/content", logCtrl.GetHxContentHandler(), proRoute...)
+
+	// Search related handlers
 	e.GET("/search", searchCtrl.GetSearchHandler(), proRoute...)
-	e.GET("/search/content", searchCtrl.GetSearchContentHandler(), proRoute...)
-	e.POST("/search", searchCtrl.PostSearchHandler(), proRoute...)
-	e.GET("/search/form", searchCtrl.GetFormHandler(), proRoute...)
-	e.GET("/search/form/activities", searchCtrl.GetFormActivitiesHandler(), proRoute...)
+	e.GET("/hx/search", searchCtrl.GetHxNavHandler(), proRoute...)
+	e.GET("/hx/search/content", searchCtrl.GetHxContentHandler(), proRoute...)
+	e.GET("/hx/search/form", searchCtrl.GetHxFormHandler(), proRoute...)
+	e.GET("/hx/search/form/activities", searchCtrl.GetHxFormActivitiesHandler(), proRoute...)
+	e.POST("/hx/search/form", searchCtrl.PostHxFormHandler(), proRoute...)
+
+	// Overview related handlers
 	e.GET("/overview", overviewCtrl.GetOverviewHandler(), proRoute...)
-	e.GET("/overview/content", overviewCtrl.GetOverviewContentHandler(), proRoute...)
 	e.GET("/overview/export", overviewCtrl.GetOverviewExportHandler(), proRoute...)
-	e.GET("/entry-modal/activities", entryCtrl.GetActivitiesHandler(), proRoute...)
-	e.GET("/entry-modal/create", entryCtrl.GetCreateHandler(), proRoute...)
-	e.POST("/entry-modal/create", entryCtrl.PostCreateHandler(), proRoute...)
-	e.GET("/entry-modal/copy/:id", entryCtrl.GetCopyHandler(), proRoute...)
-	e.GET("/entry-modal/edit/:id", entryCtrl.GetEditHandler(), proRoute...)
-	e.POST("/entry-modal/edit/:id", entryCtrl.PostEditHandler(), proRoute...)
-	e.GET("/entry-modal/delete/:id", entryCtrl.GetDeleteHandler(), proRoute...)
-	e.POST("/entry-modal/delete/:id", entryCtrl.PostDeleteHandler(), proRoute...)
-	e.POST("/entry-modal/cancel", entryCtrl.PostCancelHandler(), proRoute...)
+	e.GET("/hx/overview", overviewCtrl.GetHxNavHandler(), proRoute...)
+	e.GET("/hx/overview/content", overviewCtrl.GetHxContentHandler(), proRoute...)
+
+	// Entry modal related handlers
+	e.GET("/hx/entry-modal/activities", entryCtrl.GetHxActivitiesHandler(), proRoute...)
+	e.GET("/hx/entry-modal/create", entryCtrl.GetHxCreateHandler(), proRoute...)
+	e.POST("/hx/entry-modal/create", entryCtrl.PostHxCreateHandler(), proRoute...)
+	e.GET("/hx/entry-modal/copy/:id", entryCtrl.GetHxCopyHandler(), proRoute...)
+	e.GET("/hx/entry-modal/edit/:id", entryCtrl.GetHxEditHandler(), proRoute...)
+	e.POST("/hx/entry-modal/edit/:id", entryCtrl.PostHxEditHandler(), proRoute...)
+	e.GET("/hx/entry-modal/delete/:id", entryCtrl.GetHxDeleteHandler(), proRoute...)
+	e.POST("/hx/entry-modal/delete/:id", entryCtrl.PostHxDeleteHandler(), proRoute...)
+	e.POST("/hx/entry-modal/cancel", entryCtrl.PostHxCancelHandler(), proRoute...)
+
 	// Register resource handlers
 	e.Static("/css/", "static/resources/css")
 	e.Static("/img/", "static/resources/img")

@@ -42,8 +42,8 @@ func (c *AuthController) GetLoginHandler() echo.HandlerFunc {
 	}
 }
 
-// PostLoginHandler returns a handler for "POST /login".
-func (c *AuthController) PostLoginHandler() echo.HandlerFunc {
+// PostHxLoginHandler returns a handler for "POST /hx/login".
+func (c *AuthController) PostHxLoginHandler() echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		if !web.IsHtmxRequest(eCtx) {
 			err := e.NewError(e.ValUnknown, "Not a HTMX request.")

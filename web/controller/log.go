@@ -36,60 +36,52 @@ func NewLogController(uServ *service.UserService, eServ *service.EntryService) *
 	}
 }
 
-// --- Endpoints ---
-
 // GetLogHandler returns a handler for "GET /log".
 func (c *LogController) GetLogHandler() echo.HandlerFunc {
-	return c.handler(func(eCtx echo.Context, ctx context.Context, isHtmxReq bool) error {
+	return c.handler(func(eCtx echo.Context, ctx context.Context) error {
+		userInfo, err := c.getUserInfoViewData(ctx)
+		if err != nil {
+			return err
+		}
+
 		pageNum, err := c.getGetLogParams(eCtx)
 		if err != nil {
 			return err
 		}
 
-		if !isHtmxReq {
-			return c.handleShowLog(eCtx, ctx, pageNum)
-		} else {
-			return c.handleNavLog(eCtx, pageNum)
-		}
+		return web.RenderPage(eCtx, http.StatusOK, page.Log(userInfo, pageNum))
 	})
 }
 
-// GetLogContentHandler returns a handler for "GET /log/content".
-func (c *LogController) GetLogContentHandler() echo.HandlerFunc {
+// GetHxNavHandler returns a handler for "GET /hx/log".
+func (c *LogController) GetHxNavHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		pageNum, err := c.getGetLogParams(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleGetLogContent(eCtx, ctx, pageNum)
+
+		web.HtmxPushUrl(eCtx, c.buildLogUrl(pageNum))
+		return web.RenderHx(eCtx, http.StatusOK, hx.LogNav())
 	})
 }
 
-// --- Handler functions ---
+// GetHxContentHandler returns a handler for "GET /hx/log/content".
+func (c *LogController) GetHxContentHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		pageNum, err := c.getGetLogParams(eCtx)
+		if err != nil {
+			return err
+		}
 
-func (c *LogController) handleShowLog(eCtx echo.Context, ctx context.Context, pageNum int) error {
-	userInfo, err := c.getUserInfoViewData(ctx)
-	if err != nil {
-		return err
-	}
+		logSummary, logEntries, err := c.getLogViewData(ctx, pageNum)
+		if err != nil {
+			return err
+		}
 
-	return web.RenderPage(eCtx, http.StatusOK, page.Log(userInfo, pageNum))
-}
-
-func (c *LogController) handleNavLog(eCtx echo.Context, pageNum int) error {
-	return web.RenderHx(eCtx, http.StatusOK, hx.LogNav(pageNum))
-}
-
-func (c *LogController) handleGetLogContent(eCtx echo.Context, ctx context.Context, pageNum int,
-) error {
-	// Get view data
-	summary, entries, err := c.getLogViewData(ctx, pageNum)
-	if err != nil {
-		return err
-	}
-
-	// Render
-	return web.RenderHx(eCtx, http.StatusOK, hx.LogContent(summary, entries))
+		web.HtmxPushUrl(eCtx, c.buildLogUrl(pageNum))
+		return web.RenderHx(eCtx, http.StatusOK, hx.LogContent(logSummary, logEntries))
+	})
 }
 
 func (c *LogController) getLogViewData(ctx context.Context, pageNum int) (*vm.LogSummary,
@@ -172,6 +164,14 @@ func (c *LogController) getEntryData(ctx context.Context, userId, pageNum int) (
 }
 
 // --- Helper functions ---
+
+func (c *LogController) buildLogUrl(pageNum int) string {
+	url := "/log"
+	if pageNum != 0 {
+		url = url + "?" + buildPageNumberQueryParam(pageNum)
+	}
+	return url
+}
 
 func (c *LogController) getGetLogParams(ctx echo.Context) (int, error) {
 	pageNum, avail, err := getPageNumberQueryParam(ctx)

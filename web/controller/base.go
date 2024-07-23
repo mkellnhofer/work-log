@@ -15,7 +15,7 @@ import (
 	vm "kellnhofer.com/work-log/web/model"
 )
 
-type handlerFunc func(eCtx echo.Context, ctx context.Context, isHtmxReq bool) error
+type handlerFunc func(eCtx echo.Context, ctx context.Context) error
 type hxHandlerFunc func(eCtx echo.Context, ctx context.Context) error
 type resourceHandlerFunc func(eCtx echo.Context, ctx context.Context) error
 
@@ -28,9 +28,8 @@ type baseController struct {
 
 func (c *baseController) handler(hf handlerFunc) echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
-		isHtmxReq := web.IsHtmxRequest(eCtx)
 		ctx := getContext(eCtx)
-		return hf(eCtx, ctx, isHtmxReq)
+		return hf(eCtx, ctx)
 	}
 }
 

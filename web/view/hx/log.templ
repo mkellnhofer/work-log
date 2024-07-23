@@ -7,7 +7,7 @@ import (
 
 // This template is used to render parts of the page which need to be changed after the user has
 // navigated to the log page.
-templ LogNav(pageNum int) {
+templ LogNav() {
 	// OoB swaps
 	<div id="wl-page-nav" hx-swap-oob="innerHTML">
 		@component.PageNavItems("log")
@@ -16,7 +16,7 @@ templ LogNav(pageNum int) {
 		@component.LogActions()
 	</div>
 	// Regular swaps
-	@component.LogContentLoader(pageNum)
+	@component.LogContentLoader(0)
 }
 
 // This template is used to render changes in the log page after the user has requested the

@@ -18,3 +18,7 @@ func toString(value int) string {
 func toURL(url string) templ.SafeURL {
 	return templ.URL(url)
 }
+
+func hx(url string) string {
+	return "/hx" + url
+}

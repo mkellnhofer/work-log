@@ -246,15 +246,15 @@ func PageNavItems(currentPage string) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = pageNavItem("log", currentPage == "log", "logTitle").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem(buildNavUrl("/log"), currentPage == "log", "logTitle").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = pageNavItem("search", currentPage == "search", "searchTitle").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem(buildNavUrl("/search"), currentPage == "search", "searchTitle").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = pageNavItem("overview", currentPage == "overview", "overviewTitle").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = pageNavItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -306,14 +306,14 @@ func pageNavItem(hxGetUrl string, active bool, titleTextRef string) templ.Compon
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#wl-page-content\" hx-swap=\"innerHTML\" hx-push-url=\"true\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-target=\"#wl-page-content\" hx-swap=\"innerHTML\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(getText(titleTextRef))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 116, Col: 26}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 115, Col: 26}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -328,6 +328,10 @@ func pageNavItem(hxGetUrl string, active bool, titleTextRef string) templ.Compon
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func buildNavUrl(location string) string {
+	return hx(location)
 }
 
 // This template is used to render the page menu, which includes the action buttons and the user
@@ -533,7 +537,7 @@ func userMenuItem(text string, icon string, url templ.SafeURL) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 167, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 170, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -546,7 +550,7 @@ func userMenuItem(text string, icon string, url templ.SafeURL) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 168, Col: 14}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/navbar.templ`, Line: 171, Col: 14}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {

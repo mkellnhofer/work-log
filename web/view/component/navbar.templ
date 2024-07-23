@@ -92,9 +92,9 @@ templ PageNav(currentPage string) {
 // This template is used to render the page navigation items. It gets the name of the current page,
 // so the corresponding item can be marked as active.
 templ PageNavItems(currentPage string) {
-	@pageNavItem("log", currentPage == "log", "logTitle")
-	@pageNavItem("search", currentPage == "search", "searchTitle")
-	@pageNavItem("overview", currentPage == "overview", "overviewTitle")
+	@pageNavItem(buildNavUrl("/log"), currentPage == "log", "logTitle")
+	@pageNavItem(buildNavUrl("/search"), currentPage == "search", "searchTitle")
+	@pageNavItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle")
 }
 
 templ pageNavItem(hxGetUrl string, active bool, titleTextRef string) {
@@ -111,11 +111,14 @@ templ pageNavItem(hxGetUrl string, active bool, titleTextRef string) {
 			hx-get={ hxGetUrl }
 			hx-target="#wl-page-content"
 			hx-swap="innerHTML"
-			hx-push-url="true"
 		>
 			{ getText(titleTextRef) }
 		</a>
 	</li>
+}
+
+func buildNavUrl(location string) string {
+	return hx(location)
 }
 
 // This template is used to render the page menu, which includes the action buttons and the user

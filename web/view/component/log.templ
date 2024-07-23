@@ -5,11 +5,22 @@ import (
 	"kellnhofer.com/work-log/web/view"
 )
 
+func buildLogContentUrl(pageNum int) string {
+	if pageNum > 0 {
+		return hx("/log/content?page=" + toString(pageNum))
+	}
+	return hx("/log/content")
+}
+
+func buildLogContentUrlTemplate() string {
+	return hx("/log/content?page=%d")
+}
+
 // This template is used to render the action buttons on the log page.
 templ LogActions() {
 	<button
 		class="btn btn-primary"
-		hx-get="/entry-modal/create"
+		hx-get={ hx("/entry-modal/create") }
 		hx-trigger="click"
 		hx-target="#wl-modal-container"
 		hx-swap="innerHTML"
@@ -20,7 +31,7 @@ templ LogActions() {
 
 // This template is used to render the content loader for the log page.
 templ LogContentLoader(pageNum int) {
-	@ContentLoader("wl-log-content", "log/content?page=" + toString(pageNum))
+	@ContentLoader("wl-log-content", buildLogContentUrl(pageNum))
 }
 
 // This template is used to render the content of the log page. When the HTMX event "wlChangedEntries"
@@ -28,7 +39,7 @@ templ LogContentLoader(pageNum int) {
 templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	<div
 		id="wl-log-content"
-		hx-get={ "log/content?page=" + toString(listEntries.CurrentPageNum) }
+		hx-get={ buildLogContentUrl(listEntries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
@@ -139,5 +150,6 @@ templ logEntryList(entries *model.ListEntries) {
 }
 
 templ logPagingControl(firstPageNum int, currentPageNum int, lastPageNum int) {
-	@PagingControl("#wl-log-content", "log?page=%d", firstPageNum, currentPageNum, lastPageNum)
+	@PagingControl("#wl-log-content", buildLogContentUrlTemplate(), firstPageNum, currentPageNum,
+		lastPageNum)
 }

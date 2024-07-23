@@ -46,30 +46,30 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 
 // --- Endpoints ---
 
-// GetActivitiesHandler returns a handler for "GET /entry-modal/activities".
-func (c *EntryController) GetActivitiesHandler() echo.HandlerFunc {
+// GetHxActivitiesHandler returns a handler for "GET /hx/entry-modal/activities".
+func (c *EntryController) GetHxActivitiesHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		return c.handleGetActivities(eCtx, ctx)
 	})
 }
 
-// GetCreateHandler returns a handler for "GET /entry-modal/create".
-func (c *EntryController) GetCreateHandler() echo.HandlerFunc {
+// GetHxCreateHandler returns a handler for "GET /hx/entry-modal/create".
+func (c *EntryController) GetHxCreateHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		return c.handleShowCreate(eCtx, ctx)
 	})
 }
 
-// PostCreateHandler returns a handler for "POST /entry-modal/create".
-func (c *EntryController) PostCreateHandler() echo.HandlerFunc {
+// PostHxCreateHandler returns a handler for "POST /hx/entry-modal/create".
+func (c *EntryController) PostHxCreateHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		input := c.getEntryInput(eCtx)
 		return c.handleExecuteCreate(eCtx, ctx, input)
 	})
 }
 
-// GetCopyHandler returns a handler for "GET /entry-modal/copy/{id}".
-func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
+// GetHxCopyHandler returns a handler for "GET /hx/entry-modal/copy/{id}".
+func (c *EntryController) GetHxCopyHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		id, err := getIdPathVar(eCtx)
 		if err != nil {
@@ -79,8 +79,8 @@ func (c *EntryController) GetCopyHandler() echo.HandlerFunc {
 	})
 }
 
-// GetEditHandler returns a handler for "GET /entry-modal/edit/{id}".
-func (c *EntryController) GetEditHandler() echo.HandlerFunc {
+// GetHxEditHandler returns a handler for "GET /hx/entry-modal/edit/{id}".
+func (c *EntryController) GetHxEditHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		id, err := getIdPathVar(eCtx)
 		if err != nil {
@@ -90,8 +90,8 @@ func (c *EntryController) GetEditHandler() echo.HandlerFunc {
 	})
 }
 
-// PostEditHandler returns a handler for "POST /entry-modal/edit/{id}".
-func (c *EntryController) PostEditHandler() echo.HandlerFunc {
+// PostHxEditHandler returns a handler for "POST /hx/entry-modal/edit/{id}".
+func (c *EntryController) PostHxEditHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		id, err := getIdPathVar(eCtx)
 		if err != nil {
@@ -102,8 +102,8 @@ func (c *EntryController) PostEditHandler() echo.HandlerFunc {
 	})
 }
 
-// GetDeleteHandler returns a handler for "GET /entry-modal/delete/{id}".
-func (c *EntryController) GetDeleteHandler() echo.HandlerFunc {
+// GetHxDeleteHandler returns a handler for "GET /hx/entry-modal/delete/{id}".
+func (c *EntryController) GetHxDeleteHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		id, err := getIdPathVar(eCtx)
 		if err != nil {
@@ -113,8 +113,8 @@ func (c *EntryController) GetDeleteHandler() echo.HandlerFunc {
 	})
 }
 
-// PostDeleteHandler returns a handler for "POST /entry-modal/delete/{id}".
-func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
+// PostHxDeleteHandler returns a handler for "POST /hx/entry-modal/delete/{id}".
+func (c *EntryController) PostHxDeleteHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		id, err := getIdPathVar(eCtx)
 		if err != nil {
@@ -124,8 +124,8 @@ func (c *EntryController) PostDeleteHandler() echo.HandlerFunc {
 	})
 }
 
-// PostCancelHandler returns a handler for "POST /entry-modal/cancel".
-func (c *EntryController) PostCancelHandler() echo.HandlerFunc {
+// PostHxCancelHandler returns a handler for "POST /hx/entry-modal/cancel".
+func (c *EntryController) PostHxCancelHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		return eCtx.NoContent(http.StatusOK)
 	})

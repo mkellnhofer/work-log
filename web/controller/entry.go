@@ -49,78 +49,162 @@ func NewEntryController(uServ *service.UserService, eServ *service.EntryService)
 // GetHxActivitiesHandler returns a handler for "GET /hx/entry-modal/activities".
 func (c *EntryController) GetHxActivitiesHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return c.handleGetActivities(eCtx, ctx)
+		entryTypeId, err := getTypeIdQueryParam(eCtx)
+		if err != nil {
+			return err
+		}
+
+		entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
+		if err != nil {
+			return err
+		}
+
+		viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
+
+		return c.handleShowSuccess(eCtx, hx.EntryModalActivityOptions(viewData))
 	})
 }
 
 // GetHxCreateHandler returns a handler for "GET /hx/entry-modal/create".
 func (c *EntryController) GetHxCreateHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return c.handleShowCreate(eCtx, ctx)
+		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, model.EntryTypeIdWork)
+		if err != nil {
+			return err
+		}
+
+		entry := model.NewEntry()
+		entry.TypeId = model.EntryTypeIdWork
+		entry.StartTime = time.Now()
+		entry.EndTime = time.Now()
+		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+
+		return c.handleShowSuccess(eCtx, hx.EntryModalCreate(entryViewData))
 	})
 }
 
 // PostHxCreateHandler returns a handler for "POST /hx/entry-modal/create".
 func (c *EntryController) PostHxCreateHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		userId := getCurrentUserId(ctx)
 		input := c.getEntryInput(eCtx)
-		return c.handleExecuteCreate(eCtx, ctx, input)
+
+		entry, err := c.createEntryModel(0, userId, input)
+		if err != nil {
+			return c.handleExecuteError(eCtx, err)
+		}
+
+		if err := c.eServ.CreateEntry(ctx, entry); err != nil {
+			return c.handleExecuteError(eCtx, err)
+		}
+
+		return c.handleExecuteSuccess(eCtx)
 	})
 }
 
 // GetHxCopyHandler returns a handler for "GET /hx/entry-modal/copy/{id}".
 func (c *EntryController) GetHxCopyHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		id, err := getIdPathVar(eCtx)
+		userId := getCurrentUserId(ctx)
+		entryId, err := getIdPathVar(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleShowCopy(eCtx, ctx, id)
+
+		entry, err := c.getEntry(ctx, entryId, userId)
+		if err != nil {
+			return err
+		}
+		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
+		if err != nil {
+			return err
+		}
+
+		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+
+		return c.handleShowSuccess(eCtx, hx.EntryModalCopy(entryViewData))
 	})
 }
 
 // GetHxEditHandler returns a handler for "GET /hx/entry-modal/edit/{id}".
 func (c *EntryController) GetHxEditHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		id, err := getIdPathVar(eCtx)
+		userId := getCurrentUserId(ctx)
+		entryId, err := getIdPathVar(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleShowEdit(eCtx, ctx, id)
+
+		entry, err := c.getEntry(ctx, entryId, userId)
+		if err != nil {
+			return err
+		}
+		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
+		if err != nil {
+			return err
+		}
+
+		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+
+		return c.handleShowSuccess(eCtx, hx.EntryModalEdit(entryViewData))
 	})
 }
 
 // PostHxEditHandler returns a handler for "POST /hx/entry-modal/edit/{id}".
 func (c *EntryController) PostHxEditHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		id, err := getIdPathVar(eCtx)
+		userId := getCurrentUserId(ctx)
+		entryId, err := getIdPathVar(eCtx)
 		if err != nil {
 			return err
 		}
 		input := c.getEntryInput(eCtx)
-		return c.handleExecuteEdit(eCtx, ctx, id, input)
+
+		entry, err := c.createEntryModel(entryId, userId, input)
+		if err != nil {
+			return c.handleExecuteError(eCtx, err)
+		}
+
+		if err := c.eServ.UpdateEntry(ctx, entry); err != nil {
+			return c.handleExecuteError(eCtx, err)
+		}
+
+		return c.handleExecuteSuccess(eCtx)
 	})
 }
 
 // GetHxDeleteHandler returns a handler for "GET /hx/entry-modal/delete/{id}".
 func (c *EntryController) GetHxDeleteHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		id, err := getIdPathVar(eCtx)
+		userId := getCurrentUserId(ctx)
+		entryId, err := getIdPathVar(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleShowDelete(eCtx, ctx, id)
+
+		entry, err := c.getEntry(ctx, entryId, userId)
+		if err != nil {
+			return err
+		}
+
+		return c.handleShowSuccess(eCtx, hx.EntryModalDelete(entry.Id))
 	})
 }
 
 // PostHxDeleteHandler returns a handler for "POST /hx/entry-modal/delete/{id}".
 func (c *EntryController) PostHxDeleteHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		id, err := getIdPathVar(eCtx)
+		userId := getCurrentUserId(ctx)
+		entryId, err := getIdPathVar(eCtx)
 		if err != nil {
 			return err
 		}
-		return c.handleExecuteDelete(eCtx, ctx, id)
+
+		if err := c.eServ.DeleteEntryByIdAndUserId(ctx, entryId, userId); err != nil {
+			return err
+		}
+
+		return c.handleExecuteSuccess(eCtx)
 	})
 }
 
@@ -140,158 +224,6 @@ func (c *EntryController) getEntryInput(eCtx echo.Context) *entryInput {
 		activityId:  eCtx.FormValue("activity"),
 		description: eCtx.FormValue("description"),
 	}
-}
-
-// --- Handler functions ---
-
-func (c *EntryController) handleGetActivities(eCtx echo.Context, ctx context.Context) error {
-	entryTypeId, err := getTypeIdQueryParam(eCtx)
-	if err != nil {
-		return err
-	}
-
-	// Get entry master data
-	entryActivities, err := c.getEntryActivities(ctx, entryTypeId)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
-
-	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalActivityOptions(viewData))
-}
-
-func (c *EntryController) handleShowCreate(eCtx echo.Context, ctx context.Context) error {
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, model.EntryTypeIdWork)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	entry := model.NewEntry()
-	entry.TypeId = model.EntryTypeIdWork
-	entry.StartTime = time.Now()
-	entry.EndTime = time.Now()
-	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
-
-	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalCreate(entryViewData))
-}
-
-func (c *EntryController) handleExecuteCreate(eCtx echo.Context, ctx context.Context,
-	input *entryInput) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Create model
-	entry, err := c.createEntryModel(0, userId, input)
-	if err != nil {
-		return c.handleExecuteError(eCtx, err)
-	}
-
-	// Create entry
-	if err := c.eServ.CreateEntry(ctx, entry); err != nil {
-		return c.handleExecuteError(eCtx, err)
-	}
-
-	// Return empty response
-	return c.handleExecuteSuccess(eCtx)
-}
-
-func (c *EntryController) handleShowCopy(eCtx echo.Context, ctx context.Context, entryId int) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Get entry
-	entry, err := c.getEntry(ctx, entryId, userId)
-	if err != nil {
-		return err
-	}
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
-
-	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalCopy(entryViewData))
-}
-
-func (c *EntryController) handleShowEdit(eCtx echo.Context, ctx context.Context, entryId int) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Get entry
-	entry, err := c.getEntry(ctx, entryId, userId)
-	if err != nil {
-		return err
-	}
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, entry.TypeId)
-	if err != nil {
-		return err
-	}
-
-	// Create view model
-	entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
-
-	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalEdit(entryViewData))
-}
-
-func (c *EntryController) handleExecuteEdit(eCtx echo.Context, ctx context.Context, entryId int,
-	input *entryInput) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Create model
-	entry, err := c.createEntryModel(entryId, userId, input)
-	if err != nil {
-		return c.handleExecuteError(eCtx, err)
-	}
-
-	// Update entry
-	if err := c.eServ.UpdateEntry(ctx, entry); err != nil {
-		return c.handleExecuteError(eCtx, err)
-	}
-
-	// Return empty response
-	return c.handleExecuteSuccess(eCtx)
-}
-
-func (c *EntryController) handleShowDelete(eCtx echo.Context, ctx context.Context, entryId int,
-) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Get entry
-	entry, err := c.getEntry(ctx, entryId, userId)
-	if err != nil {
-		return err
-	}
-
-	// Render
-	return c.handleShowSuccess(eCtx, hx.EntryModalDelete(entry.Id))
-}
-
-func (c *EntryController) handleExecuteDelete(eCtx echo.Context, ctx context.Context,
-	entryId int) error {
-	// Get current user ID
-	userId := getCurrentUserId(ctx)
-
-	// Delete entry
-	if err := c.eServ.DeleteEntryByIdAndUserId(ctx, entryId, userId); err != nil {
-		return err
-	}
-
-	// Return empty response
-	return c.handleExecuteSuccess(eCtx)
 }
 
 func (c *EntryController) handleShowSuccess(eCtx echo.Context, t templ.Component) error {

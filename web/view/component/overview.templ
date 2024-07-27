@@ -159,12 +159,7 @@ templ overviewDays(weeks []*model.OverviewWeek) {
 }
 
 templ overviewDaysHeader() {
-	<div class="mb-4">
-		<h2>
-			<svg class="ico-large me-3"><use xlink:href="img/ico.svg#calendar"></use></svg>
-			<span>{ getText("overviewHeadingDays") }</span>
-		</h2>
-	</div>
+	@SectionHeader("calendar", getText("overviewHeadingDays"))
 }
 
 templ overviewDaysTable(weeks []*model.OverviewWeek) {
@@ -275,12 +270,7 @@ templ overviewEntries(entriesDays []*model.OverviewEntriesDay) {
 }
 
 templ overviewEntriesHeader() {
-	<div class="mb-4">
-		<h2>
-			<svg class="ico-large me-3"><use xlink:href="img/ico.svg#table-list"></use></svg>
-			<span>{ getText("overviewHeadingEntries") }</span>
-		</h2>
-	</div>
+	@SectionHeader("table-list", getText("overviewHeadingEntries"))
 }
 
 templ overviewEntriesTable(entriesDays []*model.OverviewEntriesDay) {

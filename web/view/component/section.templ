@@ -1,0 +1,11 @@
+package component
+
+// This template is used to render a section header with an icon and a title.
+templ SectionHeader(icon string, title string) {
+	<div class="d-flex mb-3">
+		<span class="ms-sm-2 me-2 p-2">
+			<svg class="ico-large"><use xlink:href={ "img/ico.svg#" + icon}></use></svg>
+		</span>
+		<h2 class="m-0 p-2">{ title }</h2>
+	</div>
+}

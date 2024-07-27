@@ -15,7 +15,7 @@ import (
 	"kellnhofer.com/work-log/web/view/component"
 )
 
-func mainPage(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo,
+func mainPage(navElements templ.Component, actionButtons templ.Component, userInfo *model.UserInfo,
 	content templ.Component) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -39,7 +39,7 @@ func mainPage(currentPage string, actionButtons templ.Component, userInfo *model
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = component.NavBar(currentPage, actionButtons, userInfo).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = component.NavBar(navElements, actionButtons, userInfo).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -90,7 +90,7 @@ func Log(userInfo *model.UserInfo, pageNum int) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
-			"log",
+			component.LogNav(),
 			component.LogActions(),
 			userInfo,
 			component.LogContentLoader(pageNum),
@@ -120,7 +120,7 @@ func Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum int
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
-			"search",
+			component.SearchNav(),
 			component.SearchActions(),
 			userInfo,
 			component.SearchContentLoader(isAdvanced, query, pageNum),
@@ -150,7 +150,7 @@ func Overview(userInfo *model.UserInfo, month string) templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
-			"overview",
+			component.OverviewNav(),
 			component.OverviewActions(month),
 			userInfo,
 			component.OverviewContentLoader(month),

@@ -77,7 +77,7 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 // GetHxNavHandler returns a handler for "GET /hx/search".
 func (c *SearchController) GetHxNavHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchNav())
+		return web.RenderHx(eCtx, http.StatusOK, hx.Search())
 	})
 }
 

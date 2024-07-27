@@ -62,7 +62,7 @@ func (c *LogController) GetHxNavHandler() echo.HandlerFunc {
 		}
 
 		web.HtmxPushUrl(eCtx, c.buildLogUrl(pageNum))
-		return web.RenderHx(eCtx, http.StatusOK, hx.LogNav())
+		return web.RenderHx(eCtx, http.StatusOK, hx.Log())
 	})
 }
 

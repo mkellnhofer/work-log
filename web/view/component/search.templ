@@ -30,6 +30,13 @@ func buildSearchFormUrl(isAdvanced bool) string {
 	return hx("/search/form?" + params)
 }
 
+// This template is used to render the navbar elements on the search page.
+templ SearchNav() {
+	@NavBarNavToggle()
+	@NavBarNavBrand()
+	@NavBarNav("search")
+}
+
 // This template is used to render the action buttons on the search page.
 templ SearchActions() {
 }

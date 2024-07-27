@@ -5,29 +5,64 @@ import (
 	"kellnhofer.com/work-log/web/view"
 )
 
-// This template is used to render the navigation bar. It is composed of three main parts, the brand
-// icon, the page navigation and the page menu. The template gets the name of the current page, the
-// current available action buttons, and the user information for the user menu dropdown.
-templ NavBar(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo) {
+// This template is used to render the navigation bar. It is composed of the page navigation and the
+// page menu. The template gets the current available navigation elements and action buttons, as
+// well as the user information for the user menu dropdown.
+templ NavBar(navElements templ.Component, actionButtons templ.Component, userInfo *model.UserInfo) {
 	<header class="navbar navbar-expand-sm sticky-top bg-white mb-3 border-bottom">
 		<nav class="container-xxl flex-wrap flex-sm-nowrap px-0" aria-label="Main navigation">
-			<button
-				class="btn d-flex d-sm-none p-2"
-				type="button"
-				data-bs-toggle="offcanvas"
-				data-bs-target="#wl-navbar-nav-offcanvas"
-				aria-label="Open navigation"
-			>
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			@navBarBrand()
-			@navBarNav(currentPage)
-			@navBarPageMenu(actionButtons, view.CreateUserIconSvg(userInfo.Initials))
+			@pageNav(navElements)
+			@pageMenu(actionButtons, userInfo)
 		</nav>
 	</header>
 }
 
-templ navBarBrand() {
+templ pageNav(navElements templ.Component) {
+	<div id="wl-page-nav" class="d-flex">
+		@navElements
+	</div>
+}
+
+templ pageMenu(actionButtons templ.Component, userInfo *model.UserInfo) {
+	<div class="d-flex align-items-center">
+		@pageMenuActions(actionButtons)
+		<div class="vr mx-2 my-2"></div>
+		@pageMenuUserActions(userInfo)
+	</div>
+}
+
+// This template is used to render the nav toggle button in the navigation bar.
+templ NavBarNavToggle() {
+	<button
+		class="btn d-flex d-sm-none p-2"
+		type="button"
+		data-bs-toggle="offcanvas"
+		data-bs-target="#wl-navbar-nav-offcanvas"
+		aria-label="Open navigation"
+	>
+		<span class="navbar-toggler-icon"></span>
+	</button>
+}
+
+// This template is used to render the back navigation button in the navigation bar.
+templ NavBarNavBackButton(previousPage string) {
+	<button
+		class="btn p-2 ms-sm-2 me-2"
+		type="button"
+		aria-label="Back"
+		hx-get={ buildNavUrl("/" + previousPage) }
+		hx-trigger="click"
+		hx-target="#wl-page-content"
+		hx-swap="innerHTML"
+	>
+		<svg class="ico-large">
+			<use xlink:href="img/ico.svg#arrow-left"></use>
+		</svg>
+	</button>
+}
+
+// This template is used to render the brand logo in the navigation bar.
+templ NavBarNavBrand() {
 	<a class="navbar-brand d-none d-sm-block px-2" href="/" aria-label="Worklog">
 		<img
 			src="img/app-logo.svg"
@@ -38,7 +73,9 @@ templ navBarBrand() {
 	</a>
 }
 
-templ navBarNav(currentPage string) {
+// This template is used to render page navigation in the navigation bar. The template gets the
+// current page name to highlight the corresponding page navigation element.
+templ NavBarNav(currentPage string) {
 	<div
 		id="wl-navbar-nav-offcanvas"
 		class="offcanvas offcanvas-sm offcanvas-start flex-grow-1"
@@ -74,30 +111,23 @@ templ navBarNavOffHeader() {
 templ navBarNavOffBody(currentPage string) {
 	<div class="offcanvas-body p-4 pt-0 p-sm-0">
 		<hr class="d-sm-none"/>
-		@PageNav(currentPage)
+		@nav(currentPage)
 	</div>
 }
 
-templ navBarPageMenu(actionButtons templ.Component, userIconSvg string) {
-	@PageMenu(actionButtons, userIconSvg)
-}
-
-// This template is used to render the page navigation.
-templ PageNav(currentPage string) {
-	<ul id="wl-page-nav" class="navbar-nav justify-content flex-grow-1 pe-3">
-		@PageNavItems(currentPage)
+templ nav(currentPage string) {
+	<ul class="navbar-nav justify-content flex-grow-1 pe-3">
+		@navItems(currentPage)
 	</ul>
 }
 
-// This template is used to render the page navigation items. It gets the name of the current page,
-// so the corresponding item can be marked as active.
-templ PageNavItems(currentPage string) {
-	@pageNavItem(buildNavUrl("/log"), currentPage == "log", "logTitle")
-	@pageNavItem(buildNavUrl("/search"), currentPage == "search", "searchTitle")
-	@pageNavItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle")
+templ navItems(currentPage string) {
+	@navItem(buildNavUrl("/log"), currentPage == "log", "logTitle")
+	@navItem(buildNavUrl("/search"), currentPage == "search", "searchTitle")
+	@navItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle")
 }
 
-templ pageNavItem(hxGetUrl string, active bool, titleTextRef string) {
+templ navItem(hxGetUrl string, active bool, titleTextRef string) {
 	<li class="nav-item">
 		<a
 			if active {
@@ -121,25 +151,15 @@ func buildNavUrl(location string) string {
 	return hx(location)
 }
 
-// This template is used to render the page menu, which includes the action buttons and the user
-// menu. It gets the current available action buttons, and the user icon for the user menu dropdown.
-templ PageMenu(actionButtons templ.Component, userIconSvg string) {
-	<div class="d-flex align-items-center">
-		@pageMenuActions(actionButtons)
-		<div class="vr mx-2 my-2"></div>
-		@pageMenuUserActions(userIconSvg)
-	</div>
-}
-
 templ pageMenuActions(actionButtons templ.Component) {
 	<div id="wl-page-menu-actions" class="d-flex px-2">
 		@actionButtons
 	</div>
 }
 
-templ pageMenuUserActions(userIconSvg string) {
-	<div class="dropdown d-flex px-2">
-		@userMenuUserDropdownToggle(userIconSvg)
+templ pageMenuUserActions(userInfo *model.UserInfo) {
+	<div id="wl-page-menu-user-actions" class="dropdown d-flex px-2">
+		@userMenuUserDropdownToggle(view.CreateUserIconSvg(userInfo.Initials))
 		@userMenuUserDropdownMenu()
 	</div>
 }

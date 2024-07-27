@@ -16,6 +16,13 @@ func buildLogContentUrlTemplate() string {
 	return hx("/log/content?page=%d")
 }
 
+// This template is used to render the navbar elements on the log page.
+templ LogNav() {
+	@NavBarNavToggle()
+	@NavBarNavBrand()
+	@NavBarNav("log")
+}
+
 // This template is used to render the action buttons on the log page.
 templ LogActions() {
 	<button

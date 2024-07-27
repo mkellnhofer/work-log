@@ -68,7 +68,7 @@ func (c *OverviewController) GetHxNavHandler() echo.HandlerFunc {
 		}
 
 		web.HtmxPushUrl(eCtx, c.buildOverviewUrl(year, month))
-		return web.RenderHx(eCtx, http.StatusOK, hx.OverviewNav())
+		return web.RenderHx(eCtx, http.StatusOK, hx.Overview())
 	})
 }
 

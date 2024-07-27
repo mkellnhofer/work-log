@@ -5,11 +5,11 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ mainPage(currentPage string, actionButtons templ.Component, userInfo *model.UserInfo,
+templ mainPage(navElements templ.Component, actionButtons templ.Component, userInfo *model.UserInfo,
 	content templ.Component) {
 	@Page() {
 		<div id="wl-container" class="wl-container mx-auto px-3">
-			@component.NavBar(currentPage, actionButtons, userInfo)
+			@component.NavBar(navElements, actionButtons, userInfo)
 			<div id="wl-page-content">
 				@content
 			</div>
@@ -21,7 +21,7 @@ templ mainPage(currentPage string, actionButtons templ.Component, userInfo *mode
 // This template is used to render the full log page.
 templ Log(userInfo *model.UserInfo, pageNum int) {
 	@mainPage(
-		"log",
+		component.LogNav(),
 		component.LogActions(),
 		userInfo,
 		component.LogContentLoader(pageNum),
@@ -31,7 +31,7 @@ templ Log(userInfo *model.UserInfo, pageNum int) {
 // This template is used to render the full search page.
 templ Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum int) {
 	@mainPage(
-		"search",
+		component.SearchNav(),
 		component.SearchActions(),
 		userInfo,
 		component.SearchContentLoader(isAdvanced, query, pageNum),
@@ -41,7 +41,7 @@ templ Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum in
 // This template is used to render the full overview page.
 templ Overview(userInfo *model.UserInfo, month string) {
 	@mainPage(
-		"overview",
+		component.OverviewNav(),
 		component.OverviewActions(month),
 		userInfo,
 		component.OverviewContentLoader(month),

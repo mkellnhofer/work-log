@@ -29,12 +29,12 @@ templ Log(userInfo *model.UserInfo, pageNum int) {
 }
 
 // This template is used to render the full search page.
-templ Search(userInfo *model.UserInfo, isAdvanced bool, query string, pageNum int) {
+templ Search(userInfo *model.UserInfo, search *model.SearchQuery, pageNum int) {
 	@mainPage(
-		component.SearchNav(),
-		component.SearchActions(),
+		component.SearchNav(search),
+		component.SearchActions(search),
 		userInfo,
-		component.SearchContentLoader(isAdvanced, query, pageNum),
+		component.SearchContentLoader(search, pageNum),
 	)
 }
 

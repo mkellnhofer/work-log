@@ -26,13 +26,22 @@ templ LogNav() {
 // This template is used to render the action buttons on the log page.
 templ LogActions() {
 	<button
-		class="btn btn-primary"
+		class="btn btn-primary me-3"
 		hx-get={ hx("/entry-modal/create") }
 		hx-trigger="click"
 		hx-target="#wl-modal-container"
 		hx-swap="innerHTML"
 	>
 		{ getText("actionCreate") }
+	</button>
+	<button
+		class="btn btn-light btn-round"
+		hx-get={ hx("/search-modal") }
+		hx-trigger="click"
+		hx-target="#wl-modal-container"
+		hx-swap="innerHTML"
+	>
+		<svg class="ico"><use xlink:href="img/ico.svg#magnifying-glass"></use></svg>
 	</button>
 }
 

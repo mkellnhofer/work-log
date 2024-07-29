@@ -5,33 +5,39 @@ import (
 	"kellnhofer.com/work-log/web/view/component"
 )
 
-// This template is used to render parts of the page which need to be changed after the user has
-// navigated to the search page.
-templ Search() {
-	// OoB swaps
-	<div id="wl-page-nav" hx-swap-oob="innerHTML">
-		@component.SearchNav()
-	</div>
-	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
-		@component.SearchActions()
-	</div>
-	// Regular swaps
-	@component.SearchContentLoader(false, "", 1)
+// This template is used to render the modal dialog to search entries.
+templ SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
+	entryActivities []*model.EntryActivity) {
+	@component.SearchModal(isAdvanced, input, entryTypes, entryActivities)
 }
 
-// This template is used to render changes in the search page after the user has requested the
-// previous/next entries.
-templ SearchContent(errorMessage string, search *model.SearchQuery,
-	searchEntries *model.SearchEntries) {
-	@component.SearchContent(errorMessage, search, searchEntries)
-}
-
-// This template is used to render the search form.
-templ SearchForm(isAdvanced bool) {
-	@component.SearchForm(isAdvanced)
+// This template is used to render the error message in the search modal dialog.
+templ SearchModalError(errorMessage string) {
+	@component.ErrorMessage(errorMessage)
 }
 
 // This template is used to render the entry activity options for the search form.
 templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 	@component.EntryActivitySelectOptions(entryActivities, 0)
+}
+
+// This template is used to render parts of the page which need to be changed after the user has
+// executed a search.
+templ Search(search *model.SearchQuery, pageNum int) {
+	// OoB swaps
+	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+		@component.SearchNav(search)
+	</div>
+	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+		@component.SearchActions(search)
+	</div>
+	<div id="wl-page-content" hx-swap-oob="innerHTML">
+		@component.SearchContentLoader(search, pageNum)
+	</div>
+}
+
+// This template is used to render changes in the search page after the user has requested the
+// previous/next entries.
+templ SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) {
+	@component.SearchContent(search, searchEntries)
 }

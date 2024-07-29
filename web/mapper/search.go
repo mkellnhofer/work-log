@@ -18,20 +18,23 @@ func NewSearchMapper() *SearchMapper {
 }
 
 // CreateAdvancedSearchViewModel creates a view model for the search page.
-func (m *SearchMapper) CreateSearchQueryViewModel(isAdvanced bool, byType bool, typeId int,
-	byDate bool, startDate time.Time, endDate time.Time, byActivity bool, activityId int, text string,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchQuery {
+func (m *SearchMapper) CreateSearchQueryViewModel(isAdvanced bool, query string, byType bool,
+	typeId int, byDate bool, startDate time.Time, endDate time.Time, byActivity bool, activityId int,
+	text string, types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchQuery {
 	return &vm.SearchQuery{
 		IsAdvanced: isAdvanced,
+		Query:      query,
 		Input: &vm.SearchQueryInput{
-			ByType:     byType,
-			TypeId:     typeId,
-			ByDate:     byDate,
-			StartDate:  getDateString(startDate),
-			EndDate:    getDateString(endDate),
-			ByActivity: byActivity,
-			ActivityId: activityId,
-			Text:       text,
+			ByType:         byType,
+			TypeId:         typeId,
+			ByDate:         byDate,
+			StartDate:      formatDate(startDate),
+			StartDateValue: getDateString(startDate),
+			EndDate:        formatDate(endDate),
+			EndDateValue:   getDateString(endDate),
+			ByActivity:     byActivity,
+			ActivityId:     activityId,
+			Text:           text,
 		},
 		EntryTypes:      m.CreateEntryTypesViewModel(types),
 		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
@@ -39,11 +42,10 @@ func (m *SearchMapper) CreateSearchQueryViewModel(isAdvanced bool, byType bool, 
 }
 
 // CreateSearchEntriesViewModel creates a view model for the search result page.
-func (m *SearchMapper) CreateSearchEntriesViewModel(query string, curPageNum int, totPageNum int,
+func (m *SearchMapper) CreateSearchEntriesViewModel(curPageNum int, totPageNum int,
 	entries []*model.Entry, entryTypesMap map[int]*model.EntryType,
-	entryActivitiesMap map[int]*model.EntryActivity) *vm.SearchEntries {
-	sesvm := &vm.SearchEntries{}
-	sesvm.Query = query
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
+	sesvm := &vm.ListEntries{}
 
 	// Calculate paging nav numbers
 	sesvm.CurrentPageNum = curPageNum

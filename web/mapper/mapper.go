@@ -174,13 +174,13 @@ func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.En
 // CreateEntryViewModel creates a entry view model.
 func (m *Mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
 	return &vm.Entry{
-		Id:          entry.Id,
-		TypeId:      entry.TypeId,
-		Date:        getDateString(entry.StartTime),
-		StartTime:   getTimeString(entry.StartTime),
-		EndTime:     getTimeString(entry.EndTime),
-		ActivityId:  entry.ActivityId,
-		Description: entry.Description,
+		Id:             entry.Id,
+		TypeId:         entry.TypeId,
+		DateValue:      getDateString(entry.StartTime),
+		StartTimeValue: getTimeString(entry.StartTime),
+		EndTimeValue:   getTimeString(entry.EndTime),
+		ActivityId:     entry.ActivityId,
+		Description:    entry.Description,
 	}
 }
 

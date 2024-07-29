@@ -96,11 +96,11 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 
 	// Search related handlers
 	e.GET("/search", searchCtrl.GetSearchHandler(), proRoute...)
-	e.GET("/hx/search", searchCtrl.GetHxNavHandler(), proRoute...)
 	e.GET("/hx/search/content", searchCtrl.GetHxContentHandler(), proRoute...)
-	e.GET("/hx/search/form", searchCtrl.GetHxFormHandler(), proRoute...)
-	e.GET("/hx/search/form/activities", searchCtrl.GetHxFormActivitiesHandler(), proRoute...)
-	e.POST("/hx/search/form", searchCtrl.PostHxFormHandler(), proRoute...)
+	e.GET("/hx/search-modal", searchCtrl.GetHxModalHandler(), proRoute...)
+	e.POST("/hx/search-modal", searchCtrl.PostHxModalHandler(), proRoute...)
+	e.GET("/hx/search-modal/activities", searchCtrl.GetHxModalActivitiesHandler(), proRoute...)
+	e.POST("/hx/search-modal/cancel", searchCtrl.PostHxModalCancelHandler(), proRoute...)
 
 	// Overview related handlers
 	e.GET("/overview", overviewCtrl.GetOverviewHandler(), proRoute...)

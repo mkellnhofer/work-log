@@ -70,14 +70,17 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 			return err
 		}
 
-		return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, isAdvanced, query, pageNum))
-	})
-}
+		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		if err != nil {
+			return err
+		}
 
-// GetHxNavHandler returns a handler for "GET /hx/search".
-func (c *SearchController) GetHxNavHandler() echo.HandlerFunc {
-	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		return web.RenderHx(eCtx, http.StatusOK, hx.Search())
+		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
+		if err != nil {
+			return err
+		}
+
+		return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, searchQuery, pageNum))
 	})
 }
 
@@ -105,21 +108,59 @@ func (c *SearchController) GetHxContentHandler() echo.HandlerFunc {
 		}
 
 		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, searchFilter, pageNum))
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent(searchQuery, searchEntries))
 	})
 }
 
-// GetHxFormHandler returns a handler for "GET /hx/search/form".
-func (c *SearchController) GetHxFormHandler() echo.HandlerFunc {
+// GetHxModalHandler returns a handler for "GET /hx/search-modal".
+func (c *SearchController) GetHxModalHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		isAdvanced, query, _, _, err := c.getGetSearchParams(eCtx)
+		if err != nil {
+			return err
+		}
+
+		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		if err != nil {
+			return err
+		}
+
+		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
+		if err != nil {
+			return err
+		}
+
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchModal(isAdvanced, searchQuery.Input,
+			searchQuery.EntryTypes, searchQuery.EntryActivities))
+	})
+}
+
+// PostHxModalHandler returns a handler for "POST /hx/search-modal".
+func (c *SearchController) PostHxModalHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		isAdvanced := getSearchAdvancedParam(eCtx)
-		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, nil, 1))
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchForm(isAdvanced))
+
+		userId := getCurrentUserId(ctx)
+		searchInput := c.getPostSearchInput(eCtx)
+		searchFilter, err := c.createSearchFilter(userId, searchInput)
+		if err != nil {
+			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
+			web.HtmxRetarget(eCtx, "#wl-search-modal-error")
+			return web.RenderHx(eCtx, http.StatusOK, hx.SearchModalError(searchErrorMessage))
+		}
+
+		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
+		if err != nil {
+			return err
+		}
+
+		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, searchFilter, 1))
+		return web.RenderHx(eCtx, http.StatusOK, hx.Search(searchQuery, 1))
 	})
 }
 
-// GetHxFormActivitiesHandler returns a handler for "GET /hx/search/form/activities".
-func (c *SearchController) GetHxFormActivitiesHandler() echo.HandlerFunc {
+// GetHxModalActivitiesHandler returns a handler for "GET /hx/search-modal/activities".
+func (c *SearchController) GetHxModalActivitiesHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
 		entryTypeId, err := getTypeIdQueryParam(eCtx)
 		if err != nil {
@@ -137,36 +178,18 @@ func (c *SearchController) GetHxFormActivitiesHandler() echo.HandlerFunc {
 	})
 }
 
-// PostHxFormHandler returns a handler for "POST /hx/search/form".
-func (c *SearchController) PostHxFormHandler() echo.HandlerFunc {
+// PostHxModalCancelHandler returns a handler for "POST /hx/search-modal/cancel".
+func (c *SearchController) PostHxModalCancelHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		isAdvanced := getSearchAdvancedParam(eCtx)
-
-		userId := getCurrentUserId(ctx)
-		searchInput := c.getPostSearchInput(eCtx)
-		searchFilter, err := c.createSearchFilter(userId, searchInput)
-		if err != nil {
-			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
-			return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent(searchErrorMessage, nil, nil))
-		}
-
-		searchQuery, err := c.getSearchQueryViewData(ctx, isAdvanced, searchFilter)
-		if err != nil {
-			return err
-		}
-
-		searchEntries, err := c.getSearchEntriesViewData(ctx, searchFilter, 1)
-		if err != nil {
-			return err
-		}
-
-		web.HtmxPushUrl(eCtx, c.buildSearchUrl(isAdvanced, searchFilter, 1))
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchContent("", searchQuery, searchEntries))
+		return eCtx.NoContent(http.StatusOK)
 	})
 }
 
 func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvanced bool,
 	searchFilter *model.EntriesFilter) (*vm.SearchQuery, error) {
+	// Create query string
+	query := c.buildSearchQueryString(searchFilter)
+
 	// Create default values
 	filter := searchFilter
 	if filter == nil {
@@ -190,19 +213,17 @@ func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvance
 	}
 
 	// Create view model
-	return c.mapper.CreateSearchQueryViewModel(isAdvanced, filter.ByType, typeId, filter.ByTime,
-		sTime, eTime, filter.ByActivity, filter.ActivityId, filter.Description, entryTypes,
-		entryActivities), nil
+	return c.mapper.CreateSearchQueryViewModel(isAdvanced, query, filter.ByType, typeId,
+		filter.ByTime, sTime, eTime, filter.ByActivity, filter.ActivityId, filter.Description,
+		entryTypes, entryActivities), nil
 }
 
 func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
-	searchFilter *model.EntriesFilter, pageNum int) (*vm.SearchEntries, error) {
+	searchFilter *model.EntriesFilter, pageNum int) (*vm.ListEntries, error) {
 	if c.isSearchFilterEmpty(searchFilter) {
-		return &vm.SearchEntries{}, nil
+		return &vm.ListEntries{}, nil
 	}
 
-	// Create query string
-	query := c.buildSearchQueryString(searchFilter)
 	// Create entries searchSort
 	searchSort := model.NewEntriesSort()
 	searchSort.ByTime = model.DescSorting
@@ -221,7 +242,7 @@ func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
 
 	// Create view model
 	totPageNum := calculateNumberOfTotalPages(cnt, pageSize)
-	return c.mapper.CreateSearchEntriesViewModel(query, pageNum, totPageNum, entries, entryTypesMap,
+	return c.mapper.CreateSearchEntriesViewModel(pageNum, totPageNum, entries, entryTypesMap,
 		entryActivitiesMap), nil
 }
 

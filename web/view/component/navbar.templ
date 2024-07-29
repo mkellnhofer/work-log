@@ -123,7 +123,6 @@ templ nav(currentPage string) {
 
 templ navItems(currentPage string) {
 	@navItem(buildNavUrl("/log"), currentPage == "log", "logTitle")
-	@navItem(buildNavUrl("/search"), currentPage == "search", "searchTitle")
 	@navItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle")
 }
 

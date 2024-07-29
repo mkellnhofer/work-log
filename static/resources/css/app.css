@@ -46,6 +46,13 @@ body {
   border-style: hidden;
 }
 
+.btn-round {
+  --bs-btn-padding-y: 0;
+  --bs-btn-padding-x: 0.6rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
 @media (min-width: 576px) {
   .border-sm {
     border: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color);

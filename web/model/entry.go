@@ -9,13 +9,13 @@ type EntryData struct {
 
 // Entry stores view data of a entry.
 type Entry struct {
-	Id          int
-	TypeId      int
-	Date        string
-	StartTime   string
-	EndTime     string
-	ActivityId  int
-	Description string
+	Id             int
+	TypeId         int
+	DateValue      string
+	StartTimeValue string
+	EndTimeValue   string
+	ActivityId     int
+	Description    string
 }
 
 const (

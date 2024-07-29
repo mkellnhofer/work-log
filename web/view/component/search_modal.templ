@@ -1,0 +1,195 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+func buildSearchSubmitUrl(isAdvanced bool) string {
+	params := ""
+	if isAdvanced {
+		params = params + "adv=1"
+	}
+	return hx("/search-modal?" + params)
+}
+
+func buildSearchCancelUrl() string {
+	return hx("/search-modal/cancel")
+}
+
+// This template is used to render a modal to search entries.
+templ SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
+	entryActivities []*model.EntryActivity) {
+	@Modal("searchTitle", "actionSearch", "actionCancel",
+		templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},
+		templ.Attributes{"hx-post": buildSearchCancelUrl()}) {
+		@searchModalErrorMessageContainer("")
+		@searchFormControls(isAdvanced,
+			searchFormTypeControl(input.ByType, entryTypes, input.TypeId),
+			searchFormDateControl(input.ByDate, input.StartDateValue, input.EndDateValue),
+			searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId),
+			searchFormTextControl(isSearchQueryInputEmpty(input), input.Text))
+	}
+}
+
+templ searchModalErrorMessageContainer(errorMessage string) {
+	<div id="wl-search-modal-error">
+		@ErrorMessage(errorMessage)
+	</div>
+}
+
+templ searchFormControls(isAdvanced bool, typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component) {
+	if isAdvanced {
+		@searchAdvancedFormControls(typeControl, dateControl, activityControl, textControl)
+	} else {
+		@searchStandardFormControls(typeControl, dateControl, activityControl, textControl)
+	}
+}
+
+templ searchStandardFormControls(typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component) {
+	<div class="d-none">
+		@typeControl
+		@dateControl
+		@activityControl
+	</div>
+	<div class="row mb-2">
+		<div class="col">
+			@textControl
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-auto">
+			<a
+				class="btn btn-link"
+				href="#"
+				hx-get={ hx("/search-modal?adv=1") }
+				hx-trigger="click"
+				hx-target="#wl-modal-container"
+				hx-swap="innerHTML"
+			>
+				<span>{ getText("searchFormActionShowAdvanced") }</span>
+			</a>
+		</div>
+	</div>
+}
+
+templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.Component,
+	activityControl templ.Component, textControl templ.Component) {
+	<div class="row mb-2">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-by-type">
+				{ getText("formLabelType") }
+			</label>
+			@typeControl
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-by-date">
+				{ getText("formLabelDate") }
+			</label>
+			@dateControl
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-by-activity">
+				{ getText("formLabelActivity") }
+			</label>
+			@activityControl
+		</div>
+	</div>
+	<div class="row mb-4">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-text">
+				{ getText("formLabelDescription") }
+			</label>
+			@textControl
+		</div>
+	</div>
+}
+
+templ searchFormTypeControl(byType bool, types []*model.EntryType, typeId int) {
+	<div id="wl-search-input-group-type" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-type"
+				class="checkbox"
+				name="by-type"
+				type="checkbox"
+				if byType {
+					checked
+				}
+			/>
+		</div>
+		<select
+			id="wl-searc-input-type"
+			class="form-select"
+			name="type"
+			hx-get={ hx("/search-modal/activities") }
+			hx-target="#wl-search-input-activity"
+			hx-swap="innerHTML"
+		>
+			@EntryTypeSelectOptions(types, typeId)
+		</select>
+	</div>
+}
+
+templ searchFormDateControl(byDate bool, startDateValue string, endDateValue string) {
+	<div id="wl-search-input-group-date" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-date"
+				class="checkbox"
+				name="by-date"
+				type="checkbox"
+				if byDate {
+					checked
+				}
+			/>
+		</div>
+		<input class="form-control" name="start-date" type="date" value={ startDateValue }/>
+		<input class="form-control" name="end-date" type="date" value={ endDateValue }/>
+	</div>
+}
+
+templ searchFormActivityControl(byActivity bool, activities []*model.EntryActivity,
+	activityId int) {
+	<div id="wl-search-input-group-activity" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-activity"
+				class="checkbox"
+				name="by-activity"
+				type="checkbox"
+				if byActivity {
+					checked
+				}
+			/>
+		</div>
+		<select id="wl-search-input-activity" class="form-select" name="activity">
+			@EntryActivitySelectOptions(activities, activityId)
+		</select>
+	</div>
+}
+
+templ searchFormTextControl(setAutoFocus bool, text string) {
+	<div id="wl-search-input-group-text" class="input-group" hx-preserve>
+		<input
+			id="wl-search-input-text"
+			class="form-control"
+			name="text"
+			type="search"
+			placeholder={ getText("searchFormTextPlaceholder") }
+			value={ text }
+			if setAutoFocus {
+				autofocus
+			}
+		/>
+	</div>
+}
+
+func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
+	return !input.ByType && !input.ByDate && !input.ByActivity && input.Text == ""
+}

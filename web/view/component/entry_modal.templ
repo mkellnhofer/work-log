@@ -83,7 +83,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				class="form-control"
 				name="date"
 				type="date"
-				value={ entry.Date }
+				value={ entry.DateValue }
 			/>
 		</div>
 		<div class="col-6 col-sm-4">
@@ -95,7 +95,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				class="form-control"
 				name="start-time"
 				type="time"
-				value={ entry.StartTime }
+				value={ entry.StartTimeValue }
 			/>
 		</div>
 		<div class="col-6 col-sm-4">
@@ -107,7 +107,7 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				class="form-control"
 				name="end-time"
 				type="time"
-				value={ entry.EndTime }
+				value={ entry.EndTimeValue }
 			/>
 		</div>
 		<div class="col-12">

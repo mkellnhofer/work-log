@@ -10,6 +10,10 @@ import "context"
 import "io"
 import "bytes"
 
+import (
+	"kellnhofer.com/work-log/web/view/component"
+)
+
 // This template is used to render the common HTML for all pages. The page content is supplied as
 // children.
 func Page() templ.Component {
@@ -32,7 +36,7 @@ func Page() templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(getText("appName"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/page/page.templ`, Line: 12, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/page/page.templ`, Line: 16, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -46,7 +50,15 @@ func Page() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><script type=\"text/javascript\" src=\"/js/bootstrap.min.js\"></script><script type=\"text/javascript\" src=\"/js/htmx.min.js\"></script><script type=\"text/javascript\" src=\"/js/app.js\"></script></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = component.ModalContainer().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script type=\"text/javascript\" src=\"/js/bootstrap.min.js\"></script><script type=\"text/javascript\" src=\"/js/htmx.min.js\"></script><script type=\"text/javascript\" src=\"/js/app.js\"></script></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -1,5 +1,9 @@
 package page
 
+import (
+	"kellnhofer.com/work-log/web/view/component"
+)
+
 // This template is used to render the common HTML for all pages. The page content is supplied as
 // children.
 templ Page() {
@@ -19,6 +23,7 @@ templ Page() {
 			<div id="app" hx-history-elt>
 				{ children... }
 			</div>
+			@component.ModalContainer()
 			<script type="text/javascript" src="/js/bootstrap.min.js"></script>
 			<script type="text/javascript" src="/js/htmx.min.js"></script>
 			<script type="text/javascript" src="/js/app.js"></script>

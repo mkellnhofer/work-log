@@ -19,7 +19,7 @@ func (wta *writerToAdapter) WriteTo(w io.Writer) (n int64, err error) {
 	return wta.f.WriteTo(w)
 }
 
-// OverviewExporter create a export of the overview entries data.
+// OverviewExporter exports the overview data to an Excel file.
 type OverviewExporter struct {
 }
 
@@ -28,6 +28,8 @@ func NewOverviewExporter() *OverviewExporter {
 	return &OverviewExporter{}
 }
 
+// ExportOverviewEntries creates the Excel file for the supplied data and returns it as an
+// io.WriterTo that can be used to write the file to a writer.
 func (c *OverviewExporter) ExportOverviewEntries(overviewEntries *vm.OverviewEntries) io.WriterTo {
 	f := excelize.NewFile()
 

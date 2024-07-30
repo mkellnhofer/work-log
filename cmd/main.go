@@ -145,6 +145,7 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 
 	// Get controllers
 	entryCtrl := init.GetEntryApiController()
+	exportCtrl := init.GetExportApiController()
 	userCtrl := init.GetUserApiController()
 
 	// Register protected handlers
@@ -158,6 +159,7 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 	g.POST("/entry_activities", entryCtrl.CreateEntryActivityHandler())
 	g.PUT("/entry_activities/:id", entryCtrl.UpdateEntryActivityHandler())
 	g.DELETE("/entry_activities/:id", entryCtrl.DeleteEntryActivityHandler())
+	g.GET("/export", exportCtrl.GetExportHandler())
 	g.GET("/user", userCtrl.GetCurrentUserHandler())
 	g.PUT("/user/password", userCtrl.UpdateCurrentUserPasswordHandler())
 	g.GET("/user/roles", userCtrl.GetCurrentUserRolesHandler())

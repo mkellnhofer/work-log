@@ -90,7 +90,8 @@ func render(ctx echo.Context, statusCode int, addCspHeader bool, t templ.Compone
 func WriteFile(ctx echo.Context, fileName string, file io.WriterTo) error {
 	res := ctx.Response()
 
-	res.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=\"%s\"", fileName))
+	res.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=\"%s\"",
+		fileName))
 	res.Header().Set(echo.HeaderContentType, echo.MIMEOctetStream)
 	res.Header().Add(echo.HeaderCacheControl, "no-store")
 

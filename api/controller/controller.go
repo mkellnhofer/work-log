@@ -2,6 +2,8 @@ package controller
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"strconv"
 	"time"
 
@@ -113,4 +115,20 @@ func readRequestBody(eCtx echo.Context, data interface{}) error {
 
 func writeResponse(eCtx echo.Context, statusCode int, data interface{}) error {
 	return httputil.WriteHttpResponse(eCtx.Response(), statusCode, data)
+}
+
+func writeFileResponse(ctx echo.Context, fileName string, file io.WriterTo) error {
+	res := ctx.Response()
+
+	res.Header().Set(echo.HeaderContentType, "text/csv")
+	res.Header().Set(echo.HeaderContentDisposition, fmt.Sprintf("attachment; filename=\"%s\"",
+		fileName))
+
+	_, wErr := file.WriteTo(res.Writer)
+	if wErr != nil {
+		err := e.WrapError(e.SysUnknown, "Could not write response.", wErr)
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
 }

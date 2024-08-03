@@ -17,7 +17,11 @@ func buildSearchCancelUrl() string {
 }
 
 // This template is used to render a modal to search entries.
-templ SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
+templ SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) {
+	@searchModal(isAdvanced, searchQuery.Input, searchQuery.EntryTypes, searchQuery.EntryActivities)
+}
+
+templ searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
 	entryActivities []*model.EntryActivity) {
 	@Modal("searchTitle", "actionSearch", "actionCancel",
 		templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},

@@ -17,36 +17,36 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-func buildSearchModalUrl(isAdvanced bool, query string) string {
+func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	params := ""
 	if isAdvanced {
 		params = params + "adv=1&"
 	}
-	if query != "" {
-		params = params + "query=" + query
+	if queryString != "" {
+		params = params + "query=" + queryString
 	}
 	return hx("/search-modal?" + params)
 }
 
-func buildSearchContentUrl(isAdvanced bool, query string, pageNum int) string {
-	template := buildSearchContentUrlTemplate(isAdvanced, query)
+func buildSearchContentUrl(isAdvanced bool, queryString string, pageNum int) string {
+	template := buildSearchContentUrlTemplate(isAdvanced, queryString)
 	return fmt.Sprintf(template, pageNum)
 }
 
-func buildSearchContentUrlTemplate(isAdvanced bool, query string) string {
+func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 	params := ""
 	if isAdvanced {
 		params = params + "adv=1&"
 	}
-	if query != "" {
-		params = params + "query=" + query + "&"
+	if queryString != "" {
+		params = params + "query=" + queryString + "&"
 	}
 	params = params + "page=%d"
 	return hx("/search/content?" + params)
 }
 
 // This template is used to render the navbar elements on the search page.
-func SearchNav(search *model.SearchQuery) templ.Component {
+func SearchNav(searchDetails *model.SearchDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -68,9 +68,9 @@ func SearchNav(search *model.SearchQuery) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(searchDetailsString(search.Input, search.EntryTypes, search.EntryActivities))
+		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchDetailsString(searchDetails))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 45, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 44, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -87,39 +87,25 @@ func SearchNav(search *model.SearchQuery) templ.Component {
 	})
 }
 
-func searchDetailsString(input *model.SearchQueryInput, entryTypes []*model.EntryType,
-	entryActivities []*model.EntryActivity) string {
+func buildSearchDetailsString(searchDetails *model.SearchDetails) string {
 	var details []string
-	if input.ByType {
-		for _, t := range entryTypes {
-			if t.Id == input.TypeId {
-				details = append(details, t.Description)
-			}
-		}
+	if searchDetails.Type != "" {
+		details = append(details, searchDetails.Type)
 	}
-	if input.ByDate {
-		details = append(details, fmt.Sprintf("%s - %s", input.StartDate, input.EndDate))
+	if searchDetails.Date != "" {
+		details = append(details, searchDetails.Date)
 	}
-	if input.ByActivity {
-		for _, a := range entryActivities {
-			if a.Id == input.ActivityId {
-				details = append(details, a.Description)
-			}
-		}
+	if searchDetails.Activity != "" {
+		details = append(details, searchDetails.Activity)
 	}
-	if input.Text != "" {
-		details = append(details, fmt.Sprintf("\"%s\"", input.Text))
+	if searchDetails.Text != "" {
+		details = append(details, searchDetails.Text)
 	}
-
-	if len(details) > 0 {
-		return strings.Join(details, ", ")
-	} else {
-		return "\"\""
-	}
+	return strings.Join(details, ", ")
 }
 
 // This template is used to render the action buttons on the search page.
-func SearchActions(search *model.SearchQuery) templ.Component {
+func SearchActions(isAdvanced bool, queryString string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -134,7 +120,7 @@ func SearchActions(search *model.SearchQuery) templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = PageActionButton("actionSearch",
 			templ.Attributes{
-				"hx-get":     buildSearchModalUrl(search.IsAdvanced, search.Query),
+				"hx-get":     buildSearchModalUrl(isAdvanced, queryString),
 				"hx-trigger": "click",
 				"hx-target":  "#wl-modal-container",
 				"hx-swap":    "innerHTML",
@@ -151,7 +137,7 @@ func SearchActions(search *model.SearchQuery) templ.Component {
 }
 
 // This template is used to render the content loader for the search page.
-func SearchContentLoader(search *model.SearchQuery, pageNum int) templ.Component {
+func SearchContentLoader(isAdvanced bool, queryString string, pageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -164,7 +150,7 @@ func SearchContentLoader(search *model.SearchQuery, pageNum int) templ.Component
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = ContentLoader("wl-search-content", buildSearchContentUrl(search.IsAdvanced, search.Query, pageNum)).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = ContentLoader("wl-search-content", buildSearchContentUrl(isAdvanced, queryString, pageNum)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -176,7 +162,7 @@ func SearchContentLoader(search *model.SearchQuery, pageNum int) templ.Component
 }
 
 // This template is used to render the content of the search page.
-func SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) templ.Component {
+func SearchContent(isAdvanced bool, queryString string, searchEntries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -193,7 +179,7 @@ func SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) 
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchResult(search.IsAdvanced, search.Query, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = searchResult(isAdvanced, queryString, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -210,7 +196,7 @@ func SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) 
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is
 // received, the search result is reloaded.
-func searchResult(isAdvanced bool, query string, entries *model.ListEntries) templ.Component {
+func searchResult(isAdvanced bool, queryString string, entries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -228,9 +214,9 @@ func searchResult(isAdvanced bool, query string, entries *model.ListEntries) tem
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, query, entries.CurrentPageNum))
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 110, Col: 75}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 94, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {
@@ -244,11 +230,11 @@ func searchResult(isAdvanced bool, query string, entries *model.ListEntries) tem
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchResultEntryList(query, entries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = searchResultEntryList(queryString, entries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchResultPagingControl(isAdvanced, query, entries.FirstPageNum, entries.CurrentPageNum,
+		templ_7745c5c3_Err = searchResultPagingControl(isAdvanced, queryString, entries.FirstPageNum, entries.CurrentPageNum,
 			entries.LastPageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -288,7 +274,7 @@ func searchResultHeader() templ.Component {
 	})
 }
 
-func searchResultEntryList(query string, entries *model.ListEntries) templ.Component {
+func searchResultEntryList(queryString string, entries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -301,7 +287,7 @@ func searchResultEntryList(query string, entries *model.ListEntries) templ.Compo
 			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if query == "" {
+		if queryString == "" {
 			templ_7745c5c3_Err = EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -324,8 +310,8 @@ func searchResultEntryList(query string, entries *model.ListEntries) templ.Compo
 	})
 }
 
-func searchResultPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
-	lastPageNum int) templ.Component {
+func searchResultPagingControl(isAdvanced bool, queryString string, firstPageNum int,
+	currentPageNum int, lastPageNum int) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -338,7 +324,7 @@ func searchResultPagingControl(isAdvanced bool, query string, firstPageNum int, 
 			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = PagingControl("#wl-search-content", buildSearchContentUrlTemplate(isAdvanced, query),
+		templ_7745c5c3_Err = PagingControl("#wl-search-content", buildSearchContentUrlTemplate(isAdvanced, queryString),
 			firstPageNum, currentPageNum, lastPageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

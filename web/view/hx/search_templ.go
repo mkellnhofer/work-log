@@ -16,8 +16,7 @@ import (
 )
 
 // This template is used to render the modal dialog to search entries.
-func SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
-	entryActivities []*model.EntryActivity) templ.Component {
+func SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -30,7 +29,7 @@ func SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*m
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = component.SearchModal(isAdvanced, input, entryTypes, entryActivities).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchModal(isAdvanced, searchQuery).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -93,7 +92,7 @@ func SearchFormActivityOptions(entryActivities []*model.EntryActivity) templ.Com
 
 // This template is used to render parts of the page which need to be changed after the user has
 // executed a search.
-func Search(search *model.SearchQuery, pageNum int) templ.Component {
+func Search(isAdvanced bool, queryString string, pageNum int, searchDetails *model.SearchDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -110,7 +109,7 @@ func Search(search *model.SearchQuery, pageNum int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchNav(search).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchNav(searchDetails).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -118,7 +117,7 @@ func Search(search *model.SearchQuery, pageNum int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchActions(search).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchActions(isAdvanced, queryString).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -126,7 +125,7 @@ func Search(search *model.SearchQuery, pageNum int) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchContentLoader(search, pageNum).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchContentLoader(isAdvanced, queryString, pageNum).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -143,7 +142,7 @@ func Search(search *model.SearchQuery, pageNum int) templ.Component {
 
 // This template is used to render changes in the search page after the user has requested the
 // previous/next entries.
-func SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) templ.Component {
+func SearchContent(isAdvanced bool, queryString string, searchEntries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -156,7 +155,7 @@ func SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) 
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = component.SearchContent(search, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchContent(isAdvanced, queryString, searchEntries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -7,82 +7,66 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-func buildSearchModalUrl(isAdvanced bool, query string) string {
+func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	params := ""
 	if isAdvanced {
 		params = params + "adv=1&"
 	}
-	if query != "" {
-		params = params + "query=" + query
+	if queryString != "" {
+		params = params + "query=" + queryString
 	}
 	return hx("/search-modal?" + params)
 }
 
-func buildSearchContentUrl(isAdvanced bool, query string, pageNum int) string {
-	template := buildSearchContentUrlTemplate(isAdvanced, query)
+func buildSearchContentUrl(isAdvanced bool, queryString string, pageNum int) string {
+	template := buildSearchContentUrlTemplate(isAdvanced, queryString)
 	return fmt.Sprintf(template, pageNum)
 }
 
-func buildSearchContentUrlTemplate(isAdvanced bool, query string) string {
+func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 	params := ""
 	if isAdvanced {
 		params = params + "adv=1&"
 	}
-	if query != "" {
-		params = params + "query=" + query + "&"
+	if queryString != "" {
+		params = params + "query=" + queryString + "&"
 	}
 	params = params + "page=%d"
 	return hx("/search/content?" + params)
 }
 
 // This template is used to render the navbar elements on the search page.
-templ SearchNav(search *model.SearchQuery) {
+templ SearchNav(searchDetails *model.SearchDetails) {
 	@NavBackButton("log")
 	<div class="p-2">
 		<span class="fs-2 fw-bold">Search</span>
 		<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>
-		<span class="d-none d-md-inline fs-2">
-			{ searchDetailsString(search.Input, search.EntryTypes, search.EntryActivities) }
-		</span>
+		<span class="d-none d-md-inline fs-2">{ buildSearchDetailsString(searchDetails) }</span>
 	</div>
 }
 
-func searchDetailsString(input *model.SearchQueryInput, entryTypes []*model.EntryType,
-	entryActivities []*model.EntryActivity) string {
+func buildSearchDetailsString(searchDetails *model.SearchDetails) string {
 	var details []string
-	if input.ByType {
-		for _, t := range entryTypes {
-			if t.Id == input.TypeId {
-				details = append(details, t.Description)
-			}
-		}
+	if searchDetails.Type != "" {
+		details = append(details, searchDetails.Type)
 	}
-	if input.ByDate {
-		details = append(details, fmt.Sprintf("%s - %s", input.StartDate, input.EndDate))
+	if searchDetails.Date != "" {
+		details = append(details, searchDetails.Date)
 	}
-	if input.ByActivity {
-		for _, a := range entryActivities {
-			if a.Id == input.ActivityId {
-				details = append(details, a.Description)
-			}
-		}
+	if searchDetails.Activity != "" {
+		details = append(details, searchDetails.Activity)
 	}
-	if input.Text != "" {
-		details = append(details, fmt.Sprintf("\"%s\"", input.Text))
+	if searchDetails.Text != "" {
+		details = append(details, searchDetails.Text)
 	}
-
-	if len(details) > 0 {
-		return strings.Join(details, ", ")
-	} else {
-		return "\"\""
-	}
+	return strings.Join(details, ", ")
 }
 
 // This template is used to render the action buttons on the search page.
-templ SearchActions(search *model.SearchQuery) {
+templ SearchActions(isAdvanced bool, queryString string) {
 	@PageActionButton("actionSearch",
 		templ.Attributes{
-			"hx-get": buildSearchModalUrl(search.IsAdvanced, search.Query),
+			"hx-get": buildSearchModalUrl(isAdvanced, queryString),
 			"hx-trigger": "click",
 			"hx-target": "#wl-modal-container",
 			"hx-swap": "innerHTML",
@@ -91,30 +75,30 @@ templ SearchActions(search *model.SearchQuery) {
 }
 
 // This template is used to render the content loader for the search page.
-templ SearchContentLoader(search *model.SearchQuery, pageNum int) {
-	@ContentLoader("wl-search-content", buildSearchContentUrl(search.IsAdvanced, search.Query, pageNum))
+templ SearchContentLoader(isAdvanced bool, queryString string, pageNum int) {
+	@ContentLoader("wl-search-content", buildSearchContentUrl(isAdvanced, queryString, pageNum))
 }
 
 // This template is used to render the content of the search page.
-templ SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) {
+templ SearchContent(isAdvanced bool, queryString string, searchEntries *model.ListEntries) {
 	<div id="wl-search-content">
-		@searchResult(search.IsAdvanced, search.Query, searchEntries)
+		@searchResult(isAdvanced, queryString, searchEntries)
 	</div>
 }
 
 // This template is used to render the search result. When the HTMX event "wlChangedEntries" is
 // received, the search result is reloaded.
-templ searchResult(isAdvanced bool, query string, entries *model.ListEntries) {
+templ searchResult(isAdvanced bool, queryString string, entries *model.ListEntries) {
 	<div
 		id="wl-search-result"
-		hx-get={ buildSearchContentUrl(isAdvanced, query, entries.CurrentPageNum) }
+		hx-get={ buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum) }
 		hx-trigger="wlChangedEntries from:body"
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
 		@searchResultHeader()
-		@searchResultEntryList(query, entries)
-		@searchResultPagingControl(isAdvanced, query, entries.FirstPageNum, entries.CurrentPageNum,
+		@searchResultEntryList(queryString, entries)
+		@searchResultPagingControl(isAdvanced, queryString, entries.FirstPageNum, entries.CurrentPageNum,
 			entries.LastPageNum)
 	</div>
 }
@@ -123,8 +107,8 @@ templ searchResultHeader() {
 	@SectionHeader("magnifying-glass", "Result")
 }
 
-templ searchResultEntryList(query string, entries *model.ListEntries) {
-	if query == "" {
+templ searchResultEntryList(queryString string, entries *model.ListEntries) {
+	if queryString == "" {
 		@EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery"))
 	} else if len(entries.Days) == 0 {
 		@EntriesPlaceholder("xmark", getText("searchListLabelNoEntries"))
@@ -133,8 +117,8 @@ templ searchResultEntryList(query string, entries *model.ListEntries) {
 	}
 }
 
-templ searchResultPagingControl(isAdvanced bool, query string, firstPageNum int, currentPageNum int,
-	lastPageNum int) {
-	@PagingControl("#wl-search-content", buildSearchContentUrlTemplate(isAdvanced, query),
+templ searchResultPagingControl(isAdvanced bool, queryString string, firstPageNum int,
+	currentPageNum int, lastPageNum int) {
+	@PagingControl("#wl-search-content", buildSearchContentUrlTemplate(isAdvanced, queryString),
 		firstPageNum, currentPageNum, lastPageNum)
 }

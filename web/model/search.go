@@ -2,8 +2,6 @@ package model
 
 // SearchQuery stores data for the search form view.
 type SearchQuery struct {
-	IsAdvanced      bool
-	Query           string
 	Input           *SearchQueryInput
 	EntryTypes      []*EntryType
 	EntryActivities []*EntryActivity
@@ -21,4 +19,9 @@ type SearchQueryInput struct {
 	ByActivity     bool
 	ActivityId     int
 	Text           string
+}
+
+// SearchDetails stores data for the search details view.
+type SearchDetails struct {
+	EntriesFilterDetails
 }

@@ -107,7 +107,8 @@ func Log(userInfo *model.UserInfo, pageNum int) templ.Component {
 }
 
 // This template is used to render the full search page.
-func Search(userInfo *model.UserInfo, search *model.SearchQuery, pageNum int) templ.Component {
+func Search(userInfo *model.UserInfo, isAdvanced bool, queryString string, pageNum int,
+	searchDetails *model.SearchDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -121,10 +122,10 @@ func Search(userInfo *model.UserInfo, search *model.SearchQuery, pageNum int) te
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
-			component.SearchNav(search),
-			component.SearchActions(search),
+			component.SearchNav(searchDetails),
+			component.SearchActions(isAdvanced, queryString),
 			userInfo,
-			component.SearchContentLoader(search, pageNum),
+			component.SearchContentLoader(isAdvanced, queryString, pageNum),
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

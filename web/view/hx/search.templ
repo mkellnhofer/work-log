@@ -6,9 +6,8 @@ import (
 )
 
 // This template is used to render the modal dialog to search entries.
-templ SearchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
-	entryActivities []*model.EntryActivity) {
-	@component.SearchModal(isAdvanced, input, entryTypes, entryActivities)
+templ SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) {
+	@component.SearchModal(isAdvanced, searchQuery)
 }
 
 // This template is used to render the error message in the search modal dialog.
@@ -23,21 +22,21 @@ templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 
 // This template is used to render parts of the page which need to be changed after the user has
 // executed a search.
-templ Search(search *model.SearchQuery, pageNum int) {
+templ Search(isAdvanced bool, queryString string, pageNum int, searchDetails *model.SearchDetails) {
 	// OoB swaps
 	<div id="wl-nav-container" hx-swap-oob="innerHTML">
-		@component.SearchNav(search)
+		@component.SearchNav(searchDetails)
 	</div>
 	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
-		@component.SearchActions(search)
+		@component.SearchActions(isAdvanced, queryString)
 	</div>
 	<div id="wl-page-content" hx-swap-oob="innerHTML">
-		@component.SearchContentLoader(search, pageNum)
+		@component.SearchContentLoader(isAdvanced, queryString, pageNum)
 	</div>
 }
 
 // This template is used to render changes in the search page after the user has requested the
 // previous/next entries.
-templ SearchContent(search *model.SearchQuery, searchEntries *model.ListEntries) {
-	@component.SearchContent(search, searchEntries)
+templ SearchContent(isAdvanced bool, queryString string, searchEntries *model.ListEntries) {
+	@component.SearchContent(isAdvanced, queryString, searchEntries)
 }

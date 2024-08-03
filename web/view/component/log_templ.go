@@ -40,15 +40,15 @@ func LogNav() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = NavBarNavToggle().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NavToggle().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavBarNavBrand().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = NavBrand().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = NavBarNav("log").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = Nav("log").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

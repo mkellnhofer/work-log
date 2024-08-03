@@ -5,11 +5,16 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
-templ mainPage(navElements templ.Component, actionButtons templ.Component, userInfo *model.UserInfo,
-	content templ.Component) {
+templ mainPage(navElements templ.Component, pageActionButtons templ.Component,
+	userInfo *model.UserInfo, content templ.Component) {
 	@Page() {
 		<div id="wl-container" class="wl-container mx-auto px-3">
-			@component.NavBar(navElements, actionButtons, userInfo)
+			@component.NavBar(
+				navElements,
+				pageActionButtons,
+				userInfo,
+				[]templ.Component{component.UserLogoutActionMenuItem()},
+			)
 			<div id="wl-page-content">
 				@content
 			</div>

@@ -22,9 +22,9 @@ func buildOverviewUrlParam(month string) string {
 
 // This template is used to render the navbar elements on the overview page.
 templ OverviewNav() {
-	@NavBarNavToggle()
-	@NavBarNavBrand()
-	@NavBarNav("overview")
+	@NavToggle()
+	@NavBrand()
+	@Nav("overview")
 }
 
 // This template is used to render the action buttons on the overview page.

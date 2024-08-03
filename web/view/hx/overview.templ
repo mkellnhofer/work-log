@@ -9,10 +9,10 @@ import (
 // navigated to the overview page.
 templ Overview() {
 	// OoB swaps
-	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+	<div id="wl-nav-container" hx-swap-oob="innerHTML">
 		@component.OverviewNav()
 	</div>
-	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
 		@component.OverviewActions("")
 	</div>
 	// Regular swaps
@@ -23,7 +23,7 @@ templ Overview() {
 // previous/next month.
 templ OverviewContent(overviewEntries *model.OverviewEntries) {
 	// OoB swaps
-	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
 		@component.OverviewActions(overviewEntries.CurrMonth)
 	</div>
 	@component.OverviewContent(overviewEntries)

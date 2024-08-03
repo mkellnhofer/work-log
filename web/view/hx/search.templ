@@ -25,10 +25,10 @@ templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 // executed a search.
 templ Search(search *model.SearchQuery, pageNum int) {
 	// OoB swaps
-	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+	<div id="wl-nav-container" hx-swap-oob="innerHTML">
 		@component.SearchNav(search)
 	</div>
-	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
 		@component.SearchActions(search)
 	</div>
 	<div id="wl-page-content" hx-swap-oob="innerHTML">

@@ -1,0 +1,60 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
+)
+
+// This template is used to render the user actions.
+templ UserActionsContainer(userInfo *model.UserInfo, dropdownMenuItems []templ.Component) {
+	<div id="wl-user-actions-container">
+		@userActionsDropdown(userInfo, dropdownMenuItems)
+	</div>
+}
+
+templ userActionsDropdown(userInfo *model.UserInfo, dropdownMenuItems []templ.Component) {
+	<div id="wl-user-actions-dropdown" class="dropdown">
+		@userActionsDropdownToggle(view.CreateUserIconSvg(userInfo.Initials))
+		@userActionsDropdownMenu(dropdownMenuItems)
+	</div>
+}
+
+templ userActionsDropdownToggle(userIconSvg string) {
+	<a
+		class="dropdown-toggle nav-link p-2"
+		data-bs-toggle="dropdown"
+		data-bs-display="static"
+		aria-expanded="false"
+		aria-label="Toggle user menu"
+		href="#"
+	>
+		@UserIconView(userIconSvg)
+	</a>
+}
+
+templ userActionsDropdownMenu(dropdownMenuItems []templ.Component) {
+	<ul class="dropdown-menu dropdown-menu-end">
+		for _, dropdownMenuItem := range dropdownMenuItems {
+			<li>
+				@dropdownMenuItem
+			</li>
+		}
+	</ul>
+}
+
+templ userActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) {
+	<a class="dropdown-item" { actionAttrs... }>
+		<svg class="ico me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
+		<span>{ getText(textRef) }</span>
+	</a>
+}
+
+// This template is used to render the user logout action menu item.
+templ UserLogoutActionMenuItem() {
+	@userActionDropdownMenuItem("right-to-bracket",
+		"actionLogout",
+		templ.Attributes{
+			"href": "logout",
+		},
+	)
+}

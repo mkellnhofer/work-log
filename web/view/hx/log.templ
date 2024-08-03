@@ -9,10 +9,10 @@ import (
 // navigated to the log page.
 templ Log() {
 	// OoB swaps
-	<div id="wl-page-nav" hx-swap-oob="innerHTML">
+	<div id="wl-nav-container" hx-swap-oob="innerHTML">
 		@component.LogNav()
 	</div>
-	<div id="wl-page-menu-actions" hx-swap-oob="innerHTML">
+	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
 		@component.LogActions()
 	</div>
 	// Regular swaps

@@ -1,0 +1,118 @@
+package component
+
+// This template is used to render the nav toggle button in the navigation bar.
+templ NavToggle() {
+	<button
+		class="btn d-flex d-sm-none p-2"
+		type="button"
+		data-bs-toggle="offcanvas"
+		data-bs-target="#wl-navbar-nav-offcanvas"
+		aria-label="Open navigation"
+	>
+		<span class="navbar-toggler-icon"></span>
+	</button>
+}
+
+// This template is used to render the back navigation button in the navigation bar.
+templ NavBackButton(previousPage string) {
+	<button
+		class="btn p-2 ms-sm-2 me-2"
+		type="button"
+		aria-label="Back"
+		hx-get={ buildNavUrl("/" + previousPage) }
+		hx-trigger="click"
+		hx-target="#wl-page-content"
+		hx-swap="innerHTML"
+	>
+		<svg class="ico-large">
+			<use xlink:href="img/ico.svg#arrow-left"></use>
+		</svg>
+	</button>
+}
+
+// This template is used to render the brand logo in the navigation bar.
+templ NavBrand() {
+	<a class="navbar-brand d-none d-sm-block px-2" href="/" aria-label="Worklog">
+		<img
+			src="img/app-logo.svg"
+			alt="Logo"
+			width="38"
+			height="38"
+		/>
+	</a>
+}
+
+// This template is used to render page navigation in the navigation bar. The template gets the
+// current page name to highlight the corresponding page navigation element.
+templ Nav(currentPage string) {
+	<div
+		id="wl-navbar-nav-offcanvas"
+		class="offcanvas offcanvas-sm offcanvas-start flex-grow-1"
+		tabindex="-1"
+		data-bs-scroll="true"
+		aria-labelledby="wl-navbar-nav-offcanvas-label"
+	>
+		@navHeader()
+		@navBody(currentPage)
+	</div>
+}
+
+templ navHeader() {
+	<div class="offcanvas-header px-4 pb-0">
+		<a class="pe-3" href="/" aria-label={ getText("appName") }>
+			<img
+				src="img/app-logo.svg"
+				alt="Logo"
+				width="38"
+				height="38"
+			/>
+		</a>
+		<h1 id="wl-navbar-nav-offcanvas-label" class="offcanvas-title me-auto">
+			{ getText("appName") }
+		</h1>
+		<button
+			class="btn-close d-sm-none"
+			type="button"
+			data-bs-dismiss="offcanvas"
+			aria-label="Close navigation"
+		></button>
+	</div>
+}
+
+templ navBody(currentPage string) {
+	<div class="offcanvas-body p-4 pt-0 p-sm-0">
+		<hr class="d-sm-none"/>
+    <ul class="navbar-nav justify-content flex-grow-1 pe-3">
+      @navItems(currentPage)
+    </ul>
+	</div>
+}
+
+templ navItems(currentPage string) {
+	@navItem(buildNavUrl("/log"), currentPage == "log", "logTitle")
+	@navItem(buildNavUrl("/overview"), currentPage == "overview", "overviewTitle")
+}
+
+templ navItem(hxGetUrl string, active bool, titleTextRef string) {
+	<li class="nav-item">
+		<a
+			if active {
+				class="nav-link active fw-bold"
+				aria-current="true"
+			} else {
+				class="nav-link"
+			}
+			href="#"
+			hx-trigger="click"
+			hx-get={ hxGetUrl }
+			hx-target="#wl-page-content"
+			hx-swap="innerHTML"
+		>
+			{ getText(titleTextRef) }
+		</a>
+	</li>
+}
+
+func buildNavUrl(location string) string {
+	return hx(location)
+}

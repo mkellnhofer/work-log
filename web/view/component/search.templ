@@ -37,7 +37,7 @@ func buildSearchContentUrlTemplate(isAdvanced bool, query string) string {
 
 // This template is used to render the navbar elements on the search page.
 templ SearchNav(search *model.SearchQuery) {
-	@NavBarNavBackButton("log")
+	@NavBackButton("log")
 	<div class="p-2">
 		<span class="fs-2 fw-bold">Search</span>
 		<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>

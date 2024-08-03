@@ -46,6 +46,11 @@ body {
   border-style: hidden;
 }
 
+.btn-transparent {
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+}
+
 .btn-round {
   --bs-btn-padding-y: 0;
   --bs-btn-padding-x: 0.6rem;

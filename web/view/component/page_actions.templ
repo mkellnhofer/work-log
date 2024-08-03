@@ -2,7 +2,77 @@ package component
 
 // This template is used to render the page actions.
 templ PageActionsContainer(actionButtons templ.Component) {
-	<div id="wl-page-actions-container" class="d-flex px-2">
+	<div id="wl-page-actions-container" class="d-flex">
 		@actionButtons
 	</div>
+}
+
+// This template is used to render a action button.
+templ PageActionButton(textRef string, actionAttrs templ.Attributes) {
+	<button
+		class="btn btn-primary mx-2"
+		{ actionAttrs... }
+	>
+		{ getText(textRef) }
+	</button>
+}
+
+// This template is used to render a action icon button.
+templ PageActionIconButton(iconRef string, actionAttrs templ.Attributes) {
+	<button
+		class="btn btn-light btn-round mx-2"
+		{ actionAttrs... }
+	>
+		<svg class="ico"><use xlink:href={"img/ico.svg#" + iconRef}></use></svg>
+	</button>
+}
+
+// This template is used to render a action link button.
+templ PageActionLinkButton(textRef string, url templ.SafeURL) {
+	<a
+		class="btn btn-primary mx-2"
+		href={ url }
+		aria-label={ getText(textRef) }
+	>
+		{ getText(textRef) }
+	</a>
+}
+
+// This template is used to render a action dropdown.
+templ PageActionsDropdown(dropdownMenuItems []templ.Component) {
+	<div id="wl-page-actions-dropdown" class="dropdown">
+		@pageActionsDropdownToggle()
+		@pageActionsDropdownMenu(dropdownMenuItems)
+	</div>
+}
+
+templ pageActionsDropdownToggle() {
+	<button
+		class="btn btn-light btn-transparent btn-round"
+		data-bs-toggle="dropdown"
+		data-bs-display="static"
+		aria-expanded="false"
+		aria-label="Toggle actions menu"
+		href="#"
+	>
+		<svg class="ico"><use xlink:href="img/ico.svg#ellipsis"></use></svg>
+	</button>
+}
+
+templ pageActionsDropdownMenu(dropdownMenuItems []templ.Component) {
+	<ul class="dropdown-menu dropdown-menu-end mt-2">
+		for _, dropdownMenuItem := range dropdownMenuItems {
+			<li>
+				@dropdownMenuItem
+			</li>
+		}
+	</ul>
+}
+
+// This template is used to render a action dropdown menu item.
+templ PageActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) {
+	<a class="dropdown-item" { actionAttrs... }>
+		<svg class="ico me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
+		<span>{ getText(textRef) }</span>
+	</a>
 }

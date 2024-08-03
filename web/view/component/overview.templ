@@ -29,13 +29,7 @@ templ OverviewNav() {
 
 // This template is used to render the action buttons on the overview page.
 templ OverviewActions(month string) {
-	<a
-		class="btn btn-primary"
-		href={ toURL(buildOverviewExportUrl(month)) }
-		aria-label={ getText("overviewActionExport") }
-	>
-		{ getText("overviewActionExport") }
-	</a>
+	@PageActionLinkButton("overviewActionExport", toURL(buildOverviewExportUrl(month)))
 }
 
 // This template is used to render the content loader for the overview page.

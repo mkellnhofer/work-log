@@ -80,14 +80,14 @@ func searchDetailsString(input *model.SearchQueryInput, entryTypes []*model.Entr
 
 // This template is used to render the action buttons on the search page.
 templ SearchActions(search *model.SearchQuery) {
-	<button class="btn btn-primary"
-		hx-get={ buildSearchModalUrl(search.IsAdvanced, search.Query) }
-		hx-trigger="click"
-		hx-target="#wl-modal-container"
-		hx-swap="innerHTML"
-	>
-		{ getText("actionSearch") }
-	</button>
+	@PageActionButton("actionSearch",
+		templ.Attributes{
+			"hx-get": buildSearchModalUrl(search.IsAdvanced, search.Query),
+			"hx-trigger": "click",
+			"hx-target": "#wl-modal-container",
+			"hx-swap": "innerHTML",
+		},
+	)
 }
 
 // This template is used to render the content loader for the search page.

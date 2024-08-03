@@ -143,7 +143,7 @@
     <message key="errValStartTimeInvalid"><text>Start time invalid!</text></message>
     <message key="errValEndTimeInvalid"><text>End time invalid!</text></message>
     <message key="errValDescriptionTooLong"><text>Description cannot be longer than 200 characters!</text></message>
-    <message key="errValSearchQueryInvalid"><text>Search query invalid!</text></message>
+    <message key="errValQueryInvalid"><text>Query invalid!</text></message>
     <message key="errValMonthInvalid"><text>Month invalid! (Month must be in \"YYYYMM\" format.)</text></message>
     <message key="errValPasswordEmpty"><text>Password cannot be empty!</text></message>
     <message key="errValPasswordTooShort"><text>Password must be at least 8 characters long.</text></message>
@@ -155,7 +155,7 @@
     <message key="errLogicEntryTypeNotFound">​​<text>The entry type could not be found.</text></message>
     <message key="errLogicEntryActivityNotFound">​​<text>The entry activity could not be found.</text></message>
     <message key="errLogicEntryTimeIntervalInvalid"><text>Start end time interval invalid!</text></message>
-    <message key="errLogicEntrySearchDateIntervalInvalid"><text>Search period invalid!</text></message>
+    <message key="errLogicEntryDateIntervalInvalid"><text>Date interval invalid!</text></message>
     <message key="errSysUnknown"><text>An unknown system error occurred.</text></message>
     <message key="errSysDbUnknown"><text>An unknown database error occurred.</text></message>
     <message key="errSysDbConnectionFailed"><text>The connection to the database was interrupted.</text></message>

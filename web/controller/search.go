@@ -2,11 +2,8 @@ package controller
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -16,15 +13,12 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
-	"kellnhofer.com/work-log/pkg/util"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 	"kellnhofer.com/work-log/web/view/hx"
 	"kellnhofer.com/work-log/web/view/page"
 )
-
-const searchDateTimeFormat = "200601021504"
 
 type searchInput struct {
 	byType     string
@@ -70,7 +64,7 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
 		if err != nil {
 			return err
 		}
@@ -92,7 +86,7 @@ func (c *SearchController) GetHxContentHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
 		if err != nil {
 			return err
 		}
@@ -120,7 +114,7 @@ func (c *SearchController) GetHxModalHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseSearchQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
 		if err != nil {
 			return err
 		}
@@ -138,7 +132,7 @@ func (c *SearchController) GetHxModalHandler() echo.HandlerFunc {
 // PostHxModalHandler returns a handler for "POST /hx/search-modal".
 func (c *SearchController) PostHxModalHandler() echo.HandlerFunc {
 	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
-		isAdvanced := getSearchAdvancedParam(eCtx)
+		isAdvanced := getAdvancedQueryParam(eCtx)
 
 		userId := getCurrentUserId(ctx)
 		searchInput := c.getPostSearchInput(eCtx)
@@ -188,7 +182,7 @@ func (c *SearchController) PostHxModalCancelHandler() echo.HandlerFunc {
 func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvanced bool,
 	searchFilter *model.EntriesFilter) (*vm.SearchQuery, error) {
 	// Create query string
-	query := c.buildSearchQueryString(searchFilter)
+	query := c.buildQueryString(searchFilter)
 
 	// Create default values
 	filter := searchFilter
@@ -220,7 +214,7 @@ func (c *SearchController) getSearchQueryViewData(ctx context.Context, isAdvance
 
 func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
 	searchFilter *model.EntriesFilter, pageNum int) (*vm.ListEntries, error) {
-	if c.isSearchFilterEmpty(searchFilter) {
+	if c.isFilterEmpty(searchFilter) {
 		return &vm.ListEntries{}, nil
 	}
 
@@ -287,7 +281,7 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 		return nil, err
 	}
 	if filter.EndTime.Before(filter.StartTime) {
-		err := e.NewError(e.LogicEntrySearchDateIntervalInvalid, fmt.Sprintf("End date %s before "+
+		err := e.NewError(e.LogicEntryDateIntervalInvalid, fmt.Sprintf("End date %s before "+
 			"start time %s.", input.endDate, input.startDate))
 		log.Debug(err.StackTrace())
 		return nil, err
@@ -317,133 +311,13 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 	return filter, nil
 }
 
-func (c *SearchController) isSearchFilterEmpty(filter *model.EntriesFilter) bool {
-	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription
-}
-
-func (c *SearchController) buildSearchQueryString(filter *model.EntriesFilter) string {
-	if filter == nil {
-		return ""
-	}
-
-	var qps []string
-	// Add parameter/value for entry type
-	if filter.ByType {
-		qps = append(qps, fmt.Sprintf("typ:%d", filter.TypeId))
-	}
-	// Add parameter/value for entry start/end time
-	if filter.ByTime {
-		qps = append(qps, fmt.Sprintf("tim:%s", c.formatSearchDateRange(filter.StartTime,
-			filter.EndTime)))
-	}
-	// Add parameter/value for entry activity
-	if filter.ByActivity {
-		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
-	}
-	// Add parameter/value for entry description
-	if filter.ByDescription {
-		qps = append(qps, fmt.Sprintf("des:%s", util.EncodeBase64(filter.Description)))
-	}
-	return strings.Join(qps[:], "|")
-}
-
-func (c *SearchController) parseSearchQueryString(userId int, query string) (*model.EntriesFilter,
-	error) {
-	filter := model.NewEntriesFilter()
-	filter.ByUser = true
-	filter.UserId = userId
-
-	if query == "" {
-		return filter, nil
-	}
-
-	qps := strings.Split(query, "|")
-
-	for _, qp := range qps {
-		pv := strings.Split(qp, ":")
-		// Check if query part is invalid
-		if len(pv) < 2 {
-			err := e.NewError(e.ValSearchQueryInvalid, "Search query part is invalid.")
-			log.Debug(err.StackTrace())
-			return nil, err
-		}
-
-		p := pv[0]
-		v := pv[1]
-		var cErr error
-
-		// Handle specific conversion
-		switch p {
-		// Convert value for entry type
-		case "typ":
-			filter.ByType = true
-			filter.TypeId, cErr = strconv.Atoi(v)
-		// Convert values for entry start/end time
-		case "tim":
-			filter.ByTime = true
-			filter.StartTime, filter.EndTime, cErr = c.parseSearchDateRange(v)
-		// Convert value for entry activity
-		case "act":
-			filter.ByActivity = true
-			filter.ActivityId, cErr = strconv.Atoi(v)
-		// Convert value for entry description
-		case "des":
-			filter.ByDescription = true
-			filter.Description, cErr = util.DecodeBase64(v)
-		// Unknown parameter
-		default:
-			err := e.NewError(e.ValSearchQueryInvalid, fmt.Sprintf("Search query parameter '%s' "+
-				"is unknown.", p))
-			log.Debug(err.StackTrace())
-			return nil, err
-		}
-
-		// Check if a error occurred
-		if cErr != nil {
-			err := e.WrapError(e.ValSearchQueryInvalid, fmt.Sprintf("Search query parameter '%s' "+
-				"has invalid value.", p), cErr)
-			log.Debug(err.StackTrace())
-			return nil, err
-		}
-	}
-	return filter, nil
-}
-
-func (c *SearchController) formatSearchDateRange(startDate time.Time, endDate time.Time) string {
-	return fmt.Sprintf("%s-%s", c.formatSearchDate(startDate), c.formatSearchDate(endDate))
-}
-
-func (c *SearchController) formatSearchDate(date time.Time) string {
-	return date.Format(searchDateTimeFormat)
-}
-
-func (c *SearchController) parseSearchDateRange(dateRange string) (time.Time, time.Time, error) {
-	se := strings.Split(dateRange, "-")
-	if len(se) < 2 {
-		return time.Time{}, time.Time{}, errors.New("invalid range")
-	}
-	startTime, err := c.parseSearchDate(se[0])
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	endTime, err := c.parseSearchDate(se[1])
-	if err != nil {
-		return time.Time{}, time.Time{}, err
-	}
-	return startTime, endTime, nil
-}
-
-func (c *SearchController) parseSearchDate(date string) (time.Time, error) {
-	return time.ParseInLocation(searchDateTimeFormat, date, time.Local)
-}
-
 func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.EntriesFilter,
 	pageNum int) string {
 	url := "/search?"
 	if isAdvanced {
 		url = url + "adv=1&"
 	}
-	query := c.buildSearchQueryString(searchFilter)
+	query := c.buildQueryString(searchFilter)
 	if query != "" {
 		url = url + "query=" + query + "&"
 	}
@@ -456,8 +330,8 @@ func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.E
 // --- Helper functions ---
 
 func (c *SearchController) getGetSearchParams(eCtx echo.Context) (bool, string, int, bool, error) {
-	isAdvanced := getSearchAdvancedParam(eCtx)
-	searchQuery := getSearchQueryParam(eCtx)
+	isAdvanced := getAdvancedQueryParam(eCtx)
+	searchQuery := getQueryQueryParam(eCtx)
 	pageNum, pageNumAvail, err := getPageNumberQueryParam(eCtx)
 	if err != nil {
 		return false, "", 0, false, err

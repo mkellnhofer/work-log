@@ -2,7 +2,11 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -10,10 +14,13 @@ import (
 	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
+	"kellnhofer.com/work-log/pkg/util"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
 )
+
+const queryDateTimeFormat = "200601021504"
 
 type handlerFunc func(eCtx echo.Context, ctx context.Context) error
 type hxHandlerFunc func(eCtx echo.Context, ctx context.Context) error
@@ -128,4 +135,122 @@ func (c *baseController) getEntryTypesMap(ctx context.Context) (map[int]*model.E
 func (c *baseController) getEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
 	error) {
 	return c.eServ.GetEntryActivitiesMap(ctx)
+}
+
+func (c *baseController) buildQueryString(filter *model.EntriesFilter) string {
+	if filter == nil {
+		return ""
+	}
+
+	var qps []string
+	// Add parameter/value for entry type
+	if filter.ByType {
+		qps = append(qps, fmt.Sprintf("typ:%d", filter.TypeId))
+	}
+	// Add parameter/value for entry start/end time
+	if filter.ByTime {
+		qps = append(qps, fmt.Sprintf("tim:%s", c.formatQueryDateRange(filter.StartTime,
+			filter.EndTime)))
+	}
+	// Add parameter/value for entry activity
+	if filter.ByActivity {
+		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
+	}
+	// Add parameter/value for entry description
+	if filter.ByDescription {
+		qps = append(qps, fmt.Sprintf("des:%s", util.EncodeBase64(filter.Description)))
+	}
+	return strings.Join(qps[:], "|")
+}
+
+func (c *baseController) parseQueryString(userId int, query string) (*model.EntriesFilter, error) {
+	filter := model.NewEntriesFilter()
+	filter.ByUser = true
+	filter.UserId = userId
+
+	if query == "" {
+		return filter, nil
+	}
+
+	qps := strings.Split(query, "|")
+
+	for _, qp := range qps {
+		pv := strings.Split(qp, ":")
+		// Check if query part is invalid
+		if len(pv) < 2 {
+			err := e.NewError(e.ValQueryInvalid, "Query part is invalid.")
+			log.Debug(err.StackTrace())
+			return nil, err
+		}
+
+		p := pv[0]
+		v := pv[1]
+		var cErr error
+
+		// Handle specific conversion
+		switch p {
+		// Convert value for entry type
+		case "typ":
+			filter.ByType = true
+			filter.TypeId, cErr = strconv.Atoi(v)
+		// Convert values for entry start/end time
+		case "tim":
+			filter.ByTime = true
+			filter.StartTime, filter.EndTime, cErr = c.parseQueryDateRange(v)
+		// Convert value for entry activity
+		case "act":
+			filter.ByActivity = true
+			filter.ActivityId, cErr = strconv.Atoi(v)
+		// Convert value for entry description
+		case "des":
+			filter.ByDescription = true
+			filter.Description, cErr = util.DecodeBase64(v)
+		// Unknown parameter
+		default:
+			err := e.NewError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' is unknown.", p))
+			log.Debug(err.StackTrace())
+			return nil, err
+		}
+
+		// Check if a error occurred
+		if cErr != nil {
+			err := e.WrapError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' has invalid "+
+				"value.", p), cErr)
+			log.Debug(err.StackTrace())
+			return nil, err
+		}
+	}
+	return filter, nil
+}
+
+func (c *baseController) formatQueryDateRange(startDate time.Time, endDate time.Time) string {
+	return fmt.Sprintf("%s-%s", c.formatQueryDate(startDate), c.formatQueryDate(endDate))
+}
+
+func (c *baseController) parseQueryDateRange(dateRange string) (time.Time, time.Time, error) {
+	se := strings.Split(dateRange, "-")
+	if len(se) < 2 {
+		return time.Time{}, time.Time{}, errors.New("invalid range")
+	}
+	startTime, err := c.parseQueryDate(se[0])
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	endTime, err := c.parseQueryDate(se[1])
+	if err != nil {
+		return time.Time{}, time.Time{}, err
+	}
+	return startTime, endTime, nil
+}
+
+func (c *baseController) formatQueryDate(date time.Time) string {
+	return date.Format(queryDateTimeFormat)
+}
+
+func (c *baseController) parseQueryDate(date string) (time.Time, error) {
+	return time.ParseInLocation(queryDateTimeFormat, date, time.Local)
+}
+
+func (c *baseController) isFilterEmpty(filter *model.EntriesFilter) bool {
+	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription
 }

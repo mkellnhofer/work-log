@@ -105,7 +105,7 @@ var errorMessageKeys = map[int]string{
 	e.ValStartTimeInvalid:     "errValStartTimeInvalid",
 	e.ValEndTimeInvalid:       "errValEndTimeInvalid",
 	e.ValDescriptionTooLong:   "errValDescriptionTooLong",
-	e.ValSearchQueryInvalid:   "errValSearchQueryInvalid",
+	e.ValQueryInvalid:         "errValQueryInvalid",
 	e.ValMonthInvalid:         "errValMonthInvalid",
 	e.ValPasswordEmpty:        "errValPasswordEmpty",
 	e.ValPasswordTooShort:     "errValPasswordTooShort",
@@ -114,12 +114,12 @@ var errorMessageKeys = map[int]string{
 	e.ValPasswordsNotMatching: "errValPasswordsNotMatching",
 
 	// Logic errors
-	e.LogicUnknown:                        "errLogicUnknown",
-	e.LogicEntryNotFound:                  "errLogicEntryNotFound",
-	e.LogicEntryTypeNotFound:              "errLogicEntryTypeNotFound",
-	e.LogicEntryActivityNotFound:          "errLogicEntryActivityNotFound",
-	e.LogicEntryTimeIntervalInvalid:       "errLogicEntryTimeIntervalInvalid",
-	e.LogicEntrySearchDateIntervalInvalid: "errLogicEntrySearchDateIntervalInvalid",
+	e.LogicUnknown:                  "errLogicUnknown",
+	e.LogicEntryNotFound:            "errLogicEntryNotFound",
+	e.LogicEntryTypeNotFound:        "errLogicEntryTypeNotFound",
+	e.LogicEntryActivityNotFound:    "errLogicEntryActivityNotFound",
+	e.LogicEntryTimeIntervalInvalid: "errLogicEntryTimeIntervalInvalid",
+	e.LogicEntryDateIntervalInvalid: "errLogicEntryDateIntervalInvalid",
 
 	// System errors
 	e.SysUnknown:             "errSysUnknown",

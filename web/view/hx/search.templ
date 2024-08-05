@@ -10,11 +10,6 @@ templ SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) {
 	@component.SearchModal(isAdvanced, searchQuery)
 }
 
-// This template is used to render the error message in the search modal dialog.
-templ SearchModalError(errorMessage string) {
-	@component.ErrorMessage(errorMessage)
-}
-
 // This template is used to render the entry activity options for the search form.
 templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 	@component.EntryActivitySelectOptions(entryActivities, 0)

@@ -243,8 +243,8 @@ func (c *EntryController) handleExecuteError(eCtx echo.Context, err error) error
 	ec := getErrorCode(err)
 	em := loc.GetErrorMessageString(ec)
 	// Render
-	web.HtmxRetarget(eCtx, "#wl-entry-modal-error")
-	return web.RenderHx(eCtx, http.StatusOK, hx.EntryModalError(em))
+	web.HtmxRetarget(eCtx, "#wl-modal-error-container")
+	return web.RenderHx(eCtx, http.StatusOK, hx.ModalError(em))
 }
 
 // --- Model converter functions ---

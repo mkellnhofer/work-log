@@ -138,8 +138,8 @@ func (c *SearchController) PostHxModalHandler() echo.HandlerFunc {
 		searchFilter, err := c.createSearchFilter(userId, searchInput)
 		if err != nil {
 			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
-			web.HtmxRetarget(eCtx, "#wl-search-modal-error")
-			return web.RenderHx(eCtx, http.StatusOK, hx.SearchModalError(searchErrorMessage))
+			web.HtmxRetarget(eCtx, "#wl-modal-error-container")
+			return web.RenderHx(eCtx, http.StatusOK, hx.ModalError(searchErrorMessage))
 		}
 
 		searchQueryString := c.buildQueryString(searchFilter)

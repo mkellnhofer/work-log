@@ -25,11 +25,6 @@ templ EntryModalDelete(entryId int) {
 	@component.DeleteEntryModal(entryId)
 }
 
-// This template is used to render the error message in the modal dialog.
-templ EntryModalError(errorMessage string) {
-	@component.ErrorMessage(errorMessage)
-}
-
 // This template is used to render the entry activity options for the entry modal dialog.
 templ EntryModalActivityOptions(entryActivities []*model.EntryActivity) {
 	@component.EntryActivitySelectOptions(entryActivities, 0)

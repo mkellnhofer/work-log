@@ -26,19 +26,12 @@ templ searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*
 	@Modal("searchTitle", "actionSearch", "actionCancel",
 		templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},
 		templ.Attributes{"hx-post": buildSearchCancelUrl()}) {
-		@searchModalErrorMessageContainer("")
 		@searchFormControls(isAdvanced,
 			searchFormTypeControl(input.ByType, entryTypes, input.TypeId),
 			searchFormDateControl(input.ByDate, input.StartDateValue, input.EndDateValue),
 			searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId),
 			searchFormTextControl(isSearchQueryInputEmpty(input), input.Text))
 	}
-}
-
-templ searchModalErrorMessageContainer(errorMessage string) {
-	<div id="wl-search-modal-error">
-		@ErrorMessage(errorMessage)
-	</div>
 }
 
 templ searchFormControls(isAdvanced bool, typeControl templ.Component, dateControl templ.Component,

@@ -41,19 +41,12 @@ templ entryModal(titleTextRef string, submitTextRef string, cancelTextRef string
 	cancelPath string) {
 	@Modal(titleTextRef, submitTextRef, cancelTextRef, entryModalHxPostAttrs(submitPath),
 		entryModalHxPostAttrs(cancelPath)) {
-		@entryModalErrorMessageContainer("")
 		{ children... }
 	}
 }
 
 func entryModalHxPostAttrs(actionPath string) templ.Attributes {
 	return templ.Attributes{"hx-post": hx("/entry-modal/" + actionPath)}
-}
-
-templ entryModalErrorMessageContainer(errorMessage string) {
-	<div id="wl-entry-modal-error">
-		@ErrorMessage(errorMessage)
-	</div>
 }
 
 templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*model.EntryActivity,

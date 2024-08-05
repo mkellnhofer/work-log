@@ -33,6 +33,7 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 				<h2 class="modal-title">{ getText(titleTextRef) }</h2>
 			</div>
 			<div class="modal-body">
+				@modalErrorContainer()
 				{ children... }
 			</div>
 			<div class="modal-footer">
@@ -45,4 +46,9 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 			</div>
 		</form>
 	</div>
+}
+
+// This template is used to render the container which holds the modal's error message.
+templ modalErrorContainer() {
+	<div id="wl-modal-error-container"></div>
 }

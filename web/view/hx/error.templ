@@ -13,3 +13,8 @@ templ ErrorPage(err *model.Error) {
 		@component.ErrorView(err.ErrorMessage)
 	</div>
 }
+
+// This template is used to render the error message in the modal dialog.
+templ ModalError(errorMessage string) {
+	@component.ErrorMessage(errorMessage)
+}

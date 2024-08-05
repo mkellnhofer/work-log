@@ -33,16 +33,22 @@ func HtmxRedirectUrl(ctx echo.Context, url string) {
 	ctx.Response().Header().Add("HX-Push-Url", url)
 }
 
-// HtmxRetarget sets the response headers "HX-Retarget" which instructs HTMX to load the response
+// HtmxRetarget sets the response header "HX-Retarget" which instructs HTMX to load the response
 // content into the element with the supplied CSS target selector.
 func HtmxRetarget(ctx echo.Context, target string) {
 	ctx.Response().Header().Set("HX-Retarget", target)
 }
 
-// HtmxTrigger sets the response headers "HX-Trigger" which instructs HTMX to trigger a client-side
+// HtmxTrigger sets the response header "HX-Trigger" which instructs HTMX to trigger a client-side
 // event.
 func HtmxTrigger(ctx echo.Context, trigger string) {
 	ctx.Response().Header().Add("HX-Trigger", trigger)
+}
+
+// HtmxTriggerAfterSwap sets the response header "HX-Trigger-After-Swap" which instructs HTMX to
+// trigger a client-side event after the swap.
+func HtmxTriggerAfterSwap(ctx echo.Context, trigger string) {
+	ctx.Response().Header().Add("HX-Trigger-After-Swap", trigger)
 }
 
 // Render renders a page template.

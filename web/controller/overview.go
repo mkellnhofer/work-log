@@ -8,6 +8,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 
+	"kellnhofer.com/work-log/pkg/constant"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/export"
@@ -103,7 +104,7 @@ func (c *OverviewController) GetOverviewExportHandler() echo.HandlerFunc {
 			return err
 		}
 
-		fileName := fmt.Sprintf("work-log-export-%s.xlsx", overviewEntries.CurrMonth)
+		fileName := fmt.Sprintf(constant.ExportFileNameTemplate, overviewEntries.CurrMonth, "xlsx")
 		file := c.exporter.ExportOverviewEntries(overviewEntries)
 
 		return web.WriteFile(eCtx, fileName, file)

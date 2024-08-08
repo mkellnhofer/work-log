@@ -13,6 +13,9 @@ const (
 	ApiDateFormat      string = "2006-01-02"
 	ApiTimestampFormat string = "2006-01-02T15:04:05"
 
+	ExportTimestampFormat  string = "20060102-150405"
+	ExportFileNameTemplate string = "work-log-export-%s.%s"
+
 	SessionCookieName string        = "session"
 	SessionValidity   time.Duration = 1 * time.Hour
 

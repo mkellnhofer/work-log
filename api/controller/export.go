@@ -7,11 +7,8 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"kellnhofer.com/work-log/api/export"
+	"kellnhofer.com/work-log/pkg/constant"
 	"kellnhofer.com/work-log/pkg/service"
-)
-
-const (
-	ExportTimestampFormat string = "20060102T150405Z"
 )
 
 // ExportController handles requests for export endpoints.
@@ -149,7 +146,8 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 		}
 
 		// Create file name
-		fileName := fmt.Sprintf("work-log-export-%s.csv", time.Now().Format(ExportTimestampFormat))
+		timestamp := time.Now().Format(constant.ExportTimestampFormat)
+		fileName := fmt.Sprintf(constant.ExportFileNameTemplate, timestamp, "csv")
 		// Create CSV export
 		file := c.exporter.ExportEntries(entries, entryTypes, entryActivities)
 

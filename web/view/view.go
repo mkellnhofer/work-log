@@ -10,6 +10,15 @@ import (
 	"kellnhofer.com/work-log/web/model"
 )
 
+const (
+	DateStringFormat  string = "2006-01-02"
+	TimeStringFormat  string = "15:04"
+	DateFormat        string = "02.01.2006"
+	ShortDateFormat   string = "02.01."
+	ShorterDateFormat string = "_2."
+	TimeFormat        string = "15:04"
+)
+
 // GetText returns a localized text.
 func GetText(key string) string {
 	printer := message.NewPrinter(loc.LngTag)

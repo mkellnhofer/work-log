@@ -12,6 +12,7 @@ import (
 	"kellnhofer.com/work-log/pkg/loc"
 	"kellnhofer.com/work-log/pkg/model"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
 )
 
 type dailyWorkingDuration struct {
@@ -356,27 +357,27 @@ func getShortWeekdayName(t time.Time) string {
 }
 
 func getDateString(t time.Time) string {
-	return t.Format("2006-01-02")
+	return t.Format(view.DateStringFormat)
 }
 
 func getTimeString(t time.Time) string {
-	return t.Format("15:04")
+	return t.Format(view.TimeStringFormat)
 }
 
 func formatDate(t time.Time) string {
-	return t.Format("02.01.2006")
+	return t.Format(view.DateFormat)
 }
 
 func formatShortDate(t time.Time) string {
-	return t.Format("02.01.")
+	return t.Format(view.ShortDateFormat)
 }
 
 func formatShorterDate(t time.Time) string {
-	return t.Format("_2.")
+	return t.Format(view.ShorterDateFormat)
 }
 
 func formatTime(t time.Time) string {
-	return t.Format("15:04")
+	return t.Format(view.TimeFormat)
 }
 
 func getDaysString(days float32) string {

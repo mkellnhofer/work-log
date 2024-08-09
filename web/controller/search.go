@@ -316,6 +316,8 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 	return filter, nil
 }
 
+// --- Helper functions ---
+
 func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.EntriesFilter,
 	pageNum int) string {
 	url := "/search?"
@@ -331,8 +333,6 @@ func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.E
 	}
 	return url
 }
-
-// --- Helper functions ---
 
 func (c *SearchController) getGetSearchParams(eCtx echo.Context) (bool, string, int, bool, error) {
 	isAdvanced := getAdvancedQueryParam(eCtx)

@@ -3,6 +3,7 @@ package export
 import (
 	"io"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/xuri/excelize/v2"
@@ -125,6 +126,122 @@ func (e *exporter) createWriterTo(exp *export) io.WriterTo {
 	return &writerToAdapter{
 		f: exp.file,
 	}
+}
+
+// --- Entries exporter ---
+
+// EntriesExporter exports the data to an Excel file.
+type EntriesExporter struct {
+	exporter
+}
+
+// NewEntriesExporter creates a new entries exporter.
+func NewEntriesExporter() *EntriesExporter {
+	return &EntriesExporter{}
+}
+
+// ExportEntries creates the Excel file for the supplied data and returns it as an io.WriterTo that
+// can be used to write the file to a writer.
+func (e *EntriesExporter) ExportEntries(filterDetails *vm.EntriesFilterDetails,
+	entries *vm.ListEntries) io.WriterTo {
+	exp := e.createNewExport()
+
+	// Configure document properties
+	e.configureDocProps(exp)
+
+	// Configure work sheet
+	e.configureWorkSheet(exp)
+
+	// Write title
+	e.writeTitle(exp, filterDetails)
+	// Write entries
+	e.writeEntries(exp, entries)
+
+	return e.createWriterTo(exp)
+}
+
+func (e *EntriesExporter) configureWorkSheet(exp *export) {
+	f := exp.file
+	sheet := exp.sheet
+	styles := exp.styles
+
+	f.SetColWidth(sheet, "A", "A", 12)
+	f.SetColWidth(sheet, "B", "B", 10.5)
+	f.SetColWidth(sheet, "C", "E", 7.5)
+	f.SetColWidth(sheet, "F", "F", 16.5)
+	f.SetColWidth(sheet, "G", "G", 42)
+	f.SetColStyle(sheet, "A:G", styles.base)
+}
+
+func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntriesFilterDetails) {
+	f := exp.file
+	sheet := exp.sheet
+	styles := exp.styles
+
+	f.MergeCell(sheet, "A1", "G1")
+	f.MergeCell(sheet, "A2", "G2")
+	f.MergeCell(sheet, "A3", "G3")
+	f.SetCellValue(sheet, "A1", createString("entryExportTitle", createString("appName")))
+	f.SetCellValue(sheet, "A2", e.buildExportDetailsString(filterDetails))
+	f.SetCellStyle(sheet, "A1", "A1", styles.title)
+	f.SetCellStyle(sheet, "A2", "A2", styles.textBold)
+}
+
+func (e *EntriesExporter) buildExportDetailsString(filterDetails *vm.EntriesFilterDetails) string {
+	var details []string
+	if filterDetails.Type != "" {
+		details = append(details, filterDetails.Type)
+	}
+	if filterDetails.Date != "" {
+		details = append(details, filterDetails.Date)
+	}
+	if filterDetails.Activity != "" {
+		details = append(details, filterDetails.Activity)
+	}
+	if filterDetails.Text != "" {
+		details = append(details, filterDetails.Text)
+	}
+	return strings.Join(details, ", ")
+}
+
+func (e *EntriesExporter) writeEntries(exp *export, entries *vm.ListEntries) {
+	f := exp.file
+	sheet := exp.sheet
+	styles := exp.styles
+
+	// Create heading
+	f.MergeCell(sheet, "A4", "G4")
+	f.SetCellValue(sheet, "A4", createString("entryExportHeadingEntries"))
+	f.SetCellStyle(sheet, "A4", "A4", styles.textBold)
+
+	// Create table header
+	f.SetCellValue(sheet, "A5", createString("tableColDate"))
+	f.SetCellValue(sheet, "B5", createString("tableColType"))
+	f.SetCellValue(sheet, "C5", createString("tableColStart"))
+	f.SetCellValue(sheet, "D5", createString("tableColEnd"))
+	f.SetCellValue(sheet, "E5", createString("tableColNet"))
+	f.SetCellValue(sheet, "F5", createString("tableColActivity"))
+	f.SetCellValue(sheet, "G5", createString("tableColDescription"))
+	f.SetCellStyle(sheet, "A5", "E5", styles.tableHeader)
+	f.SetCellStyle(sheet, "F5", "G5", styles.tableHeader)
+
+	// Create table body
+	startRow := 6
+	curRow := startRow
+	for _, day := range entries.Days {
+		for _, entry := range day.Entries {
+			f.SetCellValue(sheet, getCellName("A", curRow), day.Date)
+			f.SetCellValue(sheet, getCellName("B", curRow), entry.EntryType)
+			f.SetCellValue(sheet, getCellName("C", curRow), entry.StartTime)
+			f.SetCellValue(sheet, getCellName("D", curRow), entry.EndTime)
+			f.SetCellValue(sheet, getCellName("E", curRow), entry.Duration)
+			f.SetCellValue(sheet, getCellName("F", curRow), entry.EntryActivity)
+			f.SetCellValue(sheet, getCellName("G", curRow), entry.Description)
+			curRow++
+		}
+	}
+	f.SetCellStyle(sheet, getCellName("A", startRow), getCellName("E", curRow-1), styles.tableBody)
+	f.SetCellStyle(sheet, getCellName("F", startRow), getCellName("G", curRow-1), styles.tableBody)
 }
 
 // --- Overview exporter ---

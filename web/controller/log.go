@@ -2,19 +2,29 @@ package controller
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/labstack/echo/v4"
 
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/loc"
+	"kellnhofer.com/work-log/pkg/log"
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
 	"kellnhofer.com/work-log/web/mapper"
 	vm "kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
 	"kellnhofer.com/work-log/web/view/hx"
 	"kellnhofer.com/work-log/web/view/page"
 )
+
+type exportInput struct {
+	startDate string
+	endDate   string
+}
 
 // LogController handles requests for log endpoints.
 type LogController struct {
@@ -81,6 +91,42 @@ func (c *LogController) GetHxContentHandler() echo.HandlerFunc {
 
 		web.HtmxPushUrl(eCtx, c.buildLogUrl(pageNum))
 		return web.RenderHx(eCtx, http.StatusOK, hx.LogContent(logSummary, logEntries))
+	})
+}
+
+// GetHxExportModalHandler returns a handler for "GET /hx/log-export-modal".
+func (c *LogController) GetHxExportModalHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		now := time.Now()
+		startDate := now.Format(view.DateStringFormat)
+		endDate := now.Format(view.DateStringFormat)
+		return web.RenderHx(eCtx, http.StatusOK, hx.LogExportModal(startDate, endDate))
+	})
+}
+
+// PostHxExportModalHandler returns a handler for "POST /hx/log-export-modal".
+func (c *LogController) PostHxExportModalHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		exportInput := c.getPostExportInput(eCtx)
+		exportFilter, err := c.createExportFilter(getCurrentUserId(ctx), exportInput)
+		if err != nil {
+			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
+			web.HtmxRetarget(eCtx, "#wl-modal-error-container")
+			return web.RenderHx(eCtx, http.StatusOK, hx.ModalError(searchErrorMessage))
+		}
+
+		exportQuery := c.buildQueryString(exportFilter)
+		exportUrl := c.buildExportUrl(exportQuery)
+
+		web.HtmxTriggerAfterSwap(eCtx, fmt.Sprintf("{ \"downloadFile\": \"%s\" }", exportUrl))
+		return eCtx.NoContent(http.StatusOK)
+	})
+}
+
+// PostHxExportModalCancelHandler returns a handler for "POST /hx/log-export-modal/cancel".
+func (c *LogController) PostHxExportModalCancelHandler() echo.HandlerFunc {
+	return c.hxHandler(func(eCtx echo.Context, ctx context.Context) error {
+		return eCtx.NoContent(http.StatusOK)
 	})
 }
 
@@ -163,6 +209,43 @@ func (c *LogController) getEntryData(ctx context.Context, userId, pageNum int) (
 	return cnt, entries, entryTypesMap, entryActivitiesMap, nil
 }
 
+// --- Export query functions ---
+
+func (c *LogController) getPostExportInput(eCtx echo.Context) *exportInput {
+	return &exportInput{
+		startDate: eCtx.FormValue("start-date"),
+		endDate:   eCtx.FormValue("end-date"),
+	}
+}
+
+func (c *LogController) createExportFilter(userId int, input *exportInput) (*model.EntriesFilter,
+	error) {
+	filter := model.NewEntriesFilter()
+	filter.ByUser = true
+	filter.UserId = userId
+
+	var err error
+
+	// Create start/end time filter
+	filter.ByTime = true
+	filter.StartTime, err = parseDateTime(input.startDate, "00:00", e.ValStartDateInvalid)
+	if err != nil {
+		return nil, err
+	}
+	filter.EndTime, err = parseDateTime(input.endDate, "23:59", e.ValEndDateInvalid)
+	if err != nil {
+		return nil, err
+	}
+	if filter.EndTime.Before(filter.StartTime) {
+		err := e.NewError(e.LogicEntryDateIntervalInvalid, fmt.Sprintf("End date %s before "+
+			"start time %s.", input.endDate, input.startDate))
+		log.Debug(err.StackTrace())
+		return nil, err
+	}
+
+	return filter, nil
+}
+
 // --- Helper functions ---
 
 func (c *LogController) buildLogUrl(pageNum int) string {
@@ -182,4 +265,12 @@ func (c *LogController) getGetLogParams(ctx echo.Context) (int, error) {
 		pageNum = 1
 	}
 	return pageNum, nil
+}
+
+func (c *LogController) buildExportUrl(query string) string {
+	url := "/export?"
+	if query != "" {
+		url = url + "query=" + query
+	}
+	return url
 }

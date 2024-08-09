@@ -25,6 +25,7 @@ type Initializer struct {
 	errVCtrl      *vc.ErrorController
 	authVCtrl     *vc.AuthController
 	entryVCtrl    *vc.EntryController
+	exportVCtrl   *vc.ExportController
 	logVCtrl      *vc.LogController
 	overviewVCtrl *vc.OverviewController
 	searchVCtrl   *vc.SearchController
@@ -118,6 +119,14 @@ func (i *Initializer) GetEntryViewController() *vc.EntryController {
 		i.entryVCtrl = vc.NewEntryController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.entryVCtrl
+}
+
+// GetExportViewController returns a initialized export view controller object.
+func (i *Initializer) GetExportViewController() *vc.ExportController {
+	if i.exportVCtrl == nil {
+		i.exportVCtrl = vc.NewExportController(i.GetUserService(), i.GetEntryService())
+	}
+	return i.exportVCtrl
 }
 
 // GetLogViewController returns a initialized log view controller object.

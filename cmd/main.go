@@ -76,6 +76,7 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	errCtrl := init.GetErrorViewController()
 	authCtrl := init.GetAuthViewController()
 	entryCtrl := init.GetEntryViewController()
+	exportCtrl := init.GetExportViewController()
 	logCtrl := init.GetLogViewController()
 	overviewCtrl := init.GetOverviewViewController()
 	searchCtrl := init.GetSearchViewController()
@@ -93,6 +94,9 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/log", logCtrl.GetLogHandler(), proRoute...)
 	e.GET("/hx/log", logCtrl.GetHxNavHandler(), proRoute...)
 	e.GET("/hx/log/content", logCtrl.GetHxContentHandler(), proRoute...)
+	e.GET("/hx/log-export-modal", logCtrl.GetHxExportModalHandler(), proRoute...)
+	e.POST("/hx/log-export-modal", logCtrl.PostHxExportModalHandler(), proRoute...)
+	e.POST("/hx/log-export-modal/cancel", logCtrl.PostHxExportModalCancelHandler(), proRoute...)
 
 	// Search related handlers
 	e.GET("/search", searchCtrl.GetSearchHandler(), proRoute...)
@@ -118,6 +122,9 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/hx/entry-modal/delete/:id", entryCtrl.GetHxDeleteHandler(), proRoute...)
 	e.POST("/hx/entry-modal/delete/:id", entryCtrl.PostHxDeleteHandler(), proRoute...)
 	e.POST("/hx/entry-modal/cancel", entryCtrl.PostHxCancelHandler(), proRoute...)
+
+	// Entry export related handlers
+	e.GET("/export", exportCtrl.GetExportHandler(), proRoute...)
 
 	// Register resource handlers
 	e.Static("/css/", "static/resources/css")

@@ -28,6 +28,7 @@
     <message key="actionCopy"><text>Copy</text></message>
     <message key="actionDelete"><text>Delete</text></message>
     <message key="actionSearch"><text>Search</text></message>
+    <message key="actionExport"><text>Export</text></message>
     <message key="actionLogout"><text>Logout</text></message>
 
     <!-- List view -->
@@ -61,6 +62,8 @@
     <message key="overviewHeadingEntries"><text>Entries</text></message>
 
     <!-- Export -->
+    <message key="entryExportTitle"><text>%s Export</text></message>
+    <message key="entryExportHeadingEntries"><text>Entries:</text></message>
     <message key="overviewExportTitle"><text>%s Export</text></message>
     <message key="overviewExportHeadingSummary"><text>Summary:</text></message>
     <message key="overviewExportHeadingEntries"><text>Entries:</text></message>
@@ -70,17 +73,19 @@
     <message key="exportSheetName"><text>Sheet1</text></message>
     <message key="exportPropDescription"><text>This file created by %s.</text></message>
 
-    <!-- Create/edit/copy view -->
+    <!-- Create/edit/copy/export view -->
     <message key="createTitle"><text>Create Entry</text></message>
     <message key="editTitle"><text>Edit Entry</text></message>
     <message key="copyTitle"><text>Copy Entry</text></message>
     <message key="deleteTitle"><text>Delete Entry</text></message>
+    <message key="exportTitle"><text>Export Entries</text></message>
     <message key="deleteMessage"><text>Do you really want to delete the entry?</text></message>
+    <message key="exportMessage"><text>Please select the interval for which you would like to export entries.</text></message>
 
     <!-- Error view -->
     <message key="errorTitle"><text>Error!</text></message>
 
-    <!-- Entry form -->
+    <!-- Form labels -->
     <message key="formLabelType"><text>Type:</text></message>
     <message key="formLabelDate"><text>Date:</text></message>
     <message key="formLabelStart"><text>Start:</text></message>

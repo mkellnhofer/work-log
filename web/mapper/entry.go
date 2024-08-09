@@ -24,3 +24,15 @@ func (m *EntryMapper) CreateEntryDataViewModel(entry *model.Entry, types []*mode
 		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
 	}
 }
+
+// CreateListEntriesViewModel creates a view model for the entries list.
+func (m *EntryMapper) CreateListEntriesViewModel(entries []*model.Entry,
+	entryTypesMap map[int]*model.EntryType,
+	entryActivitiesMap map[int]*model.EntryActivity) *vm.ListEntries {
+	lesvm := &vm.ListEntries{}
+
+	// Create entries
+	lesvm.Days = m.createEntriesViewModel(nil, entries, entryTypesMap, entryActivitiesMap, false)
+
+	return lesvm
+}

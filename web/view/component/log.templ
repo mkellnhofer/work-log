@@ -41,6 +41,17 @@ templ LogActions() {
 			"hx-swap": "innerHTML",
 		},
 	)
+	@PageActionsDropdown([]templ.Component{
+		PageActionDropdownMenuItem("file-export",
+			"actionExport",
+			templ.Attributes{
+				"hx-get": hx("/log-export-modal"),
+				"hx-trigger": "click",
+				"hx-target": "#wl-modal-container",
+				"hx-swap": "innerHTML",
+			},
+		),
+	})
 }
 
 // This template is used to render the content loader for the log page.

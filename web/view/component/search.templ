@@ -18,6 +18,14 @@ func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	return hx("/search-modal?" + params)
 }
 
+func buildSearchExportUrl(queryString string) string {
+	params := ""
+	if queryString != "" {
+		params = params + "query=" + queryString
+	}
+	return "/export?" + params
+}
+
 func buildSearchContentUrl(isAdvanced bool, queryString string, pageNum int) string {
 	template := buildSearchContentUrlTemplate(isAdvanced, queryString)
 	return fmt.Sprintf(template, pageNum)
@@ -72,6 +80,14 @@ templ SearchActions(isAdvanced bool, queryString string) {
 			"hx-swap": "innerHTML",
 		},
 	)
+	@PageActionsDropdown([]templ.Component{
+		PageActionDropdownMenuItem("file-export",
+			"actionExport",
+			templ.Attributes{
+				"href": buildSearchExportUrl(queryString),
+			},
+		),
+	})
 }
 
 // This template is used to render the content loader for the search page.

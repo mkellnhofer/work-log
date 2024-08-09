@@ -1,0 +1,50 @@
+package component
+
+templ LogExportModal(startDateValue string, endDateValue string) {
+	@Modal("exportTitle",
+		"actionExport",
+		"actionCancel",
+		templ.Attributes{"hx-post": hx("/log-export-modal")},
+		templ.Attributes{"hx-post": hx("/log-export-modal/cancel")},
+	) {
+		@logExportModalFormMessage()
+		@logExportModalFormFields(startDateValue, endDateValue)
+	}
+}
+
+templ logExportModalFormMessage() {
+	<div class="row mb-3">
+		<div class="col-12">
+			<p>{ getText("exportMessage") }</p>
+		</div>
+	</div>
+}
+
+templ logExportModalFormFields(startDateValue string, endDateValue string) {
+	<div class="row mb-4">
+		<div class="col-6">
+			<label class="form-label" for="wl-export-form-start-time">
+				{ getText("formLabelStart") }
+			</label>
+			<input
+				id="wl-export-form-start-time"
+				class="form-control"
+				name="start-date"
+				type="date"
+				value={ startDateValue }
+			/>
+		</div>
+		<div class="col-6">
+			<label class="form-label" for="wl-export-form-end-time">
+				{ getText("formLabelEnd") }
+			</label>
+			<input
+				id="wl-export-form-end-time"
+				class="form-control"
+				name="end-date"
+				type="date"
+				value={ endDateValue }
+			/>
+		</div>
+	</div>
+}

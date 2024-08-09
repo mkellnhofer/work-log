@@ -28,6 +28,14 @@ func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	return hx("/search-modal?" + params)
 }
 
+func buildSearchExportUrl(queryString string) string {
+	params := ""
+	if queryString != "" {
+		params = params + "query=" + queryString
+	}
+	return "/export?" + params
+}
+
 func buildSearchContentUrl(isAdvanced bool, queryString string, pageNum int) string {
 	template := buildSearchContentUrlTemplate(isAdvanced, queryString)
 	return fmt.Sprintf(template, pageNum)
@@ -70,7 +78,7 @@ func SearchNav(searchDetails *model.SearchDetails) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchDetailsString(searchDetails))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 44, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 52, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -126,6 +134,17 @@ func SearchActions(isAdvanced bool, queryString string) templ.Component {
 				"hx-swap":    "innerHTML",
 			},
 		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = PageActionsDropdown([]templ.Component{
+			PageActionDropdownMenuItem("file-export",
+				"actionExport",
+				templ.Attributes{
+					"href": buildSearchExportUrl(queryString),
+				},
+			),
+		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -216,7 +235,7 @@ func searchResult(isAdvanced bool, queryString string, entries *model.ListEntrie
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 94, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 110, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 		if templ_7745c5c3_Err != nil {

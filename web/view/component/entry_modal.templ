@@ -29,9 +29,9 @@ templ EditEntryModal(entryData *model.EntryData) {
 // This template is used to render a modal to delete a entry.
 templ DeleteEntryModal(entryId int) {
 	@entryModal("deleteTitle", "actionDelete", "actionCancel", "delete/"+toString(entryId), "cancel") {
-		<div class="form-row">
-			<div class="form-group col-12">
-				<label>{ getText("deleteMessage") }</label>
+		<div class="row">
+			<div class="col-12">
+				<p>{ getText("deleteMessage") }</p>
 			</div>
 		</div>
 	}

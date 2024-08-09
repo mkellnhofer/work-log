@@ -24,3 +24,8 @@ templ Log() {
 templ LogContent(summary *model.LogSummary, listEntries *model.ListEntries) {
 	@component.LogContent(summary, listEntries)
 }
+
+// This template is used to render the modal dialog to export entries.
+templ LogExportModal(startDateValue string, endDateValue string) {
+	@component.LogExportModal(startDateValue, endDateValue)
+}

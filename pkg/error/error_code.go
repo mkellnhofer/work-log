@@ -40,14 +40,15 @@ const (
 	ValRoleInvalid          = -316
 	ValUsernameInvalid      = -317
 	ValPasswordInvalid      = -318
+	ValLabelInvalid         = -319
 	// View validation errors
-	ValStartDateInvalid     = -319
-	ValEndDateInvalid       = -320
-	ValStartTimeInvalid     = -321
-	ValEndTimeInvalid       = -322
-	ValDescriptionTooLong   = -323
-	ValQueryInvalid         = -324
-	ValMonthInvalid         = -325
+	ValStartDateInvalid     = -320
+	ValEndDateInvalid       = -321
+	ValStartTimeInvalid     = -322
+	ValEndTimeInvalid       = -323
+	ValDescriptionTooLong   = -324
+	ValQueryInvalid         = -325
+	ValMonthInvalid         = -326
 	ValPasswordEmpty        = -330
 	ValPasswordTooShort     = -331
 	ValPasswordTooLong      = -332

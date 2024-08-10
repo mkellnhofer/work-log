@@ -3,6 +3,7 @@ package export
 import (
 	"encoding/csv"
 	"io"
+	"strings"
 	"time"
 
 	"kellnhofer.com/work-log/pkg/model"
@@ -61,6 +62,7 @@ func (e *EntriesExporter) ExportEntries(entries []*model.Entry, entryTypes []*mo
 		"Type",
 		"Activity",
 		"Description",
+		"Labels",
 	}
 	data = append(data, header)
 
@@ -72,6 +74,7 @@ func (e *EntriesExporter) ExportEntries(entries []*model.Entry, entryTypes []*mo
 			e.getEntryTypeDescription(entryTypesMap, entry.TypeId),
 			e.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
 			entry.Description,
+			strings.Join(entry.Labels, " "),
 		}
 		data = append(data, record)
 	}

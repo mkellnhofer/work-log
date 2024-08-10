@@ -1,7 +1,13 @@
 package validator
 
 import (
+	"fmt"
+	"regexp"
+	"strings"
+
 	vm "kellnhofer.com/work-log/api/model"
+	e "kellnhofer.com/work-log/pkg/error"
+	"kellnhofer.com/work-log/pkg/log"
 	m "kellnhofer.com/work-log/pkg/model"
 )
 
@@ -49,6 +55,9 @@ func ValidateCreateEntry(data *vm.CreateEntry) error {
 	if err := checkEntryActivityId(data.ActivityId); err != nil {
 		return err
 	}
+	if err := checkEntryLabels(data.Labels); err != nil {
+		return err
+	}
 	return checkEntryDescription(data.Description)
 }
 
@@ -67,6 +76,9 @@ func ValidateUpdateEntry(data *vm.UpdateEntry) error {
 		return err
 	}
 	if err := checkEntryActivityId(data.ActivityId); err != nil {
+		return err
+	}
+	if err := checkEntryLabels(data.Labels); err != nil {
 		return err
 	}
 	return checkEntryDescription(data.Description)
@@ -92,6 +104,43 @@ func checkEntryTypeId(id int) error {
 
 func checkEntryActivityId(id int) error {
 	return checkIdZeroPositive("activityId", id)
+}
+
+func checkEntryLabels(labels []string) error {
+	for _, label := range labels {
+		if err := checkEntryLabel(label); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkEntryLabel(label string) error {
+	trimmed := strings.TrimSpace(label)
+	if len(trimmed) == 0 {
+		err := e.NewError(e.ValLabelInvalid, "'label' must not be empty.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+	if len(trimmed) < m.MinLengthLabelName {
+		err := e.NewError(e.ValLabelInvalid, fmt.Sprintf("'label' must be at least %d long.",
+			m.MinLengthLabelName))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	if len(trimmed) > m.MaxLengthLabelName {
+		err := e.NewError(e.ValLabelInvalid, fmt.Sprintf("'label' must not be longer than %d.",
+			m.MaxLengthLabelName))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	r := regexp.MustCompile("^[" + m.ValidLabelCharacters + "]+$")
+	if !r.MatchString(trimmed) {
+		err := e.NewError(e.ValLabelInvalid, "'label' contains contains illegal character.")
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
 }
 
 func checkEntryDescription(desc string) error {

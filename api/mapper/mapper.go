@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"strings"
 	"time"
 
 	"kellnhofer.com/work-log/pkg/constant"
@@ -34,4 +35,12 @@ func parseTimestamp(ts string) time.Time {
 
 func formatTimestamp(t time.Time) string {
 	return t.Format(constant.ApiTimestampFormat)
+}
+
+func trimStrings(s []string) []string {
+	outs := make([]string, len(s))
+	for i, v := range s {
+		outs[i] = strings.TrimSpace(v)
+	}
+	return outs
 }

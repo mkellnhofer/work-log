@@ -170,14 +170,18 @@ func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	// | typeId      | eq (equal)            | int                        |
 	// | startTime   | bt (between)          | datetime strings           |
 	// | activityId  | i (is), eq (equal)    | null, int                  |
+	// | labels      | i (is), in (in)       | null, strings              |
 	// | description | i (is), cn (contains) | null, string               |
 	// &#9432; Filters are connected via logical conjunction (AND).
 	//
 	// __Filter Syntax:__
 	// [field name];[operator];[value-1];...;[value-n]
 	//
-	// __Example:__
+	// __Examples:__
+	//
 	// Get entries for a specific time interval: startTime;bt;2019-01-01T00:00:00;2019-01-05T00:00:00
+	//
+	// Get entries with specific labels (OR logic): labels;in;bug;frontend
 	//
 	// # Sorting
 	//
@@ -191,7 +195,7 @@ func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	// [field name];[operator]
 	//
 	// __Example:__
-	// Sort entries descending by their date: date;desc
+	// Sort entries descending by their start time: startTime;desc
 	//
 	// ---
 	//
@@ -298,6 +302,18 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	//
 	// Create a entry.
 	//
+	// # Input Rules
+	//
+	// __Labels:__
+	//
+	// ⦁ Minimum length: 3
+	// ⦁ Maximum length: 20
+	// ⦁ Allowed characters: `0-9 a-z A-Z - _ . ! # @`
+	//
+	// __Description:__
+	//
+	// ⦁ Maximum length: 200
+	//
 	// ---
 	//
 	// security:
@@ -315,6 +331,7 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
+	//       ⦁ [-319]: Invalid label\n
 	//       ⦁ [-405]: Invalid time interval\n
 	//       ⦁ [-412]: Entry activity not allowed"
 	//     schema:
@@ -441,6 +458,18 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	//
 	// Update a entry by its ID.
 	//
+	// # Input Rules
+	//
+	// __Labels:__
+	//
+	// ⦁ Minimum length: 3
+	// ⦁ Maximum length: 20
+	// ⦁ Allowed characters: `0-9 a-z A-Z - _ . ! # @`
+	//
+	// __Description:__
+	//
+	// ⦁ Maximum length: 200
+	//
 	// ---
 	//
 	// security:
@@ -458,6 +487,7 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	//       ⦁ [-309]: Negative number\n
 	//       ⦁ [-312]: Too long string\n
 	//       ⦁ [-314]: Invalid timestamp\n
+	//       ⦁ [-319]: Invalid label\n
 	//       ⦁ [-405]: Invalid time interval\n
 	//       ⦁ [-412]: Entry activity not allowed"
 	//     schema:

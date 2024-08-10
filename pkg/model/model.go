@@ -14,6 +14,7 @@ const (
 const (
 	MinLengthUserUsername = 4
 	MinLengthUserPassword = 8
+	MinLengthLabelName    = 3
 )
 
 // Maximum string length constants.
@@ -25,9 +26,12 @@ const (
 	MaxLengthEntryTypeDescription     = 50
 	MaxLengthEntryActivityDescription = 50
 	MaxLengthEntryDescription         = 200
+	MaxLengthLabelName                = 20
 )
 
 // Other constants.
 const (
+	ValidUsernameCharacters     = `0-9a-zA-Z\-.`
 	ValidUserPasswordCharacters = `0-9a-zA-Z!"#$%&'()*+,\-./:;=?@\[\\\]^_{|}~`
+	ValidLabelCharacters        = `0-9a-zA-Z!#\-.@_`
 )

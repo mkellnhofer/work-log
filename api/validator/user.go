@@ -106,8 +106,8 @@ func ValidateUpdateUserRoles(data *vm.UpdateUserRoles) error {
 func checkRole(role string) error {
 	r := regexp.MustCompile(`^[a-z_]+$`)
 	if !r.MatchString(role) {
-		err := e.NewError(e.ValRoleInvalid, fmt.Sprintf("'role' must only contain letters and "+
-			"following special characters '%s'.", "_"))
+		err := e.NewError(e.ValRoleInvalid, "'role' must only contain letters and following "+
+			"special characters '_'.")
 		log.Debug(err.StackTrace())
 		return err
 	}
@@ -142,7 +142,7 @@ func checkUserUsername(username string) error {
 		log.Debug(err.StackTrace())
 		return err
 	}
-	r := regexp.MustCompile(`^[0-9a-zA-Z\-.]+$`)
+	r := regexp.MustCompile("^[" + m.ValidUsernameCharacters + "]+$")
 	if !r.MatchString(username) {
 		err := e.NewError(e.ValUsernameInvalid, "'username' contains contains illegal character.")
 		log.Debug(err.StackTrace())

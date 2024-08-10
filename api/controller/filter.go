@@ -22,6 +22,7 @@ const (
 	filterOpEqual    = "eq"
 	filterOpContains = "cn"
 	filterOpBetween  = "bt"
+	filterOpIn       = "in"
 )
 
 // --- Entry filter functions ---
@@ -31,6 +32,7 @@ const (
 	filterNameTypeId      = "typeId"
 	filterNameStartTime   = "startTime"
 	filterNameActivityId  = "activityId"
+	filterNameLabels      = "labels"
 	filterNameDescription = "description"
 )
 
@@ -43,7 +45,7 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 
 	// Check for unknown/unsupported filters
 	filterNames := []string{filterNameUserId, filterNameTypeId, filterNameStartTime,
-		filterNameActivityId, filterNameDescription}
+		filterNameActivityId, filterNameLabels, filterNameDescription}
 	if err = checkFiltersSupported(filters, filterNames); err != nil {
 		return nil, err
 	}
@@ -78,6 +80,14 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 	if filter, ok := filters[filterNameActivityId]; ok {
 		entryFilter.ByActivity = true
 		entryFilter.ActivityId, err = getIdFilterValue(filter, true)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// Get labels filter
+	if filter, ok := filters[filterNameLabels]; ok {
+		entryFilter.ByLabel = true
+		entryFilter.Labels, err = getStringArrayFilterValue(filter, true)
 		if err != nil {
 			return nil, err
 		}
@@ -209,6 +219,32 @@ func getStringFilterValue(f *filter, nullable bool) (string, error) {
 	}
 
 	return "", createInvalidFilterOperatorError(f.name, f.operator)
+}
+
+func getStringArrayFilterValue(f *filter, nullable bool) ([]string, error) {
+	// Get "is null" value
+	if nullable && f.operator == filterOpIs {
+		if len(f.values) == 1 && f.values[0] == "null" {
+			return []string{}, nil
+		}
+		return nil, createInvalidFilterValueError(f.name)
+	}
+
+	// Get "in" values
+	if f.operator == filterOpIn {
+		if len(f.values) >= 1 {
+			// Check all values are non-empty
+			for _, v := range f.values {
+				if v == "" {
+					return nil, createInvalidFilterValueError(f.name)
+				}
+			}
+			return f.values, nil
+		}
+		return nil, createInvalidFilterValueError(f.name)
+	}
+
+	return nil, createInvalidFilterOperatorError(f.name, f.operator)
 }
 
 func getTimeIntervalFilterValue(f *filter) (time.Time, time.Time, error) {

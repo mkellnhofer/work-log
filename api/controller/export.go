@@ -43,14 +43,18 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	// | typeId      | eq (equal)            | int                        |
 	// | startTime   | bt (between)          | datetime strings           |
 	// | activityId  | i (is), eq (equal)    | null, int                  |
+	// | labels      | i (is), in (in)       | null, strings              |
 	// | description | i (is), cn (contains) | null, string               |
 	// &#9432; Filters are connected via logical conjunction (AND).
 	//
 	// __Filter Syntax:__
 	// [field name];[operator];[value-1];...;[value-n]
 	//
-	// __Example:__
+	// __Examples:__
+	//
 	// Get entries for a specific time interval: startTime;bt;2019-01-01T00:00:00;2019-01-05T00:00:00
+	//
+	// Get entries with specific labels (OR logic): labels;in;bug;frontend
 	//
 	// # Sorting
 	//

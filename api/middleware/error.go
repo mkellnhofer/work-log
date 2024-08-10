@@ -48,6 +48,7 @@ var httpStatusCodeMapping = map[int]int{
 	e.ValRoleInvalid:          http.StatusBadRequest,
 	e.ValUsernameInvalid:      http.StatusBadRequest,
 	e.ValPasswordInvalid:      http.StatusBadRequest,
+	e.ValLabelInvalid:         http.StatusBadRequest,
 
 	e.LogicEntryNotFound:                 http.StatusNotFound,
 	e.LogicEntryTypeNotFound:             http.StatusNotFound,

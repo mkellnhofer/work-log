@@ -26,6 +26,12 @@ type UpdateEntry struct {
 	// example: 1
 	ActivityId int `json:"activityId"`
 
+	// The labels associated with the entry.
+	// min length: 3
+	// max length: 20
+	// example: ["bug", "frontend"]
+	Labels []string `json:"labels"`
+
 	// The description with additional information about the entry.
 	// min length: 0
 	// max length: 200

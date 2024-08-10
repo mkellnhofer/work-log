@@ -136,7 +136,7 @@ func (r *UserRepo) DeleteUserById(ctx context.Context, id int) error {
 
 // GetUserRoles retrieves roles of a user by its ID.
 func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, error) {
-	q := "SELECT r.name FROM user_role ur INNER JOIN role r ON ur.role_id = r.id WHERE ur.user_id = ?"
+	q := "SELECT r.name FROM user_role ur JOIN role r ON ur.role_id = r.id WHERE ur.user_id = ?"
 
 	sr, qrErr := r.query(ctx, scanRoleHelper{}, q, userId)
 	if qrErr != nil {

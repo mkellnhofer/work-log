@@ -118,8 +118,7 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
-		"e.description " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
 		"FROM entry e " +
 		qr + " " +
 		"AND e.start_time BETWEEN ? AND ? " +
@@ -201,14 +200,43 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
 	[]interface{}) {
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
-		"e.description " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
 		"FROM entry e " +
 		"WHERE e.user_id = ? " +
 		"AND e.start_time BETWEEN ? AND ? " +
 		"ORDER BY e.start_time DESC, e.end_time DESC"
 
 	qa := []interface{}{userId, start, end}
+
+	return q, qa
+}
+
+// GetMonthEntries retrieves all entries of a month.
+func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, month int) (
+	[]*model.Entry, error) {
+	q, qa := r.buildGetMonthEntriesQuery(userId, year, month)
+
+	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not query month entries from database.", qErr)
+		log.Error(err.StackTrace())
+		return nil, err
+	}
+
+	entries := sr.([]*model.Entry)
+
+	return entries, nil
+}
+
+func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (string,
+	[]interface{}) {
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM entry e " +
+		"WHERE e.user_id = ? " +
+		"AND YEAR(e.start_time) = ? AND MONTH(e.start_time) = ? " +
+		"ORDER BY e.start_time ASC, e.end_time ASC"
+
+	qa := []interface{}{userId, year, month}
 
 	return q, qa
 }
@@ -241,8 +269,7 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, " +
-		"e.description " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
 		"FROM entry e " +
 		qr + " " +
 		qo + " " +
@@ -268,8 +295,8 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 
 // GetEntryById retrieves an entry.
 func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
-		"FROM entry WHERE id = ?"
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM entry e WHERE e.id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id)
 	if qErr != nil {
@@ -290,8 +317,8 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, err
 // GetEntryByIdAndUserId retrieves an entry of an user.
 func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
 	error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
-		"FROM entry WHERE id = ? AND user_id = ?"
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM entry e WHERE e.id = ? AND e.user_id = ?"
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id, userId)
 	if qErr != nil {
@@ -307,6 +334,10 @@ func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId in
 	entry := sr.(*model.Entry)
 
 	return entry, nil
+}
+
+func (r *EntryRepo) getEntrySelectColumns() string {
+	return "e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, e.description"
 }
 
 // ExistsEntryById checks if a entry exists.
@@ -398,27 +429,6 @@ func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) error {
 	}
 
 	return nil
-}
-
-// GetMonthEntries retrieves all entries of a month.
-func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, month int) (
-	[]*model.Entry, error) {
-	q := "SELECT id, user_id, type_id, start_time, end_time, activity_id, description " +
-		"FROM entry " +
-		"WHERE user_id = ? " +
-		"AND YEAR(start_time) = ? AND MONTH(start_time) = ? " +
-		"ORDER BY start_time ASC, end_time ASC"
-
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, userId, year, month)
-	if qErr != nil {
-		err := e.WrapError(e.SysDbQueryFailed, "Could not query month entries from database.", qErr)
-		log.Error(err.StackTrace())
-		return nil, err
-	}
-
-	entries := sr.([]*model.Entry)
-
-	return entries, nil
 }
 
 // --- Entry activity functions ---

@@ -369,6 +369,14 @@ func createSelectionString(values []string) string {
 	return strings.Join(s, ",")
 }
 
+func createPlaceholderString(count int) string {
+	placeholders := make([]string, count)
+	for i := 0; i < count; i++ {
+		placeholders[i] = "?"
+	}
+	return strings.Join(placeholders, ",")
+}
+
 func escapeRestrictionString(restriction string) string {
 	return strings.NewReplacer("%", "\\%", "_", "\\_").Replace(restriction)
 }

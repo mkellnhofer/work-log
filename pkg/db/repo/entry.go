@@ -20,6 +20,7 @@ type dbEntry struct {
 	endTime     string
 	activityId  sql.NullInt64
 	description sql.NullString
+	labels      sql.NullString
 }
 
 type dbWorkDuration struct {
@@ -118,10 +119,12 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
 		qr + " " +
 		"AND e.start_time BETWEEN ? AND ? " +
+		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		qo
 
 	qa := append(qra, start, end)
@@ -200,10 +203,12 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
 	[]interface{}) {
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
 		"WHERE e.user_id = ? " +
 		"AND e.start_time BETWEEN ? AND ? " +
+		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		"ORDER BY e.start_time DESC, e.end_time DESC"
 
 	qa := []interface{}{userId, start, end}
@@ -230,10 +235,12 @@ func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, m
 
 func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (string,
 	[]interface{}) {
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
 		"WHERE e.user_id = ? " +
 		"AND YEAR(e.start_time) = ? AND MONTH(e.start_time) = ? " +
+		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		"ORDER BY e.start_time ASC, e.end_time ASC"
 
 	qa := []interface{}{userId, year, month}
@@ -250,7 +257,7 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilte
 	var sr interface{}
 	var qErr error
 	if len(qra) > 0 {
-		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q, qra)
+		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q, qra...)
 	} else {
 		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q)
 	}
@@ -269,16 +276,18 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
 		qr + " " +
+		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		qo + " " +
 		createQueryLimitString(offset, limit)
 
 	var sr interface{}
 	var qErr error
 	if len(qra) > 0 {
-		sr, qErr = r.query(ctx, &scanEntryHelper{}, q, qra)
+		sr, qErr = r.query(ctx, &scanEntryHelper{}, q, qra...)
 	} else {
 		sr, qErr = r.query(ctx, &scanEntryHelper{}, q)
 	}
@@ -295,8 +304,11 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 
 // GetEntryById retrieves an entry.
 func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, error) {
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
-		"FROM entry e WHERE e.id = ?"
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
+		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
+		"WHERE e.id = ? " +
+		"GROUP BY " + r.getEntrySelectColumns()
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id)
 	if qErr != nil {
@@ -317,8 +329,11 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, err
 // GetEntryByIdAndUserId retrieves an entry of an user.
 func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
 	error) {
-	q := "SELECT " + r.getEntrySelectColumns() + " " +
-		"FROM entry e WHERE e.id = ? AND e.user_id = ?"
+	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
+		"FROM entry e " +
+		r.getEntrySelectLabelsJoin() + " " +
+		"WHERE e.id = ? AND e.user_id = ? " +
+		"GROUP BY " + r.getEntrySelectColumns()
 
 	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id, userId)
 	if qErr != nil {
@@ -338,6 +353,15 @@ func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId in
 
 func (r *EntryRepo) getEntrySelectColumns() string {
 	return "e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, e.description"
+}
+
+func (r *EntryRepo) getEntrySelectLabelsColumn() string {
+	return "GROUP_CONCAT(l.name ORDER BY l.name SEPARATOR ',') AS labels"
+}
+
+func (r *EntryRepo) getEntrySelectLabelsJoin() string {
+	return "LEFT JOIN entry_label el ON e.id = el.entry_id " +
+		"LEFT JOIN label l ON el.label_id = l.id"
 }
 
 // ExistsEntryById checks if a entry exists.
@@ -379,56 +403,138 @@ func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int)
 
 // CreateEntry creates a new entry.
 func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) error {
-	etr := toDbEntry(entry)
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
+		etr := toDbEntry(entry)
 
-	q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, description) " +
-		"VALUES (?, ?, ?, ?, ?, ?)"
+		q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, description) " +
+			"VALUES (?, ?, ?, ?, ?, ?)"
 
-	id, cErr := r.insert(ctx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
-		etr.activityId, etr.description)
-	if cErr != nil {
-		err := e.WrapError(e.SysDbInsertFailed, "Could not create entry in database.", cErr)
-		log.Error(err.StackTrace())
-		return err
-	}
+		id, cErr := r.insertWithTx(tx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
+			etr.activityId, etr.description)
+		if cErr != nil {
+			err := e.WrapError(e.SysDbInsertFailed, "Could not create entry in database.", cErr)
+			log.Error(err.StackTrace())
+			return err
+		}
 
-	entry.Id = id
+		entry.Id = id
 
-	return nil
+		return r.setEntryLabels(tx, entry.Id, entry.Labels)
+	})
 }
 
 // UpdateEntry updates a entry.
 func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) error {
-	etr := toDbEntry(entry)
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
+		etr := toDbEntry(entry)
 
-	q := "UPDATE entry SET user_id = ?, type_id = ?, start_time = ?, end_time = ?, " +
-		"activity_id = ?, description = ? WHERE id = ?"
+		q := "UPDATE entry SET user_id = ?, type_id = ?, start_time = ?, end_time = ?, " +
+			"activity_id = ?, description = ? WHERE id = ?"
 
-	uErr := r.exec(ctx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime, etr.activityId,
-		etr.description, etr.id)
-	if uErr != nil {
-		err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry %d in database.",
-			entry.Id), uErr)
-		log.Error(err.StackTrace())
+		uErr := r.execWithTx(tx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
+			etr.activityId, etr.description, etr.id)
+		if uErr != nil {
+			err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry %d in "+
+				"database.", entry.Id), uErr)
+			log.Error(err.StackTrace())
+			return err
+		}
+
+		ulErr := r.setEntryLabels(tx, entry.Id, entry.Labels)
+		if ulErr != nil {
+			return ulErr
+		}
+
+		return r.deleteOrphanedLabels(tx)
+	})
+}
+
+// DeleteEntryById deletes a entry.
+func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) error {
+	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
+		q := "DELETE FROM entry WHERE id = ?"
+
+		dErr := r.execWithTx(tx, q, id)
+		if dErr != nil {
+			err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete entry %d from "+
+				"database.", id), dErr)
+			log.Error(err.StackTrace())
+			return err
+		}
+
+		return r.deleteOrphanedLabels(tx)
+	})
+}
+
+func (r *EntryRepo) setEntryLabels(tx *sql.Tx, entryId int, labels []string) error {
+	q := "DELETE FROM entry_label WHERE entry_id = ?"
+	err := r.execWithTx(tx, q, entryId)
+	if err != nil {
 		return err
+	}
+
+	seen := make(map[string]bool)
+	for _, labelName := range labels {
+		if seen[labelName] {
+			continue
+		}
+
+		labelId, err := r.getOrCreateLabel(tx, labelName)
+		if err != nil {
+			return err
+		}
+
+		q := "INSERT INTO entry_label (entry_id, label_id) VALUES (?, ?)"
+		err = r.execWithTx(tx, q, entryId, labelId)
+		if err != nil {
+			return err
+		}
+
+		seen[labelName] = true
 	}
 
 	return nil
 }
 
-// DeleteEntryById deletes a entry.
-func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) error {
-	q := "DELETE FROM entry WHERE id = ?"
-
-	dErr := r.exec(ctx, q, id)
-	if dErr != nil {
-		err := e.WrapError(e.SysDbDeleteFailed, fmt.Sprintf("Could not delete entry %d from "+
-			"database.", id), dErr)
-		log.Error(err.StackTrace())
-		return err
+func (r *EntryRepo) getOrCreateLabel(tx *sql.Tx, name string) (int, error) {
+	id, err := r.getLabel(tx, name)
+	if err != nil {
+		return 0, err
 	}
+	if id != 0 {
+		return id, nil
+	}
+	return r.createLabel(tx, name)
+}
 
-	return nil
+func (r *EntryRepo) getLabel(tx *sql.Tx, name string) (int, error) {
+	q := "SELECT id FROM label WHERE name = ?"
+
+	sr, err := r.queryRowWithTx(tx, &scanIntHelper{}, q, name)
+	if err != nil {
+		return 0, err
+	}
+	if sr == nil {
+		return 0, nil
+	}
+	return sr.(int), nil
+}
+
+func (r *EntryRepo) createLabel(tx *sql.Tx, name string) (int, error) {
+	q := "INSERT INTO label (name) VALUES (?)"
+
+	id, err := r.insertWithTx(tx, q, name)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+func (r *EntryRepo) deleteOrphanedLabels(tx *sql.Tx) error {
+	q := "DELETE FROM label " +
+		"WHERE id NOT IN (SELECT DISTINCT label_id FROM entry_label)"
+
+	return r.execWithTx(tx, q)
 }
 
 // --- Entry activity functions ---
@@ -585,6 +691,23 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 			qrs = append(qrs, fmt.Sprintf("e.activity_id = %d", filter.ActivityId))
 		}
 	}
+	if filter.ByLabel {
+		labels := filter.Labels
+		if len(labels) == 0 {
+			sq := "SELECT 1 FROM entry_label el WHERE el.entry_id = e.id"
+			qrs = append(qrs, "NOT EXISTS ("+sq+")")
+		} else {
+			sq := "SELECT 1 " +
+				"FROM entry_label el " +
+				"JOIN label l ON el.label_id = l.id " +
+				"WHERE el.entry_id = e.id " +
+				"AND l.name IN (" + createPlaceholderString(len(labels)) + ")"
+			qrs = append(qrs, "EXISTS ("+sq+")")
+			for _, label := range labels {
+				qas = append(qas, label)
+			}
+		}
+	}
 	if filter.ByDescription {
 		if filter.Description == "" {
 			qrs = append(qrs, "e.description IS NULL")
@@ -669,7 +792,7 @@ func (h *scanEntryHelper) scan(s scanner) (interface{}, error) {
 	var dbE dbEntry
 
 	err := s.Scan(&dbE.id, &dbE.userId, &dbE.typeId, &dbE.startTime, &dbE.endTime, &dbE.activityId,
-		&dbE.description)
+		&dbE.description, &dbE.labels)
 	if err != nil {
 		return nil, err
 	}
@@ -765,6 +888,11 @@ func fromDbEntry(in *dbEntry) *model.Entry {
 		out.Description = in.description.String
 	} else {
 		out.Description = ""
+	}
+	if in.labels.Valid && in.labels.String != "" {
+		out.Labels = strings.Split(in.labels.String, ",")
+	} else {
+		out.Labels = []string{}
 	}
 	return &out
 }

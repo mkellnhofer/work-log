@@ -13,6 +13,8 @@ type EntriesFilter struct {
 	EndTime       time.Time // End time
 	ByActivity    bool      // Flag to filter by entry activity
 	ActivityId    int       // ID of the entry activity
+	ByLabel       bool      // Flag to filter by label
+	Labels        []string  // Label names
 	ByDescription bool      // Flag to filter by description
 	Description   string    // Description
 }

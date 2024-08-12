@@ -122,7 +122,7 @@ body {
   color: #e8ad1e;
 }
 
-.wl-list-table-head {
+.wl-list-table > thead {
   background-color: #fafafa;
 }
 
@@ -163,7 +163,7 @@ body {
   text-align: right;
 }
 
-.wl-overview-table-head {
+.wl-overview-table > thead {
   background-color: #fafafa;
 }
 

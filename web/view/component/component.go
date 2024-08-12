@@ -22,3 +22,11 @@ func toURL(url string) templ.SafeURL {
 func hx(url string) string {
 	return "/hx" + url
 }
+
+func createColorStyleAttributes(color string) templ.Attributes {
+	return templ.Attributes{"style": "color:" + color + " !important;"}
+}
+
+func createBorderColorStyleAttributes(color string) templ.Attributes {
+	return templ.Attributes{"style": "border-color:" + color + " !important;"}
+}

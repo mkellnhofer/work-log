@@ -1,0 +1,130 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+)
+
+templ OverviewEntriesTable(entriesDays []*model.OverviewEntriesDay) {
+	<div class="table-responsive table-responsive-xl mb-4">
+		<table class="table table-sm mb-0 wl-overview-table">
+			@overviewEntriesTableHeader()
+			@overviewEntriesTableBody(entriesDays)
+		</table>
+	</div>
+}
+
+templ overviewEntriesTableHeader() {
+	<thead>
+		<tr>
+			<th class="wl-overview-table-column-date">{ getText("tableColDate") }</th>
+			<th class="wl-overview-table-column-type">{ getText("tableColType") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColStart") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColEnd") }</th>
+			<th class="wl-overview-table-column-time">{ getText("tableColNet") }</th>
+			<th class="wl-overview-table-column-activity">{ getText("tableColActivity") }</th>
+			<th class="wl-overview-table-column-description">{ getText("tableColDescription") }</th>
+		</tr>
+	</thead>
+}
+
+templ overviewEntriesTableBody(entriesDays []*model.OverviewEntriesDay) {
+	<tbody>
+		for _, entriesDay := range entriesDays {
+			@overviewEntriesDayTableRows(entriesDay)
+		}
+	</tbody>
+}
+
+templ overviewEntriesDayTableRows(entriesDay *model.OverviewEntriesDay) {
+	if len(entriesDay.Entries) > 0 {
+		for ei, entry := range entriesDay.Entries {
+			if entry.IsMissing {
+				@overviewEntriesDayTableRowMissing(entriesDay.IsWeekendDay)
+			} else {
+				@overviewEntriesDayTableRow(entriesDay.IsWeekendDay) {
+					@overviewEntriesDayTableRowDateField(ei, entriesDay.Weekday, entriesDay.Date)
+					@overviewEntriesDayTableRowTypeField(entry.TypeId, entry.Type)
+					@overviewEntriesDayTableRowTextField(entry.StartTime)
+					@overviewEntriesDayTableRowTextField(entry.EndTime)
+					@overviewEntriesDayTableRowDurationField(len(entriesDay.Entries), entry.Duration)
+					@overviewEntriesDayTableRowTextField(entry.Activity)
+					@overviewEntriesDayTableRowTextField(entry.Description)
+				}
+			}
+		}
+		if len(entriesDay.Entries) > 1 {
+			@overviewEntriesDayTableRowSummary(entriesDay.IsWeekendDay, entriesDay.Hours)
+		}
+	} else {
+		@overviewEntriesDayTableRowEmpty(entriesDay.IsWeekendDay, entriesDay.Weekday, entriesDay.Date)
+	}
+}
+
+templ overviewEntriesDayTableRow(isWeekendDay bool) {
+	<tr
+		if isWeekendDay {
+			class="wl-overview-table-weekend"
+		}
+	>
+		{ children... }
+	</tr>
+}
+
+templ overviewEntriesDayTableRowMissing(isWeekendDay bool) {
+	@overviewEntriesDayTableRow(isWeekendDay) {
+		<td colspan="7"></td>
+	}
+}
+
+templ overviewEntriesDayTableRowEmpty(isWeekendDay bool, weekday string, date string) {
+	@overviewEntriesDayTableRow(isWeekendDay) {
+		<td class="fw-bold">{ weekday } { date }</td>
+		<td>-</td>
+		<td>-</td>
+		<td>-</td>
+		<td>-</td>
+		<td></td>
+		<td></td>
+	}
+}
+
+templ overviewEntriesDayTableRowSummary(isWeekendDay bool, hours string) {
+	@overviewEntriesDayTableRow(isWeekendDay) {
+		<td colspan="4"></td>
+		<td class="fw-bold">{ hours }</td>
+		<td colspan="2"></td>
+	}
+}
+
+templ overviewEntriesDayTableRowDateField(entryIndex int, weekday string, date string) {
+	if entryIndex == 0 {
+		<td class="fw-bold">{ weekday } { date }</td>
+	} else {
+		<td></td>
+	}
+}
+
+templ overviewEntriesDayTableRowTypeField(typeId int, typeDescription string) {
+	<td class="p-0">
+		<div
+			class="border-start border-2 ps-2 p-1"
+			{ createBorderColorStyleAttributes(model.EntryTypeColors[typeId])... }
+		>
+			{ typeDescription }
+		</div>
+	</td>
+}
+
+templ overviewEntriesDayTableRowTextField(content string) {
+	<td>{ content }</td>
+}
+
+templ overviewEntriesDayTableRowDurationField(entriesCount int, duration string) {
+	<td
+		if entriesCount == 1 {
+			class="fw-bold"
+		}
+	>
+		{ duration }
+	</td>
+}

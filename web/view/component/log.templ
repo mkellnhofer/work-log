@@ -132,7 +132,7 @@ templ logSummaryMonthProgressBarLabels(summary *model.LogSummary) {
 
 templ logSummaryMonthProgressBarLabel(color string, labelTextRef string, value string) {
 	<p class="d-inline-block mb-1 px-2">
-		<span { templ.Attributes{"style": "color:" + color + ";"}... }>●</span>
+		<span { createColorStyleAttributes(color)... }>●</span>
 		<span>{ getText(labelTextRef) + ":" }</span>
 		<span class="fw-bold">{ value + getText("hoursShortUnit") }</span>
 	</p>

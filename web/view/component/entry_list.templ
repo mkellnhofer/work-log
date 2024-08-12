@@ -48,7 +48,7 @@ templ entryDayHeader(day *model.ListEntriesDay, highlightWorkDuration bool, show
 
 templ entryDayTable(day *model.ListEntriesDay) {
 	<div class="table-responsive table-responsive-xl">
-		<table class="table table-sm align-middle">
+		<table class="table table-sm align-middle wl-list-table">
 			<thead>
 				@entryDayTableHeaderRow()
 			</thead>
@@ -62,7 +62,7 @@ templ entryDayTable(day *model.ListEntriesDay) {
 }
 
 templ entryDayTableHeaderRow() {
-	<tr class="wl-list-table-head">
+	<tr>
 		<th class="wl-list-table-column-buttons"></th>
 		<th class="wl-list-table-column-type">{ getText("tableColType") }</th>
 		<th class="wl-list-table-column-time">{ getText("tableColStart") }</th>

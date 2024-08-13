@@ -1,6 +1,8 @@
 package component
 
 import (
+	"strings"
+
 	"kellnhofer.com/work-log/web/model"
 )
 
@@ -123,5 +125,25 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 				value={ entry.Description }
 			/>
 		</div>
+		<div class="col-12">
+			<label class="form-label" for="wl-entry-form-labels">
+				{ getText("formLabelLabels") }
+			</label>
+			<input
+				id="wl-entry-form-labels"
+				class="form-control"
+				name="labels"
+				type="text"
+				value={ joinLabels(entry.Labels) }
+				placeholder={ getText("formLabelLabelsPlaceholder") }
+			/>
+		</div>
 	</div>
+}
+
+func joinLabels(labels []string) string {
+	if len(labels) == 0 {
+		return ""
+	}
+	return strings.Join(labels, ", ")
 }

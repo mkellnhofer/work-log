@@ -300,7 +300,7 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 	}
 
 	// Create description filter
-	if err = validateStringLength(input.text, model.MaxLengthEntryDescription,
+	if err = validateMaxStringLength(input.text, model.MaxLengthEntryDescription,
 		e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}

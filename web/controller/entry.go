@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/a-h/templ"
@@ -23,6 +24,7 @@ type entryInput struct {
 	startTime   string
 	endTime     string
 	activityId  string
+	labels      string
 	description string
 }
 
@@ -222,6 +224,7 @@ func (c *EntryController) getEntryInput(eCtx echo.Context) *entryInput {
 		startTime:   eCtx.FormValue("start-time"),
 		endTime:     eCtx.FormValue("end-time"),
 		activityId:  eCtx.FormValue("activity"),
+		labels:      eCtx.FormValue("labels"),
 		description: eCtx.FormValue("description"),
 	}
 }
@@ -282,8 +285,31 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryInput
 		return nil, err
 	}
 
+	// Validate labels
+	if input.labels != "" {
+		labelsString := strings.Trim(input.labels, ",")
+		labels := strings.Split(labelsString, ",")
+		entry.Labels = make([]string, 0, len(labels))
+		for _, label := range labels {
+			trimmed := strings.TrimSpace(label)
+			if err = validateMinStringLength(trimmed, model.MinLengthLabelName,
+				e.ValLabelTooShort); err != nil {
+				return nil, err
+			}
+			if err = validateMaxStringLength(trimmed, model.MaxLengthLabelName,
+				e.ValLabelTooLong); err != nil {
+				return nil, err
+			}
+			if err = validateStringCharacters(trimmed, model.ValidLabelCharacters,
+				e.ValLabelInvalid); err != nil {
+				return nil, err
+			}
+			entry.Labels = append(entry.Labels, trimmed)
+		}
+	}
+
 	// Validate description
-	if err = validateStringLength(input.description, model.MaxLengthEntryDescription,
+	if err = validateMaxStringLength(input.description, model.MaxLengthEntryDescription,
 		e.ValDescriptionTooLong); err != nil {
 		return nil, err
 	}

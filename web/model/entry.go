@@ -15,6 +15,7 @@ type Entry struct {
 	StartTimeValue string
 	EndTimeValue   string
 	ActivityId     int
+	Labels         []string
 	Description    string
 }
 

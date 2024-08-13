@@ -48,7 +48,7 @@ templ overviewEntriesDayTableRows(entriesDay *model.OverviewEntriesDay) {
 					@overviewEntriesDayTableRowTextField(entry.EndTime)
 					@overviewEntriesDayTableRowDurationField(len(entriesDay.Entries), entry.Duration)
 					@overviewEntriesDayTableRowTextField(entry.Activity)
-					@overviewEntriesDayTableRowTextField(entry.Description)
+					@overviewEntriesDayTableRowDescriptionField(entry.Labels, entry.Description)
 				}
 			}
 		}
@@ -126,5 +126,18 @@ templ overviewEntriesDayTableRowDurationField(entriesCount int, duration string)
 		}
 	>
 		{ duration }
+	</td>
+}
+
+templ overviewEntriesDayTableRowDescriptionField(labels []string, description string) {
+	<td>
+		if description != "" {
+			<span>{ description }</span>
+		}
+		if len(labels) > 0 {
+			<span class="ms-2">
+				@EntryLabels(labels)
+			</span>
+		}
 	</td>
 }

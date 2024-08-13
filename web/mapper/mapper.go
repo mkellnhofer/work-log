@@ -125,6 +125,7 @@ func (m *Mapper) createEntriesViewModel(userContract *model.Contract, entries []
 			EndTime:       formatTime(entry.EndTime),
 			Duration:      formatHours(duration),
 			EntryActivity: m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
+			Labels:        entry.Labels,
 			Description:   entry.Description,
 		})
 
@@ -181,6 +182,7 @@ func (m *Mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
 		StartTimeValue: getTimeString(entry.StartTime),
 		EndTimeValue:   getTimeString(entry.EndTime),
 		ActivityId:     entry.ActivityId,
+		Labels:         entry.Labels,
 		Description:    entry.Description,
 	}
 }

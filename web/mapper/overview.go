@@ -372,6 +372,7 @@ func (m *OverviewMapper) createEntriesDay(curDate time.Time, curEntryIndex int,
 			EndTime:     formatTime(entry.EndTime),
 			Duration:    formatHours(duration),
 			Activity:    m.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
+			Labels:      entry.Labels,
 			Description: entry.Description,
 		}
 		dvm.Entries = append(dvm.Entries, evm)

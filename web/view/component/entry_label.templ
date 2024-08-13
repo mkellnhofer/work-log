@@ -1,0 +1,17 @@
+package component
+
+templ EntryLabels(labels []string) {
+	if len(labels) > 0 {
+		for i, label := range labels {
+			<span
+				if i < len(labels)-1 {
+					class="badge rounded-pill wl-entry-label me-2"
+				} else {
+					class="badge rounded-pill wl-entry-label"
+				}
+			>
+				{ label }
+			</span>
+		}
+	}
+}

@@ -28,5 +28,6 @@ type ListEntry struct {
 	EndTime       string
 	Duration      string
 	EntryActivity string
+	Labels        []string
 	Description   string
 }

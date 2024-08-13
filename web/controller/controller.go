@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 	"fmt"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -195,9 +196,28 @@ func parseDateTime(inDate string, inTime string, code int) (time.Time, error) {
 	return out, nil
 }
 
-func validateStringLength(in string, length int, code int) error {
+func validateMinStringLength(in string, length int, code int) error {
+	if len(in) < length {
+		err := e.NewError(code, fmt.Sprintf("String too short. (Must be >= %d characters.)", length))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+func validateMaxStringLength(in string, length int, code int) error {
 	if len(in) > length {
 		err := e.NewError(code, fmt.Sprintf("String too long. (Must be <= %d characters.)", length))
+		log.Debug(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
+func validateStringCharacters(in string, characters string, code int) error {
+	r := regexp.MustCompile("^[" + characters + "]+$")
+	if !r.MatchString(in) {
+		err := e.NewError(code, "String contains contains illegal character.")
 		log.Debug(err.StackTrace())
 		return err
 	}

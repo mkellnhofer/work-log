@@ -90,7 +90,7 @@ templ entryDayTableRow(entry *model.ListEntry) {
 			@entryDayTableRowTextField(entry.EndTime)
 			@entryDayTableRowTextField(entry.Duration)
 			@entryDayTableRowTextField(entry.EntryActivity)
-			@entryDayTableRowTextField(entry.Description)
+			@entryDayTableRowDescriptionField(entry.Labels, entry.Description)
 		</tr>
 	}
 }
@@ -141,4 +141,17 @@ func buildActionUrl(action string, id int) string {
 
 templ entryDayTableRowTextField(content string) {
 	<td>{ content }</td>
+}
+
+templ entryDayTableRowDescriptionField(labels []string, description string) {
+	<td>
+		if description != "" {
+			<span>{ description }</span>
+		}
+		if len(labels) > 0 {
+			<span class="ms-2">
+				@EntryLabels(labels)
+			</span>
+		}
+	</td>
 }

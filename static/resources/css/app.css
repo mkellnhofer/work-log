@@ -122,6 +122,10 @@ body {
   color: #e8ad1e;
 }
 
+.wl-list-table {
+  line-height: 1.8;
+}
+
 .wl-list-table > thead {
   background-color: #fafafa;
 }
@@ -161,6 +165,10 @@ body {
 
 .wl-overview-summary-table-column-hours {
   text-align: right;
+}
+
+.wl-overview-table {
+  line-height: 1.8;
 }
 
 .wl-overview-table > thead {

@@ -23,7 +23,7 @@ templ PageActionIconButton(iconRef string, actionAttrs templ.Attributes) {
 		class="btn btn-light btn-round mx-2"
 		{ actionAttrs... }
 	>
-		<svg class="ico"><use xlink:href={"img/ico.svg#" + iconRef}></use></svg>
+		<svg class="ico-small"><use xlink:href={"img/ico.svg#" + iconRef}></use></svg>
 	</button>
 }
 
@@ -55,7 +55,7 @@ templ pageActionsDropdownToggle() {
 		aria-label="Toggle actions menu"
 		href="#"
 	>
-		<svg class="ico"><use xlink:href="img/ico.svg#ellipsis"></use></svg>
+		<svg class="ico-small"><use xlink:href="img/ico.svg#ellipsis"></use></svg>
 	</button>
 }
 
@@ -72,7 +72,7 @@ templ pageActionsDropdownMenu(dropdownMenuItems []templ.Component) {
 // This template is used to render a action dropdown menu item.
 templ PageActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) {
 	<a class="dropdown-item" { actionAttrs... }>
-		<svg class="ico me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
+		<svg class="ico-small me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
 		<span>{ getText(textRef) }</span>
 	</a>
 }

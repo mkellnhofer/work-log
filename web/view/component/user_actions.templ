@@ -44,7 +44,7 @@ templ userActionsDropdownMenu(dropdownMenuItems []templ.Component) {
 
 templ userActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) {
 	<a class="dropdown-item" { actionAttrs... }>
-		<svg class="ico me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
+		<svg class="ico-small me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
 		<span>{ getText(textRef) }</span>
 	</a>
 }

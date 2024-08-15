@@ -1,12 +1,9 @@
 package component
 
 templ LogExportModal(startDateValue string, endDateValue string) {
-	@Modal("exportTitle",
-		"actionExport",
-		"actionCancel",
+	@Modal("file-export", "exportTitle", "actionExport", "actionCancel",
 		templ.Attributes{"hx-post": hx("/log-export-modal")},
-		templ.Attributes{"hx-post": hx("/log-export-modal/cancel")},
-	) {
+		templ.Attributes{"hx-post": hx("/log-export-modal/cancel")}) {
 		@logExportModalFormMessage()
 		@logExportModalFormFields(startDateValue, endDateValue)
 	}

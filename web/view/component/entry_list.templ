@@ -108,7 +108,7 @@ templ entryDayTableRowButtonsField(id int) {
 				data-bs-toggle="dropdown"
 				aria-expanded="false"
 			>
-				<svg class="ico"><use xlink:href="img/ico.svg#ellipsis-vertical"></use></svg>
+				<svg class="ico-small"><use xlink:href="img/ico.svg#ellipsis-vertical"></use></svg>
 			</a>
 			<ul class="dropdown-menu">
 				@entryDayTableRowButton(buildActionUrl("edit", id), "pen", getText("actionEdit"))
@@ -129,7 +129,7 @@ templ entryDayTableRowButton(hxGetUrl string, icon string, text string) {
 			hx-target="#wl-modal-container"
 			hx-swap="innerHTML"
 		>
-			<svg class="ico ms-1 me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+			<svg class="ico-small ms-1 me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
 			<span>{ text }</span>
 		</a>
 	</li>

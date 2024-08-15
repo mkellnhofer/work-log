@@ -25,7 +25,7 @@ templ SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) {
 
 templ searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
 	entryActivities []*model.EntryActivity) {
-	@Modal("searchTitle", "actionSearch", "actionCancel",
+	@Modal("magnifying-glass", "searchTitle", "actionSearch", "actionCancel",
 		templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},
 		templ.Attributes{"hx-post": buildSearchCancelUrl()}) {
 		@searchFormControls(isAdvanced,

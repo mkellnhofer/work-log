@@ -479,7 +479,7 @@ func entryDayTableRowButtonsField(id int) templ.Component {
 			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td><div class=\"dropdown position-static\"><a class=\"btn btn-link px-2 py-0\" href=\"#\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"><svg class=\"ico\"><use xlink:href=\"img/ico.svg#ellipsis-vertical\"></use></svg></a><ul class=\"dropdown-menu\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td><div class=\"dropdown position-static\"><a class=\"btn btn-link px-2 py-0\" href=\"#\" data-bs-toggle=\"dropdown\" aria-expanded=\"false\"><svg class=\"ico-small\"><use xlink:href=\"img/ico.svg#ellipsis-vertical\"></use></svg></a><ul class=\"dropdown-menu\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -532,14 +532,14 @@ func entryDayTableRowButton(hxGetUrl string, icon string, text string) templ.Com
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"click\" hx-target=\"#wl-modal-container\" hx-swap=\"innerHTML\"><svg class=\"ico ms-1 me-3\"><use xlink:href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" hx-trigger=\"click\" hx-target=\"#wl-modal-container\" hx-swap=\"innerHTML\"><svg class=\"ico-small ms-1 me-3\"><use xlink:href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 132, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_list.templ`, Line: 132, Col: 75}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {

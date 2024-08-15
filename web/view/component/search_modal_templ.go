@@ -87,7 +87,7 @@ func searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*m
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = Modal("searchTitle", "actionSearch", "actionCancel",
+		templ_7745c5c3_Err = Modal("magnifying-glass", "searchTitle", "actionSearch", "actionCancel",
 			templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},
 			templ.Attributes{"hx-post": buildSearchCancelUrl()}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var3), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {

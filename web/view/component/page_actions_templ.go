@@ -111,14 +111,14 @@ func PageActionIconButton(iconRef string, actionAttrs templ.Attributes) templ.Co
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><svg class=\"ico\"><use xlink:href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><svg class=\"ico-small\"><use xlink:href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + iconRef)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/page_actions.templ`, Line: 26, Col: 60}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/page_actions.templ`, Line: 26, Col: 66}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
@@ -245,7 +245,7 @@ func pageActionsDropdownToggle() templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button class=\"btn btn-light btn-transparent btn-round\" data-bs-toggle=\"dropdown\" data-bs-display=\"static\" aria-expanded=\"false\" aria-label=\"Toggle actions menu\" href=\"#\"><svg class=\"ico\"><use xlink:href=\"img/ico.svg#ellipsis\"></use></svg></button>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button class=\"btn btn-light btn-transparent btn-round\" data-bs-toggle=\"dropdown\" data-bs-display=\"static\" aria-expanded=\"false\" aria-label=\"Toggle actions menu\" href=\"#\"><svg class=\"ico-small\"><use xlink:href=\"img/ico.svg#ellipsis\"></use></svg></button>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -320,14 +320,14 @@ func PageActionDropdownMenuItem(iconRef string, textRef string, actionAttrs temp
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><svg class=\"ico me-3\"><use xlink:href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("><svg class=\"ico-small me-3\"><use xlink:href=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + iconRef)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/page_actions.templ`, Line: 75, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/page_actions.templ`, Line: 75, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {

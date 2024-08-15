@@ -5,14 +5,15 @@ templ ModalContainer() {
 	<div id="wl-modal-container"></div>
 }
 
-// This template is used to render a modal. It gets texts for the title and submit/cancel buttons,
-// as well as attributes which define what actions should be performed when the modal's form is
-// submitted/canceled. The form content is supplied as children.
-templ Modal(titleTextRef string, submitTextRef string, cancelTextRef string,
+// This template is used to render a modal. It gets an icon name and texts for the title and the
+// submit/cancel buttons, as well as attributes which define what actions should be performed when
+// the modal's form is submitted/canceled. The form content is supplied as children.
+templ Modal(icon string, titleTextRef string, submitTextRef string, cancelTextRef string,
 	submitActionAttrs templ.Attributes, cancelActionAttrs templ.Attributes) {
 	<div id="wl-modal" class="modal show" tabindex="-1" role="dialog" style="display: block">
 		<div class="modal-dialog modal-md modal-fullscreen-sm-down">
-			@modalContent(titleTextRef, submitTextRef, cancelTextRef, submitActionAttrs, cancelActionAttrs) {
+			@modalContent(icon, titleTextRef, submitTextRef, cancelTextRef, submitActionAttrs,
+				cancelActionAttrs) {
 				{ children... }
 			}
 		</div>
@@ -20,7 +21,7 @@ templ Modal(titleTextRef string, submitTextRef string, cancelTextRef string,
 	<div class="modal-backdrop show"></div>
 }
 
-templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef string,
+templ modalContent(icon string, titleTextRef string, submitTextRef string, cancelTextRef string,
 	submitActionAttrs templ.Attributes, cancelActionAttrs templ.Attributes) {
 	<div class="modal-content">
 		<form
@@ -30,7 +31,10 @@ templ modalContent(titleTextRef string, submitTextRef string, cancelTextRef stri
 			{ submitActionAttrs... }
 		>
 			<div class="modal-header">
-				<h2 class="modal-title">{ getText(titleTextRef) }</h2>
+				<h2 class="modal-title">
+					<svg class="ico ms-1 me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+					<span>{ getText(titleTextRef) }</span>
+				</h2>
 			</div>
 			<div class="modal-body">
 				@modalErrorContainer()

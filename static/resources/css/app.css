@@ -9,6 +9,13 @@ body {
 
 .ico {
   margin-top: -2px;
+  width: 16px;
+  height: 16px;
+  color: var(--bs-black);
+}
+
+.ico-small {
+  margin-top: -2px;
   width: 14px;
   height: 14px;
 }

@@ -45,7 +45,7 @@ func CreateEntryModal(entryData *model.EntryData) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = entryModal("createTitle", "actionCreate", "actionCancel", "create", "cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryModal("plus", "createTitle", "actionCreate", "actionCancel", "create", "cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var2), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -85,7 +85,7 @@ func CopyEntryModal(entryData *model.EntryData) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = entryModal("copyTitle", "actionCreate", "actionCancel", "create", "cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryModal("copy", "copyTitle", "actionCreate", "actionCancel", "create", "cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var4), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -125,7 +125,7 @@ func EditEntryModal(entryData *model.EntryData) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = entryModal("editTitle", "actionSave", "actionCancel", "edit/"+toString(entryData.Entry.Id),
+		templ_7745c5c3_Err = entryModal("pen", "editTitle", "actionSave", "actionCancel", "edit/"+toString(entryData.Entry.Id),
 			"cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var6), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -164,7 +164,7 @@ func DeleteEntryModal(entryId int) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(getText("deleteMessage"))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 36, Col: 33}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 37, Col: 33}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -179,7 +179,8 @@ func DeleteEntryModal(entryId int) templ.Component {
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = entryModal("deleteTitle", "actionDelete", "actionCancel", "delete/"+toString(entryId), "cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = entryModal("trash", "deleteTitle", "actionDelete", "actionCancel", "delete/"+toString(entryId),
+			"cancel").Render(templ.WithChildren(ctx, templ_7745c5c3_Var8), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -190,8 +191,8 @@ func DeleteEntryModal(entryId int) templ.Component {
 	})
 }
 
-func entryModal(titleTextRef string, submitTextRef string, cancelTextRef string, submitPath string,
-	cancelPath string) templ.Component {
+func entryModal(icon string, titleTextRef string, submitTextRef string, cancelTextRef string,
+	submitPath string, cancelPath string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -219,7 +220,7 @@ func entryModal(titleTextRef string, submitTextRef string, cancelTextRef string,
 			}
 			return templ_7745c5c3_Err
 		})
-		templ_7745c5c3_Err = Modal(titleTextRef, submitTextRef, cancelTextRef, entryModalHxPostAttrs(submitPath),
+		templ_7745c5c3_Err = Modal(icon, titleTextRef, submitTextRef, cancelTextRef, entryModalHxPostAttrs(submitPath),
 			entryModalHxPostAttrs(cancelPath)).Render(templ.WithChildren(ctx, templ_7745c5c3_Var11), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -256,7 +257,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelType"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 59, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 60, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -269,7 +270,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(hx("/entry-modal/activities"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 65, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 66, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 		if templ_7745c5c3_Err != nil {
@@ -290,7 +291,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelDate"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 74, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 75, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -303,7 +304,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(entry.DateValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 81, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 82, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -316,7 +317,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelStart"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 86, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 87, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 		if templ_7745c5c3_Err != nil {
@@ -329,7 +330,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(entry.StartTimeValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 93, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 94, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -342,7 +343,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelEnd"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 98, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 99, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -355,7 +356,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(entry.EndTimeValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 105, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 106, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
@@ -368,7 +369,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelActivity"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 110, Col: 34}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 111, Col: 34}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -389,7 +390,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelDescription"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 118, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 119, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -402,7 +403,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(entry.Description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 125, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 126, Col: 29}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -415,7 +416,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelLabels"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 130, Col: 32}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 131, Col: 32}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -428,7 +429,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(joinLabels(entry.Labels))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 137, Col: 36}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 138, Col: 36}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
@@ -441,7 +442,7 @@ func entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mode
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(getText("formLabelLabelsPlaceholder"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 138, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/entry_modal.templ`, Line: 139, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {

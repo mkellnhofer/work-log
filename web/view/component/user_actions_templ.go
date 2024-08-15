@@ -158,7 +158,7 @@ func userActionsDropdownMenu(dropdownMenuItems []templ.Component) templ.Componen
 	})
 }
 
-func userActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) templ.Component {
+func userActionDropdownMenuItem(icon string, textRef string, actionAttrs templ.Attributes) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -184,9 +184,9 @@ func userActionDropdownMenuItem(iconRef string, textRef string, actionAttrs temp
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + iconRef)
+		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs("img/ico.svg#" + icon)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/user_actions.templ`, Line: 47, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/user_actions.templ`, Line: 47, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {

@@ -25,7 +25,8 @@ templ LogNav() {
 
 // This template is used to render the action buttons on the log page.
 templ LogActions() {
-	@PageActionButton("actionCreate",
+	@PageActionPrimaryButton("plus",
+		"actionCreate",
 		templ.Attributes{
 			"hx-get": hx("/entry-modal/create"),
 			"hx-trigger": "click",
@@ -34,6 +35,7 @@ templ LogActions() {
 		},
 	)
 	@PageActionIconButton("magnifying-glass",
+		"actionSearch",
 		templ.Attributes{
 			"hx-get": hx("/search-modal"),
 			"hx-trigger": "click",

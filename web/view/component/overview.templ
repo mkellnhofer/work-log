@@ -29,7 +29,7 @@ templ OverviewNav() {
 
 // This template is used to render the action buttons on the overview page.
 templ OverviewActions(month string) {
-	@PageActionLinkButton("overviewActionExport", toURL(buildOverviewExportUrl(month)))
+	@PageActionLinkButton("file-export", "overviewActionExport", toURL(buildOverviewExportUrl(month)))
 }
 
 // This template is used to render the content loader for the overview page.

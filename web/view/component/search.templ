@@ -80,7 +80,8 @@ templ searchNavDetailText(show bool, text string) {
 
 // This template is used to render the action buttons on the search page.
 templ SearchActions(isAdvanced bool, queryString string) {
-	@PageActionButton("actionSearch",
+	@PageActionPrimaryButton("magnifying-glass",
+		"actionSearch",
 		templ.Attributes{
 			"hx-get": buildSearchModalUrl(isAdvanced, queryString),
 			"hx-trigger": "click",

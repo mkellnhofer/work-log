@@ -8,33 +8,41 @@ templ PageActionsContainer(actionButtons templ.Component) {
 }
 
 // This template is used to render a action button.
-templ PageActionButton(textRef string, actionAttrs templ.Attributes) {
+templ PageActionPrimaryButton(icon string, textRef string, actionAttrs templ.Attributes) {
 	<button
 		class="btn btn-primary mx-2"
+		aria-label={ getText(textRef) }
 		{ actionAttrs... }
 	>
-		{ getText(textRef) }
+		<svg class="ico-small d-inline d-sm-none">
+			<use class="fill-light" xlink:href={ "img/ico.svg#" + icon }></use>
+		</svg>
+		<span class="d-none d-sm-inline">{ getText(textRef) }</span>
 	</button>
 }
 
 // This template is used to render a action icon button.
-templ PageActionIconButton(iconRef string, actionAttrs templ.Attributes) {
+templ PageActionIconButton(icon string, textRef string, actionAttrs templ.Attributes) {
 	<button
 		class="btn btn-light btn-round mx-2"
+		aria-label={ getText(textRef) }
 		{ actionAttrs... }
 	>
-		<svg class="ico-small"><use xlink:href={"img/ico.svg#" + iconRef}></use></svg>
+		<svg class="ico-small"><use xlink:href={"img/ico.svg#" + icon}></use></svg>
 	</button>
 }
 
 // This template is used to render a action link button.
-templ PageActionLinkButton(textRef string, url templ.SafeURL) {
+templ PageActionLinkButton(icon string, textRef string, url templ.SafeURL) {
 	<a
-		class="btn btn-primary mx-2"
+		class="btn btn-light mx-2"
 		href={ url }
 		aria-label={ getText(textRef) }
 	>
-		{ getText(textRef) }
+		<svg class="ico-small d-inline d-sm-none">
+			<use class="fill-dark" xlink:href={ "img/ico.svg#" + icon }></use>
+		</svg>
+		<span class="d-none d-sm-inline">{ getText(textRef) }</span>
 	</a>
 }
 
@@ -70,9 +78,9 @@ templ pageActionsDropdownMenu(dropdownMenuItems []templ.Component) {
 }
 
 // This template is used to render a action dropdown menu item.
-templ PageActionDropdownMenuItem(iconRef string, textRef string, actionAttrs templ.Attributes) {
+templ PageActionDropdownMenuItem(icon string, textRef string, actionAttrs templ.Attributes) {
 	<a class="dropdown-item" { actionAttrs... }>
-		<svg class="ico-small me-3"><use xlink:href={ "img/ico.svg#" + iconRef }></use></svg>
+		<svg class="ico-small me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
 		<span>{ getText(textRef) }</span>
 	</a>
 }

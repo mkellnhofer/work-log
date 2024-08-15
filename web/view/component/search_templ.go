@@ -265,7 +265,8 @@ func SearchActions(isAdvanced bool, queryString string) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = PageActionButton("actionSearch",
+		templ_7745c5c3_Err = PageActionPrimaryButton("magnifying-glass",
+			"actionSearch",
 			templ.Attributes{
 				"hx-get":     buildSearchModalUrl(isAdvanced, queryString),
 				"hx-trigger": "click",
@@ -374,7 +375,7 @@ func searchResult(isAdvanced bool, queryString string, entries *model.ListEntrie
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 118, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 119, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {

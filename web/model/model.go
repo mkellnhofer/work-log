@@ -8,8 +8,14 @@ const (
 const PageNavItems = 5
 
 type EntriesFilterDetails struct {
-	Type     string
-	Date     string
-	Activity string
-	Text     string
+	ByType     bool
+	Type       string
+	ByDate     bool
+	Date       string
+	ByActivity bool
+	Activity   string
+	ByLabels   bool
+	Labels     []string
+	ByText     bool
+	Text       string
 }

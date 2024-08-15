@@ -156,9 +156,13 @@ func (c *baseController) buildQueryString(filter *model.EntriesFilter) string {
 	if filter.ByActivity {
 		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
 	}
+	// Add parameter/value for entry labels
+	if filter.ByLabel {
+		qps = append(qps, fmt.Sprintf("lbl:%s", c.formatQueryLabels(filter.Labels)))
+	}
 	// Add parameter/value for entry description
 	if filter.ByDescription {
-		qps = append(qps, fmt.Sprintf("des:%s", util.EncodeBase64(filter.Description)))
+		qps = append(qps, fmt.Sprintf("des:%s", c.formatQueryDescription(filter.Description)))
 	}
 	return strings.Join(qps[:], "|")
 }
@@ -201,10 +205,14 @@ func (c *baseController) parseQueryString(userId int, query string) (*model.Entr
 		case "act":
 			filter.ByActivity = true
 			filter.ActivityId, cErr = strconv.Atoi(v)
+		// Convert value for entry labels
+		case "lbl":
+			filter.ByLabel = true
+			filter.Labels, cErr = c.parseQueryLabels(v)
 		// Convert value for entry description
 		case "des":
 			filter.ByDescription = true
-			filter.Description, cErr = util.DecodeBase64(v)
+			filter.Description, cErr = c.parseQueryDescription(v)
 		// Unknown parameter
 		default:
 			err := e.NewError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' is unknown.", p))
@@ -251,6 +259,31 @@ func (c *baseController) parseQueryDate(date string) (time.Time, error) {
 	return time.ParseInLocation(queryDateTimeFormat, date, time.Local)
 }
 
+func (c *baseController) formatQueryLabels(labels []string) string {
+	labelsStr := strings.Join(labels, ",")
+	return util.EncodeBase64(labelsStr)
+}
+
+func (c *baseController) parseQueryLabels(labels string) ([]string, error) {
+	labelsStr, err := util.DecodeBase64(labels)
+	if err != nil {
+		return nil, err
+	}
+	if labelsStr == "" {
+		return []string{}, nil
+	}
+	return strings.Split(labelsStr, ","), nil
+}
+
+func (c *baseController) formatQueryDescription(description string) string {
+	return util.EncodeBase64(description)
+}
+
+func (c *baseController) parseQueryDescription(description string) (string, error) {
+	return util.DecodeBase64(description)
+}
+
 func (c *baseController) isFilterEmpty(filter *model.EntriesFilter) bool {
-	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription
+	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByLabel &&
+		!filter.ByDescription
 }

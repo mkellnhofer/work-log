@@ -2,7 +2,6 @@ package component
 
 import (
 	"fmt"
-	"strings"
 
 	"kellnhofer.com/work-log/web/model"
 )
@@ -47,27 +46,36 @@ func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 templ SearchNav(searchDetails *model.SearchDetails) {
 	@NavBackButton("log")
 	<div class="p-2">
-		<span class="fs-2 fw-bold">Search</span>
-		<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>
-		<span class="d-none d-md-inline fs-2">{ buildSearchDetailsString(searchDetails) }</span>
+		@searchNavTitle()
+		@searchNavDetails(searchDetails)
 	</div>
 }
 
-func buildSearchDetailsString(searchDetails *model.SearchDetails) string {
-	var details []string
-	if searchDetails.Type != "" {
-		details = append(details, searchDetails.Type)
+templ searchNavTitle() {
+	<span class="fs-2 fw-bold"> { getText("searchTitle") } </span>
+	<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>
+}
+
+templ searchNavDetails(searchDetails *model.SearchDetails) {
+	<span class="d-none d-md-inline fs-3 comma-separated">
+		@searchNavDetailText(searchDetails.ByType, searchDetails.Type)
+		@searchNavDetailText(searchDetails.ByDate, searchDetails.Date)
+		@searchNavDetailText(searchDetails.ByActivity, searchDetails.Activity)
+		@searchNavDetail(searchDetails.ByLabels, EntryLabels(searchDetails.Labels))
+		@searchNavDetailText(searchDetails.ByText, "\"" + searchDetails.Text + "\"")
+	</span>
+}
+
+templ searchNavDetail(show bool, component templ.Component) {
+	if show {
+		<span>@component</span>
 	}
-	if searchDetails.Date != "" {
-		details = append(details, searchDetails.Date)
+}
+
+templ searchNavDetailText(show bool, text string) {
+	if show {
+		<span>{ text }</span>
 	}
-	if searchDetails.Activity != "" {
-		details = append(details, searchDetails.Activity)
-	}
-	if searchDetails.Text != "" {
-		details = append(details, searchDetails.Text)
-	}
-	return strings.Join(details, ", ")
 }
 
 // This template is used to render the action buttons on the search page.

@@ -18,6 +18,8 @@ type SearchQueryInput struct {
 	EndDateValue   string
 	ByActivity     bool
 	ActivityId     int
+	ByLabels       bool
+	Labels         []string
 	Text           string
 }
 

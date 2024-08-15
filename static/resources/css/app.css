@@ -42,6 +42,14 @@ body {
   animation: fade-in 1s ease 0.4s forwards;
 }
 
+.comma-separated > *:first-child::before {
+  content: "";
+}
+
+.comma-separated > *::before {
+  content: ", ";
+}
+
 .table {
   border-style: hidden;
 }

@@ -1,6 +1,8 @@
 package component
 
 import (
+	"strings"
+
 	"kellnhofer.com/work-log/web/model"
 )
 
@@ -30,25 +32,27 @@ templ searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*
 			searchFormTypeControl(input.ByType, entryTypes, input.TypeId),
 			searchFormDateControl(input.ByDate, input.StartDateValue, input.EndDateValue),
 			searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId),
+			searchFormLabelsControl(input.ByLabels, input.Labels),
 			searchFormTextControl(isSearchQueryInputEmpty(input), input.Text))
 	}
 }
 
 templ searchFormControls(isAdvanced bool, typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, textControl templ.Component) {
+	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
 	if isAdvanced {
-		@searchAdvancedFormControls(typeControl, dateControl, activityControl, textControl)
+		@searchAdvancedFormControls(typeControl, dateControl, activityControl, labelsControl, textControl)
 	} else {
-		@searchStandardFormControls(typeControl, dateControl, activityControl, textControl)
+		@searchStandardFormControls(typeControl, dateControl, activityControl, labelsControl, textControl)
 	}
 }
 
 templ searchStandardFormControls(typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, textControl templ.Component) {
+	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
 	<div class="d-none">
 		@typeControl
 		@dateControl
 		@activityControl
+		@labelsControl
 	</div>
 	<div class="row mb-2">
 		<div class="col">
@@ -72,7 +76,7 @@ templ searchStandardFormControls(typeControl templ.Component, dateControl templ.
 }
 
 templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, textControl templ.Component) {
+	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
 	<div class="row mb-2">
 		<div class="col">
 			<label class="form-label" for="wl-search-input-by-type">
@@ -95,6 +99,14 @@ templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.
 				{ getText("formLabelActivity") }
 			</label>
 			@activityControl
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col">
+			<label class="form-label" for="wl-search-input-by-labels">
+				{ getText("formLabelLabels") }
+			</label>
+			@labelsControl
 		</div>
 	</div>
 	<div class="row mb-4">
@@ -171,6 +183,30 @@ templ searchFormActivityControl(byActivity bool, activities []*model.EntryActivi
 	</div>
 }
 
+templ searchFormLabelsControl(byLabels bool, labels []string) {
+	<div id="wl-search-input-group-labels" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-labels"
+				class="checkbox"
+				name="by-labels"
+				type="checkbox"
+				if byLabels {
+					checked
+				}
+			/>
+		</div>
+		<input
+			id="wl-search-input-labels"
+			class="form-control"
+			name="labels"
+			type="text"
+			placeholder={ getText("formLabelLabelsPlaceholder") }
+			value={ strings.Join(labels, ", ") }
+		/>
+	</div>
+}
+
 templ searchFormTextControl(setAutoFocus bool, text string) {
 	<div id="wl-search-input-group-text" class="input-group" hx-preserve>
 		<input
@@ -188,5 +224,5 @@ templ searchFormTextControl(setAutoFocus bool, text string) {
 }
 
 func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
-	return !input.ByType && !input.ByDate && !input.ByActivity && input.Text == ""
+	return !input.ByType && !input.ByDate && !input.ByActivity && !input.ByLabels && input.Text == ""
 }

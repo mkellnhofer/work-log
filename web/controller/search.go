@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +29,8 @@ type searchInput struct {
 	endDate    string
 	byActivity string
 	activityId string
+	byLabels   string
+	labels     string
 	text       string
 }
 
@@ -256,6 +259,8 @@ func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
 		endDate:    eCtx.FormValue("end-date"),
 		byActivity: eCtx.FormValue("by-activity"),
 		activityId: eCtx.FormValue("activity"),
+		byLabels:   eCtx.FormValue("by-labels"),
+		labels:     eCtx.FormValue("labels"),
 		text:       eCtx.FormValue("text"),
 	}
 }
@@ -299,6 +304,31 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 		return nil, err
 	}
 
+	// Create labels filter
+	filter.ByLabel = input.byLabels == "on"
+	filter.Labels = []string{}
+	if input.labels != "" {
+		labelsString := strings.Trim(input.labels, ",")
+		labels := strings.Split(labelsString, ",")
+		filter.Labels = make([]string, 0, len(labels))
+		for _, label := range labels {
+			trimmed := strings.TrimSpace(label)
+			if err = validateMinStringLength(trimmed, model.MinLengthLabelName,
+				e.ValLabelTooShort); err != nil {
+				return nil, err
+			}
+			if err = validateMaxStringLength(trimmed, model.MaxLengthLabelName,
+				e.ValLabelInvalid); err != nil {
+				return nil, err
+			}
+			if err = validateStringCharacters(trimmed, model.ValidLabelCharacters,
+				e.ValLabelInvalid); err != nil {
+				return nil, err
+			}
+			filter.Labels = append(filter.Labels, trimmed)
+		}
+	}
+
 	// Create description filter
 	if err = validateMaxStringLength(input.text, model.MaxLengthEntryDescription,
 		e.ValDescriptionTooLong); err != nil {
@@ -308,7 +338,7 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 	filter.Description = input.text
 
 	// If search query is empty: Create empty description filter
-	if !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByDescription {
+	if c.isFilterEmpty(filter) {
 		filter.ByDescription = true
 		filter.Description = ""
 	}

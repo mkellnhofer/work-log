@@ -276,6 +276,7 @@ func (m *Mapper) CreateEntriesFilterDetailsViewModel(filter *model.EntriesFilter
 	efd := &vm.EntriesFilterDetails{}
 
 	if filter.ByType {
+		efd.ByType = true
 		for _, t := range types {
 			if t.Id == filter.TypeId {
 				efd.Type = t.Description
@@ -284,12 +285,18 @@ func (m *Mapper) CreateEntriesFilterDetailsViewModel(filter *model.EntriesFilter
 	}
 
 	if filter.ByTime {
+		efd.ByDate = true
 		start := formatDate(filter.StartTime)
 		end := formatDate(filter.EndTime)
-		efd.Date = fmt.Sprintf("%s - %s", start, end)
+		if start == end {
+			efd.Date = start
+		} else {
+			efd.Date = fmt.Sprintf("%s - %s", start, end)
+		}
 	}
 
 	if filter.ByActivity {
+		efd.ByActivity = true
 		for _, a := range activities {
 			if a.Id == filter.ActivityId {
 				efd.Activity = a.Description
@@ -297,8 +304,14 @@ func (m *Mapper) CreateEntriesFilterDetailsViewModel(filter *model.EntriesFilter
 		}
 	}
 
+	if filter.ByLabel {
+		efd.ByLabels = true
+		efd.Labels = filter.Labels
+	}
+
 	if filter.Description != "" {
-		efd.Text = fmt.Sprintf("\"%s\"", filter.Description)
+		efd.ByText = true
+		efd.Text = filter.Description
 	}
 
 	return efd

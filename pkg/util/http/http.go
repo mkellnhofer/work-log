@@ -12,12 +12,12 @@ import (
 )
 
 // ReadHttpBody reads the HTTP request
-func ReadHttpRequestBody(r *http.Request, data interface{}) error {
+func ReadHttpRequestBody(r *http.Request, data any) error {
 	return readRequestBody(r, data)
 }
 
 // WriteHttpResponse writes the HTTP response.
-func WriteHttpResponse(r *echo.Response, statusCode int, data interface{}) error {
+func WriteHttpResponse(r *echo.Response, statusCode int, data any) error {
 	return writeResponse(r.Writer, statusCode, data)
 }
 
@@ -26,7 +26,7 @@ func WriteHttpError(r *echo.Response, statusCode int, error string) error {
 	return writeResponse(r.Writer, statusCode, error)
 }
 
-func readRequestBody(r *http.Request, data interface{}) error {
+func readRequestBody(r *http.Request, data any) error {
 	decoder := json.NewDecoder(r.Body)
 	jErr := decoder.Decode(data)
 	if jErr != nil {
@@ -47,7 +47,7 @@ func readRequestBody(r *http.Request, data interface{}) error {
 	return nil
 }
 
-func writeResponse(writer http.ResponseWriter, statusCode int, data interface{}) error {
+func writeResponse(writer http.ResponseWriter, statusCode int, data any) error {
 	var body []byte
 	var jErr error
 	if data != nil {

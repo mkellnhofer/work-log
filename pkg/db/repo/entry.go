@@ -55,8 +55,7 @@ func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesF
 	return count, nil
 }
 
-func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (
-	string, []interface{}) {
+func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (string, []any) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) FROM entry e " + qr
@@ -94,7 +93,7 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFil
 }
 
 func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) (string, []interface{}) {
+	sort *model.EntriesSort, offset int, limit int) (string, []any) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	var qo string
 	if sort != nil && (sort.ByTime == model.NoSorting || sort.ByTime == model.AscSorting) {
@@ -113,7 +112,7 @@ func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
 }
 
 func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *model.EntriesSort,
-	start string, end string) (string, []interface{}) {
+	start string, end string) (string, []any) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
@@ -145,12 +144,12 @@ func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (i
 	return count, nil
 }
 
-func (r *EntryRepo) buildCountDateEntriesByUserIdQuery(userId int) (string, []interface{}) {
+func (r *EntryRepo) buildCountDateEntriesByUserIdQuery(userId int) (string, []any) {
 	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
 		"FROM entry e " +
 		"WHERE e.user_id = ?"
 
-	qa := []interface{}{userId}
+	qa := []any{userId}
 
 	return q, qa
 }
@@ -185,20 +184,20 @@ func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offs
 }
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int, limit int) (string,
-	[]interface{}) {
+	[]any) {
 	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
 		"FROM entry e " +
 		"WHERE e.user_id = ? " +
 		"ORDER BY date DESC " +
 		createQueryLimitString(offset, limit)
 
-	qa := []interface{}{userId}
+	qa := []any{userId}
 
 	return q, qa
 }
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
-	[]interface{}) {
+	[]any) {
 	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
 		r.getEntrySelectLabelsJoin() + " " +
@@ -207,7 +206,7 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, e
 		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		"ORDER BY e.start_time DESC, e.end_time DESC"
 
-	qa := []interface{}{userId, start, end}
+	qa := []any{userId, start, end}
 
 	return q, qa
 }
@@ -227,8 +226,7 @@ func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, m
 	return entries, nil
 }
 
-func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (string,
-	[]interface{}) {
+func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (string, []any) {
 	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
 		"FROM entry e " +
 		r.getEntrySelectLabelsJoin() + " " +
@@ -237,7 +235,7 @@ func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (
 		"GROUP BY " + r.getEntrySelectColumns() + " " +
 		"ORDER BY e.start_time ASC, e.end_time ASC"
 
-	qa := []interface{}{userId, year, month}
+	qa := []any{userId, year, month}
 
 	return q, qa
 }
@@ -642,10 +640,9 @@ func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.T
 
 // --- Filter helper functions ---
 
-func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilter) (
-	string, []interface{}) {
+func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilter) (string, []any) {
 	var qrs []string
-	var qas []interface{}
+	var qas []any
 	if filter == nil {
 		return "", qas
 	}
@@ -717,7 +714,7 @@ func (r *EntryRepo) buildEntriesSortQueryClause(sort *model.EntriesSort) string 
 
 // --- Date range helper functions ---
 
-func (r *EntryRepo) getDateRange(ctx context.Context, query string, args ...interface{}) (
+func (r *EntryRepo) getDateRange(ctx context.Context, query string, args ...any) (
 	string, string, error) {
 	rows, err := r.getDbHandle(ctx).Query(query, args...)
 	if err != nil {

@@ -21,9 +21,9 @@ type repo struct {
 }
 
 type dbHandle interface {
-	Query(query string, args ...interface{}) (*sql.Rows, error)
-	QueryRow(query string, args ...interface{}) *sql.Row
-	Exec(query string, args ...interface{}) (sql.Result, error)
+	Query(query string, args ...any) (*sql.Rows, error)
+	QueryRow(query string, args ...any) *sql.Row
+	Exec(query string, args ...any) (sql.Result, error)
 }
 
 // --- Limit helper functions ---
@@ -45,7 +45,7 @@ func createQueryLimitString(offset int, limit int) string {
 // --- Scan helper functions ---
 
 type scanner interface {
-	Scan(dest ...interface{}) error
+	Scan(dest ...any) error
 }
 
 type scanFunc[T any] func(s scanner) (T, error)
@@ -191,17 +191,16 @@ func (r *repo) getDbHandle(ctx context.Context) dbHandle {
 	return r.db
 }
 
-func (r *repo) count(ctx context.Context, table string, restriction string, args ...interface{}) (
+func (r *repo) count(ctx context.Context, table string, restriction string, args ...any) (
 	int, error) {
 	return countInternal(r.getDbHandle(ctx), table, restriction, args...)
 }
 
-func (r *repo) countWithTx(tx *sql.Tx, table string, restriction string, args ...interface{}) (int,
-	error) {
+func (r *repo) countWithTx(tx *sql.Tx, table string, restriction string, args ...any) (int, error) {
 	return countInternal(tx, table, restriction, args...)
 }
 
-func countInternal(db dbHandle, table string, restriction string, args ...interface{}) (int, error) {
+func countInternal(db dbHandle, table string, restriction string, args ...any) (int, error) {
 	row := db.QueryRow("SELECT COUNT(*) FROM "+table+" WHERE "+restriction, args...)
 	var cnt int
 	err := row.Scan(&cnt)
@@ -211,53 +210,51 @@ func countInternal(db dbHandle, table string, restriction string, args ...interf
 	return cnt, nil
 }
 
-func (r *repo) query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+func (r *repo) query(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
 	return queryInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) queryWithTx(tx *sql.Tx, query string, args ...interface{}) (*sql.Rows, error) {
+func (r *repo) queryWithTx(tx *sql.Tx, query string, args ...any) (*sql.Rows, error) {
 	return queryInternal(tx, query, args...)
 }
 
-func queryInternal(db dbHandle, query string, args ...interface{}) (*sql.Rows, error) {
+func queryInternal(db dbHandle, query string, args ...any) (*sql.Rows, error) {
 	return db.Query(query, args...)
 }
 
-func (r *repo) queryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
+func (r *repo) queryRow(ctx context.Context, query string, args ...any) *sql.Row {
 	return queryRowInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) queryRowWithTx(tx *sql.Tx, query string, args ...interface{}) *sql.Row {
+func (r *repo) queryRowWithTx(tx *sql.Tx, query string, args ...any) *sql.Row {
 	return queryRowInternal(tx, query, args...)
 }
 
-func queryRowInternal(db dbHandle, query string, args ...interface{}) *sql.Row {
+func queryRowInternal(db dbHandle, query string, args ...any) *sql.Row {
 	return db.QueryRow(query, args...)
 }
 
-func (r *repo) queryValue(ctx context.Context, value interface{}, query string,
-	args ...interface{}) error {
+func (r *repo) queryValue(ctx context.Context, value any, query string, args ...any) error {
 	return queryValueInternal(r.getDbHandle(ctx), value, query, args...)
 }
 
-func (r *repo) queryValueWithTx(tx *sql.Tx, value interface{}, query string,
-	args ...interface{}) error {
+func (r *repo) queryValueWithTx(tx *sql.Tx, value any, query string, args ...any) error {
 	return queryValueInternal(tx, value, query, args...)
 }
 
-func queryValueInternal(db dbHandle, value interface{}, query string, args ...interface{}) error {
+func queryValueInternal(db dbHandle, value any, query string, args ...any) error {
 	return db.QueryRow(query, args...).Scan(value)
 }
 
-func (r *repo) insert(ctx context.Context, query string, args ...interface{}) (int, error) {
+func (r *repo) insert(ctx context.Context, query string, args ...any) (int, error) {
 	return insertInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) insertWithTx(tx *sql.Tx, query string, args ...interface{}) (int, error) {
+func (r *repo) insertWithTx(tx *sql.Tx, query string, args ...any) (int, error) {
 	return insertInternal(tx, query, args...)
 }
 
-func insertInternal(db dbHandle, query string, args ...interface{}) (int, error) {
+func insertInternal(db dbHandle, query string, args ...any) (int, error) {
 	res, err := db.Exec(query, args...)
 	if err != nil {
 		return 0, err
@@ -271,15 +268,15 @@ func insertInternal(db dbHandle, query string, args ...interface{}) (int, error)
 	return int(id), nil
 }
 
-func (r *repo) exec(ctx context.Context, query string, args ...interface{}) error {
+func (r *repo) exec(ctx context.Context, query string, args ...any) error {
 	return execInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) execWithTx(tx *sql.Tx, query string, args ...interface{}) error {
+func (r *repo) execWithTx(tx *sql.Tx, query string, args ...any) error {
 	return execInternal(tx, query, args...)
 }
 
-func execInternal(db dbHandle, query string, args ...interface{}) error {
+func execInternal(db dbHandle, query string, args ...any) error {
 	_, err := db.Exec(query, args...)
 	return err
 }

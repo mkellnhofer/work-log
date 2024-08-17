@@ -84,7 +84,7 @@ func checkStringNotTooLong(name string, str string, length int) error {
 	return nil
 }
 
-func checkNotNil(name string, obj interface{}) error {
+func checkNotNil(name string, obj any) error {
 	if obj == nil {
 		err := e.NewError(e.ValFieldNil, fmt.Sprintf("'%s' must not be null.", name))
 		log.Debug(err.StackTrace())

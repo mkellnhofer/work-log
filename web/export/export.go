@@ -420,7 +420,7 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 
 // --- Helper functions ---
 
-func createString(key string, args ...interface{}) string {
+func createString(key string, args ...any) string {
 	return loc.CreateString(key, args...)
 }
 

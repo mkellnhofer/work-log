@@ -72,7 +72,7 @@ func LoadLocalization(lang string) {
 }
 
 // CreateString creates a localized string.
-func CreateString(key string, args ...interface{}) string {
+func CreateString(key string, args ...any) string {
 	printer := message.NewPrinter(LngTag)
 	return printer.Sprintf(key, args...)
 }

@@ -109,11 +109,11 @@ func parseTimestamp(ts string) (time.Time, error) {
 	return time.ParseInLocation(constant.ApiTimestampFormat, ts, time.Local)
 }
 
-func readRequestBody(eCtx echo.Context, data interface{}) error {
+func readRequestBody(eCtx echo.Context, data any) error {
 	return httputil.ReadHttpRequestBody(eCtx.Request(), data)
 }
 
-func writeResponse(eCtx echo.Context, statusCode int, data interface{}) error {
+func writeResponse(eCtx echo.Context, statusCode int, data any) error {
 	return httputil.WriteHttpResponse(eCtx.Response(), statusCode, data)
 }
 

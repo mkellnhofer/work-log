@@ -69,7 +69,7 @@ func Verb(msg string) {
 }
 
 // Verbf writes a verbose log message and fills placeholders according to fmt.Printf().
-func Verbf(msg string, v ...interface{}) {
+func Verbf(msg string, v ...any) {
 	if lvl <= ver {
 		l.Printf("[VERB ]: "+msg, v...)
 	}
@@ -83,7 +83,7 @@ func Debug(msg string) {
 }
 
 // Debugf writes a debug log message and fills placeholders according to fmt.Printf().
-func Debugf(msg string, v ...interface{}) {
+func Debugf(msg string, v ...any) {
 	if lvl <= deb {
 		l.Printf("[DEBUG]: "+msg, v...)
 	}
@@ -97,7 +97,7 @@ func Info(msg string) {
 }
 
 // Infof writes a info log message and fills placeholders according to fmt.Printf().
-func Infof(msg string, v ...interface{}) {
+func Infof(msg string, v ...any) {
 	if lvl <= inf {
 		l.Printf("[INFO ]: "+msg, v...)
 	}
@@ -111,7 +111,7 @@ func Warn(msg string) {
 }
 
 // Warnf writes a warning log message and fills placeholders according to fmt.Printf().
-func Warnf(msg string, v ...interface{}) {
+func Warnf(msg string, v ...any) {
 	if lvl <= war {
 		l.Printf("[WARN ]: "+msg, v...)
 	}
@@ -125,7 +125,7 @@ func Error(msg string) {
 }
 
 // Errorf writes a error log message and fills placeholders according to fmt.Printf().
-func Errorf(msg string, v ...interface{}) {
+func Errorf(msg string, v ...any) {
 	if lvl <= err {
 		l.Printf("[ERROR]: "+msg, v...)
 	}
@@ -140,7 +140,7 @@ func Fatal(msg string) {
 
 // Fatalf writes a fatal log message and fills placeholders according to fmt.Printf() followed by a
 // call to os.Exit(1).
-func Fatalf(msg string, v ...interface{}) {
+func Fatalf(msg string, v ...any) {
 	if lvl <= fat {
 		l.Fatalf("[FATAL]: "+msg, v...)
 	}

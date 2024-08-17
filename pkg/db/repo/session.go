@@ -32,19 +32,19 @@ func NewSessionRepo(db *sql.DB) *SessionRepo {
 
 // GetSessionById retrieves a session by its ID.
 func (r *SessionRepo) GetSessionById(ctx context.Context, id string) (*model.Session, error) {
-	sr, qErr := r.queryRow(ctx, &scanSessionHelper{}, "SELECT id, user_id, expire_at, previous_url "+
-		"FROM session WHERE id = ?", id)
+	sh := newSessionScanHelper()
+	session, found, qErr := sh.scanRow(r.queryRow(ctx, "SELECT id, user_id, expire_at, previous_url "+
+		"FROM session WHERE id = ?", id))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read session %s from database.",
 			id), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	return sr.(*model.Session), nil
+	return session, nil
 }
 
 // ExistsSessionById checks if a session exists.
@@ -119,14 +119,11 @@ func (r *SessionRepo) DeleteExpiredSessions(ctx context.Context) error {
 
 // --- Helper functions ---
 
-type scanSessionHelper struct {
+func newSessionScanHelper() *scanHelper[*model.Session] {
+	return newScanHelper(10, scanSessionFunc)
 }
 
-func (h *scanSessionHelper) makeSlice() interface{} {
-	return make([]*model.Session, 0, 10)
-}
-
-func (h *scanSessionHelper) scan(s scanner) (interface{}, error) {
+func scanSessionFunc(s scanner) (*model.Session, error) {
 	var dbS dbSession
 
 	err := s.Scan(&dbS.id, &dbS.userId, &dbS.expireAt, &dbS.previousUrl)
@@ -137,10 +134,6 @@ func (h *scanSessionHelper) scan(s scanner) (interface{}, error) {
 	session := fromDbSession(&dbS)
 
 	return session, nil
-}
-
-func (h *scanSessionHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.Session), item.(*model.Session))
 }
 
 func toDbSession(in *model.Session) *dbSession {

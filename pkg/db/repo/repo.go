@@ -48,36 +48,75 @@ type scanner interface {
 	Scan(dest ...interface{}) error
 }
 
-type scanHelper interface {
-	makeSlice() interface{}
-	scan(s scanner) (interface{}, error)
-	appendSlice(interface{}, interface{}) interface{}
+type scanFunc[T any] func(s scanner) (T, error)
+
+type scanHelper[T any] struct {
+	capacity int
+	scanFn   scanFunc[T]
 }
 
-type scanIntHelper struct {
+func (sh *scanHelper[T]) makeSlice() []T {
+	return make([]T, 0, sh.capacity)
 }
 
-func (h *scanIntHelper) makeSlice() interface{} {
-	return make([]int, 0, 10)
+func (sh *scanHelper[T]) appendSlice(items []T, item T) []T {
+	return append(items, item)
 }
 
-func (h *scanIntHelper) scan(s scanner) (interface{}, error) {
-	var id int
-
-	err := s.Scan(&id)
+func (sh *scanHelper[T]) scanRows(rows *sql.Rows, err error) ([]T, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
+	
+	objs := sh.makeSlice()
+	for rows.Next() {
+		obj, err := sh.scanFn(rows)
+		if err != nil {
+			return nil, err
+		}
+		objs = sh.appendSlice(objs, obj)
+	}
 
-	return id, nil
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return objs, nil
 }
 
-func (h *scanIntHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]int), item.(int))
+func (sh *scanHelper[T]) scanRow(row *sql.Row) (T, bool, error) {
+	sr, err := sh.scanFn(row)
+
+	switch {
+	case err == sql.ErrNoRows:
+		return sr, false, nil
+	case err != nil:
+		return sr, false, err
+	default:
+		return sr, true, nil
+	}
 }
 
-type scanIdHelper struct {
-	scanIntHelper
+func newScanHelper[T any](capacity int, scanFn scanFunc[T]) *scanHelper[T] {
+	return &scanHelper[T]{capacity: capacity, scanFn: scanFn}
+}
+
+func newIntScanHelper() *scanHelper[int] {
+	return newScanHelper(10, scanIntFunc)
+}
+
+func newIdScanHelper() *scanHelper[int] {
+	return newScanHelper(10, scanIntFunc)
+}
+
+func scanIntFunc(s scanner) (int, error) {
+	var val int
+	err := s.Scan(&val)
+	if err != nil {
+		return 0, err
+	}
+	return val, nil
 }
 
 // --- DB functions ---
@@ -172,73 +211,28 @@ func countInternal(db dbHandle, table string, restriction string, args ...interf
 	return cnt, nil
 }
 
-func (r *repo) query(ctx context.Context, sh scanHelper, query string, args ...interface{}) (
-	interface{}, error) {
-	return queryInternal(r.getDbHandle(ctx), sh, query, args...)
+func (r *repo) query(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
+	return queryInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) queryWithTx(tx *sql.Tx, sh scanHelper, query string, args ...interface{}) (interface{},
-	error) {
-	return queryInternal(tx, sh, query, args...)
+func (r *repo) queryWithTx(tx *sql.Tx, query string, args ...interface{}) (*sql.Rows, error) {
+	return queryInternal(tx, query, args...)
 }
 
-func queryInternal(db dbHandle, sh scanHelper, query string, args ...interface{}) (interface{},
-	error) {
-	rows, err := db.Query(query, args...)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	sr, err := scanRows(rows, sh)
-	if err != nil {
-		return nil, err
-	}
-
-	return sr, nil
+func queryInternal(db dbHandle, query string, args ...interface{}) (*sql.Rows, error) {
+	return db.Query(query, args...)
 }
 
-func scanRows(rows *sql.Rows, sh scanHelper) (interface{}, error) {
-	objs := sh.makeSlice()
-	for rows.Next() {
-		obj, err := sh.scan(rows)
-		if err != nil {
-			return nil, err
-		}
-		objs = sh.appendSlice(objs, obj)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return objs, nil
+func (r *repo) queryRow(ctx context.Context, query string, args ...interface{}) *sql.Row {
+	return queryRowInternal(r.getDbHandle(ctx), query, args...)
 }
 
-func (r *repo) queryRow(ctx context.Context, sh scanHelper, query string, args ...interface{}) (
-	interface{}, error) {
-	return queryRowInternal(r.getDbHandle(ctx), sh, query, args...)
+func (r *repo) queryRowWithTx(tx *sql.Tx, query string, args ...interface{}) *sql.Row {
+	return queryRowInternal(tx, query, args...)
 }
 
-func (r *repo) queryRowWithTx(tx *sql.Tx, sh scanHelper, query string, args ...interface{}) (
-	interface{}, error) {
-	return queryRowInternal(tx, sh, query, args...)
-}
-
-func queryRowInternal(db dbHandle, sh scanHelper, query string, args ...interface{}) (interface{},
-	error) {
-	row := db.QueryRow(query, args...)
-
-	sr, err := sh.scan(row)
-	switch {
-	case err == sql.ErrNoRows:
-		return nil, nil
-	case err != nil:
-		return nil, err
-	default:
-	}
-
-	return sr, nil
+func queryRowInternal(db dbHandle, query string, args ...interface{}) *sql.Row {
+	return db.QueryRow(query, args...)
 }
 
 func (r *repo) queryValue(ctx context.Context, value interface{}, query string,

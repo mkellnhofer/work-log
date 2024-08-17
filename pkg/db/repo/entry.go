@@ -44,15 +44,15 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
 	q, qa := r.buildCountDateEntriesQuery(filter)
 
-	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
+	sh := newIntScanHelper()
+	count, _, qErr := sh.scanRow(r.queryRow(ctx, q, qa...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return 0, err
 	}
-
-	return sr.(int), nil
+	return count, nil
 }
 
 func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (
@@ -82,16 +82,14 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFil
 
 	q, qa := r.buildGetDateEntriesQuery(filter, sort, start, end)
 
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
+	sh := newEntryScanHelper()
+	entries, qErr := sh.scanRows(r.query(ctx, q, qa...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	entries := sr.([]*model.Entry)
-
 	return entries, nil
 }
 
@@ -136,15 +134,15 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 func (r *EntryRepo) CountDateEntriesByUserId(ctx context.Context, userId int) (int, error) {
 	q, qa := r.buildCountDateEntriesByUserIdQuery(userId)
 
-	sr, qErr := r.queryRow(ctx, &scanIntHelper{}, q, qa...)
+	sh := newIntScanHelper()
+	count, _, qErr := sh.scanRow(r.queryRow(ctx, q, qa...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries (over date) in database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return 0, err
 	}
-
-	return sr.(int), nil
+	return count, nil
 }
 
 func (r *EntryRepo) buildCountDateEntriesByUserIdQuery(userId int) (string, []interface{}) {
@@ -175,16 +173,14 @@ func (r *EntryRepo) GetDateEntriesByUserId(ctx context.Context, userId int, offs
 
 	q, qa := r.buildGetDateEntriesByUserIdQuery(userId, start, end)
 
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
+	sh := newEntryScanHelper()
+	entries, qErr := sh.scanRows(r.query(ctx, q, qa...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries (over date) from database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	entries := sr.([]*model.Entry)
-
 	return entries, nil
 }
 
@@ -221,15 +217,13 @@ func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, m
 	[]*model.Entry, error) {
 	q, qa := r.buildGetMonthEntriesQuery(userId, year, month)
 
-	sr, qErr := r.query(ctx, &scanEntryHelper{}, q, qa...)
+	sh := newEntryScanHelper()
+	entries, qErr := sh.scanRows(r.query(ctx, q, qa...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query month entries from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	entries := sr.([]*model.Entry)
-
 	return entries, nil
 }
 
@@ -254,20 +248,14 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilte
 
 	q := "SELECT COUNT(*) FROM entry e " + qr
 
-	var sr interface{}
-	var qErr error
-	if len(qra) > 0 {
-		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q, qra...)
-	} else {
-		sr, qErr = r.queryRow(ctx, &scanIntHelper{}, q)
-	}
+	sh := newIntScanHelper()
+	count, _, qErr := sh.scanRow(r.queryRow(ctx, q, qra...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not count entries in database.", qErr)
 		log.Error(err.StackTrace())
 		return 0, err
 	}
-
-	return sr.(int), nil
+	return count, nil
 }
 
 // GetEntries retrieves all entries.
@@ -284,21 +272,13 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 		qo + " " +
 		createQueryLimitString(offset, limit)
 
-	var sr interface{}
-	var qErr error
-	if len(qra) > 0 {
-		sr, qErr = r.query(ctx, &scanEntryHelper{}, q, qra...)
-	} else {
-		sr, qErr = r.query(ctx, &scanEntryHelper{}, q)
-	}
+	sh := newEntryScanHelper()
+	entries, qErr := sh.scanRows(r.query(ctx, q, qra...))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query entries from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	entries := sr.([]*model.Entry)
-
 	return entries, nil
 }
 
@@ -310,19 +290,17 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, err
 		"WHERE e.id = ? " +
 		"GROUP BY " + r.getEntrySelectColumns()
 
-	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id)
+	sh := newEntryScanHelper()
+	entry, found, qErr := sh.scanRow(r.queryRow(ctx, q, id))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read entry %d from database.",
 			id), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	entry := sr.(*model.Entry)
-
 	return entry, nil
 }
 
@@ -335,19 +313,17 @@ func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId in
 		"WHERE e.id = ? AND e.user_id = ? " +
 		"GROUP BY " + r.getEntrySelectColumns()
 
-	sr, qErr := r.queryRow(ctx, &scanEntryHelper{}, q, id, userId)
+	sh := newEntryScanHelper()
+	entry, found, qErr := sh.scanRow(r.queryRow(ctx, q, id, userId))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read entry %d from database.",
 			id), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	entry := sr.(*model.Entry)
-
 	return entry, nil
 }
 
@@ -510,14 +486,15 @@ func (r *EntryRepo) getOrCreateLabel(tx *sql.Tx, name string) (int, error) {
 func (r *EntryRepo) getLabel(tx *sql.Tx, name string) (int, error) {
 	q := "SELECT id FROM label WHERE name = ?"
 
-	sr, err := r.queryRowWithTx(tx, &scanIntHelper{}, q, name)
+	sh := newIdScanHelper()
+	id, found, err := sh.scanRow(r.queryRowWithTx(tx, q, name))
 	if err != nil {
 		return 0, err
 	}
-	if sr == nil {
+	if !found {
 		return 0, nil
 	}
-	return sr.(int), nil
+	return id, nil
 }
 
 func (r *EntryRepo) createLabel(tx *sql.Tx, name string) (int, error) {
@@ -543,15 +520,15 @@ func (r *EntryRepo) deleteOrphanedLabels(tx *sql.Tx) error {
 func (r *EntryRepo) GetEntryActivities(ctx context.Context) ([]*model.EntryActivity, error) {
 	q := "SELECT id, description FROM entry_activity"
 
-	sr, qErr := r.query(ctx, &scanEntryActivityHelper{}, q)
+	sh := newEntryActivityScanHelper()
+	activities, qErr := sh.scanRows(r.query(ctx, q))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query entry activities from database.",
 			qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	return sr.([]*model.EntryActivity), nil
+	return activities, nil
 }
 
 // GetEntryActivityByDescription retrieves a entry activity by its description.
@@ -559,18 +536,18 @@ func (r *EntryRepo) GetEntryActivityByDescription(ctx context.Context, descripti
 	*model.EntryActivity, error) {
 	q := "SELECT id, description FROM entry_activity WHERE description = ?"
 
-	sr, qErr := r.queryRow(ctx, &scanEntryActivityHelper{}, q, description)
+	sh := newEntryActivityScanHelper()
+	activity, found, qErr := sh.scanRow(r.queryRow(ctx, q, description))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query entry activity '%s' "+
 			"from database.", description), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	return sr.(*model.EntryActivity), nil
+	return activity, nil
 }
 
 // ExistsEntryActivityById checks if a entry activity exists.
@@ -645,15 +622,14 @@ func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.T
 		"AND start_time >= ? AND end_time <= ? " +
 		"GROUP BY type_id"
 
-	sr, qErr := r.query(ctx, &scanWorkDurationHelper{}, q, userId, *formatTimestamp(&start),
-		*formatTimestamp(&end))
+	sh := newWorkDurationScanHelper()
+	workDurations, qErr := sh.scanRows(r.query(ctx, q, userId, *formatTimestamp(&start),
+		*formatTimestamp(&end)))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query work durations from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	workDurations := sr.([]*model.WorkDuration)
 
 	workSummary := model.NewWorkSummary()
 	workSummary.UserId = userId
@@ -781,14 +757,11 @@ func (r *EntryRepo) getDateRange(ctx context.Context, query string, args ...inte
 
 // --- Helper functions ---
 
-type scanEntryHelper struct {
+func newEntryScanHelper() *scanHelper[*model.Entry] {
+	return newScanHelper(10, scanEntryFunc)
 }
 
-func (h *scanEntryHelper) makeSlice() interface{} {
-	return make([]*model.Entry, 0, 100)
-}
-
-func (h *scanEntryHelper) scan(s scanner) (interface{}, error) {
+func scanEntryFunc(s scanner) (*model.Entry, error) {
 	var dbE dbEntry
 
 	err := s.Scan(&dbE.id, &dbE.userId, &dbE.typeId, &dbE.startTime, &dbE.endTime, &dbE.activityId,
@@ -802,18 +775,11 @@ func (h *scanEntryHelper) scan(s scanner) (interface{}, error) {
 	return entry, nil
 }
 
-func (h *scanEntryHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.Entry), item.(*model.Entry))
+func newEntryActivityScanHelper() *scanHelper[*model.EntryActivity] {
+	return newScanHelper(10, scanEntryActivityFunc)
 }
 
-type scanEntryActivityHelper struct {
-}
-
-func (h *scanEntryActivityHelper) makeSlice() interface{} {
-	return make([]*model.EntryActivity, 0, 10)
-}
-
-func (h *scanEntryActivityHelper) scan(s scanner) (interface{}, error) {
+func scanEntryActivityFunc(s scanner) (*model.EntryActivity, error) {
 	var et model.EntryActivity
 
 	err := s.Scan(&et.Id, &et.Description)
@@ -824,18 +790,11 @@ func (h *scanEntryActivityHelper) scan(s scanner) (interface{}, error) {
 	return &et, nil
 }
 
-func (h *scanEntryActivityHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.EntryActivity), item.(*model.EntryActivity))
+func newWorkDurationScanHelper() *scanHelper[*model.WorkDuration] {
+	return newScanHelper(10, scanWorkDurationFunc)
 }
 
-type scanWorkDurationHelper struct {
-}
-
-func (h *scanWorkDurationHelper) makeSlice() interface{} {
-	return make([]*model.WorkDuration, 0, 10)
-}
-
-func (h *scanWorkDurationHelper) scan(s scanner) (interface{}, error) {
+func scanWorkDurationFunc(s scanner) (*model.WorkDuration, error) {
 	var dbWd dbWorkDuration
 
 	err := s.Scan(&dbWd.typeId, &dbWd.workDuration)
@@ -846,10 +805,6 @@ func (h *scanWorkDurationHelper) scan(s scanner) (interface{}, error) {
 	workDuration := fromDbWorkDuration(&dbWd)
 
 	return workDuration, nil
-}
-
-func (h *scanWorkDurationHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.WorkDuration), item.(*model.WorkDuration))
 }
 
 func toDbEntry(in *model.Entry) *dbEntry {

@@ -99,18 +99,18 @@ func (r *ContractRepo) getContract(ctx context.Context, userId int) (*model.Cont
 	q := "SELECT init_overtime_hours, init_vacation_days, first_day FROM contract " +
 		"WHERE user_id = ?"
 
-	sr, qErr := r.queryRow(ctx, &scanContractHelper{}, q, userId)
+	sh := newContractScanHelper()
+	contract, found, qErr := sh.scanRow(r.queryRow(ctx, q, userId))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read contract for user %d "+
 			"from database.", userId), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-
-	return sr.(*model.Contract), nil
+	return contract, nil
 }
 
 func (r *ContractRepo) createContract(tx *sql.Tx, userId int, contract *model.Contract,
@@ -153,15 +153,15 @@ func (r *ContractRepo) getContractVacationDays(ctx context.Context, userId int,
 ) ([]model.ContractVacationDays, error) {
 	q := "SELECT first_day, monthly_days FROM contract_vacation_days WHERE user_id = ?"
 
-	sr, qErr := r.query(ctx, &scanContractVacationDaysHelper{}, q, userId)
+	sh := newContractVacationDaysScanHelper()
+	vacationDays, qErr := sh.scanRows(r.query(ctx, q, userId))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read contract for user %d "+
 			"from database.", userId), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	return sr.([]model.ContractVacationDays), nil
+	return vacationDays, nil
 }
 
 func (r *ContractRepo) setContractVacationDays(tx *sql.Tx, userId int,
@@ -194,15 +194,15 @@ func (r *ContractRepo) getContractWorkingHours(ctx context.Context, userId int,
 ) ([]model.ContractWorkingHours, error) {
 	q := "SELECT first_day, daily_hours FROM contract_working_hours WHERE user_id = ?"
 
-	sr, qErr := r.query(ctx, &scanContractWorkingHoursHelper{}, q, userId)
+	sh := newContractWorkingHoursScanHelper()
+	workingHours, qErr := sh.scanRows(r.query(ctx, q, userId))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read contract for user %d "+
 			"from database.", userId), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	return sr.([]model.ContractWorkingHours), nil
+	return workingHours, nil
 }
 
 func (r *ContractRepo) setContractWorkingHours(tx *sql.Tx, userId int,
@@ -233,14 +233,11 @@ func (r *ContractRepo) setContractWorkingHours(tx *sql.Tx, userId int,
 
 // --- Helper functions ---
 
-type scanContractHelper struct {
+func newContractScanHelper() *scanHelper[*model.Contract] {
+	return newScanHelper(10, scanContractFunc)
 }
 
-func (h *scanContractHelper) makeSlice() interface{} {
-	return make([]*model.Contract, 0, 10)
-}
-
-func (h *scanContractHelper) scan(s scanner) (interface{}, error) {
+func scanContractFunc(s scanner) (*model.Contract, error) {
 	var dbC dbContract
 
 	err := s.Scan(&dbC.initOvertimeHours, &dbC.initVacationDays, &dbC.firstDay)
@@ -251,10 +248,6 @@ func (h *scanContractHelper) scan(s scanner) (interface{}, error) {
 	c := fromDbContract(&dbC)
 
 	return c, nil
-}
-
-func (h *scanContractHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.Contract), item.(*model.Contract))
 }
 
 func toDbContract(in *model.Contract) *dbContract {
@@ -273,28 +266,21 @@ func fromDbContract(in *dbContract) *model.Contract {
 	return &out
 }
 
-type scanContractVacationDaysHelper struct {
+func newContractVacationDaysScanHelper() *scanHelper[model.ContractVacationDays] {
+	return newScanHelper(10, scanContractVacationDaysFunc)
 }
 
-func (h *scanContractVacationDaysHelper) makeSlice() interface{} {
-	return make([]model.ContractVacationDays, 0, 10)
-}
-
-func (h *scanContractVacationDaysHelper) scan(s scanner) (interface{}, error) {
+func scanContractVacationDaysFunc(s scanner) (model.ContractVacationDays, error) {
 	var dbC dbContractVacationDays
 
 	err := s.Scan(&dbC.firstDay, &dbC.monthlyDays)
 	if err != nil {
-		return nil, err
+		return model.ContractVacationDays{}, err
 	}
 
 	c := fromDbContractVacationDays(dbC)
 
 	return c, nil
-}
-
-func (h *scanContractVacationDaysHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]model.ContractVacationDays), item.(model.ContractVacationDays))
 }
 
 func toDbContractVacationDays(in model.ContractVacationDays) dbContractVacationDays {
@@ -311,28 +297,21 @@ func fromDbContractVacationDays(in dbContractVacationDays) model.ContractVacatio
 	return out
 }
 
-type scanContractWorkingHoursHelper struct {
+func newContractWorkingHoursScanHelper() *scanHelper[model.ContractWorkingHours] {
+	return newScanHelper(10, scanContractWorkingHoursFunc)
 }
 
-func (h *scanContractWorkingHoursHelper) makeSlice() interface{} {
-	return make([]model.ContractWorkingHours, 0, 10)
-}
-
-func (h *scanContractWorkingHoursHelper) scan(s scanner) (interface{}, error) {
+func scanContractWorkingHoursFunc(s scanner) (model.ContractWorkingHours, error) {
 	var dbC dbContractWorkingHours
 
 	err := s.Scan(&dbC.firstDay, &dbC.dailyHours)
 	if err != nil {
-		return nil, err
+		return model.ContractWorkingHours{}, err
 	}
 
 	c := fromDbContractWorkingHours(dbC)
 
 	return c, nil
-}
-
-func (h *scanContractWorkingHoursHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]model.ContractWorkingHours), item.(model.ContractWorkingHours))
 }
 
 func toDbContractWorkingHours(in model.ContractWorkingHours) dbContractWorkingHours {

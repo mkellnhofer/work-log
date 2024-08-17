@@ -27,50 +27,50 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 func (r *UserRepo) GetUsers(ctx context.Context) ([]*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user"
 
-	sr, qErr := r.query(ctx, &scanUserHelper{}, q)
+	sh := newUserScanHelper()
+	users, qErr := sh.scanRows(r.query(ctx, q))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, "Could not query users from database.", qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	return sr.([]*model.User), nil
+	return users, nil
 }
 
 // GetUserById retrieves a user by its ID.
 func (r *UserRepo) GetUserById(ctx context.Context, id int) (*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user WHERE id = ?"
 
-	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, id)
+	sh := newUserScanHelper()
+	user, found, qErr := sh.scanRow(r.queryRow(ctx, q, id))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user %d from database.",
 			id), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	return sr.(*model.User), nil
+	return user, nil
 }
 
 // GetUserByUsername retrieves a user by its username.
 func (r *UserRepo) GetUserByUsername(ctx context.Context, username string) (*model.User, error) {
 	q := "SELECT id, name, username, password, must_change_password FROM user WHERE username = ?"
 
-	sr, qErr := r.queryRow(ctx, &scanUserHelper{}, q, username)
+	sh := newUserScanHelper()
+	user, found, qErr := sh.scanRow(r.queryRow(ctx, q, username))
 	if qErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not read user '%s' from database.",
 			username), qErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	if sr == nil {
+	if !found {
 		return nil, nil
 	}
-	return sr.(*model.User), nil
+	return user, nil
 }
 
 // ExistsUserById checks if a user exists.
@@ -138,15 +138,15 @@ func (r *UserRepo) DeleteUserById(ctx context.Context, id int) error {
 func (r *UserRepo) GetUserRoles(ctx context.Context, userId int) ([]model.Role, error) {
 	q := "SELECT r.name FROM user_role ur JOIN role r ON ur.role_id = r.id WHERE ur.user_id = ?"
 
-	sr, qrErr := r.query(ctx, scanRoleHelper{}, q, userId)
+	sh := newRoleScanHelper()
+	roles, qrErr := sh.scanRows(r.query(ctx, q, userId))
 	if qrErr != nil {
 		err := e.WrapError(e.SysDbQueryFailed, fmt.Sprintf("Could not query user roles for user %d "+
 			"from database.", userId), qrErr)
 		log.Error(err.StackTrace())
 		return nil, err
 	}
-
-	return sr.([]model.Role), nil
+	return roles, nil
 }
 
 // SetUserRoles set roles of a user by its ID.
@@ -301,36 +301,26 @@ func (r *UserRepo) UpdateUserStringSetting(ctx context.Context, userId int, key 
 
 // --- Helper functions ---
 
-type scanRoleHelper struct {
+func newRoleScanHelper() *scanHelper[model.Role] {
+	return newScanHelper(10, scanRoleFunc)
 }
 
-func (h scanRoleHelper) makeSlice() interface{} {
-	return make([]model.Role, 0, 10)
-}
-
-func (h scanRoleHelper) scan(s scanner) (interface{}, error) {
+func scanRoleFunc(s scanner) (model.Role, error) {
 	var role model.Role
 
 	err := s.Scan(&role)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	return role, nil
 }
 
-func (h scanRoleHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]model.Role), item.(model.Role))
+func newUserScanHelper() *scanHelper[*model.User] {
+	return newScanHelper(10, scanUserFunc)
 }
 
-type scanUserHelper struct {
-}
-
-func (h *scanUserHelper) makeSlice() interface{} {
-	return make([]*model.User, 0, 10)
-}
-
-func (h *scanUserHelper) scan(s scanner) (interface{}, error) {
+func scanUserFunc(s scanner) (*model.User, error) {
 	var u model.User
 
 	err := s.Scan(&u.Id, &u.Name, &u.Username, &u.Password, &u.MustChangePassword)
@@ -339,8 +329,4 @@ func (h *scanUserHelper) scan(s scanner) (interface{}, error) {
 	}
 
 	return &u, nil
-}
-
-func (h *scanUserHelper) appendSlice(items interface{}, item interface{}) interface{} {
-	return append(items.([]*model.User), item.(*model.User))
 }

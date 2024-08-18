@@ -170,8 +170,9 @@ func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	// | typeId      | eq (equal)            | int                        |
 	// | startTime   | bt (between)          | datetime strings           |
 	// | activityId  | i (is), eq (equal)    | null, int                  |
-	// | labels      | i (is), in (in)       | null, strings              |
+	// | project     | i (is), cn (contains) | null, string               |
 	// | description | i (is), cn (contains) | null, string               |
+	// | labels      | i (is), in (in)       | null, strings              |
 	// &#9432; Filters are connected via logical conjunction (AND).
 	//
 	// __Filter Syntax:__
@@ -304,15 +305,19 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	//
 	// # Input Rules
 	//
+	// __Project:__
+	//
+	// ⦁ Maximum length: 30
+	//
+	// __Description:__
+	//
+	// ⦁ Maximum length: 200
+	//
 	// __Labels:__
 	//
 	// ⦁ Minimum length: 3
 	// ⦁ Maximum length: 20
 	// ⦁ Allowed characters: `0-9 a-z A-Z - _ . ! # @`
-	//
-	// __Description:__
-	//
-	// ⦁ Maximum length: 200
 	//
 	// ---
 	//
@@ -460,15 +465,19 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	//
 	// # Input Rules
 	//
+	// __Project:__
+	//
+	// ⦁ Maximum length: 30
+	//
+	// __Description:__
+	//
+	// ⦁ Maximum length: 200
+	//
 	// __Labels:__
 	//
 	// ⦁ Minimum length: 3
 	// ⦁ Maximum length: 20
 	// ⦁ Allowed characters: `0-9 a-z A-Z - _ . ! # @`
-	//
-	// __Description:__
-	//
-	// ⦁ Maximum length: 200
 	//
 	// ---
 	//

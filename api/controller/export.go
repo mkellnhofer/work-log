@@ -43,8 +43,9 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	// | typeId      | eq (equal)            | int                        |
 	// | startTime   | bt (between)          | datetime strings           |
 	// | activityId  | i (is), eq (equal)    | null, int                  |
-	// | labels      | i (is), in (in)       | null, strings              |
+	// | project     | i (is), cn (contains) | null, string               |
 	// | description | i (is), cn (contains) | null, string               |
+	// | labels      | i (is), in (in)       | null, strings              |
 	// &#9432; Filters are connected via logical conjunction (AND).
 	//
 	// __Filter Syntax:__

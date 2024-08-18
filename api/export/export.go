@@ -61,6 +61,7 @@ func (e *EntriesExporter) ExportEntries(entries []*model.Entry, entryTypes []*mo
 		"End Time",
 		"Type",
 		"Activity",
+		"Project",
 		"Description",
 		"Labels",
 	}
@@ -73,6 +74,7 @@ func (e *EntriesExporter) ExportEntries(entries []*model.Entry, entryTypes []*mo
 			entry.EndTime.Format(time.RFC3339),
 			e.getEntryTypeDescription(entryTypesMap, entry.TypeId),
 			e.getEntryActivityDescription(entryActivitiesMap, entry.ActivityId),
+			entry.Project,
 			entry.Description,
 			strings.Join(entry.Labels, " "),
 		}

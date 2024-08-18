@@ -26,14 +26,20 @@ type CreateEntry struct {
 	// example: 1
 	ActivityId int `json:"activityId"`
 
-	// The labels associated with the entry.
-	// min length: 3
-	// max length: 20
-	// example: ["bug", "frontend"]
-	Labels []string `json:"labels"`
+	// The name of the project.
+	// min length: 0
+	// max length: 30
+	// example: Web Client
+	Project string `json:"project"`
 
 	// The description with additional information about the entry.
 	// min length: 0
 	// max length: 200
 	Description string `json:"description"`
+
+	// The labels associated with the entry.
+	// min length: 3
+	// max length: 20
+	// example: ["bug", "frontend"]
+	Labels []string `json:"labels"`
 }

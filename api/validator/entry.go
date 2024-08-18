@@ -55,10 +55,13 @@ func ValidateCreateEntry(data *vm.CreateEntry) error {
 	if err := checkEntryActivityId(data.ActivityId); err != nil {
 		return err
 	}
-	if err := checkEntryLabels(data.Labels); err != nil {
+	if err := checkEntryProject(data.Project); err != nil {
 		return err
 	}
-	return checkEntryDescription(data.Description)
+	if err := checkEntryDescription(data.Description); err != nil {
+		return err
+	}
+	return checkEntryLabels(data.Labels)
 }
 
 // ValidateUpdateEntry validates information of a UpdateEntry API model.
@@ -78,10 +81,13 @@ func ValidateUpdateEntry(data *vm.UpdateEntry) error {
 	if err := checkEntryActivityId(data.ActivityId); err != nil {
 		return err
 	}
-	if err := checkEntryLabels(data.Labels); err != nil {
+	if err := checkEntryProject(data.Project); err != nil {
 		return err
 	}
-	return checkEntryDescription(data.Description)
+	if err := checkEntryDescription(data.Description); err != nil {
+		return err
+	}
+	return checkEntryLabels(data.Labels)
 }
 
 // --- Basic entry validation functions ---
@@ -104,6 +110,20 @@ func checkEntryTypeId(id int) error {
 
 func checkEntryActivityId(id int) error {
 	return checkIdZeroPositive("activityId", id)
+}
+
+func checkEntryProject(project string) error {
+	if err := checkStringNotTooLong("project", project, m.MaxLengthEntryProjectName); err != nil {
+		return err
+	}
+	return nil
+}
+
+func checkEntryDescription(desc string) error {
+	if err := checkStringNotTooLong("description", desc, m.MaxLengthEntryDescription); err != nil {
+		return err
+	}
+	return nil
 }
 
 func checkEntryLabels(labels []string) error {
@@ -138,13 +158,6 @@ func checkEntryLabel(label string) error {
 	if !r.MatchString(trimmed) {
 		err := e.NewError(e.ValLabelInvalid, "'label' contains contains illegal character.")
 		log.Debug(err.StackTrace())
-		return err
-	}
-	return nil
-}
-
-func checkEntryDescription(desc string) error {
-	if err := checkStringNotTooLong("description", desc, m.MaxLengthEntryDescription); err != nil {
 		return err
 	}
 	return nil

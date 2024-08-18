@@ -34,8 +34,9 @@ func ToEntry(e *m.Entry) *am.Entry {
 	out.EndTime = formatTimestamp(e.EndTime)
 	out.TypeId = e.TypeId
 	out.ActivityId = e.ActivityId
+	out.Project = e.Project
+	out.Description = e.Description
 	out.Labels = e.Labels
-	out.Desciption = e.Description
 	return &out
 }
 
@@ -51,8 +52,9 @@ func FromCreateEntry(ce *am.CreateEntry) *m.Entry {
 	out.EndTime = parseTimestamp(ce.EndTime)
 	out.TypeId = ce.TypeId
 	out.ActivityId = ce.ActivityId
+	out.Project = trimString(ce.Project)
+	out.Description = trimString(ce.Description)
 	out.Labels = trimStrings(ce.Labels)
-	out.Description = ce.Description
 	return &out
 }
 
@@ -69,8 +71,9 @@ func FromUpdateEntry(id int, ue *am.UpdateEntry) *m.Entry {
 	out.EndTime = parseTimestamp(ue.EndTime)
 	out.TypeId = ue.TypeId
 	out.ActivityId = ue.ActivityId
+	out.Project = trimString(ue.Project)
+	out.Description = trimString(ue.Description)
 	out.Labels = trimStrings(ue.Labels)
-	out.Description = ue.Description
 	return &out
 }
 

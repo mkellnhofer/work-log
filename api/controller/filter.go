@@ -32,8 +32,9 @@ const (
 	filterNameTypeId      = "typeId"
 	filterNameStartTime   = "startTime"
 	filterNameActivityId  = "activityId"
-	filterNameLabels      = "labels"
+	filterNameProject     = "project"
 	filterNameDescription = "description"
+	filterNameLabels      = "labels"
 )
 
 func getEntriesFilter(str string) (*model.EntriesFilter, error) {
@@ -45,7 +46,7 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 
 	// Check for unknown/unsupported filters
 	filterNames := []string{filterNameUserId, filterNameTypeId, filterNameStartTime,
-		filterNameActivityId, filterNameLabels, filterNameDescription}
+		filterNameActivityId, filterNameProject, filterNameDescription, filterNameLabels}
 	if err = checkFiltersSupported(filters, filterNames); err != nil {
 		return nil, err
 	}
@@ -84,10 +85,10 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 			return nil, err
 		}
 	}
-	// Get labels filter
-	if filter, ok := filters[filterNameLabels]; ok {
-		entryFilter.ByLabel = true
-		entryFilter.Labels, err = getStringArrayFilterValue(filter, true)
+	// Get project filter
+	if filter, ok := filters[filterNameProject]; ok {
+		entryFilter.ByProject = true
+		entryFilter.Project, err = getStringFilterValue(filter, true)
 		if err != nil {
 			return nil, err
 		}
@@ -96,6 +97,14 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 	if filter, ok := filters[filterNameDescription]; ok {
 		entryFilter.ByDescription = true
 		entryFilter.Description, err = getStringFilterValue(filter, true)
+		if err != nil {
+			return nil, err
+		}
+	}
+	// Get labels filter
+	if filter, ok := filters[filterNameLabels]; ok {
+		entryFilter.ByLabel = true
+		entryFilter.Labels, err = getStringArrayFilterValue(filter, true)
 		if err != nil {
 			return nil, err
 		}

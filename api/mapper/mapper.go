@@ -37,6 +37,10 @@ func formatTimestamp(t time.Time) string {
 	return t.Format(constant.ApiTimestampFormat)
 }
 
+func trimString(s string) string {
+	return strings.TrimSpace(s)
+}
+
 func trimStrings(s []string) []string {
 	outs := make([]string, len(s))
 	for i, v := range s {

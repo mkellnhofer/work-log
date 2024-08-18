@@ -10,8 +10,9 @@ type Entry struct {
 	StartTime   time.Time // Start time of the entry
 	EndTime     time.Time // End time of the entry
 	ActivityId  int       // ID of the entry activity
-	Labels      []string  // Labels for the entry
+	Project     string    // Related project name of the entry
 	Description string    // Description for the entry
+	Labels      []string  // Labels for the entry
 }
 
 // NewEntry create a new Entry model.

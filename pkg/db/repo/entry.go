@@ -12,15 +12,27 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 )
 
-type dbEntry struct {
+type dbReadEntry struct {
 	id          int
 	userId      int
 	typeId      int
 	startTime   string
 	endTime     string
 	activityId  sql.NullInt64
+	project     sql.NullString
 	description sql.NullString
 	labels      sql.NullString
+}
+
+type dbWriteEntry struct {
+	id          int
+	userId      int
+	typeId      int
+	startTime   string
+	endTime     string
+	activityId  sql.NullInt64
+	projectId   sql.NullInt64
+	description sql.NullString
 }
 
 type dbWorkDuration struct {
@@ -58,7 +70,10 @@ func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesF
 func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (string, []any) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
-	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) FROM entry e " + qr
+	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
+		"FROM entry e " +
+		"LEFT JOIN project p ON e.project_id = p.id " +
+		qr
 
 	return q, qra
 }
@@ -104,6 +119,7 @@ func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
 
 	q := "SELECT DISTINCT(DATE(e.start_time)) AS date " +
 		"FROM entry e " +
+		"LEFT JOIN project p ON e.project_id = p.id " +
 		qr + " " +
 		qo + " " +
 		createQueryLimitString(offset, limit)
@@ -116,12 +132,11 @@ func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		qr + " " +
 		"AND e.start_time BETWEEN ? AND ? " +
-		"GROUP BY " + r.getEntrySelectColumns() + " " +
+		"GROUP BY " + r.getEntrySelectGroupByColumns() + " " +
 		qo
 
 	qa := append(qra, start, end)
@@ -198,12 +213,11 @@ func (r *EntryRepo) buildGetDateEntriesByUserIdRangeQuery(userId int, offset int
 
 func (r *EntryRepo) buildGetDateEntriesByUserIdQuery(userId int, start string, end string) (string,
 	[]any) {
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		"WHERE e.user_id = ? " +
 		"AND e.start_time BETWEEN ? AND ? " +
-		"GROUP BY " + r.getEntrySelectColumns() + " " +
+		"GROUP BY " + r.getEntrySelectGroupByColumns() + " " +
 		"ORDER BY e.start_time DESC, e.end_time DESC"
 
 	qa := []any{userId, start, end}
@@ -227,12 +241,11 @@ func (r *EntryRepo) GetMonthEntries(ctx context.Context, userId int, year int, m
 }
 
 func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (string, []any) {
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		"WHERE e.user_id = ? " +
 		"AND YEAR(e.start_time) = ? AND MONTH(e.start_time) = ? " +
-		"GROUP BY " + r.getEntrySelectColumns() + " " +
+		"GROUP BY " + r.getEntrySelectGroupByColumns() + " " +
 		"ORDER BY e.start_time ASC, e.end_time ASC"
 
 	qa := []any{userId, year, month}
@@ -244,7 +257,10 @@ func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (
 func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 
-	q := "SELECT COUNT(*) FROM entry e " + qr
+	q := "SELECT COUNT(*) "+
+		"FROM entry e " + 
+		"LEFT JOIN project p ON e.project_id = p.id " +
+		qr
 
 	sh := newIntScanHelper()
 	count, _, qErr := sh.scanRow(r.queryRow(ctx, q, qra...))
@@ -262,11 +278,10 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
 	qo := r.buildEntriesSortQueryClause(sort)
 
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		qr + " " +
-		"GROUP BY " + r.getEntrySelectColumns() + " " +
+		"GROUP BY " + r.getEntrySelectGroupByColumns() + " " +
 		qo + " " +
 		createQueryLimitString(offset, limit)
 
@@ -282,11 +297,10 @@ func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
 
 // GetEntryById retrieves an entry.
 func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, error) {
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		"WHERE e.id = ? " +
-		"GROUP BY " + r.getEntrySelectColumns()
+		"GROUP BY " + r.getEntrySelectGroupByColumns()
 
 	sh := newEntryScanHelper()
 	entry, found, qErr := sh.scanRow(r.queryRow(ctx, q, id))
@@ -305,11 +319,10 @@ func (r *EntryRepo) GetEntryById(ctx context.Context, id int) (*model.Entry, err
 // GetEntryByIdAndUserId retrieves an entry of an user.
 func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId int) (*model.Entry,
 	error) {
-	q := "SELECT " + r.getEntrySelectColumns() + ", " + r.getEntrySelectLabelsColumn() + " " +
-		"FROM entry e " +
-		r.getEntrySelectLabelsJoin() + " " +
+	q := "SELECT " + r.getEntrySelectColumns() + " " +
+		"FROM " + r.getEntrySelectTables() + " " +
 		"WHERE e.id = ? AND e.user_id = ? " +
-		"GROUP BY " + r.getEntrySelectColumns()
+		"GROUP BY " + r.getEntrySelectGroupByColumns()
 
 	sh := newEntryScanHelper()
 	entry, found, qErr := sh.scanRow(r.queryRow(ctx, q, id, userId))
@@ -326,16 +339,33 @@ func (r *EntryRepo) GetEntryByIdAndUserId(ctx context.Context, id int, userId in
 }
 
 func (r *EntryRepo) getEntrySelectColumns() string {
+	return r.getEntrySelectBaseColumns() + ", " +
+		r.getEntrySelectProjectColumn() + ", " +
+		r.getEntrySelectLabelsColumn()
+}
+
+func (r *EntryRepo) getEntrySelectTables() string {
+	return "entry e " +
+		"LEFT JOIN project p ON e.project_id = p.id " +
+		"LEFT JOIN entry_label el ON e.id = el.entry_id " +
+		"LEFT JOIN label l ON el.label_id = l.id"
+}
+
+func (r *EntryRepo) getEntrySelectGroupByColumns() string {
+	return r.getEntrySelectBaseColumns() + ", " +
+		r.getEntrySelectProjectColumn()
+}
+
+func (r *EntryRepo) getEntrySelectBaseColumns() string {
 	return "e.id, e.user_id, e.type_id, e.start_time, e.end_time, e.activity_id, e.description"
+}
+
+func (r *EntryRepo) getEntrySelectProjectColumn() string {
+	return "p.name"
 }
 
 func (r *EntryRepo) getEntrySelectLabelsColumn() string {
 	return "GROUP_CONCAT(l.name ORDER BY l.name SEPARATOR ',') AS labels"
-}
-
-func (r *EntryRepo) getEntrySelectLabelsJoin() string {
-	return "LEFT JOIN entry_label el ON e.id = el.entry_id " +
-		"LEFT JOIN label l ON el.label_id = l.id"
 }
 
 // ExistsEntryById checks if a entry exists.
@@ -378,13 +408,19 @@ func (r *EntryRepo) ExistsEntryByActivityId(ctx context.Context, activityId int)
 // CreateEntry creates a new entry.
 func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) error {
 	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
-		etr := toDbEntry(entry)
+		projectId, cpErr := r.getOrCreateProject(tx, entry.Project)
+		if cpErr != nil {
+			return cpErr
+		}
 
-		q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, description) " +
-			"VALUES (?, ?, ?, ?, ?, ?)"
+		etr := toDbEntry(0, entry.UserId, entry.TypeId, entry.StartTime, entry.EndTime,
+			entry.ActivityId, projectId, entry.Description)
+
+		q := "INSERT INTO entry (user_id, type_id, start_time, end_time, activity_id, project_id, " +
+			"description) VALUES (?, ?, ?, ?, ?, ?, ?)"
 
 		id, cErr := r.insertWithTx(tx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
-			etr.activityId, etr.description)
+			etr.activityId, etr.projectId, etr.description)
 		if cErr != nil {
 			err := e.WrapError(e.SysDbInsertFailed, "Could not create entry in database.", cErr)
 			log.Error(err.StackTrace())
@@ -400,13 +436,19 @@ func (r *EntryRepo) CreateEntry(ctx context.Context, entry *model.Entry) error {
 // UpdateEntry updates a entry.
 func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) error {
 	return r.executeInTransaction(ctx, func(tx *sql.Tx) error {
-		etr := toDbEntry(entry)
+		projectId, cpErr := r.getOrCreateProject(tx, entry.Project)
+		if cpErr != nil {
+			return cpErr
+		}
+
+		etr := toDbEntry(entry.Id, entry.UserId, entry.TypeId, entry.StartTime, entry.EndTime,
+			entry.ActivityId, projectId, entry.Description)
 
 		q := "UPDATE entry SET user_id = ?, type_id = ?, start_time = ?, end_time = ?, " +
-			"activity_id = ?, description = ? WHERE id = ?"
+			"activity_id = ?, project_id = ?, description = ? WHERE id = ?"
 
 		uErr := r.execWithTx(tx, q, etr.userId, etr.typeId, etr.startTime, etr.endTime,
-			etr.activityId, etr.description, etr.id)
+			etr.activityId, etr.projectId, etr.description, etr.id)
 		if uErr != nil {
 			err := e.WrapError(e.SysDbUpdateFailed, fmt.Sprintf("Could not update entry %d in "+
 				"database.", entry.Id), uErr)
@@ -414,9 +456,12 @@ func (r *EntryRepo) UpdateEntry(ctx context.Context, entry *model.Entry) error {
 			return err
 		}
 
-		ulErr := r.setEntryLabels(tx, entry.Id, entry.Labels)
-		if ulErr != nil {
+		if ulErr := r.setEntryLabels(tx, entry.Id, entry.Labels); ulErr != nil {
 			return ulErr
+		}
+
+		if dpErr := r.deleteOrphanedProjects(tx); dpErr != nil {
+			return dpErr
 		}
 
 		return r.deleteOrphanedLabels(tx)
@@ -436,14 +481,74 @@ func (r *EntryRepo) DeleteEntryById(ctx context.Context, id int) error {
 			return err
 		}
 
+		if dpErr := r.deleteOrphanedProjects(tx); dpErr != nil {
+			return dpErr
+		}
+
 		return r.deleteOrphanedLabels(tx)
 	})
 }
 
+func (r *EntryRepo) getOrCreateProject(tx *sql.Tx, name string) (int, error) {
+	if name == "" {
+		return 0, nil
+	}
+	id, err := r.getProject(tx, name)
+	if err != nil {
+		return 0, err
+	}
+	if id != 0 {
+		return id, nil
+	}
+	return r.createProject(tx, name)
+}
+
+func (r *EntryRepo) getProject(tx *sql.Tx, name string) (int, error) {
+	q := "SELECT id FROM project WHERE name = ?"
+
+	sh := newIdScanHelper()
+	id, found, qErr := sh.scanRow(r.queryRowWithTx(tx, q, name))
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not get project from database.", qErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+	if !found {
+		return 0, nil
+	}
+	return id, nil
+}
+
+func (r *EntryRepo) createProject(tx *sql.Tx, name string) (int, error) {
+	q := "INSERT INTO project (name) VALUES (?)"
+
+	id, cErr := r.insertWithTx(tx, q, name)
+	if cErr != nil {
+		err := e.WrapError(e.SysDbInsertFailed, "Could not create project in database.", cErr)
+		log.Error(err.StackTrace())
+		return 0, err
+	}
+	return id, nil
+}
+
+func (r *EntryRepo) deleteOrphanedProjects(tx *sql.Tx) error {
+	q := "DELETE FROM project " +
+		"WHERE id NOT IN (SELECT DISTINCT project_id FROM entry WHERE project_id IS NOT NULL)"
+
+	if dErr := r.execWithTx(tx, q); dErr != nil {
+		err := e.WrapError(e.SysDbDeleteFailed, "Could not delete orphaned projects from database.",
+			dErr)
+		log.Error(err.StackTrace())
+		return err
+	}
+	return nil
+}
+
 func (r *EntryRepo) setEntryLabels(tx *sql.Tx, entryId int, labels []string) error {
 	q := "DELETE FROM entry_label WHERE entry_id = ?"
-	err := r.execWithTx(tx, q, entryId)
-	if err != nil {
+	if dErr := r.execWithTx(tx, q, entryId); dErr != nil {
+		err := e.WrapError(e.SysDbUpdateFailed, "Could not delete entry labels from database.", dErr)
+		log.Error(err.StackTrace())
 		return err
 	}
 
@@ -459,8 +564,10 @@ func (r *EntryRepo) setEntryLabels(tx *sql.Tx, entryId int, labels []string) err
 		}
 
 		q := "INSERT INTO entry_label (entry_id, label_id) VALUES (?, ?)"
-		err = r.execWithTx(tx, q, entryId, labelId)
-		if err != nil {
+		if cErr := r.execWithTx(tx, q, entryId, labelId); cErr != nil {
+			err := e.WrapError(e.SysDbUpdateFailed, "Could not insert entry label into database.",
+				cErr)
+			log.Error(err.StackTrace())
 			return err
 		}
 
@@ -485,8 +592,10 @@ func (r *EntryRepo) getLabel(tx *sql.Tx, name string) (int, error) {
 	q := "SELECT id FROM label WHERE name = ?"
 
 	sh := newIdScanHelper()
-	id, found, err := sh.scanRow(r.queryRowWithTx(tx, q, name))
-	if err != nil {
+	id, found, qErr := sh.scanRow(r.queryRowWithTx(tx, q, name))
+	if qErr != nil {
+		err := e.WrapError(e.SysDbQueryFailed, "Could not get label from database.", qErr)
+		log.Error(err.StackTrace())
 		return 0, err
 	}
 	if !found {
@@ -498,8 +607,10 @@ func (r *EntryRepo) getLabel(tx *sql.Tx, name string) (int, error) {
 func (r *EntryRepo) createLabel(tx *sql.Tx, name string) (int, error) {
 	q := "INSERT INTO label (name) VALUES (?)"
 
-	id, err := r.insertWithTx(tx, q, name)
-	if err != nil {
+	id, cErr := r.insertWithTx(tx, q, name)
+	if cErr != nil {
+		err := e.WrapError(e.SysDbInsertFailed, "Could not insert label into database.", cErr)
+		log.Error(err.StackTrace())
 		return 0, err
 	}
 	return id, nil
@@ -509,7 +620,13 @@ func (r *EntryRepo) deleteOrphanedLabels(tx *sql.Tx) error {
 	q := "DELETE FROM label " +
 		"WHERE id NOT IN (SELECT DISTINCT label_id FROM entry_label)"
 
-	return r.execWithTx(tx, q)
+	if dErr := r.execWithTx(tx, q); dErr != nil {
+		err := e.WrapError(e.SysDbDeleteFailed, "Could not delete orphaned labels from database.",
+			dErr)
+		log.Error(err.StackTrace())
+		return err
+	}
+	return nil
 }
 
 // --- Entry activity functions ---
@@ -650,13 +767,16 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 	if filter.ByUser {
 		qrs = append(qrs, fmt.Sprintf("e.user_id = %d", filter.UserId))
 	}
+
 	if filter.ByType {
 		qrs = append(qrs, fmt.Sprintf("e.type_id = %d", filter.TypeId))
 	}
+
 	if filter.ByTime {
 		qrs = append(qrs, fmt.Sprintf("(e.start_time BETWEEN '%s' AND '%s')",
 			*formatTimestamp(&filter.StartTime), *formatTimestamp(&filter.EndTime)))
 	}
+
 	if filter.ByActivity {
 		if filter.ActivityId == 0 {
 			qrs = append(qrs, "e.activity_id IS NULL")
@@ -664,6 +784,25 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 			qrs = append(qrs, fmt.Sprintf("e.activity_id = %d", filter.ActivityId))
 		}
 	}
+
+	if filter.ByProject {
+		if filter.Project == "" {
+			qrs = append(qrs, "p.name IS NULL")
+		} else {
+			qrs = append(qrs, "p.name LIKE ?")
+			qas = append(qas, "%"+escapeRestrictionString(filter.Project)+"%")
+		}
+	}
+
+	if filter.ByDescription {
+		if filter.Description == "" {
+			qrs = append(qrs, "e.description IS NULL")
+		} else {
+			qrs = append(qrs, "e.description LIKE ?")
+			qas = append(qas, "%"+escapeRestrictionString(filter.Description)+"%")
+		}
+	}
+
 	if filter.ByLabel {
 		labels := filter.Labels
 		if len(labels) == 0 {
@@ -679,14 +818,6 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 			for _, label := range labels {
 				qas = append(qas, label)
 			}
-		}
-	}
-	if filter.ByDescription {
-		if filter.Description == "" {
-			qrs = append(qrs, "e.description IS NULL")
-		} else {
-			qrs = append(qrs, "e.description LIKE ?")
-			qas = append(qas, "%"+escapeRestrictionString(filter.Description)+"%")
 		}
 	}
 
@@ -759,10 +890,10 @@ func newEntryScanHelper() *scanHelper[*model.Entry] {
 }
 
 func scanEntryFunc(s scanner) (*model.Entry, error) {
-	var dbE dbEntry
+	var dbE dbReadEntry
 
 	err := s.Scan(&dbE.id, &dbE.userId, &dbE.typeId, &dbE.startTime, &dbE.endTime, &dbE.activityId,
-		&dbE.description, &dbE.labels)
+		&dbE.description, &dbE.project, &dbE.labels)
 	if err != nil {
 		return nil, err
 	}
@@ -804,27 +935,33 @@ func scanWorkDurationFunc(s scanner) (*model.WorkDuration, error) {
 	return workDuration, nil
 }
 
-func toDbEntry(in *model.Entry) *dbEntry {
-	var out dbEntry
-	out.id = in.Id
-	out.userId = in.UserId
-	out.typeId = in.TypeId
-	out.startTime = *formatTimestamp(&in.StartTime)
-	out.endTime = *formatTimestamp(&in.EndTime)
-	if in.ActivityId != 0 {
-		out.activityId = sql.NullInt64{Int64: int64(in.ActivityId), Valid: true}
+func toDbEntry(id int, userId int, typeId int, startTime time.Time, endTime time.Time,
+	activityId int, projectId int, description string) *dbWriteEntry {
+	var out dbWriteEntry
+	out.id = id
+	out.userId = userId
+	out.typeId = typeId
+	out.startTime = *formatTimestamp(&startTime)
+	out.endTime = *formatTimestamp(&endTime)
+	if activityId != 0 {
+		out.activityId = sql.NullInt64{Int64: int64(activityId), Valid: true}
 	} else {
 		out.activityId = sql.NullInt64{Int64: 0, Valid: false}
 	}
-	if in.Description != "" {
-		out.description = sql.NullString{String: in.Description, Valid: true}
+	if projectId != 0 {
+		out.projectId = sql.NullInt64{Int64: int64(projectId), Valid: true}
+	} else {
+		out.projectId = sql.NullInt64{Int64: 0, Valid: false}
+	}
+	if description != "" {
+		out.description = sql.NullString{String: description, Valid: true}
 	} else {
 		out.description = sql.NullString{String: "", Valid: false}
 	}
 	return &out
 }
 
-func fromDbEntry(in *dbEntry) *model.Entry {
+func fromDbEntry(in *dbReadEntry) *model.Entry {
 	var out model.Entry
 	out.Id = in.id
 	out.UserId = in.userId
@@ -835,6 +972,11 @@ func fromDbEntry(in *dbEntry) *model.Entry {
 		out.ActivityId = int(in.activityId.Int64)
 	} else {
 		out.ActivityId = 0
+	}
+	if in.project.Valid {
+		out.Project = in.project.String
+	} else {
+		out.Project = ""
 	}
 	if in.description.Valid {
 		out.Description = in.description.String

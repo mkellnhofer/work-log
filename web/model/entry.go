@@ -15,8 +15,9 @@ type Entry struct {
 	StartTimeValue string
 	EndTimeValue   string
 	ActivityId     int
-	Labels         []string
+	Project        string
 	Description    string
+	Labels         []string
 }
 
 const (

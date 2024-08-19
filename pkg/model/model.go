@@ -25,6 +25,7 @@ const (
 	MaxLengthUserPassword             = 100
 	MaxLengthEntryTypeDescription     = 50
 	MaxLengthEntryActivityDescription = 50
+	MaxLengthEntryProjectName         = 30
 	MaxLengthEntryDescription         = 200
 	MaxLengthLabelName                = 20
 )

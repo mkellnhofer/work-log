@@ -24,8 +24,9 @@ type entryInput struct {
 	startTime   string
 	endTime     string
 	activityId  string
-	labels      string
 	description string
+	project     string
+	labels      string
 }
 
 // EntryController handles requests for entry endpoints.
@@ -224,8 +225,9 @@ func (c *EntryController) getEntryInput(eCtx echo.Context) *entryInput {
 		startTime:   eCtx.FormValue("start-time"),
 		endTime:     eCtx.FormValue("end-time"),
 		activityId:  eCtx.FormValue("activity"),
-		labels:      eCtx.FormValue("labels"),
+		project:     eCtx.FormValue("project"),
 		description: eCtx.FormValue("description"),
+		labels:      eCtx.FormValue("labels"),
 	}
 }
 
@@ -285,6 +287,20 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryInput
 		return nil, err
 	}
 
+	// Validate project name
+	if err = validateMaxStringLength(input.project, model.MaxLengthEntryProjectName,
+		e.ValProjectNameTooLong); err != nil {
+		return nil, err
+	}
+	entry.Project = input.project
+
+	// Validate description
+	if err = validateMaxStringLength(input.description, model.MaxLengthEntryDescription,
+		e.ValDescriptionTooLong); err != nil {
+		return nil, err
+	}
+	entry.Description = input.description
+
 	// Validate labels
 	if input.labels != "" {
 		labelsString := strings.Trim(input.labels, ",")
@@ -307,13 +323,6 @@ func (c *EntryController) createEntryModel(id int, userId int, input *entryInput
 			entry.Labels = append(entry.Labels, trimmed)
 		}
 	}
-
-	// Validate description
-	if err = validateMaxStringLength(input.description, model.MaxLengthEntryDescription,
-		e.ValDescriptionTooLong); err != nil {
-		return nil, err
-	}
-	entry.Description = input.description
 
 	return entry, nil
 }

@@ -93,9 +93,10 @@
     <message key="formLabelFrom"><text>From:</text></message>
     <message key="formLabelTo"><text>To:</text></message>
     <message key="formLabelActivity"><text>Activity:</text></message>
+    <message key="formLabelProject"><text>Project:</text></message>
+    <message key="formLabelDescription"><text>Description:</text></message>
     <message key="formLabelLabels"><text>Labels:</text></message>
     <message key="formLabelLabelsPlaceholder"><text>Label1, Label2, ...</text></message>
-    <message key="formLabelDescription"><text>Description:</text></message>
 
     <!-- Entries table -->
     <message key="tableColDate"><text>Date</text></message>
@@ -105,6 +106,7 @@
     <message key="tableColNet"><text>Net</text></message>
     <message key="tableColActivity"><text>Activity</text></message>
     <message key="tableColDescription"><text>Description</text></message>
+    <message key="tableColExtra"><text>Project / Description</text></message>
     
     <!-- Entry types -->
     <message key="entryTypeWork"><text>Work</text></message>
@@ -151,10 +153,11 @@
     <message key="errValEndDateInvalid"><text>End date invalid!</text></message>
     <message key="errValStartTimeInvalid"><text>Start time invalid!</text></message>
     <message key="errValEndTimeInvalid"><text>End time invalid!</text></message>
+    <message key="errValProjectNameTooLong"><text>Project name must not be longer than 30 characters!</text></message>
+    <message key="errValDescriptionTooLong"><text>Description must not be longer than 200 characters!</text></message>
     <message key="errValLabelTooShort"><text>Label must be at least 4 character long!</text></message>
     <message key="errValLabelTooLong"><text>Label must not be longer than 20 characters!</text></message>
     <message key="errValLabelInvalid"><text>Labels can only contain letters, numbers, and the following characters: "-,_,.,!,#,@"!</text></message>
-    <message key="errValDescriptionTooLong"><text>Description must not be longer than 200 characters!</text></message>
     <message key="errValQueryInvalid"><text>Query invalid!</text></message>
     <message key="errValMonthInvalid"><text>Month invalid! (Month must be in \"YYYYMM\" format.)</text></message>
     <message key="errValPasswordEmpty"><text>Password cannot be empty!</text></message>

@@ -177,7 +177,7 @@ body {
   width: 120px;
 }
 
-.wl-list-table-column-description {
+.wl-list-table-column-extra {
   min-width: 250px;
 }
 
@@ -222,7 +222,7 @@ body {
   width: 120px;
 }
 
-.wl-overview-table-column-description {
+.wl-overview-table-column-extra {
   min-width: 250px;
 }
 

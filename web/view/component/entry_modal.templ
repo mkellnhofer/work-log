@@ -115,6 +115,18 @@ templ entryModalFormFields(entryTypes []*model.EntryType, entryActivities []*mod
 			</select>
 		</div>
 		<div class="col-12">
+			<label class="form-label" for="wl-entry-form-project">
+				{ getText("formLabelProject") }
+			</label>
+			<input
+				id="wl-entry-form-project"
+				class="form-control"
+				name="project"
+				type="text"
+				value={ entry.Project }
+			/>
+		</div>
+		<div class="col-12">
 			<label class="form-label" for="wl-entry-form-description">
 				{ getText("formLabelDescription") }
 			</label>

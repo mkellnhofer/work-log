@@ -22,7 +22,7 @@ templ overviewEntriesTableHeader() {
 			<th class="wl-overview-table-column-time">{ getText("tableColEnd") }</th>
 			<th class="wl-overview-table-column-time">{ getText("tableColNet") }</th>
 			<th class="wl-overview-table-column-activity">{ getText("tableColActivity") }</th>
-			<th class="wl-overview-table-column-description">{ getText("tableColDescription") }</th>
+			<th class="wl-overview-table-column-extra">{ getText("tableColExtra") }</th>
 		</tr>
 	</thead>
 }
@@ -48,7 +48,7 @@ templ overviewEntriesDayTableRows(entriesDay *model.OverviewEntriesDay) {
 					@overviewEntriesDayTableRowTextField(entry.EndTime)
 					@overviewEntriesDayTableRowDurationField(len(entriesDay.Entries), entry.Duration)
 					@overviewEntriesDayTableRowTextField(entry.Activity)
-					@overviewEntriesDayTableRowDescriptionField(entry.Labels, entry.Description)
+					@overviewEntriesDayTableRowExtraField(entry.Project, entry.Description, entry.Labels)
 				}
 			}
 		}
@@ -129,8 +129,11 @@ templ overviewEntriesDayTableRowDurationField(entriesCount int, duration string)
 	</td>
 }
 
-templ overviewEntriesDayTableRowDescriptionField(labels []string, description string) {
+templ overviewEntriesDayTableRowExtraField(project string, description string, labels []string) {
 	<td>
+		if project != "" {
+			<span>{ project }:</span>
+		}
 		if description != "" {
 			<span>{ description }</span>
 		}

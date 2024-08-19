@@ -93,9 +93,10 @@
     <message key="formLabelFrom"><text>Von:</text></message>
     <message key="formLabelTo"><text>Bis:</text></message>
     <message key="formLabelActivity"><text>Tätigkeit:</text></message>
+    <message key="formLabelProject"><text>Projekt:</text></message>
+    <message key="formLabelDescription"><text>Beschreibung:</text></message>
     <message key="formLabelLabels"><text>Kennzeichnung:</text></message>
     <message key="formLabelLabelsPlaceholder"><text>Kennzeichen1, Kennzeichen2, ...</text></message>
-    <message key="formLabelDescription"><text>Beschreibung:</text></message>
 
     <!-- Entries table -->
     <message key="tableColDate"><text>Datum</text></message>
@@ -105,6 +106,7 @@
     <message key="tableColNet"><text>Netto</text></message>
     <message key="tableColActivity"><text>Tätigkeit</text></message>
     <message key="tableColDescription"><text>Beschreibung</text></message>
+    <message key="tableColExtra"><text>Projekt / Beschreibung</text></message>
     
     <!-- Entry types -->
     <message key="entryTypeWork"><text>Arbeit</text></message>
@@ -151,10 +153,11 @@
     <message key="errValEndDateInvalid"><text>Enddatum ungültig!</text></message>
     <message key="errValStartTimeInvalid"><text>Startzeit ungültig!</text></message>
     <message key="errValEndTimeInvalid"><text>Endzeit ungültig!</text></message>
+    <message key="errValProjectNameTooLong"><text>Projektname darf nicht länger als 30 Zeichen sein!</text></message>
+    <message key="errValDescriptionTooLong"><text>Beschreibung darf nicht länger als 200 Zeichen sein!</text></message>
     <message key="errValLabelTooShort"><text>Kennzeichen muss mindestens 4 Zeichen lang sein!</text></message>
     <message key="errValLabelTooLong"><text>Kennzeichen darf nicht länger als 20 Zeichen sein!</text></message>
     <message key="errValLabelInvalid"><text>Kennzeichen können nur Buchstaben, Zahlen und die folgenden Zeichen enthalten: "-,_,.,!,#,@"!</text></message>
-    <message key="errValDescriptionTooLong"><text>Beschreibung darf nicht länger als 200 Zeichen sein!</text></message>
     <message key="errValQueryInvalid"><text>Abfrage ungültig!</text></message>
     <message key="errValMonthInvalid"><text>Monat ungültig! (Monat muss im Format \"YYYYMM\" sein.)</text></message>
     <message key="errValPasswordEmpty"><text>Passwort darf nicht leer sein!</text></message>

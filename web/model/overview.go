@@ -58,6 +58,7 @@ type OverviewEntry struct {
 	EndTime     string
 	Duration    string
 	Activity    string
-	Labels      []string
+	Project string
 	Description string
+	Labels      []string
 }

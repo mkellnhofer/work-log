@@ -69,7 +69,7 @@ templ entryDayTableHeaderRow() {
 		<th class="wl-list-table-column-time">{ getText("tableColEnd") }</th>
 		<th class="wl-list-table-column-time">{ getText("tableColNet") }</th>
 		<th class="wl-list-table-column-activity">{ getText("tableColActivity") }</th>
-		<th class="wl-list-table-column-description">{ getText("tableColDescription") }</th>
+		<th class="wl-list-table-column-extra">{ getText("tableColExtra") }</th>
 	</tr>
 }
 
@@ -90,7 +90,7 @@ templ entryDayTableRow(entry *model.ListEntry) {
 			@entryDayTableRowTextField(entry.EndTime)
 			@entryDayTableRowTextField(entry.Duration)
 			@entryDayTableRowTextField(entry.EntryActivity)
-			@entryDayTableRowDescriptionField(entry.Labels, entry.Description)
+			@entryDayTableRowExtraField(entry.Project, entry.Description, entry.Labels)
 		</tr>
 	}
 }
@@ -143,8 +143,11 @@ templ entryDayTableRowTextField(content string) {
 	<td>{ content }</td>
 }
 
-templ entryDayTableRowDescriptionField(labels []string, description string) {
+templ entryDayTableRowExtraField(project string, description string, labels []string) {
 	<td>
+		if project != "" {
+			<span>{ project }:</span>
+		}
 		if description != "" {
 			<span>{ description }</span>
 		}

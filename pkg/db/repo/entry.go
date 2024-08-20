@@ -763,35 +763,56 @@ func (r *EntryRepo) buildEntryFilterQueryRestriction(filter model.EntryFilter) (
 		return "", nil
 	}
 
-	var qrs []string
-	var qas []any
-
+	// Common query restrictions
+	cqr := ""
+	var cqas []any
 	if filter.IsByUser() {
-		qrs = append(qrs, fmt.Sprintf("e.user_id = %d", filter.GetUserId()))
+		cqr = cqr + fmt.Sprintf("e.user_id = %d", filter.GetUserId())
 	}
 
+	// Specific query restrictions
+	sqr := ""
+	var sqas []any
 	switch f := filter.(type) {
 	case *model.EmptyEntryFilter:
 		// Do nothing
 	case *model.FieldEntryFilter:
-		fqrs, fqas := r.buildEntryFieldFilterQueryRestriction(*f)
-		qrs = append(qrs, fqrs...)
-		qas = append(qas, fqas...)
+		fqrs, fqas := r.buildFieldEntryFilterQueryRestriction(*f)
+		sqr = joinQueryRestrictions(fqrs, "AND")
+		sqas = fqas
+	case *model.TextEntryFilter:
+		tqrs, tqas := r.buildTextEntryFilterQueryRestriction(*f)
+		sqr = joinQueryRestrictions(tqrs, "OR")
+		sqas = tqas
 	default:
 		err := e.NewError(e.SysUnknown, "Invalid filter type.")
 		log.Error(err.StackTrace())
 		panic(err)
 	}
 	
+	// Combine common and specific query restrictions
 	qr := ""
-	if len(qrs) > 0 {
-		qr = "WHERE " + strings.Join(qrs[:], " AND ")
+	var qas []any
+	if cqr != "" && sqr != "" {
+		qr = cqr + " AND (" + sqr + ")"
+		qas = append(cqas, sqas...)
+	} else if cqr != "" {
+		qr = cqr
+		qas = cqas
+	} else {
+		qr = sqr
+		qas = sqas
+	}
+
+	// Add WHERE clause if needed
+	if qr != "" {
+		qr = "WHERE " + qr
 	}
 
 	return qr, qas
 }
 
-func (r *EntryRepo) buildEntryFieldFilterQueryRestriction(filter model.FieldEntryFilter) ([]string,
+func (r *EntryRepo) buildFieldEntryFilterQueryRestriction(filter model.FieldEntryFilter) ([]string,
 	[]any) {
 	var qrs []string
 	var qas []any
@@ -850,6 +871,32 @@ func (r *EntryRepo) buildEntryFieldFilterQueryRestriction(filter model.FieldEntr
 	}
 
 	return qrs, qas
+}
+
+func (r *EntryRepo) buildTextEntryFilterQueryRestriction(filter model.TextEntryFilter) ([]string,
+	[]any) {
+	escapedText := escapeRestrictionString(filter.Text)
+
+	var qrs []string
+	var qas []any
+
+	if filter.Text != "" {
+		qrs = append(qrs, "e.description LIKE ?")
+		qas = append(qas, "%"+escapedText+"%")
+		qrs = append(qrs, "p.name LIKE ?")
+		qas = append(qas, "%"+escapedText+"%")
+	} else {
+		qrs = append(qrs, "e.description IS NULL AND p.name IS NULL")
+	}
+
+	return qrs, qas
+}
+
+func joinQueryRestrictions(qrs []string, conjunction string) string {
+	if len(qrs) == 0 {
+		return ""
+	}
+	return strings.Join(qrs, " "+conjunction+" ")
 }
 
 // --- Sort ---
@@ -976,7 +1023,7 @@ func toDbEntry(id int, userId int, typeId int, startTime time.Time, endTime time
 	} else {
 		out.projectId = sql.NullInt64{Int64: 0, Valid: false}
 	}
-	if description != "" {
+	if strings.TrimSpace(description) != "" {
 		out.description = sql.NullString{String: description, Valid: true}
 	} else {
 		out.description = sql.NullString{String: "", Valid: false}

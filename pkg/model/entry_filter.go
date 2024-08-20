@@ -63,3 +63,14 @@ type FieldEntryFilter struct {
 func NewFieldEntryFilter() *FieldEntryFilter {
 	return &FieldEntryFilter{}
 }
+
+// TextEntryFilter stores parameters to filter entries by specific texts.
+type TextEntryFilter struct {
+	baseEntryFilter
+	Text string // Text to filter by
+}
+
+// NewTextEntryFilter create a new TextEntryFilter model.
+func NewTextEntryFilter() *TextEntryFilter {
+	return &TextEntryFilter{}
+}

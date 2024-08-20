@@ -2,10 +2,48 @@ package model
 
 import "time"
 
+// EntryFilter is an interface for entry filters.
+type EntryFilter interface {
+	isEntryFilter()
+	IsByUser() bool
+	GetUserId() int
+	SetUserFilter(userId int)
+}
+
+// baseEntryFilter stores common filter parameters shared by all entry filters.
+type baseEntryFilter struct {
+	ByUser bool // Flag to filter by user
+	UserId int  // ID of the user
+}
+
+func (*baseEntryFilter) isEntryFilter() {}
+
+func (b *baseEntryFilter) IsByUser() bool {
+	return b.ByUser
+}
+
+func (b *baseEntryFilter) GetUserId() int {
+	return b.UserId
+}
+
+func (b *baseEntryFilter) SetUserFilter(userId int) {
+	b.ByUser = true
+	b.UserId = userId
+}
+
+// EmptyEntryFilter is an empty entry filter.
+type EmptyEntryFilter struct {
+	baseEntryFilter
+}
+
+// NewEmptyEntryFilter create a new EmptyEntryFilter model.
+func NewEmptyEntryFilter() EntryFilter {
+	return &EmptyEntryFilter{}
+}
+
 // FieldEntryFilter stores parameters to filter entries by specific fields.
 type FieldEntryFilter struct {
-	ByUser        bool      // Flag to filter by user
-	UserId        int       // ID of the user
+	baseEntryFilter
 	ByType        bool      // Flag to filter by entry type
 	TypeId        int       // ID of the entry type
 	ByTime        bool      // Flag to filter by time

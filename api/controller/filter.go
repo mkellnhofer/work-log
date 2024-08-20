@@ -37,7 +37,7 @@ const (
 	filterNameLabels      = "labels"
 )
 
-func getEntryFilter(str string) (*model.FieldEntryFilter, error) {
+func getEntryFilter(str string) (model.EntryFilter, error) {
 	// Get filter values
 	filters, err := getFilters(str)
 	if err != nil {

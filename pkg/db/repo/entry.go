@@ -53,7 +53,7 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 // --- Entry functions ---
 
 // CountDateEntries counts entries (over date).
-func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.FieldEntryFilter) (int,
+func (r *EntryRepo) CountDateEntries(ctx context.Context, filter model.EntryFilter) (int,
 	error) {
 	q, qa := r.buildCountDateEntriesQuery(filter)
 
@@ -68,7 +68,7 @@ func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.FieldEnt
 	return count, nil
 }
 
-func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.FieldEntryFilter) (string, []any) {
+func (r *EntryRepo) buildCountDateEntriesQuery(filter model.EntryFilter) (string, []any) {
 	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
@@ -80,7 +80,7 @@ func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.FieldEntryFilter) (
 }
 
 // GetDateEntries retrieves entries (over date).
-func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.FieldEntryFilter,
+func (r *EntryRepo) GetDateEntries(ctx context.Context, filter model.EntryFilter,
 	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, error) {
 	qr, qra := r.buildGetDateEntriesRangeQuery(filter, sort, offset, limit)
 
@@ -108,7 +108,7 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.FieldEntry
 	return entries, nil
 }
 
-func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.FieldEntryFilter,
+func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter model.EntryFilter,
 	sort *model.EntrySort, offset int, limit int) (string, []any) {
 	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 	var qo string
@@ -128,7 +128,7 @@ func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.FieldEntryFilter
 	return q, qra
 }
 
-func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.FieldEntryFilter, sort *model.EntrySort,
+func (r *EntryRepo) buildGetDateEntriesQuery(filter model.EntryFilter, sort *model.EntrySort,
 	start string, end string) (string, []any) {
 	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 	qo := r.buildEntrySortQueryClause(sort)
@@ -255,7 +255,7 @@ func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (
 }
 
 // CountEntries counts all entries.
-func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.FieldEntryFilter) (int, error) {
+func (r *EntryRepo) CountEntries(ctx context.Context, filter model.EntryFilter) (int, error) {
 	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(*) "+
@@ -274,7 +274,7 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.FieldEntryFi
 }
 
 // GetEntries retrieves all entries.
-func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.FieldEntryFilter,
+func (r *EntryRepo) GetEntries(ctx context.Context, filter model.EntryFilter,
 	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, error) {
 	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 	qo := r.buildEntrySortQueryClause(sort)
@@ -758,16 +758,43 @@ func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.T
 
 // --- Filter helper functions ---
 
-func (r *EntryRepo) buildEntryFilterQueryRestriction(filter *model.FieldEntryFilter) (string, []any) {
-	var qrs []string
-	var qas []any
+func (r *EntryRepo) buildEntryFilterQueryRestriction(filter model.EntryFilter) (string, []any) {
 	if filter == nil {
-		return "", qas
+		return "", nil
 	}
 
-	if filter.ByUser {
-		qrs = append(qrs, fmt.Sprintf("e.user_id = %d", filter.UserId))
+	var qrs []string
+	var qas []any
+
+	if filter.IsByUser() {
+		qrs = append(qrs, fmt.Sprintf("e.user_id = %d", filter.GetUserId()))
 	}
+
+	switch f := filter.(type) {
+	case *model.EmptyEntryFilter:
+		// Do nothing
+	case *model.FieldEntryFilter:
+		fqrs, fqas := r.buildEntryFieldFilterQueryRestriction(*f)
+		qrs = append(qrs, fqrs...)
+		qas = append(qas, fqas...)
+	default:
+		err := e.NewError(e.SysUnknown, "Invalid filter type.")
+		log.Error(err.StackTrace())
+		panic(err)
+	}
+	
+	qr := ""
+	if len(qrs) > 0 {
+		qr = "WHERE " + strings.Join(qrs[:], " AND ")
+	}
+
+	return qr, qas
+}
+
+func (r *EntryRepo) buildEntryFieldFilterQueryRestriction(filter model.FieldEntryFilter) ([]string,
+	[]any) {
+	var qrs []string
+	var qas []any
 
 	if filter.ByType {
 		qrs = append(qrs, fmt.Sprintf("e.type_id = %d", filter.TypeId))
@@ -822,12 +849,7 @@ func (r *EntryRepo) buildEntryFilterQueryRestriction(filter *model.FieldEntryFil
 		}
 	}
 
-	qr := ""
-	if len(qrs) > 0 {
-		qr = "WHERE " + strings.Join(qrs[:], " AND ")
-	}
-
-	return qr, qas
+	return qrs, qas
 }
 
 // --- Sort ---

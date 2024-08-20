@@ -27,16 +27,20 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 // --- Entry functions ---
 
 // GetDateEntries gets all entries (over date).
-func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.FieldEntryFilter,
+func (s *EntryService) GetDateEntries(ctx context.Context, filter model.EntryFilter,
 	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, int, error) {
+	// If filter is nil, create an empty filter
+	if filter == nil {
+		filter = model.NewEmptyEntryFilter()
+	}
+
 	// If user does not have right to get any entry: Add default user ID filter
-	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
-		filter.ByUser = true
-		filter.UserId = getCurrentUserId(ctx)
+	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.IsByUser() {
+		filter.SetUserFilter(getCurrentUserId(ctx))
 	}
 
 	// Check permissions
-	if err := s.checkHasCurrentUserGetRight(ctx, filter.UserId); err != nil {
+	if err := s.checkHasCurrentUserGetRight(ctx, filter.GetUserId()); err != nil {
 		return nil, 0, err
 	}
 
@@ -79,16 +83,20 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 }
 
 // GetEntries gets all entries.
-func (s *EntryService) GetEntries(ctx context.Context, filter *model.FieldEntryFilter,
+func (s *EntryService) GetEntries(ctx context.Context, filter model.EntryFilter,
 	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, int, error) {
+	// If filter is nil, create an empty filter
+	if filter == nil {
+		filter = model.NewEmptyEntryFilter()
+	}
+
 	// If user does not have right to get any entry: Add default user ID filter
-	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
-		filter.ByUser = true
-		filter.UserId = getCurrentUserId(ctx)
+	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.IsByUser() {
+		filter.SetUserFilter(getCurrentUserId(ctx))
 	}
 
 	// Check permissions
-	if err := s.checkHasCurrentUserGetRight(ctx, filter.UserId); err != nil {
+	if err := s.checkHasCurrentUserGetRight(ctx, filter.GetUserId()); err != nil {
 		return nil, 0, err
 	}
 

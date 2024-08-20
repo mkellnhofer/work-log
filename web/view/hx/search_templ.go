@@ -16,7 +16,7 @@ import (
 )
 
 // This template is used to render the modal dialog to search entries.
-func SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) templ.Component {
+func SearchModal(searchQuery model.SearchQuery) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -29,7 +29,7 @@ func SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) templ.Componen
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = component.SearchModal(isAdvanced, searchQuery).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchModal(searchQuery).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -67,7 +67,7 @@ func SearchFormActivityOptions(entryActivities []*model.EntryActivity) templ.Com
 
 // This template is used to render parts of the page which need to be changed after the user has
 // executed a search.
-func Search(isAdvanced bool, queryString string, pageNum int, searchDetails *model.SearchDetails) templ.Component {
+func Search(isAdvanced bool, queryString string, pageNum int, filterDetails model.EntryFilterDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -84,7 +84,7 @@ func Search(isAdvanced bool, queryString string, pageNum int, searchDetails *mod
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchNav(searchDetails).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchNav(filterDetails).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

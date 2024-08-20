@@ -15,11 +15,19 @@ func NewSearchMapper() *SearchMapper {
 	return &SearchMapper{}
 }
 
-// CreateSearchQueryViewModel creates a view model for the search form.
-func (m *SearchMapper) CreateSearchQueryViewModel(filter *model.FieldEntryFilter,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchQuery {
-	return &vm.SearchQuery{
-		Input: &vm.SearchQueryInput{
+// CreateBasicSearchQueryViewModel creates a view model for the search form.
+func (m *SearchMapper) CreateBasicSearchQueryViewModel(filter *model.TextEntryFilter,
+) *vm.BasicSearchQuery {
+	return &vm.BasicSearchQuery{
+		Text: filter.Text,
+	}
+}
+
+// CreateAdvancedSearchQueryViewModel creates a view model for the search form.
+func (m *SearchMapper) CreateAdvancedSearchQueryViewModel(filter *model.FieldEntryFilter,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.AdvancedSearchQuery {
+	return &vm.AdvancedSearchQuery{
+		Input: &vm.AdvancedSearchQueryInput{
 			ByType:         filter.ByType,
 			TypeId:         filter.TypeId,
 			ByDate:         filter.ByTime,
@@ -29,21 +37,13 @@ func (m *SearchMapper) CreateSearchQueryViewModel(filter *model.FieldEntryFilter
 			EndDateValue:   getDateString(filter.EndTime),
 			ByActivity:     filter.ByActivity,
 			ActivityId:     filter.ActivityId,
+			ByDescription:  filter.ByDescription,
+			Description:    filter.Description,
 			ByLabels:       filter.ByLabel,
 			Labels:         filter.Labels,
-			Text:           filter.Description,
 		},
 		EntryTypes:      m.CreateEntryTypesViewModel(types),
 		EntryActivities: m.CreateEntryActivitiesViewModel(activities),
-	}
-}
-
-// CreateSearchDetailsViewModel creates a view model for the search details page.
-func (m *SearchMapper) CreateSearchDetailsViewModel(filter *model.FieldEntryFilter,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchDetails {
-	efd := m.CreateEntryFilterDetailsViewModel(filter, types, activities)
-	return &vm.SearchDetails{
-		EntryFilterDetails: *efd,
 	}
 }
 

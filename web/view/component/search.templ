@@ -17,8 +17,11 @@ func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	return hx("/search-modal?" + params)
 }
 
-func buildSearchExportUrl(queryString string) string {
+func buildSearchExportUrl(isAdvanced bool, queryString string) string {
 	params := ""
+	if isAdvanced {
+		params = params + "adv=1&"
+	}
 	if queryString != "" {
 		params = params + "query=" + queryString
 	}
@@ -43,11 +46,11 @@ func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 }
 
 // This template is used to render the navbar elements on the search page.
-templ SearchNav(searchDetails *model.SearchDetails) {
+templ SearchNav(filterDetails model.EntryFilterDetails) {
 	@NavBackButton("log")
 	<div class="p-2">
 		@searchNavTitle()
-		@searchNavDetails(searchDetails)
+		@searchNavDetails(filterDetails)
 	</div>
 }
 
@@ -56,13 +59,23 @@ templ searchNavTitle() {
 	<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>
 }
 
-templ searchNavDetails(searchDetails *model.SearchDetails) {
+templ searchNavDetails(filterDetails model.EntryFilterDetails) {
+	if filterDetails == nil {
+		return
+	}
+
 	<span class="d-none d-md-inline fs-3 comma-separated">
-		@searchNavDetailText(searchDetails.ByType, searchDetails.Type)
-		@searchNavDetailText(searchDetails.ByDate, searchDetails.Date)
-		@searchNavDetailText(searchDetails.ByActivity, searchDetails.Activity)
-		@searchNavDetail(searchDetails.ByLabels, EntryLabels(searchDetails.Labels))
-		@searchNavDetailText(searchDetails.ByText, "\"" + searchDetails.Text + "\"")
+	switch fd := filterDetails.(type) {
+	case *model.BasicEntryFilterDetails:
+		@searchNavDetailText(true, "\"" + fd.Text + "\"")
+	case *model.AdvancedEntryFilterDetails:
+		@searchNavDetailText(fd.ByType, fd.Type)
+		@searchNavDetailText(fd.ByDate, fd.Date)
+		@searchNavDetailText(fd.ByActivity, fd.Activity)
+		@searchNavDetailText(fd.ByDescription, "\"" + fd.Description + "\"")
+		@searchNavDetail(fd.ByLabels, EntryLabels(fd.Labels))
+	default:
+	}
 	</span>
 }
 
@@ -93,7 +106,7 @@ templ SearchActions(isAdvanced bool, queryString string) {
 		PageActionDropdownMenuItem("file-export",
 			"actionExport",
 			templ.Attributes{
-				"href": buildSearchExportUrl(queryString),
+				"href": buildSearchExportUrl(isAdvanced, queryString),
 			},
 		),
 	})
@@ -122,7 +135,7 @@ templ searchResult(isAdvanced bool, queryString string, entries *model.ListEntri
 		hx-swap="outerHTML"
 	>
 		@searchResultHeader()
-		@searchResultEntryList(queryString, entries)
+		@searchResultEntryList(entries)
 		@searchResultPagingControl(isAdvanced, queryString, entries.FirstPageNum, entries.CurrentPageNum,
 			entries.LastPageNum)
 	</div>
@@ -132,10 +145,8 @@ templ searchResultHeader() {
 	@SectionHeader("magnifying-glass", "Result")
 }
 
-templ searchResultEntryList(queryString string, entries *model.ListEntries) {
-	if queryString == "" {
-		@EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery"))
-	} else if len(entries.Days) == 0 {
+templ searchResultEntryList(entries *model.ListEntries) {
+	if len(entries.Days) == 0 {
 		@EntriesPlaceholder("xmark", getText("searchListLabelNoEntries"))
 	} else {
 		@EntryList(entries.Days, false, false)

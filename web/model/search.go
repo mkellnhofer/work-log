@@ -1,14 +1,29 @@
 package model
 
-// SearchQuery stores data for the search form view.
-type SearchQuery struct {
-	Input           *SearchQueryInput
+type SearchQuery interface {
+	isSearchQuery()
+}
+
+type baseSearchQuery struct {}
+
+func (*baseSearchQuery) isSearchQuery() {}
+
+// BasicSearchQuery stores data for the basic search form view.
+type BasicSearchQuery struct {
+	baseSearchQuery
+	Text string
+}
+
+// AdvancedSearchQuery stores data for the advanced search form view.
+type AdvancedSearchQuery struct {
+	baseSearchQuery
+	Input           *AdvancedSearchQueryInput
 	EntryTypes      []*EntryType
 	EntryActivities []*EntryActivity
 }
 
-// SearchQueryInput stores view data of a search form fields.
-type SearchQueryInput struct {
+// AdvancedSearchQueryInput stores view data of a advanced search form fields.
+type AdvancedSearchQueryInput struct {
 	ByType         bool
 	TypeId         int
 	ByDate         bool
@@ -18,12 +33,8 @@ type SearchQueryInput struct {
 	EndDateValue   string
 	ByActivity     bool
 	ActivityId     int
+	ByDescription  bool
+	Description    string
 	ByLabels       bool
 	Labels         []string
-	Text           string
-}
-
-// SearchDetails stores data for the search details view.
-type SearchDetails struct {
-	EntryFilterDetails
 }

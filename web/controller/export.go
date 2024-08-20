@@ -42,14 +42,14 @@ func NewExportController(uServ *service.UserService, eServ *service.EntryService
 // GetExportHandler returns a handler for "GET /export".
 func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	return c.handler(func(eCtx echo.Context, ctx context.Context) error {
-		query := getQueryQueryParam(eCtx)
+		isAdvanced, query := c.getGetExportParams(eCtx)
 
-		exportFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
+		exportFilter, err := c.parseQueryString(getCurrentUserId(ctx), isAdvanced, query)
 		if err != nil {
 			return err
 		}
 
-		exportDetails, err := c.getExportDetailsViewData(ctx, exportFilter)
+		exportFilterDetails, err := c.getFilterDetailsViewData(ctx, exportFilter)
 		if err != nil {
 			return err
 		}
@@ -61,27 +61,14 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 
 		timestamp := time.Now().Format(constant.ExportTimestampFormat)
 		fileName := fmt.Sprintf(constant.ExportFileNameTemplate, timestamp, "xlsx")
-		file := c.exporter.ExportEntries(exportDetails, exportEntries)
+		file := c.exporter.ExportEntries(exportFilterDetails, exportEntries)
 
 		return web.WriteFile(eCtx, fileName, file)
 	})
 }
 
-func (c *ExportController) getExportDetailsViewData(ctx context.Context,
-	exportFilter *model.FieldEntryFilter) (*vm.EntryFilterDetails, error) {
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, exportFilter.TypeId)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create view model
-	return c.mapper.CreateEntryFilterDetailsViewModel(exportFilter, entryTypes, entryActivities),
-		nil
-}
-
 func (c *ExportController) getExportEntriesViewData(ctx context.Context,
-	exportFilter *model.FieldEntryFilter) (*vm.ListEntries, error) {
+	exportFilter model.EntryFilter) (*vm.ListEntries, error) {
 	if c.isFilterEmpty(exportFilter) {
 		return &vm.ListEntries{}, nil
 	}
@@ -103,4 +90,12 @@ func (c *ExportController) getExportEntriesViewData(ctx context.Context,
 
 	// Create view model
 	return c.mapper.CreateListEntriesViewModel(entries, entryTypesMap, entryActivitiesMap), nil
+}
+
+// --- Helper functions ---
+
+func (c *ExportController) getGetExportParams(eCtx echo.Context) (bool, string) {
+	isAdvanced := getAdvancedQueryParam(eCtx)
+	query := getQueryQueryParam(eCtx)
+	return isAdvanced, query
 }

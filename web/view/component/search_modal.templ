@@ -19,44 +19,28 @@ func buildSearchCancelUrl() string {
 }
 
 // This template is used to render a modal to search entries.
-templ SearchModal(isAdvanced bool, searchQuery *model.SearchQuery) {
-	@searchModal(isAdvanced, searchQuery.Input, searchQuery.EntryTypes, searchQuery.EntryActivities)
+templ SearchModal(searchQuery model.SearchQuery) {
+	switch sq := searchQuery.(type) {
+	case *model.BasicSearchQuery:
+		@searchBasicModal(sq.Text)
+	case *model.AdvancedSearchQuery:
+		@searchAdvancedModal(sq.Input, sq.EntryTypes, sq.EntryActivities)
+	default:
+	}
 }
 
-templ searchModal(isAdvanced bool, input *model.SearchQueryInput, entryTypes []*model.EntryType,
-	entryActivities []*model.EntryActivity) {
+templ searchBasicModal(input string) {
 	@Modal("magnifying-glass", "searchTitle", "actionSearch", "actionCancel",
-		templ.Attributes{"hx-post": buildSearchSubmitUrl(isAdvanced)},
+		templ.Attributes{"hx-post": buildSearchSubmitUrl(false)},
 		templ.Attributes{"hx-post": buildSearchCancelUrl()}) {
-		@searchFormControls(isAdvanced,
-			searchFormTypeControl(input.ByType, entryTypes, input.TypeId),
-			searchFormDateControl(input.ByDate, input.StartDateValue, input.EndDateValue),
-			searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId),
-			searchFormLabelsControl(input.ByLabels, input.Labels),
-			searchFormTextControl(isSearchQueryInputEmpty(input), input.Text))
+		@searchBasicFormControls(input)
 	}
 }
 
-templ searchFormControls(isAdvanced bool, typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
-	if isAdvanced {
-		@searchAdvancedFormControls(typeControl, dateControl, activityControl, labelsControl, textControl)
-	} else {
-		@searchStandardFormControls(typeControl, dateControl, activityControl, labelsControl, textControl)
-	}
-}
-
-templ searchStandardFormControls(typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
-	<div class="d-none">
-		@typeControl
-		@dateControl
-		@activityControl
-		@labelsControl
-	</div>
+templ searchBasicFormControls(input string) {
 	<div class="row mb-2">
 		<div class="col">
-			@textControl
+			@searchFormTextControl(input == "", input)
 		</div>
 	</div>
 	<div class="row">
@@ -75,14 +59,39 @@ templ searchStandardFormControls(typeControl templ.Component, dateControl templ.
 	</div>
 }
 
-templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.Component,
-	activityControl templ.Component, labelsControl templ.Component, textControl templ.Component) {
+templ searchFormTextControl(setAutoFocus bool, text string) {
+	<div id="wl-search-input-group-text" class="input-group">
+		<input
+			id="wl-search-input-text"
+			class="form-control"
+			name="text"
+			type="search"
+			placeholder={ getText("searchFormTextPlaceholder") }
+			value={ text }
+			if setAutoFocus {
+				autofocus
+			}
+		/>
+	</div>
+}
+
+templ searchAdvancedModal(input *model.AdvancedSearchQueryInput, entryTypes []*model.EntryType,
+	entryActivities []*model.EntryActivity) {
+	@Modal("magnifying-glass", "searchTitle", "actionSearch", "actionCancel",
+		templ.Attributes{"hx-post": buildSearchSubmitUrl(true)},
+		templ.Attributes{"hx-post": buildSearchCancelUrl()}) {
+		@searchAdvancedFormControls(input, entryTypes, entryActivities)
+	}
+}
+
+templ searchAdvancedFormControls(input *model.AdvancedSearchQueryInput, entryTypes []*model.EntryType,
+	entryActivities []*model.EntryActivity) {
 	<div class="row mb-2">
 		<div class="col">
 			<label class="form-label" for="wl-search-input-by-type">
 				{ getText("formLabelType") }
 			</label>
-			@typeControl
+			@searchFormTypeControl(input.ByType, entryTypes, input.TypeId)
 		</div>
 	</div>
 	<div class="row mb-2">
@@ -90,7 +99,7 @@ templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.
 			<label class="form-label" for="wl-search-input-by-date">
 				{ getText("formLabelDate") }
 			</label>
-			@dateControl
+			@searchFormDateControl(input.ByDate, input.StartDateValue, input.EndDateValue)
 		</div>
 	</div>
 	<div class="row mb-2">
@@ -98,23 +107,23 @@ templ searchAdvancedFormControls(typeControl templ.Component, dateControl templ.
 			<label class="form-label" for="wl-search-input-by-activity">
 				{ getText("formLabelActivity") }
 			</label>
-			@activityControl
+			@searchFormActivityControl(input.ByActivity, entryActivities, input.ActivityId)
 		</div>
 	</div>
 	<div class="row mb-2">
 		<div class="col">
-			<label class="form-label" for="wl-search-input-by-labels">
-				{ getText("formLabelLabels") }
+			<label class="form-label" for="wl-search-input-by-description">
+				{ getText("formLabelDescription") }
 			</label>
-			@labelsControl
+			@searchFormDescriptionControl(input.ByDescription, input.Description)
 		</div>
 	</div>
 	<div class="row mb-4">
 		<div class="col">
-			<label class="form-label" for="wl-search-input-text">
-				{ getText("formLabelDescription") }
+			<label class="form-label" for="wl-search-input-by-labels">
+				{ getText("formLabelLabels") }
 			</label>
-			@textControl
+			@searchFormLabelsControl(input.ByLabels, input.Labels)
 		</div>
 	</div>
 }
@@ -183,6 +192,30 @@ templ searchFormActivityControl(byActivity bool, activities []*model.EntryActivi
 	</div>
 }
 
+templ searchFormDescriptionControl(byDescription bool, description string) {
+	<div id="wl-search-input-group-description" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-description"
+				class="checkbox"
+				name="by-description"
+				type="checkbox"
+				if byDescription {
+					checked
+				}
+			/>
+		</div>
+		<input
+			id="wl-search-input-description"
+			class="form-control"
+			name="description"
+			type="text"
+			placeholder={ getText("formLabelDescriptionPlaceholder") }
+			value={ description }
+		/>
+	</div>
+}
+
 templ searchFormLabelsControl(byLabels bool, labels []string) {
 	<div id="wl-search-input-group-labels" class="input-group">
 		<div class="input-group-text">
@@ -205,24 +238,4 @@ templ searchFormLabelsControl(byLabels bool, labels []string) {
 			value={ strings.Join(labels, ", ") }
 		/>
 	</div>
-}
-
-templ searchFormTextControl(setAutoFocus bool, text string) {
-	<div id="wl-search-input-group-text" class="input-group" hx-preserve>
-		<input
-			id="wl-search-input-text"
-			class="form-control"
-			name="text"
-			type="search"
-			placeholder={ getText("searchFormTextPlaceholder") }
-			value={ text }
-			if setAutoFocus {
-				autofocus
-			}
-		/>
-	</div>
-}
-
-func isSearchQueryInputEmpty(input *model.SearchQueryInput) bool {
-	return !input.ByType && !input.ByDate && !input.ByActivity && !input.ByLabels && input.Text == ""
 }

@@ -50,7 +50,6 @@
     <message key="searchFormActionSearch"><text>Search</text></message>
     <message key="searchFormActionShowAdvanced"><text>Advanced Search</text></message>
     <message key="searchListTitle"><text>Search Result</text></message>
-    <message key="searchListLabelNoSearchQuery"><text>Enter your query ...</text></message>
     <message key="searchListLabelNoEntries"><text>No entries found</text></message>
 
     <!-- Overview view -->
@@ -96,6 +95,7 @@
     <message key="formLabelProject"><text>Project:</text></message>
     <message key="formLabelDescription"><text>Description:</text></message>
     <message key="formLabelLabels"><text>Labels:</text></message>
+    <message key="formLabelDescriptionPlaceholder"><text>Enter description ...</text></message>
     <message key="formLabelLabelsPlaceholder"><text>Label1, Label2, ...</text></message>
 
     <!-- Entries table -->
@@ -159,6 +159,7 @@
     <message key="errValLabelTooLong"><text>Label must not be longer than 20 characters!</text></message>
     <message key="errValLabelInvalid"><text>Labels can only contain letters, numbers, and the following characters: "-,_,.,!,#,@"!</text></message>
     <message key="errValQueryInvalid"><text>Query invalid!</text></message>
+    <message key="errValQueryEmpty"><text>Query cannot be empty!</text></message>
     <message key="errValMonthInvalid"><text>Month invalid! (Month must be in \"YYYYMM\" format.)</text></message>
     <message key="errValPasswordEmpty"><text>Password cannot be empty!</text></message>
     <message key="errValPasswordTooShort"><text>Password must be at least 8 characters long.</text></message>

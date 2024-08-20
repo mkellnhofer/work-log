@@ -110,6 +110,7 @@ var errorMessageKeys = map[int]string{
 	e.ValLabelTooShort:        "errValLabelTooShort",
 	e.ValLabelTooLong:         "errValLabelTooLong",
 	e.ValQueryInvalid:         "errValQueryInvalid",
+	e.ValQueryEmpty:           "errValQueryEmpty",
 	e.ValMonthInvalid:         "errValMonthInvalid",
 	e.ValPasswordEmpty:        "errValPasswordEmpty",
 	e.ValPasswordTooShort:     "errValPasswordTooShort",

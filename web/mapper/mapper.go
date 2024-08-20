@@ -272,10 +272,18 @@ func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuratio
 	return d
 }
 
-// CreateEntryFilterDetailsViewModel creates a view model for the entry filter details.
-func (m *Mapper) CreateEntryFilterDetailsViewModel(filter *model.FieldEntryFilter,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.EntryFilterDetails {
-	efd := &vm.EntryFilterDetails{}
+// CreateBasicEntryFilterDetailsViewModel creates a view model for the basic entry filter details.
+func (m *Mapper) CreateBasicEntryFilterDetailsViewModel(filter *model.TextEntryFilter,
+) *vm.BasicEntryFilterDetails {
+	efd := &vm.BasicEntryFilterDetails{}
+	efd.Text = filter.Text
+	return efd
+}
+
+// CreateAdvancedEntryFilterDetailsViewModel creates a view model for the advanced entry filter details.
+func (m *Mapper) CreateAdvancedEntryFilterDetailsViewModel(filter *model.FieldEntryFilter,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.AdvancedEntryFilterDetails {
+	efd := &vm.AdvancedEntryFilterDetails{}
 
 	if filter.ByType {
 		efd.ByType = true
@@ -306,14 +314,14 @@ func (m *Mapper) CreateEntryFilterDetailsViewModel(filter *model.FieldEntryFilte
 		}
 	}
 
+	if filter.ByDescription {
+		efd.ByDescription = true
+		efd.Description = filter.Description
+	}
+
 	if filter.ByLabel {
 		efd.ByLabels = true
 		efd.Labels = filter.Labels
-	}
-
-	if filter.Description != "" {
-		efd.ByText = true
-		efd.Text = filter.Description
 	}
 
 	return efd

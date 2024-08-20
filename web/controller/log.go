@@ -116,7 +116,7 @@ func (c *LogController) PostHxExportModalHandler() echo.HandlerFunc {
 		}
 
 		exportQuery := c.buildQueryString(exportFilter)
-		exportUrl := c.buildExportUrl(exportQuery)
+		exportUrl := c.buildExportUrl(true, exportQuery)
 
 		web.HtmxTriggerAfterSwap(eCtx, fmt.Sprintf("{ \"downloadFile\": \"%s\" }", exportUrl))
 		return eCtx.NoContent(http.StatusOK)
@@ -267,8 +267,11 @@ func (c *LogController) getGetLogParams(ctx echo.Context) (int, error) {
 	return pageNum, nil
 }
 
-func (c *LogController) buildExportUrl(query string) string {
+func (c *LogController) buildExportUrl(isAdvanced bool, query string) string {
 	url := "/export?"
+	if isAdvanced {
+		url = url + "adv=1&"
+	}
 	if query != "" {
 		url = url + "query=" + query
 	}

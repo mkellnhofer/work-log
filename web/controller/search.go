@@ -22,16 +22,18 @@ import (
 )
 
 type searchInput struct {
-	byType     string
-	typeId     string
-	byDate     string
-	startDate  string
-	endDate    string
-	byActivity string
-	activityId string
-	byLabels   string
-	labels     string
-	text       string
+	text          string
+	byType        string
+	typeId        string
+	byDate        string
+	startDate     string
+	endDate       string
+	byActivity    string
+	activityId    string
+	byDescription string
+	description   string
+	byLabels      string
+	labels        string
 }
 
 // SearchController handles requests for search endpoints.
@@ -67,19 +69,19 @@ func (c *SearchController) GetSearchHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), isAdvanced, query)
 		if err != nil {
 			return err
 		}
 
 		searchQueryString := c.buildQueryString(searchFilter)
-		searchDetails, err := c.getSearchDetailsViewData(ctx, searchFilter)
+		searchFilterDetails, err := c.getFilterDetailsViewData(ctx, searchFilter)
 		if err != nil {
 			return err
 		}
 
 		return web.RenderPage(eCtx, http.StatusOK, page.Search(userInfo, isAdvanced,
-			searchQueryString, pageNum, searchDetails))
+			searchQueryString, pageNum, searchFilterDetails))
 	})
 }
 
@@ -91,7 +93,7 @@ func (c *SearchController) GetHxContentHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), isAdvanced, query)
 		if err != nil {
 			return err
 		}
@@ -117,7 +119,7 @@ func (c *SearchController) GetHxModalHandler() echo.HandlerFunc {
 			return err
 		}
 
-		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), query)
+		searchFilter, err := c.parseQueryString(getCurrentUserId(ctx), isAdvanced, query)
 		if err != nil {
 			return err
 		}
@@ -127,7 +129,7 @@ func (c *SearchController) GetHxModalHandler() echo.HandlerFunc {
 			return err
 		}
 
-		return web.RenderHx(eCtx, http.StatusOK, hx.SearchModal(isAdvanced, searchQuery))
+		return web.RenderHx(eCtx, http.StatusOK, hx.SearchModal(searchQuery))
 	})
 }
 
@@ -138,7 +140,7 @@ func (c *SearchController) PostHxModalHandler() echo.HandlerFunc {
 
 		userId := getCurrentUserId(ctx)
 		searchInput := c.getPostSearchInput(eCtx)
-		searchFilter, err := c.createSearchFilter(userId, searchInput)
+		searchFilter, err := c.createSearchFilter(userId, isAdvanced, searchInput)
 		if err != nil {
 			searchErrorMessage := loc.GetErrorMessageString(getErrorCode(err))
 			web.HtmxRetarget(eCtx, "#wl-modal-error-container")
@@ -146,7 +148,7 @@ func (c *SearchController) PostHxModalHandler() echo.HandlerFunc {
 		}
 
 		searchQueryString := c.buildQueryString(searchFilter)
-		searchDetails, err := c.getSearchDetailsViewData(ctx, searchFilter)
+		searchDetails, err := c.getFilterDetailsViewData(ctx, searchFilter)
 		if err != nil {
 			return err
 		}
@@ -184,7 +186,32 @@ func (c *SearchController) PostHxModalCancelHandler() echo.HandlerFunc {
 }
 
 func (c *SearchController) getSearchQueryViewData(ctx context.Context,
-	searchFilter *model.FieldEntryFilter) (*vm.SearchQuery, error) {
+	searchFilter model.EntryFilter) (vm.SearchQuery, error) {
+	
+	switch f := searchFilter.(type) {
+	case *model.TextEntryFilter:
+		return c.getBasicSearchQueryViewData(f), nil
+	case *model.FieldEntryFilter:
+		return c.getAdvancedSearchQueryViewData(ctx, f)
+	default:
+		return nil, nil
+	}
+}
+
+func (c *SearchController) getBasicSearchQueryViewData(searchFilter *model.TextEntryFilter,
+) *vm.BasicSearchQuery {
+	// Create default values
+	filter := searchFilter
+	if filter == nil {
+		filter = model.NewTextEntryFilter()
+	}
+
+	// Create view model
+	return c.mapper.CreateBasicSearchQueryViewModel(filter)
+}
+
+func (c *SearchController) getAdvancedSearchQueryViewData(ctx context.Context,
+	searchFilter *model.FieldEntryFilter) (*vm.AdvancedSearchQuery, error) {
 	// Create default values
 	filter := searchFilter
 	if filter == nil {
@@ -205,23 +232,11 @@ func (c *SearchController) getSearchQueryViewData(ctx context.Context,
 	}
 
 	// Create view model
-	return c.mapper.CreateSearchQueryViewModel(filter, entryTypes, entryActivities), nil
-}
-
-func (c *SearchController) getSearchDetailsViewData(ctx context.Context,
-	searchFilter *model.FieldEntryFilter) (*vm.SearchDetails, error) {
-	// Get entry master data
-	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, searchFilter.TypeId)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create view model
-	return c.mapper.CreateSearchDetailsViewModel(searchFilter, entryTypes, entryActivities), nil
+	return c.mapper.CreateAdvancedSearchQueryViewModel(filter, entryTypes, entryActivities), nil
 }
 
 func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
-	searchFilter *model.FieldEntryFilter, pageNum int) (*vm.ListEntries, error) {
+	searchFilter model.EntryFilter, pageNum int) (*vm.ListEntries, error) {
 	if c.isFilterEmpty(searchFilter) {
 		return &vm.ListEntries{}, nil
 	}
@@ -252,20 +267,48 @@ func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
 
 func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
 	return &searchInput{
-		byType:     eCtx.FormValue("by-type"),
-		typeId:     eCtx.FormValue("type"),
-		byDate:     eCtx.FormValue("by-date"),
-		startDate:  eCtx.FormValue("start-date"),
-		endDate:    eCtx.FormValue("end-date"),
-		byActivity: eCtx.FormValue("by-activity"),
-		activityId: eCtx.FormValue("activity"),
-		byLabels:   eCtx.FormValue("by-labels"),
-		labels:     eCtx.FormValue("labels"),
-		text:       eCtx.FormValue("text"),
+		text:          eCtx.FormValue("text"),
+		byType:        eCtx.FormValue("by-type"),
+		typeId:        eCtx.FormValue("type"),
+		byDate:        eCtx.FormValue("by-date"),
+		startDate:     eCtx.FormValue("start-date"),
+		endDate:       eCtx.FormValue("end-date"),
+		byActivity:    eCtx.FormValue("by-activity"),
+		activityId:    eCtx.FormValue("activity"),
+		byDescription: eCtx.FormValue("by-description"),
+		description:   eCtx.FormValue("description"),
+		byLabels:      eCtx.FormValue("by-labels"),
+		labels:        eCtx.FormValue("labels"),
 	}
 }
 
-func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*model.FieldEntryFilter,
+func (c *SearchController) createSearchFilter(userId int, isAdvanced bool, input *searchInput,
+) (model.EntryFilter, error) {
+	if !isAdvanced {
+		return c.createSearchTextFilter(userId, input)
+	}
+	return c.createSearchFieldFilter(userId, input)
+}
+
+func (c *SearchController) createSearchTextFilter(userId int, input *searchInput) (model.EntryFilter,
+	error) {
+	filter := model.NewTextEntryFilter()
+	filter.ByUser = true
+	filter.UserId = userId
+
+	var err error
+
+	// Create text filter
+	if err = validateMaxStringLength(input.text, model.MaxLengthFilterText,
+		e.ValDescriptionTooLong); err != nil {
+		return nil, err
+	}
+	filter.Text = input.text
+
+	return filter, nil
+}
+
+func (c *SearchController) createSearchFieldFilter(userId int, input *searchInput) (model.EntryFilter,
 	error) {
 	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
@@ -304,6 +347,14 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 		return nil, err
 	}
 
+	// Create description filter
+	if err = validateMaxStringLength(input.description, model.MaxLengthEntryDescription,
+		e.ValDescriptionTooLong); err != nil {
+		return nil, err
+	}
+	filter.ByDescription = input.byDescription == "on"
+	filter.Description = input.description
+
 	// Create labels filter
 	filter.ByLabel = input.byLabels == "on"
 	filter.Labels = []string{}
@@ -329,18 +380,11 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 		}
 	}
 
-	// Create description filter
-	if err = validateMaxStringLength(input.text, model.MaxLengthEntryDescription,
-		e.ValDescriptionTooLong); err != nil {
-		return nil, err
-	}
-	filter.ByDescription = input.text != ""
-	filter.Description = input.text
-
-	// If search query is empty: Create empty description filter
+	// If no filters are set: Abort
 	if c.isFilterEmpty(filter) {
-		filter.ByDescription = true
-		filter.Description = ""
+		err := e.NewError(e.ValQueryEmpty, "Query cannot be empty!")
+		log.Debug(err.StackTrace())
+		return nil, err
 	}
 
 	return filter, nil
@@ -348,7 +392,7 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 
 // --- Helper functions ---
 
-func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.FieldEntryFilter,
+func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter model.EntryFilter,
 	pageNum int) string {
 	url := "/search?"
 	if isAdvanced {

@@ -142,7 +142,7 @@ func NewEntriesExporter() *EntriesExporter {
 
 // ExportEntries creates the Excel file for the supplied data and returns it as an io.WriterTo that
 // can be used to write the file to a writer.
-func (e *EntriesExporter) ExportEntries(filterDetails *vm.EntryFilterDetails,
+func (e *EntriesExporter) ExportEntries(filterDetails vm.EntryFilterDetails,
 	entries *vm.ListEntries) io.WriterTo {
 	exp := e.createNewExport()
 
@@ -173,7 +173,7 @@ func (e *EntriesExporter) configureWorkSheet(exp *export) {
 	f.SetColStyle(sheet, "A:G", styles.base)
 }
 
-func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntryFilterDetails) {
+func (e *EntriesExporter) writeTitle(exp *export, filterDetails vm.EntryFilterDetails) {
 	f := exp.file
 	sheet := exp.sheet
 	styles := exp.styles
@@ -187,21 +187,32 @@ func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntryFilterD
 	f.SetCellStyle(sheet, "A2", "A2", styles.textBold)
 }
 
-func (e *EntriesExporter) buildExportDetailsString(filterDetails *vm.EntryFilterDetails) string {
-	var details []string
-	if filterDetails.Type != "" {
-		details = append(details, filterDetails.Type)
+func (e *EntriesExporter) buildExportDetailsString(filterDetails vm.EntryFilterDetails) string {
+	if filterDetails == nil {
+		return ""
 	}
-	if filterDetails.Date != "" {
-		details = append(details, filterDetails.Date)
+
+	switch fd := filterDetails.(type) {
+	case *vm.BasicEntryFilterDetails:
+		return fd.Text
+	case *vm.AdvancedEntryFilterDetails:
+		var details []string
+		if fd.Type != "" {
+			details = append(details, fd.Type)
+		}
+		if fd.Date != "" {
+			details = append(details, fd.Date)
+		}
+		if fd.Activity != "" {
+			details = append(details, fd.Activity)
+		}
+		if fd.Description != "" {
+			details = append(details, fd.Description)
+		}
+		return strings.Join(details, ", ")
+	default:
+		return ""
 	}
-	if filterDetails.Activity != "" {
-		details = append(details, filterDetails.Activity)
-	}
-	if filterDetails.Text != "" {
-		details = append(details, filterDetails.Text)
-	}
-	return strings.Join(details, ", ")
 }
 
 func (e *EntriesExporter) writeEntries(exp *export, entries *vm.ListEntries) {

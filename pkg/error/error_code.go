@@ -51,11 +51,12 @@ const (
 	ValLabelTooShort        = -326
 	ValLabelTooLong         = -327
 	ValQueryInvalid         = -328
-	ValMonthInvalid         = -329
-	ValPasswordEmpty        = -330
-	ValPasswordTooShort     = -331
-	ValPasswordTooLong      = -332
-	ValPasswordsNotMatching = -333
+	ValQueryEmpty           = -329
+	ValMonthInvalid         = -330
+	ValPasswordEmpty        = -331
+	ValPasswordTooShort     = -332
+	ValPasswordTooLong      = -333
+	ValPasswordsNotMatching = -334
 
 	// Logic errors
 	LogicUnknown                       = -400

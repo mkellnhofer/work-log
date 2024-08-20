@@ -17,7 +17,12 @@ const (
 	MinLengthLabelName    = 3
 )
 
-// Maximum string length constants.
+// Maximum filter string length constants.
+const (
+	MaxLengthFilterText = 200
+)
+
+// Maximum field string length constants.
 const (
 	MaxLengthRoleName                 = 100
 	MaxLengthUserName                 = 100

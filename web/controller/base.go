@@ -137,11 +137,26 @@ func (c *baseController) getEntryActivitiesMap(ctx context.Context) (map[int]*mo
 	return c.eServ.GetEntryActivitiesMap(ctx)
 }
 
-func (c *baseController) buildQueryString(filter *model.FieldEntryFilter) string {
+func (c *baseController) buildQueryString(filter model.EntryFilter) string {
 	if filter == nil {
 		return ""
 	}
 
+	switch f := filter.(type) {
+	case *model.FieldEntryFilter:
+		return c.buildAdvancedQueryString(f)
+	case *model.TextEntryFilter:
+		return c.buildBasicQueryString(f)
+	default:
+		return ""
+	}
+}
+
+func (c *baseController) buildBasicQueryString(filter *model.TextEntryFilter) string {
+	return fmt.Sprintf("txt:%s", c.formatQueryText(filter.Text))
+}
+
+func (c *baseController) buildAdvancedQueryString(filter *model.FieldEntryFilter) string {
 	var qps []string
 	// Add parameter/value for entry type
 	if filter.ByType {
@@ -156,18 +171,59 @@ func (c *baseController) buildQueryString(filter *model.FieldEntryFilter) string
 	if filter.ByActivity {
 		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
 	}
+	// Add parameter/value for entry description
+	if filter.ByDescription {
+		qps = append(qps, fmt.Sprintf("des:%s", c.formatQueryText(filter.Description)))
+	}
 	// Add parameter/value for entry labels
 	if filter.ByLabel {
 		qps = append(qps, fmt.Sprintf("lbl:%s", c.formatQueryLabels(filter.Labels)))
 	}
-	// Add parameter/value for entry description
-	if filter.ByDescription {
-		qps = append(qps, fmt.Sprintf("des:%s", c.formatQueryDescription(filter.Description)))
-	}
 	return strings.Join(qps[:], "|")
 }
 
-func (c *baseController) parseQueryString(userId int, query string) (*model.FieldEntryFilter, error) {
+func (c *baseController) parseQueryString(userId int, isAdvanced bool, query string) (
+	model.EntryFilter, error) {
+	if !isAdvanced {
+		return c.parseBasicQueryString(userId, query)
+	}
+	return c.parseAdvancedQueryString(userId, query)
+}
+
+func (c *baseController) parseBasicQueryString(userId int, query string) (*model.TextEntryFilter,
+	error) {
+	filter := model.NewTextEntryFilter()
+	filter.ByUser = true
+	filter.UserId = userId
+
+	if query == "" {
+		return filter, nil
+	}
+
+	pErr := c.parseQueryParts(query, func(p string, v string) error {
+		var cErr error
+
+		// Handle specific conversion
+		switch p {
+		// Convert value for text
+		case "txt":
+			filter.Text, cErr = c.parseQueryText(v)
+		// Unknown parameter
+		default:
+			cErr = e.NewError(e.ValQueryInvalid, fmt.Sprintf("Unknown query parameter '%s'.", p))
+		}
+
+		return cErr
+	})
+	if pErr != nil {
+		return nil, pErr
+	}
+
+	return filter, nil
+}
+
+func (c *baseController) parseAdvancedQueryString(userId int, query string) (*model.FieldEntryFilter,
+	error) {
 	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
 	filter.UserId = userId
@@ -176,19 +232,7 @@ func (c *baseController) parseQueryString(userId int, query string) (*model.Fiel
 		return filter, nil
 	}
 
-	qps := strings.Split(query, "|")
-
-	for _, qp := range qps {
-		pv := strings.Split(qp, ":")
-		// Check if query part is invalid
-		if len(pv) < 2 {
-			err := e.NewError(e.ValQueryInvalid, "Query part is invalid.")
-			log.Debug(err.StackTrace())
-			return nil, err
-		}
-
-		p := pv[0]
-		v := pv[1]
+	pErr := c.parseQueryParts(query, func(p string, v string) error {
 		var cErr error
 
 		// Handle specific conversion
@@ -205,30 +249,56 @@ func (c *baseController) parseQueryString(userId int, query string) (*model.Fiel
 		case "act":
 			filter.ByActivity = true
 			filter.ActivityId, cErr = strconv.Atoi(v)
+		// Convert value for entry description
+		case "des":
+			filter.ByDescription = true
+			filter.Description, cErr = c.parseQueryText(v)
 		// Convert value for entry labels
 		case "lbl":
 			filter.ByLabel = true
 			filter.Labels, cErr = c.parseQueryLabels(v)
-		// Convert value for entry description
-		case "des":
-			filter.ByDescription = true
-			filter.Description, cErr = c.parseQueryDescription(v)
 		// Unknown parameter
 		default:
-			err := e.NewError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' is unknown.", p))
-			log.Debug(err.StackTrace())
-			return nil, err
+			cErr = e.NewError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' is unknown.", p))
 		}
+
+		return cErr
+	})
+	if pErr != nil {
+		return nil, pErr
+	}
+
+	return filter, nil
+}
+
+func (c *baseController) parseQueryParts(query string, partParserFunc func(string, string) error,
+) error {
+	qps := strings.Split(query, "|")
+
+	for _, qp := range qps {
+		pv := strings.Split(qp, ":")
+		// Check if query part is invalid
+		if len(pv) < 2 {
+			err := e.NewError(e.ValQueryInvalid, "Query part is invalid.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+
+		p := pv[0]
+		v := pv[1]
+		// Parse parameter/value
+		cErr := partParserFunc(p, v)
 
 		// Check if a error occurred
 		if cErr != nil {
 			err := e.WrapError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' has invalid "+
 				"value.", p), cErr)
 			log.Debug(err.StackTrace())
-			return nil, err
+			return err
 		}
 	}
-	return filter, nil
+
+	return nil
 }
 
 func (c *baseController) formatQueryDateRange(startDate time.Time, endDate time.Time) string {
@@ -275,15 +345,45 @@ func (c *baseController) parseQueryLabels(labels string) ([]string, error) {
 	return strings.Split(labelsStr, ","), nil
 }
 
-func (c *baseController) formatQueryDescription(description string) string {
-	return util.EncodeBase64(description)
+func (c *baseController) formatQueryText(text string) string {
+	return util.EncodeBase64(text)
 }
 
-func (c *baseController) parseQueryDescription(description string) (string, error) {
-	return util.DecodeBase64(description)
+func (c *baseController) parseQueryText(text string) (string, error) {
+	return util.DecodeBase64(text)
 }
 
-func (c *baseController) isFilterEmpty(filter *model.FieldEntryFilter) bool {
-	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByLabel &&
-		!filter.ByDescription
+func (c *baseController) isFilterEmpty(filter model.EntryFilter) bool {
+	if filter == nil {
+		return true
+	}
+
+	switch f := filter.(type) {
+	case *model.TextEntryFilter:
+		return false
+	case *model.FieldEntryFilter:
+		return !f.ByType && !f.ByTime && !f.ByActivity && !f.ByDescription && !f.ByLabel
+	default:
+		return true
+	}
+}
+
+func (c *baseController) getFilterDetailsViewData(ctx context.Context, filter model.EntryFilter) (
+	vm.EntryFilterDetails, error) {
+	if filter == nil {
+		return nil, nil
+	}
+
+	switch f := filter.(type) {
+	case *model.TextEntryFilter:
+		return c.mapper.CreateBasicEntryFilterDetailsViewModel(f), nil
+	case *model.FieldEntryFilter:
+		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, f.TypeId)
+		if err != nil {
+			return nil, err
+		}
+		return c.mapper.CreateAdvancedEntryFilterDetailsViewModel(f, entryTypes, entryActivities), nil
+	default:
+		return nil, nil
+	}
 }

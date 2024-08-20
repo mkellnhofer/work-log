@@ -27,8 +27,11 @@ func buildSearchModalUrl(isAdvanced bool, queryString string) string {
 	return hx("/search-modal?" + params)
 }
 
-func buildSearchExportUrl(queryString string) string {
+func buildSearchExportUrl(isAdvanced bool, queryString string) string {
 	params := ""
+	if isAdvanced {
+		params = params + "adv=1&"
+	}
 	if queryString != "" {
 		params = params + "query=" + queryString
 	}
@@ -53,7 +56,7 @@ func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 }
 
 // This template is used to render the navbar elements on the search page.
-func SearchNav(searchDetails *model.SearchDetails) templ.Component {
+func SearchNav(filterDetails model.EntryFilterDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -78,7 +81,7 @@ func SearchNav(searchDetails *model.SearchDetails) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchNavDetails(searchDetails).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = searchNavDetails(filterDetails).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -113,7 +116,7 @@ func searchNavTitle() templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(getText("searchTitle"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 55, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 58, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
@@ -130,7 +133,7 @@ func searchNavTitle() templ.Component {
 	})
 }
 
-func searchNavDetails(searchDetails *model.SearchDetails) templ.Component {
+func searchNavDetails(filterDetails model.EntryFilterDetails) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -143,29 +146,60 @@ func searchNavDetails(searchDetails *model.SearchDetails) templ.Component {
 			templ_7745c5c3_Var4 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		if filterDetails == nil {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("return ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<span class=\"d-none d-md-inline fs-3 comma-separated\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchNavDetailText(searchDetails.ByType, searchDetails.Type).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = searchNavDetailText(searchDetails.ByDate, searchDetails.Date).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = searchNavDetailText(searchDetails.ByActivity, searchDetails.Activity).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = searchNavDetail(searchDetails.ByLabels, EntryLabels(searchDetails.Labels)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = searchNavDetailText(searchDetails.ByText, "\""+searchDetails.Text+"\"").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		switch fd := filterDetails.(type) {
+		case *model.BasicEntryFilterDetails:
+			templ_7745c5c3_Err = searchNavDetailText(true, "\""+fd.Text+"\"").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		case *model.AdvancedEntryFilterDetails:
+			templ_7745c5c3_Err = searchNavDetailText(fd.ByType, fd.Type).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = searchNavDetailText(fd.ByDate, fd.Date).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = searchNavDetailText(fd.ByActivity, fd.Activity).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = searchNavDetailText(fd.ByDescription, "\""+fd.Description+"\"").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = searchNavDetail(fd.ByLabels, EntryLabels(fd.Labels)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		default:
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span>")
 		if templ_7745c5c3_Err != nil {
@@ -233,7 +267,7 @@ func searchNavDetailText(show bool, text string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 77, Col: 14}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 90, Col: 14}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -281,7 +315,7 @@ func SearchActions(isAdvanced bool, queryString string) templ.Component {
 			PageActionDropdownMenuItem("file-export",
 				"actionExport",
 				templ.Attributes{
-					"href": buildSearchExportUrl(queryString),
+					"href": buildSearchExportUrl(isAdvanced, queryString),
 				},
 			),
 		}).Render(ctx, templ_7745c5c3_Buffer)
@@ -375,7 +409,7 @@ func searchResult(isAdvanced bool, queryString string, entries *model.ListEntrie
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 119, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 132, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -389,7 +423,7 @@ func searchResult(isAdvanced bool, queryString string, entries *model.ListEntrie
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = searchResultEntryList(queryString, entries).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = searchResultEntryList(entries).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -433,7 +467,7 @@ func searchResultHeader() templ.Component {
 	})
 }
 
-func searchResultEntryList(queryString string, entries *model.ListEntries) templ.Component {
+func searchResultEntryList(entries *model.ListEntries) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -446,12 +480,7 @@ func searchResultEntryList(queryString string, entries *model.ListEntries) templ
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		if queryString == "" {
-			templ_7745c5c3_Err = EntriesPlaceholder("magnifying-glass", getText("searchListLabelNoSearchQuery")).Render(ctx, templ_7745c5c3_Buffer)
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		} else if len(entries.Days) == 0 {
+		if len(entries.Days) == 0 {
 			templ_7745c5c3_Err = EntriesPlaceholder("xmark", getText("searchListLabelNoEntries")).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

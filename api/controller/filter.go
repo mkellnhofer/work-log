@@ -37,7 +37,7 @@ const (
 	filterNameLabels      = "labels"
 )
 
-func getEntriesFilter(str string) (*model.EntriesFilter, error) {
+func getEntryFilter(str string) (*model.FieldEntryFilter, error) {
 	// Get filter values
 	filters, err := getFilters(str)
 	if err != nil {
@@ -51,7 +51,7 @@ func getEntriesFilter(str string) (*model.EntriesFilter, error) {
 		return nil, err
 	}
 
-	entryFilter := model.NewEntriesFilter()
+	entryFilter := model.NewFieldEntryFilter()
 
 	// Get user ID filter
 	if filter, ok := filters[filterNameUserId]; ok {

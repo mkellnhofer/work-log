@@ -68,7 +68,7 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 }
 
 func (c *ExportController) getExportDetailsViewData(ctx context.Context,
-	exportFilter *model.EntriesFilter) (*vm.EntriesFilterDetails, error) {
+	exportFilter *model.FieldEntryFilter) (*vm.EntryFilterDetails, error) {
 	// Get entry master data
 	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, exportFilter.TypeId)
 	if err != nil {
@@ -76,18 +76,18 @@ func (c *ExportController) getExportDetailsViewData(ctx context.Context,
 	}
 
 	// Create view model
-	return c.mapper.CreateEntriesFilterDetailsViewModel(exportFilter, entryTypes, entryActivities),
+	return c.mapper.CreateEntryFilterDetailsViewModel(exportFilter, entryTypes, entryActivities),
 		nil
 }
 
 func (c *ExportController) getExportEntriesViewData(ctx context.Context,
-	exportFilter *model.EntriesFilter) (*vm.ListEntries, error) {
+	exportFilter *model.FieldEntryFilter) (*vm.ListEntries, error) {
 	if c.isFilterEmpty(exportFilter) {
 		return &vm.ListEntries{}, nil
 	}
 
 	// Create entries searchSort
-	exportSort := model.NewEntriesSort()
+	exportSort := model.NewEntrySort()
 	exportSort.ByTime = model.AscSorting
 
 	// Get all entries (no pagination for export)

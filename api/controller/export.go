@@ -123,13 +123,13 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	//     "$ref": "#/responses/ErrorResponse"
 	return func(eCtx echo.Context) error {
 		// Get filter from request
-		f, err := getEntriesFilter(getFilterQueryParam(eCtx))
+		f, err := getEntryFilter(getFilterQueryParam(eCtx))
 		if err != nil {
 			return err
 		}
 
 		// Get sort from request
-		s, err := getEntriesSort(getSortQueryParam(eCtx))
+		s, err := getEntrySort(getSortQueryParam(eCtx))
 		if err != nil {
 			return err
 		}

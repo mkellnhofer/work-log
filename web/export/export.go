@@ -142,7 +142,7 @@ func NewEntriesExporter() *EntriesExporter {
 
 // ExportEntries creates the Excel file for the supplied data and returns it as an io.WriterTo that
 // can be used to write the file to a writer.
-func (e *EntriesExporter) ExportEntries(filterDetails *vm.EntriesFilterDetails,
+func (e *EntriesExporter) ExportEntries(filterDetails *vm.EntryFilterDetails,
 	entries *vm.ListEntries) io.WriterTo {
 	exp := e.createNewExport()
 
@@ -173,7 +173,7 @@ func (e *EntriesExporter) configureWorkSheet(exp *export) {
 	f.SetColStyle(sheet, "A:G", styles.base)
 }
 
-func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntriesFilterDetails) {
+func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntryFilterDetails) {
 	f := exp.file
 	sheet := exp.sheet
 	styles := exp.styles
@@ -187,7 +187,7 @@ func (e *EntriesExporter) writeTitle(exp *export, filterDetails *vm.EntriesFilte
 	f.SetCellStyle(sheet, "A2", "A2", styles.textBold)
 }
 
-func (e *EntriesExporter) buildExportDetailsString(filterDetails *vm.EntriesFilterDetails) string {
+func (e *EntriesExporter) buildExportDetailsString(filterDetails *vm.EntryFilterDetails) string {
 	var details []string
 	if filterDetails.Type != "" {
 		details = append(details, filterDetails.Type)

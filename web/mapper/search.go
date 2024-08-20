@@ -16,7 +16,7 @@ func NewSearchMapper() *SearchMapper {
 }
 
 // CreateSearchQueryViewModel creates a view model for the search form.
-func (m *SearchMapper) CreateSearchQueryViewModel(filter *model.EntriesFilter,
+func (m *SearchMapper) CreateSearchQueryViewModel(filter *model.FieldEntryFilter,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchQuery {
 	return &vm.SearchQuery{
 		Input: &vm.SearchQueryInput{
@@ -39,11 +39,11 @@ func (m *SearchMapper) CreateSearchQueryViewModel(filter *model.EntriesFilter,
 }
 
 // CreateSearchDetailsViewModel creates a view model for the search details page.
-func (m *SearchMapper) CreateSearchDetailsViewModel(filter *model.EntriesFilter,
+func (m *SearchMapper) CreateSearchDetailsViewModel(filter *model.FieldEntryFilter,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.SearchDetails {
-	efd := m.CreateEntriesFilterDetailsViewModel(filter, types, activities)
+	efd := m.CreateEntryFilterDetailsViewModel(filter, types, activities)
 	return &vm.SearchDetails{
-		EntriesFilterDetails: *efd,
+		EntryFilterDetails: *efd,
 	}
 }
 

@@ -218,9 +218,9 @@ func (c *LogController) getPostExportInput(eCtx echo.Context) *exportInput {
 	}
 }
 
-func (c *LogController) createExportFilter(userId int, input *exportInput) (*model.EntriesFilter,
+func (c *LogController) createExportFilter(userId int, input *exportInput) (*model.FieldEntryFilter,
 	error) {
-	filter := model.NewEntriesFilter()
+	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
 	filter.UserId = userId
 

@@ -25,8 +25,8 @@ const (
 	sortNameStartTime = "startTime"
 )
 
-func getEntriesSort(str string) (*model.EntriesSort, error) {
-	entrySort := model.NewEntriesSort()
+func getEntrySort(str string) (*model.EntrySort, error) {
+	entrySort := model.NewEntrySort()
 
 	// Get start time sorting value
 	var err error

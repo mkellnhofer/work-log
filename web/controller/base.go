@@ -137,7 +137,7 @@ func (c *baseController) getEntryActivitiesMap(ctx context.Context) (map[int]*mo
 	return c.eServ.GetEntryActivitiesMap(ctx)
 }
 
-func (c *baseController) buildQueryString(filter *model.EntriesFilter) string {
+func (c *baseController) buildQueryString(filter *model.FieldEntryFilter) string {
 	if filter == nil {
 		return ""
 	}
@@ -167,8 +167,8 @@ func (c *baseController) buildQueryString(filter *model.EntriesFilter) string {
 	return strings.Join(qps[:], "|")
 }
 
-func (c *baseController) parseQueryString(userId int, query string) (*model.EntriesFilter, error) {
-	filter := model.NewEntriesFilter()
+func (c *baseController) parseQueryString(userId int, query string) (*model.FieldEntryFilter, error) {
+	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
 	filter.UserId = userId
 
@@ -283,7 +283,7 @@ func (c *baseController) parseQueryDescription(description string) (string, erro
 	return util.DecodeBase64(description)
 }
 
-func (c *baseController) isFilterEmpty(filter *model.EntriesFilter) bool {
+func (c *baseController) isFilterEmpty(filter *model.FieldEntryFilter) bool {
 	return !filter.ByType && !filter.ByTime && !filter.ByActivity && !filter.ByLabel &&
 		!filter.ByDescription
 }

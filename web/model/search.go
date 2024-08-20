@@ -25,5 +25,5 @@ type SearchQueryInput struct {
 
 // SearchDetails stores data for the search details view.
 type SearchDetails struct {
-	EntriesFilterDetails
+	EntryFilterDetails
 }

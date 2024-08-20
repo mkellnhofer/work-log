@@ -53,7 +53,8 @@ func NewEntryRepo(db *sql.DB) *EntryRepo {
 // --- Entry functions ---
 
 // CountDateEntries counts entries (over date).
-func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
+func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.FieldEntryFilter) (int,
+	error) {
 	q, qa := r.buildCountDateEntriesQuery(filter)
 
 	sh := newIntScanHelper()
@@ -67,8 +68,8 @@ func (r *EntryRepo) CountDateEntries(ctx context.Context, filter *model.EntriesF
 	return count, nil
 }
 
-func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (string, []any) {
-	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.FieldEntryFilter) (string, []any) {
+	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(DISTINCT(DATE(e.start_time))) " +
 		"FROM entry e " +
@@ -79,8 +80,8 @@ func (r *EntryRepo) buildCountDateEntriesQuery(filter *model.EntriesFilter) (str
 }
 
 // GetDateEntries retrieves entries (over date).
-func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, error) {
+func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.FieldEntryFilter,
+	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, error) {
 	qr, qra := r.buildGetDateEntriesRangeQuery(filter, sort, offset, limit)
 
 	start, end, qrErr := r.getDateRange(ctx, qr, qra...)
@@ -107,9 +108,9 @@ func (r *EntryRepo) GetDateEntries(ctx context.Context, filter *model.EntriesFil
 	return entries, nil
 }
 
-func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) (string, []any) {
-	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.FieldEntryFilter,
+	sort *model.EntrySort, offset int, limit int) (string, []any) {
+	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 	var qo string
 	if sort != nil && (sort.ByTime == model.NoSorting || sort.ByTime == model.AscSorting) {
 		qo = "ORDER BY date ASC"
@@ -127,10 +128,10 @@ func (r *EntryRepo) buildGetDateEntriesRangeQuery(filter *model.EntriesFilter,
 	return q, qra
 }
 
-func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.EntriesFilter, sort *model.EntriesSort,
+func (r *EntryRepo) buildGetDateEntriesQuery(filter *model.FieldEntryFilter, sort *model.EntrySort,
 	start string, end string) (string, []any) {
-	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
-	qo := r.buildEntriesSortQueryClause(sort)
+	qr, qra := r.buildEntryFilterQueryRestriction(filter)
+	qo := r.buildEntrySortQueryClause(sort)
 
 	q := "SELECT " + r.getEntrySelectColumns() + " " +
 		"FROM " + r.getEntrySelectTables() + " " +
@@ -254,8 +255,8 @@ func (r *EntryRepo) buildGetMonthEntriesQuery(userId int, year int, month int) (
 }
 
 // CountEntries counts all entries.
-func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilter) (int, error) {
-	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
+func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.FieldEntryFilter) (int, error) {
+	qr, qra := r.buildEntryFilterQueryRestriction(filter)
 
 	q := "SELECT COUNT(*) "+
 		"FROM entry e " + 
@@ -273,10 +274,10 @@ func (r *EntryRepo) CountEntries(ctx context.Context, filter *model.EntriesFilte
 }
 
 // GetEntries retrieves all entries.
-func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, error) {
-	qr, qra := r.buildEntriesFilterQueryRestriction(filter)
-	qo := r.buildEntriesSortQueryClause(sort)
+func (r *EntryRepo) GetEntries(ctx context.Context, filter *model.FieldEntryFilter,
+	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, error) {
+	qr, qra := r.buildEntryFilterQueryRestriction(filter)
+	qo := r.buildEntrySortQueryClause(sort)
 
 	q := "SELECT " + r.getEntrySelectColumns() + " " +
 		"FROM " + r.getEntrySelectTables() + " " +
@@ -757,7 +758,7 @@ func (r *EntryRepo) GetWorkSummary(ctx context.Context, userId int, start time.T
 
 // --- Filter helper functions ---
 
-func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilter) (string, []any) {
+func (r *EntryRepo) buildEntryFilterQueryRestriction(filter *model.FieldEntryFilter) (string, []any) {
 	var qrs []string
 	var qas []any
 	if filter == nil {
@@ -831,7 +832,7 @@ func (r *EntryRepo) buildEntriesFilterQueryRestriction(filter *model.EntriesFilt
 
 // --- Sort ---
 
-func (r *EntryRepo) buildEntriesSortQueryClause(sort *model.EntriesSort) string {
+func (r *EntryRepo) buildEntrySortQueryClause(sort *model.EntrySort) string {
 	if sort == nil {
 		return ""
 	}

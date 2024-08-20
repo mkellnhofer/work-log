@@ -27,8 +27,8 @@ func NewEntryService(tm *tx.TransactionManager, er *repo.EntryRepo) *EntryServic
 // --- Entry functions ---
 
 // GetDateEntries gets all entries (over date).
-func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, error) {
+func (s *EntryService) GetDateEntries(ctx context.Context, filter *model.FieldEntryFilter,
+	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, int, error) {
 	// If user does not have right to get any entry: Add default user ID filter
 	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
 		filter.ByUser = true
@@ -79,8 +79,8 @@ func (s *EntryService) GetDateEntriesByUserId(ctx context.Context, userId int, o
 }
 
 // GetEntries gets all entries.
-func (s *EntryService) GetEntries(ctx context.Context, filter *model.EntriesFilter,
-	sort *model.EntriesSort, offset int, limit int) ([]*model.Entry, int, error) {
+func (s *EntryService) GetEntries(ctx context.Context, filter *model.FieldEntryFilter,
+	sort *model.EntrySort, offset int, limit int) ([]*model.Entry, int, error) {
 	// If user does not have right to get any entry: Add default user ID filter
 	if !hasCurrentUserRight(ctx, model.RightGetAllEntries) && !filter.ByUser {
 		filter.ByUser = true

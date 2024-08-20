@@ -272,10 +272,10 @@ func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuratio
 	return d
 }
 
-// CreateEntriesFilterDetailsViewModel creates a view model for the entries filter details.
-func (m *Mapper) CreateEntriesFilterDetailsViewModel(filter *model.EntriesFilter,
-	types []*model.EntryType, activities []*model.EntryActivity) *vm.EntriesFilterDetails {
-	efd := &vm.EntriesFilterDetails{}
+// CreateEntryFilterDetailsViewModel creates a view model for the entry filter details.
+func (m *Mapper) CreateEntryFilterDetailsViewModel(filter *model.FieldEntryFilter,
+	types []*model.EntryType, activities []*model.EntryActivity) *vm.EntryFilterDetails {
+	efd := &vm.EntryFilterDetails{}
 
 	if filter.ByType {
 		efd.ByType = true

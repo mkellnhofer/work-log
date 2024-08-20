@@ -7,7 +7,7 @@ const (
 
 const PageNavItems = 5
 
-type EntriesFilterDetails struct {
+type EntryFilterDetails struct {
 	ByType     bool
 	Type       string
 	ByDate     bool

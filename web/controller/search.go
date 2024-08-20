@@ -184,11 +184,11 @@ func (c *SearchController) PostHxModalCancelHandler() echo.HandlerFunc {
 }
 
 func (c *SearchController) getSearchQueryViewData(ctx context.Context,
-	searchFilter *model.EntriesFilter) (*vm.SearchQuery, error) {
+	searchFilter *model.FieldEntryFilter) (*vm.SearchQuery, error) {
 	// Create default values
 	filter := searchFilter
 	if filter == nil {
-		filter = model.NewEntriesFilter()
+		filter = model.NewFieldEntryFilter()
 	}
 	if !filter.ByType {
 		filter.TypeId = model.EntryTypeIdWork
@@ -209,7 +209,7 @@ func (c *SearchController) getSearchQueryViewData(ctx context.Context,
 }
 
 func (c *SearchController) getSearchDetailsViewData(ctx context.Context,
-	searchFilter *model.EntriesFilter) (*vm.SearchDetails, error) {
+	searchFilter *model.FieldEntryFilter) (*vm.SearchDetails, error) {
 	// Get entry master data
 	entryTypes, entryActivities, err := c.getEntryMasterData(ctx, searchFilter.TypeId)
 	if err != nil {
@@ -221,13 +221,13 @@ func (c *SearchController) getSearchDetailsViewData(ctx context.Context,
 }
 
 func (c *SearchController) getSearchEntriesViewData(ctx context.Context,
-	searchFilter *model.EntriesFilter, pageNum int) (*vm.ListEntries, error) {
+	searchFilter *model.FieldEntryFilter, pageNum int) (*vm.ListEntries, error) {
 	if c.isFilterEmpty(searchFilter) {
 		return &vm.ListEntries{}, nil
 	}
 
 	// Create entries searchSort
-	searchSort := model.NewEntriesSort()
+	searchSort := model.NewEntrySort()
 	searchSort.ByTime = model.DescSorting
 
 	// Get entries
@@ -265,9 +265,9 @@ func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
 	}
 }
 
-func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*model.EntriesFilter,
+func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*model.FieldEntryFilter,
 	error) {
-	filter := model.NewEntriesFilter()
+	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
 	filter.UserId = userId
 
@@ -348,7 +348,7 @@ func (c *SearchController) createSearchFilter(userId int, input *searchInput) (*
 
 // --- Helper functions ---
 
-func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.EntriesFilter,
+func (c *SearchController) buildSearchUrl(isAdvanced bool, searchFilter *model.FieldEntryFilter,
 	pageNum int) string {
 	url := "/search?"
 	if isAdvanced {

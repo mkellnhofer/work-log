@@ -2,8 +2,8 @@ package model
 
 import "time"
 
-// EntriesFilter stores parameters to filter entries.
-type EntriesFilter struct {
+// FieldEntryFilter stores parameters to filter entries by specific fields.
+type FieldEntryFilter struct {
 	ByUser        bool      // Flag to filter by user
 	UserId        int       // ID of the user
 	ByType        bool      // Flag to filter by entry type
@@ -21,7 +21,7 @@ type EntriesFilter struct {
 	Labels        []string  // Label names
 }
 
-// NewEntriesFilter create a new EntriesFilter model.
-func NewEntriesFilter() *EntriesFilter {
-	return &EntriesFilter{}
+// NewFieldEntryFilter create a new FieldEntryFilter model.
+func NewFieldEntryFilter() *FieldEntryFilter {
+	return &FieldEntryFilter{}
 }

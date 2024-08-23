@@ -37,6 +37,8 @@ func (m *SearchMapper) CreateAdvancedSearchQueryViewModel(filter *model.FieldEnt
 			EndDateValue:   getDateString(filter.EndTime),
 			ByActivity:     filter.ByActivity,
 			ActivityId:     filter.ActivityId,
+			ByProject:      filter.ByProject,
+			Project:        filter.Project,
 			ByDescription:  filter.ByDescription,
 			Description:    filter.Description,
 			ByLabels:       filter.ByLabel,

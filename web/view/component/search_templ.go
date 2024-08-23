@@ -187,6 +187,14 @@ func searchNavDetails(filterDetails model.EntryFilterDetails) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+			templ_7745c5c3_Err = searchNavDetailText(fd.ByProject, "\""+fd.Project+"\"").Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(" ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 			templ_7745c5c3_Err = searchNavDetailText(fd.ByDescription, "\""+fd.Description+"\"").Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
@@ -267,7 +275,7 @@ func searchNavDetailText(show bool, text string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 90, Col: 14}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 91, Col: 14}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -409,7 +417,7 @@ func searchResult(isAdvanced bool, queryString string, entries *model.ListEntrie
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(buildSearchContentUrl(isAdvanced, queryString, entries.CurrentPageNum))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 132, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/view/component/search.templ`, Line: 133, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {

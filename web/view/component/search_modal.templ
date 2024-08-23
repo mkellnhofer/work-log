@@ -112,6 +112,14 @@ templ searchAdvancedFormControls(input *model.AdvancedSearchQueryInput, entryTyp
 	</div>
 	<div class="row mb-2">
 		<div class="col">
+			<label class="form-label" for="wl-search-input-by-project">
+				{ getText("formLabelProject") }
+			</label>
+			@searchFormProjectControl(input.ByProject, input.Project)
+		</div>
+	</div>
+	<div class="row mb-2">
+		<div class="col">
 			<label class="form-label" for="wl-search-input-by-description">
 				{ getText("formLabelDescription") }
 			</label>
@@ -189,6 +197,30 @@ templ searchFormActivityControl(byActivity bool, activities []*model.EntryActivi
 		<select id="wl-search-input-activity" class="form-select" name="activity">
 			@EntryActivitySelectOptions(activities, activityId)
 		</select>
+	</div>
+}
+
+templ searchFormProjectControl(byProject bool, project string) {
+	<div id="wl-search-input-group-project" class="input-group">
+		<div class="input-group-text">
+			<input
+				id="wl-search-input-by-project"
+				class="checkbox"
+				name="by-project"
+				type="checkbox"
+				if byProject {
+					checked
+				}
+			/>
+		</div>
+		<input
+			id="wl-search-input-project"
+			class="form-control"
+			name="project"
+			type="text"
+			placeholder={ getText("formLabelProjectPlaceholder") }
+			value={ project }
+		/>
 	</div>
 }
 

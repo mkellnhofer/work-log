@@ -171,6 +171,10 @@ func (c *baseController) buildAdvancedQueryString(filter *model.FieldEntryFilter
 	if filter.ByActivity {
 		qps = append(qps, fmt.Sprintf("act:%d", filter.ActivityId))
 	}
+	// Add parameter/value for entry project
+	if filter.ByProject {
+		qps = append(qps, fmt.Sprintf("prj:%s", c.formatQueryText(filter.Project)))
+	}
 	// Add parameter/value for entry description
 	if filter.ByDescription {
 		qps = append(qps, fmt.Sprintf("des:%s", c.formatQueryText(filter.Description)))
@@ -249,6 +253,10 @@ func (c *baseController) parseAdvancedQueryString(userId int, query string) (*mo
 		case "act":
 			filter.ByActivity = true
 			filter.ActivityId, cErr = strconv.Atoi(v)
+		// Convert value for entry project
+		case "prj":
+			filter.ByProject = true
+			filter.Project, cErr = c.parseQueryText(v)
 		// Convert value for entry description
 		case "des":
 			filter.ByDescription = true
@@ -362,7 +370,8 @@ func (c *baseController) isFilterEmpty(filter model.EntryFilter) bool {
 	case *model.TextEntryFilter:
 		return false
 	case *model.FieldEntryFilter:
-		return !f.ByType && !f.ByTime && !f.ByActivity && !f.ByDescription && !f.ByLabel
+		return !f.ByType && !f.ByTime && !f.ByActivity && !f.ByProject && !f.ByDescription &&
+			!f.ByLabel
 	default:
 		return true
 	}

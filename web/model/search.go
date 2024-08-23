@@ -33,6 +33,8 @@ type AdvancedSearchQueryInput struct {
 	EndDateValue   string
 	ByActivity     bool
 	ActivityId     int
+	ByProject      bool
+	Project        string
 	ByDescription  bool
 	Description    string
 	ByLabels       bool

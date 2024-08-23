@@ -95,6 +95,7 @@
     <message key="formLabelProject"><text>Projekt:</text></message>
     <message key="formLabelDescription"><text>Beschreibung:</text></message>
     <message key="formLabelLabels"><text>Kennzeichnung:</text></message>
+    <message key="formLabelProjectPlaceholder"><text>Projekt eingeben ...</text></message>
     <message key="formLabelDescriptionPlaceholder"><text>Beschreibung eingeben ...</text></message>
     <message key="formLabelLabelsPlaceholder"><text>Kennzeichen1, Kennzeichen2, ...</text></message>
 
@@ -105,6 +106,7 @@
     <message key="tableColEnd"><text>Ende</text></message>
     <message key="tableColNet"><text>Netto</text></message>
     <message key="tableColActivity"><text>Tätigkeit</text></message>
+    <message key="tableColProject"><text>Projekt</text></message>
     <message key="tableColDescription"><text>Beschreibung</text></message>
     <message key="tableColExtra"><text>Projekt / Beschreibung</text></message>
     

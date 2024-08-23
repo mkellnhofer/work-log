@@ -28,6 +28,8 @@ type AdvancedEntryFilterDetails struct {
 	Date          string
 	ByActivity    bool
 	Activity      string
+	ByProject     bool
+	Project       string
 	ByDescription bool
 	Description   string
 	ByLabels      bool

@@ -30,6 +30,8 @@ type searchInput struct {
 	endDate       string
 	byActivity    string
 	activityId    string
+	byProject     string
+	project       string
 	byDescription string
 	description   string
 	byLabels      string
@@ -275,6 +277,8 @@ func (c *SearchController) getPostSearchInput(eCtx echo.Context) *searchInput {
 		endDate:       eCtx.FormValue("end-date"),
 		byActivity:    eCtx.FormValue("by-activity"),
 		activityId:    eCtx.FormValue("activity"),
+		byProject:     eCtx.FormValue("by-project"),
+		project:       eCtx.FormValue("project"),
 		byDescription: eCtx.FormValue("by-description"),
 		description:   eCtx.FormValue("description"),
 		byLabels:      eCtx.FormValue("by-labels"),
@@ -346,6 +350,14 @@ func (c *SearchController) createSearchFieldFilter(userId int, input *searchInpu
 	if err != nil {
 		return nil, err
 	}
+
+	// Create project filter
+	if err = validateMaxStringLength(input.project, model.MaxLengthEntryProjectName,
+		e.ValProjectNameTooLong); err != nil {
+		return nil, err
+	}
+	filter.ByProject = input.byProject == "on"
+	filter.Project = strings.TrimSpace(input.project)
 
 	// Create description filter
 	if err = validateMaxStringLength(input.description, model.MaxLengthEntryDescription,

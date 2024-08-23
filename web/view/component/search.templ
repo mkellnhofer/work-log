@@ -72,6 +72,7 @@ templ searchNavDetails(filterDetails model.EntryFilterDetails) {
 		@searchNavDetailText(fd.ByType, fd.Type)
 		@searchNavDetailText(fd.ByDate, fd.Date)
 		@searchNavDetailText(fd.ByActivity, fd.Activity)
+		@searchNavDetailText(fd.ByProject, "\"" + fd.Project + "\"")
 		@searchNavDetailText(fd.ByDescription, "\"" + fd.Description + "\"")
 		@searchNavDetail(fd.ByLabels, EntryLabels(fd.Labels))
 	default:

@@ -95,6 +95,7 @@
     <message key="formLabelProject"><text>Project:</text></message>
     <message key="formLabelDescription"><text>Description:</text></message>
     <message key="formLabelLabels"><text>Labels:</text></message>
+    <message key="formLabelProjectPlaceholder"><text>Enter project ...</text></message>
     <message key="formLabelDescriptionPlaceholder"><text>Enter description ...</text></message>
     <message key="formLabelLabelsPlaceholder"><text>Label1, Label2, ...</text></message>
 
@@ -105,6 +106,7 @@
     <message key="tableColEnd"><text>End</text></message>
     <message key="tableColNet"><text>Net</text></message>
     <message key="tableColActivity"><text>Activity</text></message>
+    <message key="tableColProject"><text>Project</text></message>
     <message key="tableColDescription"><text>Description</text></message>
     <message key="tableColExtra"><text>Project / Description</text></message>
     

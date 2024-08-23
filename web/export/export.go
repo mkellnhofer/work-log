@@ -169,8 +169,9 @@ func (e *EntriesExporter) configureWorkSheet(exp *export) {
 	f.SetColWidth(sheet, "B", "B", 10.5)
 	f.SetColWidth(sheet, "C", "E", 7.5)
 	f.SetColWidth(sheet, "F", "F", 16.5)
-	f.SetColWidth(sheet, "G", "G", 42)
-	f.SetColStyle(sheet, "A:G", styles.base)
+	f.SetColWidth(sheet, "G", "G", 16.5)
+	f.SetColWidth(sheet, "H", "H", 42)
+	f.SetColStyle(sheet, "A:H", styles.base)
 }
 
 func (e *EntriesExporter) writeTitle(exp *export, filterDetails vm.EntryFilterDetails) {
@@ -178,9 +179,9 @@ func (e *EntriesExporter) writeTitle(exp *export, filterDetails vm.EntryFilterDe
 	sheet := exp.sheet
 	styles := exp.styles
 
-	f.MergeCell(sheet, "A1", "G1")
-	f.MergeCell(sheet, "A2", "G2")
-	f.MergeCell(sheet, "A3", "G3")
+	f.MergeCell(sheet, "A1", "H1")
+	f.MergeCell(sheet, "A2", "H2")
+	f.MergeCell(sheet, "A3", "H3")
 	f.SetCellValue(sheet, "A1", createString("entryExportTitle", createString("appName")))
 	f.SetCellValue(sheet, "A2", e.buildExportDetailsString(filterDetails))
 	f.SetCellStyle(sheet, "A1", "A1", styles.title)
@@ -206,6 +207,9 @@ func (e *EntriesExporter) buildExportDetailsString(filterDetails vm.EntryFilterD
 		if fd.Activity != "" {
 			details = append(details, fd.Activity)
 		}
+		if fd.Project != "" {
+			details = append(details, fd.Project)
+		}
 		if fd.Description != "" {
 			details = append(details, fd.Description)
 		}
@@ -221,7 +225,7 @@ func (e *EntriesExporter) writeEntries(exp *export, entries *vm.ListEntries) {
 	styles := exp.styles
 
 	// Create heading
-	f.MergeCell(sheet, "A4", "G4")
+	f.MergeCell(sheet, "A4", "H4")
 	f.SetCellValue(sheet, "A4", createString("entryExportHeadingEntries"))
 	f.SetCellStyle(sheet, "A4", "A4", styles.textBold)
 
@@ -232,9 +236,10 @@ func (e *EntriesExporter) writeEntries(exp *export, entries *vm.ListEntries) {
 	f.SetCellValue(sheet, "D5", createString("tableColEnd"))
 	f.SetCellValue(sheet, "E5", createString("tableColNet"))
 	f.SetCellValue(sheet, "F5", createString("tableColActivity"))
-	f.SetCellValue(sheet, "G5", createString("tableColDescription"))
+	f.SetCellValue(sheet, "G5", createString("tableColProject"))
+	f.SetCellValue(sheet, "H5", createString("tableColDescription"))
 	f.SetCellStyle(sheet, "A5", "E5", styles.tableHeader)
-	f.SetCellStyle(sheet, "F5", "G5", styles.tableHeader)
+	f.SetCellStyle(sheet, "F5", "H5", styles.tableHeader)
 
 	// Create table body
 	startRow := 6
@@ -247,12 +252,13 @@ func (e *EntriesExporter) writeEntries(exp *export, entries *vm.ListEntries) {
 			f.SetCellValue(sheet, getCellName("D", curRow), entry.EndTime)
 			f.SetCellValue(sheet, getCellName("E", curRow), entry.Duration)
 			f.SetCellValue(sheet, getCellName("F", curRow), entry.EntryActivity)
-			f.SetCellValue(sheet, getCellName("G", curRow), entry.Description)
+			f.SetCellValue(sheet, getCellName("G", curRow), entry.Project)
+			f.SetCellValue(sheet, getCellName("H", curRow), entry.Description)
 			curRow++
 		}
 	}
 	f.SetCellStyle(sheet, getCellName("A", startRow), getCellName("E", curRow-1), styles.tableBody)
-	f.SetCellStyle(sheet, getCellName("F", startRow), getCellName("G", curRow-1), styles.tableBody)
+	f.SetCellStyle(sheet, getCellName("F", startRow), getCellName("H", curRow-1), styles.tableBody)
 }
 
 // --- Overview exporter ---
@@ -297,8 +303,9 @@ func (e *OverviewExporter) configureWorkSheet(exp *export) {
 	f.SetColWidth(sheet, "B", "B", 10.5)
 	f.SetColWidth(sheet, "C", "E", 7.5)
 	f.SetColWidth(sheet, "F", "F", 16.5)
-	f.SetColWidth(sheet, "G", "G", 42)
-	f.SetColStyle(sheet, "A:G", styles.base)
+	f.SetColWidth(sheet, "G", "G", 16.5)
+	f.SetColWidth(sheet, "H", "H", 42)
+	f.SetColStyle(sheet, "A:H", styles.base)
 }
 
 func (e *OverviewExporter) writeTitle(exp *export, overviewEntries *vm.OverviewEntries) {
@@ -306,9 +313,9 @@ func (e *OverviewExporter) writeTitle(exp *export, overviewEntries *vm.OverviewE
 	sheet := exp.sheet
 	styles := exp.styles
 
-	f.MergeCell(sheet, "A1", "G1")
-	f.MergeCell(sheet, "A2", "G2")
-	f.MergeCell(sheet, "A3", "G3")
+	f.MergeCell(sheet, "A1", "H1")
+	f.MergeCell(sheet, "A2", "H2")
+	f.MergeCell(sheet, "A3", "H3")
 	f.SetCellValue(sheet, "A1", createString("overviewExportTitle", createString("appName")))
 	f.SetCellValue(sheet, "A2", overviewEntries.CurrMonthName)
 	f.SetCellStyle(sheet, "A1", "A1", styles.title)
@@ -321,28 +328,28 @@ func (e *OverviewExporter) writeSummary(exp *export, overviewEntries *vm.Overvie
 	styles := exp.styles
 
 	// Prepare cells
-	f.MergeCell(sheet, "A4", "G4")
+	f.MergeCell(sheet, "A4", "H4")
 	f.MergeCell(sheet, "B5", "C5")
-	f.MergeCell(sheet, "D5", "G5")
+	f.MergeCell(sheet, "D5", "H5")
 	f.MergeCell(sheet, "B6", "C6")
-	f.MergeCell(sheet, "D6", "G6")
+	f.MergeCell(sheet, "D6", "H6")
 	f.MergeCell(sheet, "B7", "C7")
-	f.MergeCell(sheet, "D7", "G7")
-	f.MergeCell(sheet, "A8", "G8")
+	f.MergeCell(sheet, "D7", "H7")
+	f.MergeCell(sheet, "A8", "H8")
 	f.MergeCell(sheet, "B9", "C9")
-	f.MergeCell(sheet, "D9", "G9")
+	f.MergeCell(sheet, "D9", "H9")
 	f.MergeCell(sheet, "B10", "C10")
-	f.MergeCell(sheet, "D10", "G10")
+	f.MergeCell(sheet, "D10", "H10")
 	f.MergeCell(sheet, "B11", "C11")
-	f.MergeCell(sheet, "D11", "G11")
+	f.MergeCell(sheet, "D11", "H11")
 	f.MergeCell(sheet, "B12", "C12")
-	f.MergeCell(sheet, "D12", "G12")
+	f.MergeCell(sheet, "D12", "H12")
 	f.MergeCell(sheet, "B13", "C13")
-	f.MergeCell(sheet, "D13", "G13")
+	f.MergeCell(sheet, "D13", "H13")
 	f.MergeCell(sheet, "B14", "C14")
-	f.MergeCell(sheet, "D14", "G14")
-	f.MergeCell(sheet, "A15", "G15")
-	f.MergeCell(sheet, "D15", "G15")
+	f.MergeCell(sheet, "D14", "H14")
+	f.MergeCell(sheet, "A15", "H15")
+	f.MergeCell(sheet, "D15", "H15")
 
 	// Create heading
 	f.SetCellValue(sheet, "A4", createString("overviewExportHeadingSummary"))
@@ -380,7 +387,7 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 	styles := exp.styles
 
 	// Create heading
-	f.MergeCell(sheet, "A16", "G16")
+	f.MergeCell(sheet, "A16", "H16")
 	f.SetCellValue(sheet, "A16", createString("overviewExportHeadingEntries"))
 	f.SetCellStyle(sheet, "A16", "A16", styles.textBold)
 
@@ -391,9 +398,10 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 	f.SetCellValue(sheet, "D17", createString("tableColEnd"))
 	f.SetCellValue(sheet, "E17", createString("tableColNet"))
 	f.SetCellValue(sheet, "F17", createString("tableColActivity"))
-	f.SetCellValue(sheet, "G17", createString("tableColDescription"))
+	f.SetCellValue(sheet, "G17", createString("tableColProject"))
+	f.SetCellValue(sheet, "H17", createString("tableColDescription"))
 	f.SetCellStyle(sheet, "A17", "E17", styles.tableHeader)
-	f.SetCellStyle(sheet, "F17", "G17", styles.tableHeader)
+	f.SetCellStyle(sheet, "F17", "H17", styles.tableHeader)
 
 	// Create table body
 	startRow := 18
@@ -416,7 +424,8 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 				f.SetCellValue(sheet, getCellName("D", curRow), entry.EndTime)
 				f.SetCellValue(sheet, getCellName("E", curRow), entry.Duration)
 				f.SetCellValue(sheet, getCellName("F", curRow), entry.Activity)
-				f.SetCellValue(sheet, getCellName("G", curRow), entry.Description)
+				f.SetCellValue(sheet, getCellName("G", curRow), entry.Project)
+				f.SetCellValue(sheet, getCellName("H", curRow), entry.Description)
 				curRow++
 			}
 		}
@@ -426,7 +435,7 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 		}
 	}
 	f.SetCellStyle(sheet, getCellName("A", startRow), getCellName("E", curRow-1), styles.tableBody)
-	f.SetCellStyle(sheet, getCellName("F", startRow), getCellName("G", curRow-1), styles.tableBody)
+	f.SetCellStyle(sheet, getCellName("F", startRow), getCellName("H", curRow-1), styles.tableBody)
 }
 
 // --- Helper functions ---

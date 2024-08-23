@@ -314,6 +314,11 @@ func (m *Mapper) CreateAdvancedEntryFilterDetailsViewModel(filter *model.FieldEn
 		}
 	}
 
+	if filter.ByProject {
+		efd.ByProject = true
+		efd.Project = filter.Project
+	}
+
 	if filter.ByDescription {
 		efd.ByDescription = true
 		efd.Description = filter.Description

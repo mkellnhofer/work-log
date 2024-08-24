@@ -195,25 +195,31 @@ func (e *EntriesExporter) buildExportDetailsString(filterDetails vm.EntryFilterD
 
 	switch fd := filterDetails.(type) {
 	case *vm.BasicEntryFilterDetails:
-		return fd.Text
+		return createString("formLabelText") + " " + createQuotedString(fd.Text)
 	case *vm.AdvancedEntryFilterDetails:
 		var details []string
-		if fd.Type != "" {
-			details = append(details, fd.Type)
+		if fd.ByType {
+			details = append(details, createString("formLabelType")+" "+fd.Type)
 		}
-		if fd.Date != "" {
-			details = append(details, fd.Date)
+		if fd.ByDate {
+			details = append(details, createString("formLabelDate")+" "+fd.Date)
 		}
-		if fd.Activity != "" {
-			details = append(details, fd.Activity)
+		if fd.ByActivity {
+			details = append(details, createString("formLabelActivity")+" "+fd.Activity)
 		}
-		if fd.Project != "" {
-			details = append(details, fd.Project)
+		if fd.ByProject {
+			project := createQuotedString(fd.Project)
+			details = append(details, createString("formLabelProject")+" "+project)
 		}
-		if fd.Description != "" {
-			details = append(details, fd.Description)
+		if fd.ByDescription {
+			description := createQuotedString(fd.Description)
+			details = append(details, createString("formLabelDescription")+" "+description)
 		}
-		return strings.Join(details, ", ")
+		if fd.ByLabels {
+			labels := strings.Join(createQuotedStrings(fd.Labels), ", ")
+			details = append(details, createString("formLabelLabels")+" "+labels)
+		}
+		return strings.Join(details, " | ")
 	default:
 		return ""
 	}
@@ -442,6 +448,18 @@ func (e *OverviewExporter) writeEntries(exp *export, overviewEntries *vm.Overvie
 
 func createString(key string, args ...any) string {
 	return loc.CreateString(key, args...)
+}
+
+func createQuotedString(value string) string {
+	return "\"" + value + "\""
+}
+
+func createQuotedStrings(values []string) []string {
+	quotedValues := make([]string, len(values))
+	for i, value := range values {
+		quotedValues[i] = createQuotedString(value)
+	}
+	return quotedValues
 }
 
 func getCellName(col string, row int) string {

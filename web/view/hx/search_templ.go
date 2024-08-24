@@ -84,7 +84,7 @@ func Search(isAdvanced bool, queryString string, pageNum int, filterDetails mode
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchNav(filterDetails).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchNav().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -100,7 +100,7 @@ func Search(isAdvanced bool, queryString string, pageNum int, filterDetails mode
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = component.SearchContentLoader(isAdvanced, queryString, pageNum).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = component.SearchPageContent(isAdvanced, queryString, pageNum, filterDetails).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

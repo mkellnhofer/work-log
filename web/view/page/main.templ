@@ -36,10 +36,10 @@ templ Log(userInfo *model.UserInfo, pageNum int) {
 templ Search(userInfo *model.UserInfo, isAdvanced bool, queryString string, pageNum int,
 	filterDetails model.EntryFilterDetails) {
 	@mainPage(
-		component.SearchNav(filterDetails),
+		component.SearchNav(),
 		component.SearchActions(isAdvanced, queryString),
 		userInfo,
-		component.SearchContentLoader(isAdvanced, queryString, pageNum),
+		component.SearchPageContent(isAdvanced, queryString, pageNum, filterDetails),
 	)
 }
 

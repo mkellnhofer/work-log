@@ -46,50 +46,11 @@ func buildSearchContentUrlTemplate(isAdvanced bool, queryString string) string {
 }
 
 // This template is used to render the navbar elements on the search page.
-templ SearchNav(filterDetails model.EntryFilterDetails) {
+templ SearchNav() {
 	@NavBackButton("log")
 	<div class="p-2">
-		@searchNavTitle()
-		@searchNavDetails(filterDetails)
+		<span class="fs-2 fw-bold"> { getText("searchTitle") } </span>
 	</div>
-}
-
-templ searchNavTitle() {
-	<span class="fs-2 fw-bold"> { getText("searchTitle") } </span>
-	<span class="d-none d-md-inline fs-2 fw-bold me-3">:</span>
-}
-
-templ searchNavDetails(filterDetails model.EntryFilterDetails) {
-	if filterDetails == nil {
-		return
-	}
-
-	<span class="d-none d-md-inline fs-3 comma-separated">
-	switch fd := filterDetails.(type) {
-	case *model.BasicEntryFilterDetails:
-		@searchNavDetailText(true, "\"" + fd.Text + "\"")
-	case *model.AdvancedEntryFilterDetails:
-		@searchNavDetailText(fd.ByType, fd.Type)
-		@searchNavDetailText(fd.ByDate, fd.Date)
-		@searchNavDetailText(fd.ByActivity, fd.Activity)
-		@searchNavDetailText(fd.ByProject, "\"" + fd.Project + "\"")
-		@searchNavDetailText(fd.ByDescription, "\"" + fd.Description + "\"")
-		@searchNavDetail(fd.ByLabels, EntryLabels(fd.Labels))
-	default:
-	}
-	</span>
-}
-
-templ searchNavDetail(show bool, component templ.Component) {
-	if show {
-		<span>@component</span>
-	}
-}
-
-templ searchNavDetailText(show bool, text string) {
-	if show {
-		<span>{ text }</span>
-	}
 }
 
 // This template is used to render the action buttons on the search page.
@@ -111,6 +72,62 @@ templ SearchActions(isAdvanced bool, queryString string) {
 			},
 		),
 	})
+}
+
+// This template is used to render the page content of the search page. It contains the filter chips
+// and the content loader.
+templ SearchPageContent(isAdvanced bool, queryString string, pageNum int,
+	filterDetails model.EntryFilterDetails) {
+	@searchResultHeader()
+	@searchFilterChips(filterDetails)
+	@SearchContentLoader(isAdvanced, queryString, pageNum)
+}
+
+templ searchResultHeader() {
+	@SectionHeader("list", getText("searchListTitle"))
+}
+
+templ searchFilterChips(filterDetails model.EntryFilterDetails) {
+	if filterDetails != nil {
+		<div class="d-flex flex-wrap gap-2 mb-4">
+			<span class="me-2 py-1 fw-bold">{ getText("searchListHeadingRestrictions") }</span>
+			switch fd := filterDetails.(type) {
+			case *model.BasicEntryFilterDetails:
+				@searchFilterChip(getText("formLabelText"), toQuotedString(fd.Text))
+			case *model.AdvancedEntryFilterDetails:
+				if fd.ByType {
+					@searchFilterChip(getText("formLabelType"), fd.Type)
+				}
+				if fd.ByDate {
+					@searchFilterChip(getText("formLabelDate"), fd.Date)
+				}
+				if fd.ByActivity {
+					@searchFilterChip(getText("formLabelActivity"), fd.Activity)
+				}
+				if fd.ByProject {
+					@searchFilterChip(getText("formLabelProject"), toQuotedString(fd.Project))
+				}
+				if fd.ByDescription {
+					@searchFilterChip(getText("formLabelDescription"), toQuotedString(fd.Description))
+				}
+				if fd.ByLabels {
+					@searchFilterChip(getText("formLabelLabels"), toQuotedStrings(fd.Labels)...)
+				}
+			default:
+			}
+		</div>
+	}
+}
+
+templ searchFilterChip(label string, values ...string) {
+	<span class="chip wl-filter-chip">
+		<span class="me-2 fw-bold">{ label }</span>
+		<span class="comma-separated">
+			for _, value := range values {
+				<span>{ value }</span>
+			}
+		</span>
+	</span>
 }
 
 // This template is used to render the content loader for the search page.
@@ -135,15 +152,10 @@ templ searchResult(isAdvanced bool, queryString string, entries *model.ListEntri
 		hx-target="this"
 		hx-swap="outerHTML"
 	>
-		@searchResultHeader()
 		@searchResultEntryList(entries)
 		@searchResultPagingControl(isAdvanced, queryString, entries.FirstPageNum, entries.CurrentPageNum,
 			entries.LastPageNum)
 	</div>
-}
-
-templ searchResultHeader() {
-	@SectionHeader("magnifying-glass", "Result")
 }
 
 templ searchResultEntryList(entries *model.ListEntries) {

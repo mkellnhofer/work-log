@@ -122,10 +122,10 @@ func Search(userInfo *model.UserInfo, isAdvanced bool, queryString string, pageN
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = mainPage(
-			component.SearchNav(filterDetails),
+			component.SearchNav(),
 			component.SearchActions(isAdvanced, queryString),
 			userInfo,
-			component.SearchContentLoader(isAdvanced, queryString, pageNum),
+			component.SearchPageContent(isAdvanced, queryString, pageNum, filterDetails),
 		).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

@@ -20,13 +20,13 @@ templ SearchFormActivityOptions(entryActivities []*model.EntryActivity) {
 templ Search(isAdvanced bool, queryString string, pageNum int, filterDetails model.EntryFilterDetails) {
 	// OoB swaps
 	<div id="wl-nav-container" hx-swap-oob="innerHTML">
-		@component.SearchNav(filterDetails)
+		@component.SearchNav()
 	</div>
 	<div id="wl-page-actions-container" hx-swap-oob="innerHTML">
 		@component.SearchActions(isAdvanced, queryString)
 	</div>
 	<div id="wl-page-content" hx-swap-oob="innerHTML">
-		@component.SearchContentLoader(isAdvanced, queryString, pageNum)
+		@component.SearchPageContent(isAdvanced, queryString, pageNum, filterDetails)
 	</div>
 }
 

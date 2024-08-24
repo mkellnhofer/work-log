@@ -15,6 +15,18 @@ func toString(value int) string {
 	return strconv.Itoa(value)
 }
 
+func toQuotedString(value string) string {
+	return "\"" + value + "\""
+}
+
+func toQuotedStrings(values []string) []string {
+	quotedValues := make([]string, len(values))
+	for i, value := range values {
+		quotedValues[i] = toQuotedString(value)
+	}
+	return quotedValues
+}
+
 func toURL(url string) templ.SafeURL {
 	return templ.URL(url)
 }

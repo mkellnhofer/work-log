@@ -49,7 +49,8 @@
     <message key="searchFormTextPlaceholder"><text>Search</text></message>
     <message key="searchFormActionSearch"><text>Search</text></message>
     <message key="searchFormActionShowAdvanced"><text>Advanced Search</text></message>
-    <message key="searchListTitle"><text>Search Result</text></message>
+    <message key="searchListTitle"><text>Result</text></message>
+    <message key="searchListHeadingRestrictions"><text>Restrictions:</text></message>
     <message key="searchListLabelNoEntries"><text>No entries found</text></message>
 
     <!-- Overview view -->
@@ -85,6 +86,7 @@
     <message key="errorTitle"><text>Error!</text></message>
 
     <!-- Form labels -->
+    <message key="formLabelText"><text>Text:</text></message>
     <message key="formLabelType"><text>Type:</text></message>
     <message key="formLabelDate"><text>Date:</text></message>
     <message key="formLabelStart"><text>Start:</text></message>

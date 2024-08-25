@@ -1,0 +1,79 @@
+package component
+
+import (
+	"kellnhofer.com/work-log/web/model"
+	"kellnhofer.com/work-log/web/view"
+)
+
+// This template is used to render the user profile modal.
+templ UserProfileModal(profileInfo *model.UserProfileInfo) {
+	@InfoModal("user", "userProfileTitle", "actionClose", userProfileModalCloseAttrs()) {
+		@userProfileModalBasicInfo(profileInfo.Initials, profileInfo.Name, profileInfo.Username)
+		@userProfileModalContractInfo(profileInfo.Contract)
+	}
+}
+
+func userProfileModalCloseAttrs() templ.Attributes {
+	return templ.Attributes{
+		"hx-post":   hx("/user-profile-modal/close"),
+		"hx-target": "#wl-modal-container",
+		"hx-swap":   "innerHTML",
+	}
+}
+
+templ userProfileModalBasicInfo(initials string, name string, username string) {
+	<div class="d-flex align-items-center mb-3 py-3">
+		<div class="me-3">
+			@UserIconView(view.CreateUserProfileImageSvg(initials))
+		</div>
+		<div>
+			<div class="fw-bold">{ name }</div>
+			<div class="text-muted">{ username }</div>
+		</div>
+	</div>
+}
+
+templ userProfileModalContractInfo(contract *model.ContractInfo) {
+	if contract != nil {
+		<h3 class="mb-3">
+			<svg class="ico ms-1 me-3"><use xlink:href="img/ico.svg#briefcase"></use></svg>
+			<span>{ getText("userProfileHeaderContractInfo") }</span>
+		</h3>
+		<table class="table table-sm">
+			<tbody>
+				<tr>
+					<td class="fw-bold">{ getText("userProfileLabelContractFirstDay") }</td>
+					<td>{ contract.FirstDay }</td>
+				</tr>
+				<tr>
+					<td class="fw-bold">{ getText("userProfileLabelContractInitOvertime") }</td>
+					<td>{ contract.InitOvertimeHours + " " + getText("hoursUnit") }</td>
+				</tr>
+				<tr>
+					<td class="fw-bold">{ getText("userProfileLabelContractInitVacation") }</td>
+					<td>{ contract.InitVacationDays + " " + getText("daysUnit") }</td>
+				</tr>
+				for i, wh := range contract.WorkingHours {
+					<tr>
+						if i == 0 {
+							<td class="fw-bold">{ getText("userProfileLabelContractWorkingHours") }</td>
+						} else {
+							<td></td>
+						}
+						<td>{ wh.Hours + " " + getText("hoursUnit") } ({ wh.FirstDay })</td>
+					</tr>
+				}
+				for i, vd := range contract.VacationDays {
+					<tr>
+						if i == 0 {
+							<td class="fw-bold">{ getText("userProfileLabelContractVacationDays") }</td>
+						} else {
+							<td></td>
+						}
+						<td>{ vd.Days + " " + getText("daysUnit") } ({ vd.FirstDay })</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+}

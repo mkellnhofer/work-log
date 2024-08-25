@@ -216,8 +216,8 @@ func userActionDropdownMenuItem(icon string, textRef string, actionAttrs templ.A
 	})
 }
 
-// This template is used to render the user logout action menu item.
-func UserLogoutActionMenuItem() templ.Component {
+// This template is used to render the user action menu item for opening the user profile modal.
+func UserProfileActionMenuItem() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -228,6 +228,39 @@ func UserLogoutActionMenuItem() templ.Component {
 		templ_7745c5c3_Var8 := templ.GetChildren(ctx)
 		if templ_7745c5c3_Var8 == nil {
 			templ_7745c5c3_Var8 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = userActionDropdownMenuItem("user",
+			"actionUserProfile",
+			templ.Attributes{
+				"hx-get":     hx("/user-profile-modal"),
+				"hx-trigger": "click",
+				"hx-target":  "#wl-modal-container",
+				"hx-swap":    "innerHTML",
+			},
+		).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if !templ_7745c5c3_IsBuffer {
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteTo(templ_7745c5c3_W)
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+// This template is used to render the user action menu item for logging out.
+func UserLogoutActionMenuItem() templ.Component {
+	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
+		if !templ_7745c5c3_IsBuffer {
+			templ_7745c5c3_Buffer = templ.GetBuffer()
+			defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = userActionDropdownMenuItem("right-to-bracket",

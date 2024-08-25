@@ -49,7 +49,20 @@ templ userActionDropdownMenuItem(icon string, textRef string, actionAttrs templ.
 	</a>
 }
 
-// This template is used to render the user logout action menu item.
+// This template is used to render the user action menu item for opening the user profile modal.
+templ UserProfileActionMenuItem() {
+	@userActionDropdownMenuItem("user",
+		"actionUserProfile",
+		templ.Attributes{
+			"hx-get": hx("/user-profile-modal"),
+			"hx-trigger": "click",
+			"hx-target": "#wl-modal-container",
+			"hx-swap": "innerHTML",
+		},
+	)
+}
+
+// This template is used to render the user action menu item for logging out.
 templ UserLogoutActionMenuItem() {
 	@userActionDropdownMenuItem("right-to-bracket",
 		"actionLogout",

@@ -43,7 +43,11 @@ func mainPage(navElements templ.Component, pageActionButtons templ.Component,
 				navElements,
 				pageActionButtons,
 				userInfo,
-				[]templ.Component{component.UserLogoutActionMenuItem()},
+				[]templ.Component{
+					component.UserProfileActionMenuItem(),
+					component.ActionsDivider(),
+					component.UserLogoutActionMenuItem(),
+				},
 			).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err

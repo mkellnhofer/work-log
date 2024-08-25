@@ -13,7 +13,11 @@ templ mainPage(navElements templ.Component, pageActionButtons templ.Component,
 				navElements,
 				pageActionButtons,
 				userInfo,
-				[]templ.Component{component.UserLogoutActionMenuItem()},
+				[]templ.Component{
+					component.UserProfileActionMenuItem(),
+					component.ActionsDivider(),
+					component.UserLogoutActionMenuItem(),
+				},
 			)
 			<div id="wl-page-content">
 				@content

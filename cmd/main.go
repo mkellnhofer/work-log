@@ -80,6 +80,7 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	logCtrl := init.GetLogViewController()
 	overviewCtrl := init.GetOverviewViewController()
 	searchCtrl := init.GetSearchViewController()
+	userVCtrl := init.GetUserViewController()
 
 	// General handlers
 	e.GET("/", getRootHandler())
@@ -122,6 +123,10 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/hx/entry-modal/delete/:id", entryCtrl.GetHxDeleteHandler(), proRoute...)
 	e.POST("/hx/entry-modal/delete/:id", entryCtrl.PostHxDeleteHandler(), proRoute...)
 	e.POST("/hx/entry-modal/cancel", entryCtrl.PostHxCancelHandler(), proRoute...)
+
+	// User profile related handlers
+	e.GET("/hx/user-profile-modal", userVCtrl.GetHxUserProfileModalHandler(), proRoute...)
+	e.POST("/hx/user-profile-modal/close", userVCtrl.PostHxUserProfileModalCloseHandler(), proRoute...)
 
 	// Entry export related handlers
 	e.GET("/export", exportCtrl.GetExportHandler(), proRoute...)

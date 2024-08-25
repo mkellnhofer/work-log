@@ -29,6 +29,7 @@ type Initializer struct {
 	logVCtrl      *vc.LogController
 	overviewVCtrl *vc.OverviewController
 	searchVCtrl   *vc.SearchController
+	userVCtrl     *vc.UserController
 	entryACtrl    *ac.EntryController
 	exportACtrl   *ac.ExportController
 	userACtrl     *ac.UserController
@@ -151,6 +152,14 @@ func (i *Initializer) GetSearchViewController() *vc.SearchController {
 		i.searchVCtrl = vc.NewSearchController(i.GetUserService(), i.GetEntryService())
 	}
 	return i.searchVCtrl
+}
+
+// GetUserViewController returns a initialized user view controller object.
+func (i *Initializer) GetUserViewController() *vc.UserController {
+	if i.userVCtrl == nil {
+		i.userVCtrl = vc.NewUserController(i.GetUserService())
+	}
+	return i.userVCtrl
 }
 
 // --- API controller functions ---

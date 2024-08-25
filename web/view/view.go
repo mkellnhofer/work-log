@@ -34,6 +34,15 @@ var userIconColors = []string{
 
 // CreateUserIconSvg creates a user icon from the user's initials.
 func CreateUserIconSvg(initials string) string {
+	return createUserSvg(initials, 32)
+}
+
+// CreateUserProfileImageSvg creates a user profile image from the user's initials.
+func CreateUserProfileImageSvg(initials string) string {
+	return createUserSvg(initials, 48)
+}
+
+func createUserSvg(initials string, size int) string {
 	initialsNum := 0
 	for _, initial := range initials {
 		initialsNum += int(initial)
@@ -41,21 +50,28 @@ func CreateUserIconSvg(initials string) string {
 
 	color := userIconColors[initialsNum%len(userIconColors)]
 
-	return createSvg("0 0 32 32", "32", "32", func() string {
-		return `
-			<circle
-				style="fill:` + color + `;"
-				cx="16"
-				cy="16"
-				r="16"
-			/>
-			<text
-				style="text-anchor:middle;fill:#FFF;"
-				x="16"
-				y="21"
-			>` + initials + `</text>
-		`
-	})
+	radius := size / 2
+	fontSize := radius * 9 / 10
+
+	return createSvg(
+		"0 0 "+strconv.Itoa(size)+" "+strconv.Itoa(size),
+		strconv.Itoa(size), strconv.Itoa(size),
+		func() string {
+			return `
+				<circle
+					style="fill:` + color + `;"
+					cx=` + strconv.Itoa(radius) + `
+					cy=` + strconv.Itoa(radius) + `
+					r=` + strconv.Itoa(radius) + `
+				/>
+				<text
+					style="font-size:` + strconv.Itoa(fontSize) + `px;text-anchor:middle;fill:#FFF;"
+					x=` + strconv.Itoa(radius) + `
+					y=` + strconv.Itoa(radius+radius/3) + `
+				>` + initials + `</text>
+			`
+		},
+	)
 }
 
 // --- Functions to render the log summary progress SVG ---

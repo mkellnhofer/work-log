@@ -30,6 +30,19 @@
     <message key="actionSearch"><text>Search</text></message>
     <message key="actionExport"><text>Export</text></message>
     <message key="actionLogout"><text>Logout</text></message>
+    <message key="actionUserProfile"><text>User Profile</text></message>
+    <message key="actionClose"><text>Close</text></message>
+
+    <!-- User profile -->
+    <message key="userProfileTitle"><text>User Profile</text></message>
+    <message key="userProfileLabelName"><text>Name:</text></message>
+    <message key="userProfileLabelUsername"><text>Username:</text></message>
+    <message key="userProfileHeaderContractInfo"><text>Contract Information</text></message>
+    <message key="userProfileLabelContractFirstDay"><text>First Day:</text></message>
+    <message key="userProfileLabelContractInitOvertime"><text>Init. Overtime:</text></message>
+    <message key="userProfileLabelContractInitVacation"><text>Init. Vacation:</text></message>
+    <message key="userProfileLabelContractWorkingHours"><text>Working Hours:</text></message>
+    <message key="userProfileLabelContractVacationDays"><text>Vacation Days:</text></message>
 
     <!-- List view -->
     <message key="logTitle"><text>Log</text></message>

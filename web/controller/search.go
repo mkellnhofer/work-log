@@ -40,21 +40,20 @@ type searchInput struct {
 
 // SearchController handles requests for search endpoints.
 type SearchController struct {
-	baseController
+	handlerHelper
+	baseUserController
+	baseEntryController
+	entryFilterHelper
 
 	mapper *mapper.SearchMapper
 }
 
 // NewSearchController creates a new search controller.
 func NewSearchController(uServ *service.UserService, eServ *service.EntryService) *SearchController {
-	searchMapper := mapper.NewSearchMapper()
 	return &SearchController{
-		baseController: baseController{
-			uServ:  uServ,
-			eServ:  eServ,
-			mapper: &searchMapper.Mapper,
-		},
-		mapper: searchMapper,
+		baseUserController:  *newBaseUserController(uServ),
+		baseEntryController: *newBaseEntryController(eServ),
+		mapper:              mapper.NewSearchMapper(),
 	}
 }
 

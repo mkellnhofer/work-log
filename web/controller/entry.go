@@ -14,7 +14,6 @@ import (
 	"kellnhofer.com/work-log/pkg/model"
 	"kellnhofer.com/work-log/pkg/service"
 	"kellnhofer.com/work-log/web"
-	"kellnhofer.com/work-log/web/mapper"
 	"kellnhofer.com/work-log/web/view/hx"
 )
 
@@ -31,19 +30,16 @@ type entryInput struct {
 
 // EntryController handles requests for entry endpoints.
 type EntryController struct {
-	baseController
-
-	mapper *mapper.EntryMapper
+	handlerHelper
+	baseUserController
+	baseEntryController
 }
 
 // NewEntryController creates a new entry controller.
 func NewEntryController(uServ *service.UserService, eServ *service.EntryService) *EntryController {
 	return &EntryController{
-		baseController: baseController{
-			uServ: uServ,
-			eServ: eServ,
-		},
-		mapper: mapper.NewEntryMapper(),
+		baseUserController: *newBaseUserController(uServ),
+		baseEntryController: *newBaseEntryController(eServ),
 	}
 }
 
@@ -62,7 +58,7 @@ func (c *EntryController) GetHxActivitiesHandler() echo.HandlerFunc {
 			return err
 		}
 
-		viewData := c.mapper.CreateEntryActivitiesViewModel(entryActivities)
+		viewData := c.eMapper.CreateEntryActivitiesViewModel(entryActivities)
 
 		return c.handleShowSuccess(eCtx, hx.EntryModalActivityOptions(viewData))
 	})
@@ -80,7 +76,7 @@ func (c *EntryController) GetHxCreateHandler() echo.HandlerFunc {
 		entry.TypeId = model.EntryTypeIdWork
 		entry.StartTime = time.Now()
 		entry.EndTime = time.Now()
-		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+		entryViewData := c.eMapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 		return c.handleShowSuccess(eCtx, hx.EntryModalCreate(entryViewData))
 	})
@@ -123,7 +119,7 @@ func (c *EntryController) GetHxCopyHandler() echo.HandlerFunc {
 			return err
 		}
 
-		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+		entryViewData := c.eMapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 		return c.handleShowSuccess(eCtx, hx.EntryModalCopy(entryViewData))
 	})
@@ -147,7 +143,7 @@ func (c *EntryController) GetHxEditHandler() echo.HandlerFunc {
 			return err
 		}
 
-		entryViewData := c.mapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
+		entryViewData := c.eMapper.CreateEntryDataViewModel(entry, entryTypes, entryActivities)
 
 		return c.handleShowSuccess(eCtx, hx.EntryModalEdit(entryViewData))
 	})

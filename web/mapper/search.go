@@ -7,7 +7,7 @@ import (
 
 // SearchMapper creates view models for the search page.
 type SearchMapper struct {
-	Mapper
+	mapper
 }
 
 // NewSearchMapper creates a new search mapper.

@@ -22,25 +22,22 @@ import (
 
 const queryDateTimeFormat = "200601021504"
 
+// --- Handler Helper ---
+
 type handlerFunc func(eCtx echo.Context, ctx context.Context) error
 type hxHandlerFunc func(eCtx echo.Context, ctx context.Context) error
 type resourceHandlerFunc func(eCtx echo.Context, ctx context.Context) error
 
-type baseController struct {
-	uServ *service.UserService
-	eServ *service.EntryService
+type handlerHelper struct {}
 
-	mapper *mapper.Mapper
-}
-
-func (c *baseController) handler(hf handlerFunc) echo.HandlerFunc {
+func (hh *handlerHelper) handler(hf handlerFunc) echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		ctx := getContext(eCtx)
 		return hf(eCtx, ctx)
 	}
 }
 
-func (c *baseController) hxHandler(hf hxHandlerFunc) echo.HandlerFunc {
+func (hh *handlerHelper) hxHandler(hf hxHandlerFunc) echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		isHtmxReq := web.IsHtmxRequest(eCtx)
 		if !isHtmxReq {
@@ -53,30 +50,59 @@ func (c *baseController) hxHandler(hf hxHandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func (c *baseController) resourceHandler(hf resourceHandlerFunc) echo.HandlerFunc {
+func (hh *handlerHelper) resourceHandler(hf resourceHandlerFunc) echo.HandlerFunc {
 	return func(eCtx echo.Context) error {
 		return hf(eCtx, getContext(eCtx))
 	}
 }
 
-func (c *baseController) getUser(ctx context.Context, userId int) (*model.User, error) {
+// --- Base User Controller ---
+
+type baseUserController struct {
+	uServ  *service.UserService
+	uMapper *mapper.UserMapper
+}
+
+func newBaseUserController(uServ *service.UserService) *baseUserController {
+	return &baseUserController{
+		uServ: uServ,
+		uMapper: mapper.NewUserMapper(),
+	}
+}
+
+func (c *baseUserController) getUser(ctx context.Context, userId int) (*model.User, error) {
 	return c.uServ.GetUserById(ctx, userId)
 }
 
-func (c *baseController) getUserContract(ctx context.Context, userId int) (*model.Contract, error) {
+func (c *baseUserController) getUserContract(ctx context.Context, userId int) (*model.Contract,
+	error) {
 	return c.uServ.GetUserContractByUserId(ctx, userId)
 }
 
-func (c *baseController) getUserInfoViewData(ctx context.Context) (*vm.UserInfo, error) {
+func (c *baseUserController) getUserInfoViewData(ctx context.Context) (*vm.UserInfo, error) {
 	userId := getCurrentUserId(ctx)
 	user, err := c.getUser(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
-	return c.mapper.CreateUserInfoViewModel(user), nil
+	return c.uMapper.CreateUserInfoViewModel(user), nil
 }
 
-func (c *baseController) getEntry(ctx context.Context, entryId int, userId int) (*model.Entry,
+// --- Base Entry Controller ---
+
+type baseEntryController struct {
+	eServ *service.EntryService
+	eMapper *mapper.EntryMapper
+}
+
+func newBaseEntryController(eServ *service.EntryService) *baseEntryController {
+	return &baseEntryController{
+		eServ: eServ,
+		eMapper: mapper.NewEntryMapper(),
+	}
+}
+
+func (c *baseEntryController) getEntry(ctx context.Context, entryId int, userId int) (*model.Entry,
 	error) {
 	entry, err := c.eServ.GetEntryByIdAndUserId(ctx, entryId, userId)
 	if err != nil {
@@ -90,8 +116,8 @@ func (c *baseController) getEntry(ctx context.Context, entryId int, userId int) 
 	return entry, nil
 }
 
-func (c *baseController) getEntryMasterData(ctx context.Context, entryTypeId int) ([]*model.EntryType,
-	[]*model.EntryActivity, error) {
+func (c *baseEntryController) getEntryMasterData(ctx context.Context, entryTypeId int,
+	) ([]*model.EntryType, []*model.EntryActivity, error) {
 	entryTypes, err := c.getEntryTypes(ctx)
 	if err != nil {
 		return nil, nil, err
@@ -103,11 +129,11 @@ func (c *baseController) getEntryMasterData(ctx context.Context, entryTypeId int
 	return entryTypes, entryActivities, nil
 }
 
-func (c *baseController) getEntryTypes(ctx context.Context) ([]*model.EntryType, error) {
+func (c *baseEntryController) getEntryTypes(ctx context.Context) ([]*model.EntryType, error) {
 	return c.eServ.GetEntryTypes(ctx)
 }
 
-func (c *baseController) getEntryActivities(ctx context.Context, entryTypeId int,
+func (c *baseEntryController) getEntryActivities(ctx context.Context, entryTypeId int,
 ) ([]*model.EntryActivity, error) {
 	if entryTypeId != model.EntryTypeIdWork {
 		return []*model.EntryActivity{}, nil
@@ -115,7 +141,7 @@ func (c *baseController) getEntryActivities(ctx context.Context, entryTypeId int
 	return c.eServ.GetEntryActivities(ctx)
 }
 
-func (c *baseController) getEntryMasterDataMap(ctx context.Context) (map[int]*model.EntryType,
+func (c *baseEntryController) getEntryMasterDataMap(ctx context.Context) (map[int]*model.EntryType,
 	map[int]*model.EntryActivity, error) {
 	entryTypesMap, err := c.getEntryTypesMap(ctx)
 	if err != nil {
@@ -128,35 +154,60 @@ func (c *baseController) getEntryMasterDataMap(ctx context.Context) (map[int]*mo
 	return entryTypesMap, entryActivitiesMap, nil
 }
 
-func (c *baseController) getEntryTypesMap(ctx context.Context) (map[int]*model.EntryType, error) {
+func (c *baseEntryController) getEntryTypesMap(ctx context.Context) (map[int]*model.EntryType,
+	error) {
 	return c.eServ.GetEntryTypesMap(ctx)
 }
 
-func (c *baseController) getEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
+func (c *baseEntryController) getEntryActivitiesMap(ctx context.Context) (map[int]*model.EntryActivity,
 	error) {
 	return c.eServ.GetEntryActivitiesMap(ctx)
 }
 
-func (c *baseController) buildQueryString(filter model.EntryFilter) string {
+func (c *baseEntryController) getFilterDetailsViewData(ctx context.Context, filter model.EntryFilter) (
+	vm.EntryFilterDetails, error) {
+	if filter == nil {
+		return nil, nil
+	}
+
+	switch f := filter.(type) {
+	case *model.TextEntryFilter:
+		return c.eMapper.CreateBasicEntryFilterDetailsViewModel(f), nil
+	case *model.FieldEntryFilter:
+		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, f.TypeId)
+		if err != nil {
+			return nil, err
+		}
+		return c.eMapper.CreateAdvancedEntryFilterDetailsViewModel(f, entryTypes, entryActivities), nil
+	default:
+		return nil, nil
+	}
+}
+
+// --- Entry Filter Helper ---
+
+type entryFilterHelper struct {}
+
+func (fh *entryFilterHelper) buildQueryString(filter model.EntryFilter) string {
 	if filter == nil {
 		return ""
 	}
 
 	switch f := filter.(type) {
 	case *model.FieldEntryFilter:
-		return c.buildAdvancedQueryString(f)
+		return fh.buildAdvancedQueryString(f)
 	case *model.TextEntryFilter:
-		return c.buildBasicQueryString(f)
+		return fh.buildBasicQueryString(f)
 	default:
 		return ""
 	}
 }
 
-func (c *baseController) buildBasicQueryString(filter *model.TextEntryFilter) string {
-	return fmt.Sprintf("txt:%s", c.formatQueryText(filter.Text))
+func (fh *entryFilterHelper) buildBasicQueryString(filter *model.TextEntryFilter) string {
+	return fmt.Sprintf("txt:%s", fh.formatQueryText(filter.Text))
 }
 
-func (c *baseController) buildAdvancedQueryString(filter *model.FieldEntryFilter) string {
+func (fh *entryFilterHelper) buildAdvancedQueryString(filter *model.FieldEntryFilter) string {
 	var qps []string
 	// Add parameter/value for entry type
 	if filter.ByType {
@@ -164,7 +215,7 @@ func (c *baseController) buildAdvancedQueryString(filter *model.FieldEntryFilter
 	}
 	// Add parameter/value for entry start/end time
 	if filter.ByTime {
-		qps = append(qps, fmt.Sprintf("tim:%s", c.formatQueryDateRange(filter.StartTime,
+		qps = append(qps, fmt.Sprintf("tim:%s", fh.formatQueryDateRange(filter.StartTime,
 			filter.EndTime)))
 	}
 	// Add parameter/value for entry activity
@@ -173,28 +224,28 @@ func (c *baseController) buildAdvancedQueryString(filter *model.FieldEntryFilter
 	}
 	// Add parameter/value for entry project
 	if filter.ByProject {
-		qps = append(qps, fmt.Sprintf("prj:%s", c.formatQueryText(filter.Project)))
+		qps = append(qps, fmt.Sprintf("prj:%s", fh.formatQueryText(filter.Project)))
 	}
 	// Add parameter/value for entry description
 	if filter.ByDescription {
-		qps = append(qps, fmt.Sprintf("des:%s", c.formatQueryText(filter.Description)))
+		qps = append(qps, fmt.Sprintf("des:%s", fh.formatQueryText(filter.Description)))
 	}
 	// Add parameter/value for entry labels
 	if filter.ByLabel {
-		qps = append(qps, fmt.Sprintf("lbl:%s", c.formatQueryLabels(filter.Labels)))
+		qps = append(qps, fmt.Sprintf("lbl:%s", fh.formatQueryLabels(filter.Labels)))
 	}
 	return strings.Join(qps[:], "|")
 }
 
-func (c *baseController) parseQueryString(userId int, isAdvanced bool, query string) (
+func (fh *entryFilterHelper) parseQueryString(userId int, isAdvanced bool, query string) (
 	model.EntryFilter, error) {
 	if !isAdvanced {
-		return c.parseBasicQueryString(userId, query)
+		return fh.parseBasicQueryString(userId, query)
 	}
-	return c.parseAdvancedQueryString(userId, query)
+	return fh.parseAdvancedQueryString(userId, query)
 }
 
-func (c *baseController) parseBasicQueryString(userId int, query string) (*model.TextEntryFilter,
+func (fh *entryFilterHelper) parseBasicQueryString(userId int, query string) (*model.TextEntryFilter,
 	error) {
 	filter := model.NewTextEntryFilter()
 	filter.ByUser = true
@@ -204,14 +255,14 @@ func (c *baseController) parseBasicQueryString(userId int, query string) (*model
 		return filter, nil
 	}
 
-	pErr := c.parseQueryParts(query, func(p string, v string) error {
+	pErr := fh.parseQueryParts(query, func(p string, v string) error {
 		var cErr error
 
 		// Handle specific conversion
 		switch p {
 		// Convert value for text
 		case "txt":
-			filter.Text, cErr = c.parseQueryText(v)
+			filter.Text, cErr = fh.parseQueryText(v)
 		// Unknown parameter
 		default:
 			cErr = e.NewError(e.ValQueryInvalid, fmt.Sprintf("Unknown query parameter '%s'.", p))
@@ -226,8 +277,8 @@ func (c *baseController) parseBasicQueryString(userId int, query string) (*model
 	return filter, nil
 }
 
-func (c *baseController) parseAdvancedQueryString(userId int, query string) (*model.FieldEntryFilter,
-	error) {
+func (fh *entryFilterHelper) parseAdvancedQueryString(userId int, query string,
+	) (*model.FieldEntryFilter, error) {
 	filter := model.NewFieldEntryFilter()
 	filter.ByUser = true
 	filter.UserId = userId
@@ -236,7 +287,7 @@ func (c *baseController) parseAdvancedQueryString(userId int, query string) (*mo
 		return filter, nil
 	}
 
-	pErr := c.parseQueryParts(query, func(p string, v string) error {
+	pErr := fh.parseQueryParts(query, func(p string, v string) error {
 		var cErr error
 
 		// Handle specific conversion
@@ -248,7 +299,7 @@ func (c *baseController) parseAdvancedQueryString(userId int, query string) (*mo
 		// Convert values for entry start/end time
 		case "tim":
 			filter.ByTime = true
-			filter.StartTime, filter.EndTime, cErr = c.parseQueryDateRange(v)
+			filter.StartTime, filter.EndTime, cErr = fh.parseQueryDateRange(v)
 		// Convert value for entry activity
 		case "act":
 			filter.ByActivity = true
@@ -256,15 +307,15 @@ func (c *baseController) parseAdvancedQueryString(userId int, query string) (*mo
 		// Convert value for entry project
 		case "prj":
 			filter.ByProject = true
-			filter.Project, cErr = c.parseQueryText(v)
+			filter.Project, cErr = fh.parseQueryText(v)
 		// Convert value for entry description
 		case "des":
 			filter.ByDescription = true
-			filter.Description, cErr = c.parseQueryText(v)
+			filter.Description, cErr = fh.parseQueryText(v)
 		// Convert value for entry labels
 		case "lbl":
 			filter.ByLabel = true
-			filter.Labels, cErr = c.parseQueryLabels(v)
+			filter.Labels, cErr = fh.parseQueryLabels(v)
 		// Unknown parameter
 		default:
 			cErr = e.NewError(e.ValQueryInvalid, fmt.Sprintf("Query parameter '%s' is unknown.", p))
@@ -279,7 +330,7 @@ func (c *baseController) parseAdvancedQueryString(userId int, query string) (*mo
 	return filter, nil
 }
 
-func (c *baseController) parseQueryParts(query string, partParserFunc func(string, string) error,
+func (fh *entryFilterHelper) parseQueryParts(query string, partParserFunc func(string, string) error,
 ) error {
 	qps := strings.Split(query, "|")
 
@@ -309,40 +360,40 @@ func (c *baseController) parseQueryParts(query string, partParserFunc func(strin
 	return nil
 }
 
-func (c *baseController) formatQueryDateRange(startDate time.Time, endDate time.Time) string {
-	return fmt.Sprintf("%s-%s", c.formatQueryDate(startDate), c.formatQueryDate(endDate))
+func (fh *entryFilterHelper) formatQueryDateRange(startDate time.Time, endDate time.Time) string {
+	return fmt.Sprintf("%s-%s", fh.formatQueryDate(startDate), fh.formatQueryDate(endDate))
 }
 
-func (c *baseController) parseQueryDateRange(dateRange string) (time.Time, time.Time, error) {
+func (fh *entryFilterHelper) parseQueryDateRange(dateRange string) (time.Time, time.Time, error) {
 	se := strings.Split(dateRange, "-")
 	if len(se) < 2 {
 		return time.Time{}, time.Time{}, errors.New("invalid range")
 	}
-	startTime, err := c.parseQueryDate(se[0])
+	startTime, err := fh.parseQueryDate(se[0])
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
-	endTime, err := c.parseQueryDate(se[1])
+	endTime, err := fh.parseQueryDate(se[1])
 	if err != nil {
 		return time.Time{}, time.Time{}, err
 	}
 	return startTime, endTime, nil
 }
 
-func (c *baseController) formatQueryDate(date time.Time) string {
+func (fh *entryFilterHelper) formatQueryDate(date time.Time) string {
 	return date.Format(queryDateTimeFormat)
 }
 
-func (c *baseController) parseQueryDate(date string) (time.Time, error) {
+func (fh *entryFilterHelper) parseQueryDate(date string) (time.Time, error) {
 	return time.ParseInLocation(queryDateTimeFormat, date, time.Local)
 }
 
-func (c *baseController) formatQueryLabels(labels []string) string {
+func (fh *entryFilterHelper) formatQueryLabels(labels []string) string {
 	labelsStr := strings.Join(labels, ",")
 	return util.EncodeBase64(labelsStr)
 }
 
-func (c *baseController) parseQueryLabels(labels string) ([]string, error) {
+func (fh *entryFilterHelper) parseQueryLabels(labels string) ([]string, error) {
 	labelsStr, err := util.DecodeBase64(labels)
 	if err != nil {
 		return nil, err
@@ -353,15 +404,15 @@ func (c *baseController) parseQueryLabels(labels string) ([]string, error) {
 	return strings.Split(labelsStr, ","), nil
 }
 
-func (c *baseController) formatQueryText(text string) string {
+func (fh *entryFilterHelper) formatQueryText(text string) string {
 	return util.EncodeBase64(text)
 }
 
-func (c *baseController) parseQueryText(text string) (string, error) {
+func (fh *entryFilterHelper) parseQueryText(text string) (string, error) {
 	return util.DecodeBase64(text)
 }
 
-func (c *baseController) isFilterEmpty(filter model.EntryFilter) bool {
+func (fh *entryFilterHelper) isFilterEmpty(filter model.EntryFilter) bool {
 	if filter == nil {
 		return true
 	}
@@ -374,25 +425,5 @@ func (c *baseController) isFilterEmpty(filter model.EntryFilter) bool {
 			!f.ByLabel
 	default:
 		return true
-	}
-}
-
-func (c *baseController) getFilterDetailsViewData(ctx context.Context, filter model.EntryFilter) (
-	vm.EntryFilterDetails, error) {
-	if filter == nil {
-		return nil, nil
-	}
-
-	switch f := filter.(type) {
-	case *model.TextEntryFilter:
-		return c.mapper.CreateBasicEntryFilterDetailsViewModel(f), nil
-	case *model.FieldEntryFilter:
-		entryTypes, entryActivities, err := c.getEntryMasterData(ctx, f.TypeId)
-		if err != nil {
-			return nil, err
-		}
-		return c.mapper.CreateAdvancedEntryFilterDetailsViewModel(f, entryTypes, entryActivities), nil
-	default:
-		return nil, nil
 	}
 }

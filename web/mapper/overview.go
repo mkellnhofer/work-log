@@ -11,7 +11,7 @@ import (
 
 // OverviewMapper creates view models for the overview page.
 type OverviewMapper struct {
-	Mapper
+	mapper
 }
 
 // NewOverviewMapper creates a new overview mapper.

@@ -18,24 +18,20 @@ import (
 
 // ExportController handles requests for export endpoints.
 type ExportController struct {
-	baseController
+	handlerHelper
+	baseEntryController
+	entryFilterHelper
 
 	mapper   *mapper.EntryMapper
 	exporter *export.EntriesExporter
 }
 
 // NewExportController creates a new export controller.
-func NewExportController(uServ *service.UserService, eServ *service.EntryService) *ExportController {
-	entryMapper := mapper.NewEntryMapper()
-	exporter := export.NewEntriesExporter()
+func NewExportController(eServ *service.EntryService) *ExportController {
 	return &ExportController{
-		baseController: baseController{
-			uServ:  uServ,
-			eServ:  eServ,
-			mapper: &entryMapper.Mapper,
-		},
-		mapper:   entryMapper,
-		exporter: exporter,
+		baseEntryController: *newBaseEntryController(eServ),
+		mapper:              mapper.NewEntryMapper(),
+		exporter:            export.NewEntriesExporter(),
 	}
 }
 

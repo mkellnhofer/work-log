@@ -28,21 +28,20 @@ type exportInput struct {
 
 // LogController handles requests for log endpoints.
 type LogController struct {
-	baseController
+	handlerHelper
+	baseUserController
+	baseEntryController
+	entryFilterHelper
 
 	mapper *mapper.LogMapper
 }
 
 // NewLogController creates a new log controller.
 func NewLogController(uServ *service.UserService, eServ *service.EntryService) *LogController {
-	logMapper := mapper.NewLogMapper()
 	return &LogController{
-		baseController: baseController{
-			uServ:  uServ,
-			eServ:  eServ,
-			mapper: &logMapper.Mapper,
-		},
-		mapper: logMapper,
+		baseUserController:  *newBaseUserController(uServ),
+		baseEntryController: *newBaseEntryController(eServ),
+		mapper:              mapper.NewLogMapper(),
 	}
 }
 

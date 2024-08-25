@@ -124,7 +124,7 @@ func (i *Initializer) GetEntryViewController() *vc.EntryController {
 // GetExportViewController returns a initialized export view controller object.
 func (i *Initializer) GetExportViewController() *vc.ExportController {
 	if i.exportVCtrl == nil {
-		i.exportVCtrl = vc.NewExportController(i.GetUserService(), i.GetEntryService())
+		i.exportVCtrl = vc.NewExportController(i.GetEntryService())
 	}
 	return i.exportVCtrl
 }

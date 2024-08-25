@@ -25,18 +25,9 @@ type monthlyVacationDays struct {
 	days     float32
 }
 
-type Mapper struct {
-}
+type mapper struct {}
 
-// CreateUserInfoViewModel creates a view model for the user info.
-func (m *Mapper) CreateUserInfoViewModel(user *model.User) *vm.UserInfo {
-	return &vm.UserInfo{
-		Id:       user.Id,
-		Initials: getUserInitials(user.Name),
-	}
-}
-
-func (m *Mapper) createEntriesViewModel(userContract *model.Contract, entries []*model.Entry,
+func (m *mapper) createEntriesViewModel(userContract *model.Contract, entries []*model.Entry,
 	entryTypesMap map[int]*model.EntryType, entryActivitiesMap map[int]*model.EntryActivity,
 	checkMissingOrOverlapping bool) []*vm.ListEntriesDay {
 	ldsvm := make([]*vm.ListEntriesDay, 0, 10)
@@ -140,7 +131,7 @@ func (m *Mapper) createEntriesViewModel(userContract *model.Contract, entries []
 }
 
 // CreateEntryTypesViewModel creates a list of entry type view models.
-func (m *Mapper) CreateEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
+func (m *mapper) CreateEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.EntryType {
 	etsvm := make([]*vm.EntryType, 0, 10)
 	for _, entryType := range entryTypes {
 		etsvm = append(etsvm, m.createEntryTypeViewModel(entryType.Id, entryType.Description))
@@ -148,7 +139,7 @@ func (m *Mapper) CreateEntryTypesViewModel(entryTypes []*model.EntryType) []*vm.
 	return etsvm
 }
 
-func (m *Mapper) createEntryTypeViewModel(id int, description string) *vm.EntryType {
+func (m *mapper) createEntryTypeViewModel(id int, description string) *vm.EntryType {
 	return &vm.EntryType{
 		Id:          id,
 		Description: description,
@@ -156,7 +147,7 @@ func (m *Mapper) createEntryTypeViewModel(id int, description string) *vm.EntryT
 }
 
 // CreateEntryActivitiesViewModel creates a list of entry activity view models.
-func (m *Mapper) CreateEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
+func (m *mapper) CreateEntryActivitiesViewModel(entryActivities []*model.EntryActivity,
 ) []*vm.EntryActivity {
 	easvm := make([]*vm.EntryActivity, 0, 10)
 	easvm = append(easvm, m.createEntryActivityViewModel(0, "-"))
@@ -167,7 +158,7 @@ func (m *Mapper) CreateEntryActivitiesViewModel(entryActivities []*model.EntryAc
 	return easvm
 }
 
-func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
+func (m *mapper) createEntryActivityViewModel(id int, description string) *vm.EntryActivity {
 	return &vm.EntryActivity{
 		Id:          id,
 		Description: description,
@@ -175,7 +166,7 @@ func (m *Mapper) createEntryActivityViewModel(id int, description string) *vm.En
 }
 
 // CreateEntryViewModel creates a entry view model.
-func (m *Mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
+func (m *mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
 	return &vm.Entry{
 		Id:             entry.Id,
 		TypeId:         entry.TypeId,
@@ -189,7 +180,7 @@ func (m *Mapper) CreateEntryViewModel(entry *model.Entry) *vm.Entry {
 	}
 }
 
-func (m *Mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType, id int) string {
+func (m *mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType, id int) string {
 	et, ok := entryTypesMap[id]
 	if ok {
 		return et.Description
@@ -197,7 +188,7 @@ func (m *Mapper) getEntryTypeDescription(entryTypesMap map[int]*model.EntryType,
 	return ""
 }
 
-func (m *Mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.EntryActivity,
+func (m *mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.EntryActivity,
 	id int) string {
 	ea, ok := entryActivitiesMap[id]
 	if ok {
@@ -206,7 +197,7 @@ func (m *Mapper) getEntryActivityDescription(entryActivitiesMap map[int]*model.E
 	return ""
 }
 
-func (m *Mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
+func (m *mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
 ) []monthlyVacationDays {
 	mds := make([]monthlyVacationDays, 0, 10)
 
@@ -223,7 +214,7 @@ func (m *Mapper) convertVacationDays(vacationDays []model.ContractVacationDays,
 	return mds
 }
 
-func (m *Mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date time.Time,
+func (m *mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date time.Time,
 ) float32 {
 	d := float32(0.0)
 
@@ -238,7 +229,7 @@ func (m *Mapper) findVacationDaysForDate(monthlyDays []monthlyVacationDays, date
 	return d
 }
 
-func (m *Mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
+func (m *mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
 ) []dailyWorkingDuration {
 	dds := make([]dailyWorkingDuration, 0, 10)
 
@@ -257,7 +248,7 @@ func (m *Mapper) convertWorkingHours(workingHours []model.ContractWorkingHours,
 	return dds
 }
 
-func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuration, date time.Time,
+func (m *mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuration, date time.Time,
 ) time.Duration {
 	d := time.Duration(0)
 
@@ -273,7 +264,7 @@ func (m *Mapper) findWorkingDurationForDate(dailyDurations []dailyWorkingDuratio
 }
 
 // CreateBasicEntryFilterDetailsViewModel creates a view model for the basic entry filter details.
-func (m *Mapper) CreateBasicEntryFilterDetailsViewModel(filter *model.TextEntryFilter,
+func (m *mapper) CreateBasicEntryFilterDetailsViewModel(filter *model.TextEntryFilter,
 ) *vm.BasicEntryFilterDetails {
 	efd := &vm.BasicEntryFilterDetails{}
 	efd.Text = filter.Text
@@ -281,7 +272,7 @@ func (m *Mapper) CreateBasicEntryFilterDetailsViewModel(filter *model.TextEntryF
 }
 
 // CreateAdvancedEntryFilterDetailsViewModel creates a view model for the advanced entry filter details.
-func (m *Mapper) CreateAdvancedEntryFilterDetailsViewModel(filter *model.FieldEntryFilter,
+func (m *mapper) CreateAdvancedEntryFilterDetailsViewModel(filter *model.FieldEntryFilter,
 	types []*model.EntryType, activities []*model.EntryActivity) *vm.AdvancedEntryFilterDetails {
 	efd := &vm.AdvancedEntryFilterDetails{}
 
@@ -433,7 +424,7 @@ func formatHours(d time.Duration) string {
 
 // --- Misc helpers ---
 
-func (m *Mapper) calculatePercentage(actual float32, total float32) int {
+func (m *mapper) calculatePercentage(actual float32, total float32) int {
 	if actual == 0 || total == 0 {
 		return 0
 	}
@@ -443,7 +434,7 @@ func (m *Mapper) calculatePercentage(actual float32, total float32) int {
 	return int(math.Round(float64(percentage)))
 }
 
-func (m *Mapper) getIsoWeekdayIndex(t time.Time) int {
+func (m *mapper) getIsoWeekdayIndex(t time.Time) int {
 	weekday := t.Weekday()
 	if weekday == time.Sunday {
 		return 6
@@ -451,7 +442,7 @@ func (m *Mapper) getIsoWeekdayIndex(t time.Time) int {
 	return int(weekday) - 1
 }
 
-func (m *Mapper) calcPageNavFirstLastPageNums(curPageNum int, maxPageNum int, maxPageNavItems int,
+func (m *mapper) calcPageNavFirstLastPageNums(curPageNum int, maxPageNum int, maxPageNavItems int,
 ) (int, int) {
 	// Abort if max page number is below range
 	if maxPageNum <= 0 {

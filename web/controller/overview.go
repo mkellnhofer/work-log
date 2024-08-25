@@ -20,7 +20,9 @@ import (
 
 // OverviewController handles requests for overview endpoints.
 type OverviewController struct {
-	baseController
+	handlerHelper
+	baseUserController
+	baseEntryController
 
 	mapper   *mapper.OverviewMapper
 	exporter *export.OverviewExporter
@@ -32,13 +34,10 @@ func NewOverviewController(uServ *service.UserService, eServ *service.EntryServi
 	overviewMapper := mapper.NewOverviewMapper()
 	overviewExporter := export.NewOverviewExporter()
 	return &OverviewController{
-		baseController: baseController{
-			uServ:  uServ,
-			eServ:  eServ,
-			mapper: &overviewMapper.Mapper,
-		},
-		mapper:   overviewMapper,
-		exporter: overviewExporter,
+		baseUserController:  *newBaseUserController(uServ),
+		baseEntryController: *newBaseEntryController(eServ),
+		mapper:              overviewMapper,
+		exporter:            overviewExporter,
 	}
 }
 

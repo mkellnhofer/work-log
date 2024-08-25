@@ -7,7 +7,7 @@ import (
 
 // EntryMapper creates view models for the create/edit/copy/delete entry modal.
 type EntryMapper struct {
-	Mapper
+	mapper
 }
 
 // NewEntryMapper creates a new entry mapper.

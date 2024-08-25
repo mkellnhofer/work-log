@@ -56,3 +56,38 @@ templ modalContent(icon string, titleTextRef string, submitTextRef string, cance
 templ modalErrorContainer() {
 	<div id="wl-modal-error-container"></div>
 }
+
+// This template is used to render a info modal. It gets an icon name and texts for the title and
+// the close button, as well as an action attribute which defines what action should be performed
+// when the close button is clicked. The form content is supplied as children.
+templ InfoModal(icon string, titleTextRef string, closeTextRef string,
+	closeActionAttrs templ.Attributes) {
+	<div id="wl-modal" class="modal show" tabindex="-1" role="dialog" style="display: block">
+		<div class="modal-dialog modal-md modal-fullscreen-sm-down">
+			@infoModalContent(icon, titleTextRef, closeTextRef, closeActionAttrs) {
+				{ children... }
+			}
+		</div>
+	</div>
+	<div class="modal-backdrop show"></div>
+}
+
+templ infoModalContent(icon string, titleTextRef string, closeTextRef string,
+	closeActionAttrs templ.Attributes) {
+	<div class="modal-content">
+		<div class="modal-header">
+			<h2 class="modal-title">
+				<svg class="ico ms-1 me-3"><use xlink:href={ "img/ico.svg#" + icon }></use></svg>
+				<span>{ getText(titleTextRef) }</span>
+			</h2>
+		</div>
+		<div class="modal-body">
+			{ children... }
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-secondary" hx-trigger="click" { closeActionAttrs... }>
+				{ getText(closeTextRef) }
+			</button>
+		</div>
+	</div>
+}

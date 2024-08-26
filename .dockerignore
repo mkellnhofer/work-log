@@ -2,15 +2,19 @@
 .vscode/
 
 .dockerignore
+.editorconfig
 .gitignore
 
 db-init.sql
 docker-compose.yml
 Dockerfile
 
+download-bootstrap.sh
+
 LICENSE
 Makefile
 README.md
-screenshot.png
+screenshot-1.png
+screenshot-2.png
 work-log
 work-log.zip

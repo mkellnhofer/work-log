@@ -53,8 +53,9 @@ func (e *exporter) createNewExport() *export {
 	styleTitle, styleTextBold := e.createTextStyles(file)
 	styleTableHeader, styleTableBody, styleTableBodyAlignmentRight := e.createTableStyles(file)
 
-	// Create sheet
+	// Rename default sheet
 	sheet := createString("exportSheetName")
+	file.SetSheetName("Sheet1", sheet)
 
 	// Create new export
 	return &export{

@@ -17,7 +17,7 @@ const (
 	ExportFileNameTemplate string = "work-log-export-%s.%s"
 
 	SessionCookieName string        = "session"
-	SessionValidity   time.Duration = 1 * time.Hour
+	SessionValidity   time.Duration = 10 * time.Hour
 
 	ContextKeyTransactionHolder contextKey = contextKey("transaction-holder")
 	ContextKeySessionHolder     contextKey = contextKey("session-holder")

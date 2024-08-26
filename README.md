@@ -12,15 +12,15 @@ A simple Go web application for tracking working hours and activities.
   - with contract details like first work day, daily working hours and annual vacation days
 - UI
   - Log View: to show recent entries (with summary and gap/conflict highlighting)
-  - Search View: to search entries by type, date, ...
   - Overview View: to show a monthly overview and export a timesheet
-  - responsive 
+  - responsive
   - localizable
 - API (RESTful / JSON)
   - Swagger API documentation + Swagger UI
   - with endpoints to query/maintain user accounts
   - with endpoints to query/maintain entry types & entry activities
   - with endpoints to query/maintain entries
+  - with endpoints to export entries as CSV
 
 ## Installation
 

@@ -13,7 +13,7 @@ else
   exit 1
 fi
 
-GO_SWAGGER_VERSION="0.30.5"
+GO_SWAGGER_VERSION="0.31.0"
 GO_SWAGGER_BINARY="swagger_linux_${ARCH_ALT}"
 GO_SWAGGER_DL_URL="https://github.com/go-swagger/go-swagger/releases/download/v${GO_SWAGGER_VERSION}/${GO_SWAGGER_BINARY}"
 

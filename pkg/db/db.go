@@ -179,7 +179,7 @@ func clearDb(db *sql.DB) {
 
 func readDbFile(name string) []string {
 	// Open file
-	file, err := os.Open("scripts/db/" + name)
+	file, err := os.Open("resources/db/" + name)
 	if err != nil {
 		log.Fatalf("Could not open database update script %s! (Error: %s)", name, err)
 	}

@@ -40,7 +40,7 @@ package:
 		work-log \
 		config/config.ini.example \
 		config/localizations/*.* \
-		scripts/db/*.* \
+		resources/db/*.* \
 		static/resources/css/*.* \
 		static/resources/font/*.* \
 		static/resources/img/*.* \

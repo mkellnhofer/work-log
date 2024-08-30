@@ -29,7 +29,7 @@ WORKDIR /app
 USER 1000
 
 COPY config/localizations ./config/localizations
-COPY scripts ./scripts
+COPY resources/db ./resources/db
 COPY static/resources ./static/resources
 COPY static/swagger-ui ./static/swagger-ui
 COPY --from=build /wl/swagger.json ./static/swagger-ui

@@ -30,9 +30,8 @@ USER 1000
 
 COPY resources/db ./resources/db
 COPY resources/localizations ./resources/localizations
-COPY static/resources ./static/resources
-COPY static/swagger-ui ./static/swagger-ui
-COPY --from=build /wl/swagger.json ./static/swagger-ui
+COPY resources/static ./resources/static
+COPY --from=build /wl/swagger.json ./resources/static/swagger-ui
 COPY --from=build /wl/work-log ./work-log
 
 EXPOSE 8080/tcp

@@ -132,10 +132,10 @@ func addViewHandlers(init *Initializer, e *echo.Echo) {
 	e.GET("/export", exportCtrl.GetExportHandler(), proRoute...)
 
 	// Register resource handlers
-	e.Static("/css/", "static/resources/css")
-	e.Static("/img/", "static/resources/img")
-	e.Static("/font/", "static/resources/font")
-	e.Static("/js/", "static/resources/js")
+	e.Static("/css/", "resources/static/web/css")
+	e.Static("/img/", "resources/static/web/img")
+	e.Static("/font/", "resources/static/web/font")
+	e.Static("/js/", "resources/static/web/js")
 }
 
 func getRootHandler() echo.HandlerFunc {
@@ -187,7 +187,7 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 
 func addSwaggerUiHandlers(e *echo.Echo) {
 	e.GET("/api", getSwaggerRootHandler())
-	e.Static("/api/", "static/swagger-ui/")
+	e.Static("/api/", "resources/static/swagger-ui/")
 }
 
 func getSwaggerRootHandler() echo.HandlerFunc {

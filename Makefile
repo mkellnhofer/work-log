@@ -1,7 +1,7 @@
 sass:
 	sass \
 		scss/bootstrap-custom.scss \
-		static/resources/css/bootstrap.min.css \
+		resources/static/web/css/bootstrap.min.css \
 		--style=compressed \
 		--no-source-map \
 		--silence-deprecation=mixed-decls
@@ -20,7 +20,8 @@ clean:
 .PHONY: swagger-spec
 swagger-spec:
 	# Needs go-swagger
-	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o static/swagger-ui/swagger.json
+	SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec \
+		-o resources/static/swagger-ui/swagger.json
 
 .PHONY: go-build
 go-build:
@@ -41,8 +42,8 @@ package:
 		config/config.ini.example \
 		resources/db/*.* \
 		resources/localizations/*.* \
-		static/resources/css/*.* \
-		static/resources/font/*.* \
-		static/resources/img/*.* \
-		static/resources/js/*.* \
-		static/swagger-ui/*.*
+		resources/static/swagger-ui/*.* \
+		resources/static/web/css/*.* \
+		resources/static/web/font/*.* \
+		resources/static/web/img/*.* \
+		resources/static/web/js/*.*

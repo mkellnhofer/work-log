@@ -7,6 +7,6 @@ config/config.ini
 
 scss/vendor/*
 
-static/swagger-ui/swagger.json
+resources/static/swagger-ui/swagger.json
 
 *templ.txt

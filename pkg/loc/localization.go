@@ -33,7 +33,7 @@ func LoadLocalization(lang string) {
 	fileName := fmt.Sprintf("localization-%s.xml", lang)
 
 	// Open file
-	file, ofErr := os.Open("config/localizations/" + fileName)
+	file, ofErr := os.Open("resources/localizations/" + fileName)
 	if ofErr != nil {
 		log.Fatalf("Could not read localization file '%s': %s", fileName, ofErr)
 	}

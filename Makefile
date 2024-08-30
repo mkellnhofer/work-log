@@ -39,8 +39,8 @@ package:
 	zip work-log.zip \
 		work-log \
 		config/config.ini.example \
-		config/localizations/*.* \
 		resources/db/*.* \
+		resources/localizations/*.* \
 		static/resources/css/*.* \
 		static/resources/font/*.* \
 		static/resources/img/*.* \

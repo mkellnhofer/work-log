@@ -5,6 +5,7 @@
 .editorconfig
 .gitignore
 
+db-dev-setup.sql
 db-init.sql
 docker-compose.yml
 Dockerfile

@@ -6,7 +6,10 @@ services:
     image: mariadb:11
     restart: unless-stopped
     volumes:
-      - ../db-init.sql:/docker-entrypoint-initdb.d/db-init.sql
+      - ./db-setup.sh:/docker-entrypoint-initdb.d/db-setup.sh
+      - ../resources/db:/docker-entrypoint-initdb.d/scripts/db:ro
+      - ../db-dev-setup.sql:/docker-entrypoint-initdb.d/scripts/db-dev-setup.sql:ro
+      - ../db-init.sql:/docker-entrypoint-initdb.d/scripts/db-init.sql:ro
       - db:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root

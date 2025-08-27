@@ -1,4 +1,4 @@
-FROM golang:1.23-alpine3.20 AS build
+FROM golang:1.25-alpine3.22 AS build
 
 RUN apk --no-cache add curl
 
@@ -13,7 +13,7 @@ RUN SWAGGER_GENERATE_EXTENSION="false" ./go-swagger generate spec -o swagger.jso
 RUN go build -o work-log cmd/init.go cmd/main.go
 
 
-FROM alpine:3.20
+FROM alpine:3.22
 
 LABEL maintainer="matthias@kellnhofer.com"
 

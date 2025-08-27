@@ -1,8 +1,8 @@
 module kellnhofer.com/work-log
 
-go 1.23
+go 1.25
 
-toolchain go1.23.0
+toolchain go1.25.0
 
 require (
 	github.com/a-h/templ v0.2.771

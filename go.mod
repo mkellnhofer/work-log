@@ -5,7 +5,7 @@ go 1.25
 toolchain go1.25.8
 
 require (
-	github.com/a-h/templ v0.3.943
+	github.com/a-h/templ v0.3.1001
 	github.com/go-ini/ini v1.67.0
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/labstack/echo/v4 v4.15.1

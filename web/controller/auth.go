@@ -286,7 +286,7 @@ func (c *AuthController) createNewSession(eCtx echo.Context, userId int) *model.
 	sessHolder.Set(newSess)
 
 	// Set session cookie
-	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.Id, Path: "/",
+	sessCookie := &http.Cookie{Name: constant.SessionCookieName, Value: newSess.RawId, Path: "/",
 		HttpOnly: true}
 	eCtx.SetCookie(sessCookie)
 

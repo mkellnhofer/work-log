@@ -116,7 +116,7 @@ func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) err
 
 	// If user is not authenticated: Redirect to login page
 	if secCtx.IsAnonymousUser() {
-		log.Debugf("User must authenticate. (Session: '%s')", sess.GetShortId())
+		log.Debugf("User must authenticate. (Session: '%s')", sess.GetShortRawId())
 		return m.redirectLogin(c, sess)
 	}
 
@@ -130,11 +130,11 @@ func (m *AuthCheckMiddleware) process(next echo.HandlerFunc, c echo.Context) err
 
 	// If user must change password: Redirect to login page
 	if user.MustChangePassword {
-		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.GetShortId())
+		log.Debugf("User %d must change password. (Session: '%s')", userId, sess.GetShortRawId())
 		return m.redirectLogin(c, sess)
 	}
 
-	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.GetShortId())
+	log.Debugf("User %d is authenticated. (Session: '%s')", userId, sess.GetShortRawId())
 
 	// Forward to next handler
 	return next(c)

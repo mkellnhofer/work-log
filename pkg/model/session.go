@@ -12,7 +12,8 @@ const (
 
 // Session stores information about session.
 type Session struct {
-	Id          string    // ID of the session
+	Id          string    // Hashed ID of the session (stored in DB)
+	RawId       string    // Raw ID of the session (sent as cookie, not stored)
 	UserId      int       // ID of the user
 	ExpireAt    time.Time // Expire time of the session
 	PreviousUrl string    // Previous requested URL
@@ -20,9 +21,16 @@ type Session struct {
 
 // NewSession creates a new Session model.
 func NewSession() *Session {
-	id := generateRandomString(SessionIdLength)
+	rawId := generateRandomString(SessionIdLength)
+	hashedId := createHashedString(rawId)
 	expAt := now().Add(constant.SessionValidity)
-	return &Session{id, AnonymousUserId, expAt, ""}
+	return &Session{
+		Id:          hashedId,
+		RawId:       rawId,
+		UserId:      AnonymousUserId,
+		ExpireAt:    expAt,
+		PreviousUrl: "",
+	}
 }
 
 // IsExpired returns true if session is expired, otherwise false.
@@ -35,9 +43,9 @@ func (s *Session) Renew() {
 	s.ExpireAt = now().Add(constant.SessionValidity)
 }
 
-// GetShortId returns a truncated session ID.
-func (s *Session) GetShortId() string {
-	return createTruncatedString(s.Id, 8)
+// GetShortRawId returns a truncated raw session ID.
+func (s *Session) GetShortRawId() string {
+	return createTruncatedString(s.RawId, 8)
 }
 
 func IsValidSessionId(sessId string) bool {

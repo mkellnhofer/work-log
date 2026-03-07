@@ -67,29 +67,29 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 	sessCookie, _ := req.Cookie(constant.SessionCookieName)
 
 	// Get session ID
-	var sessId string
+	var rawSessId string
 	if sessCookie != nil {
-		sessId = sessCookie.Value
-		if !model.IsValidSessionId(sessId) {
+		rawSessId = sessCookie.Value
+		if !model.IsValidSessionId(rawSessId) {
 			log.Debug("Invalid session ID was provided in cookie.")
-			sessId = ""
+			rawSessId = ""
 		}
 	}
 
 	// Try to load session
-	iniSess, err := m.getSession(sysCtx, sessId)
+	iniSess, err := m.getSession(sysCtx, rawSessId)
 	if err != nil {
 		return err
 	}
 	if iniSess != nil {
-		log.Debugf("Session '%s' is still valid.", iniSess.GetShortId())
+		log.Debugf("Session '%s' is still valid.", iniSess.GetShortRawId())
 	}
 
 	// If no session found: Create new session
 	if iniSess == nil {
 		iniSess = m.createSession()
-		log.Debugf("New session '%s' was created.", iniSess.GetShortId())
-		sessCookie = &http.Cookie{Name: constant.SessionCookieName, Value: iniSess.Id, Path: "/",
+		log.Debugf("New session '%s' was created.", iniSess.GetShortRawId())
+		sessCookie = &http.Cookie{Name: constant.SessionCookieName, Value: iniSess.RawId, Path: "/",
 			HttpOnly: true}
 		c.SetCookie(sessCookie)
 	}
@@ -112,18 +112,18 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 	// If session was replaced/deleted: Delete old session
 	wasSessionReplaced := altSess != nil && altSess != iniSess
 	if wasSessionReplaced {
-		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
+		if err := m.deleteSession(sysCtx, iniSess.RawId); err != nil {
 			return err
 		}
-		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.GetShortId(),
-			altSess.GetShortId())
+		log.Debugf("Session '%s' was replaced by session '%s'.", iniSess.GetShortRawId(),
+			altSess.GetShortRawId())
 	}
 	wasSessionClosed := altSess == nil
 	if wasSessionClosed {
-		if err := m.deleteSession(sysCtx, iniSess.Id); err != nil {
+		if err := m.deleteSession(sysCtx, iniSess.RawId); err != nil {
 			return err
 		}
-		log.Debugf("Session '%s' was closed.", iniSess.GetShortId())
+		log.Debugf("Session '%s' was closed.", iniSess.GetShortRawId())
 	}
 
 	// Save current session
@@ -140,12 +140,13 @@ func (m *SessionMiddleware) createSession() *model.Session {
 	return model.NewSession()
 }
 
-func (m *SessionMiddleware) getSession(ctx context.Context, sessId string) (*model.Session, error) {
-	if sessId == "" {
+func (m *SessionMiddleware) getSession(ctx context.Context, rawSessId string) (*model.Session,
+	error) {
+	if rawSessId == "" {
 		return nil, nil
 	}
 
-	sess, err := m.sServ.GetSession(ctx, sessId)
+	sess, err := m.sServ.GetSession(ctx, rawSessId)
 	if err != nil {
 		return nil, err
 	}
@@ -162,6 +163,6 @@ func (m *SessionMiddleware) saveSession(ctx context.Context, sess *model.Session
 	return m.sServ.SaveSession(ctx, sess)
 }
 
-func (m *SessionMiddleware) deleteSession(ctx context.Context, sessId string) error {
-	return m.sServ.DeleteSession(ctx, sessId)
+func (m *SessionMiddleware) deleteSession(ctx context.Context, rawSessId string) error {
+	return m.sServ.DeleteSession(ctx, rawSessId)
 }

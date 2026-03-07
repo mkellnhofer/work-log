@@ -158,6 +158,7 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 	// Get controllers
 	entryCtrl := init.GetEntryApiController()
 	exportCtrl := init.GetExportApiController()
+	tokenCtrl := init.GetTokenApiController()
 	userCtrl := init.GetUserApiController()
 
 	// Register protected handlers
@@ -183,6 +184,10 @@ func addApiHandlers(init *Initializer, e *echo.Echo) {
 	g.PUT("/users/:id/password", userCtrl.UpdateUserPasswordHandler())
 	g.GET("/users/:id/roles", userCtrl.GetUserRolesHandler())
 	g.PUT("/users/:id/roles", userCtrl.UpdateUserRolesHandler())
+	g.GET("/user/tokens", tokenCtrl.GetTokensHandler())
+	g.POST("/user/tokens", tokenCtrl.CreateTokenHandler())
+	g.GET("/user/tokens/:id", tokenCtrl.GetTokenHandler())
+	g.DELETE("/user/tokens/:id", tokenCtrl.DeleteTokenHandler())
 }
 
 func addSwaggerUiHandlers(e *echo.Echo) {

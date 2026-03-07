@@ -33,6 +33,7 @@ type Initializer struct {
 	userVCtrl     *vc.UserController
 	entryACtrl    *ac.EntryController
 	exportACtrl   *ac.ExportController
+	tokenACtrl    *ac.TokenController
 	userACtrl     *ac.UserController
 
 	txMidw    *tx.TransactionMiddleware
@@ -188,6 +189,14 @@ func (i *Initializer) GetExportApiController() *ac.ExportController {
 		i.exportACtrl = ac.NewExportController(i.GetEntryService())
 	}
 	return i.exportACtrl
+}
+
+// GetTokenApiController returns a initialized token API controller object.
+func (i *Initializer) GetTokenApiController() *ac.TokenController {
+	if i.tokenACtrl == nil {
+		i.tokenACtrl = ac.NewTokenController(i.GetTokenService())
+	}
+	return i.tokenACtrl
 }
 
 // GetUserApiController returns a initialized user API controller object.

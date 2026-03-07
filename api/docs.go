@@ -8,8 +8,12 @@
 //	Version: 1.6.0-alpha
 //
 //	SecurityDefinitions:
-//	basic:
+//	Basic:
 //	    type: basic
+//	Bearer Token:
+//	    type: apiKey
+//	    name: Authorization
+//	    in: header
 //
 // swagger:meta
 package api

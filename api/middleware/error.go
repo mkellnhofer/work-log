@@ -16,6 +16,8 @@ var httpStatusCodeMapping = map[int]int{
 	e.AuthDataInvalid:        http.StatusUnauthorized,
 	e.AuthCredentialsInvalid: http.StatusUnauthorized,
 	e.AuthUserNotActivated:   http.StatusPreconditionFailed,
+	e.AuthTokenInvalid:       http.StatusUnauthorized,
+	e.AuthTokenNotAllowed:    http.StatusForbidden,
 
 	e.PermUnknown:             http.StatusForbidden,
 	e.PermGetUserData:         http.StatusForbidden,

@@ -74,7 +74,8 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - text/csv
@@ -106,7 +107,8 @@ func (c *ExportController) GetExportHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':

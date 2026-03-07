@@ -264,7 +264,7 @@ func (i *Initializer) GetErrorApiMiddleware() *am.ErrorMiddleware {
 // GetSecurityApiMiddleware returns a initialized security API middleware object.
 func (i *Initializer) GetSecurityApiMiddleware() *am.SecurityMiddleware {
 	if i.secAMidw == nil {
-		i.secAMidw = am.NewSecurityMiddleware(i.GetUserService())
+		i.secAMidw = am.NewSecurityMiddleware(i.GetUserService(), i.GetTokenService())
 	}
 	return i.secAMidw
 }

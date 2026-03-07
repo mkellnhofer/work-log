@@ -201,7 +201,8 @@ func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -245,7 +246,8 @@ func (c *EntryController) GetEntriesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -322,7 +324,8 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -344,7 +347,8 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -400,7 +404,8 @@ func (c *EntryController) GetEntryHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -416,7 +421,8 @@ func (c *EntryController) GetEntryHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '404':
@@ -482,7 +488,8 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -504,7 +511,8 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -567,7 +575,8 @@ func (c *EntryController) DeleteEntryHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -583,7 +592,8 @@ func (c *EntryController) DeleteEntryHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -629,7 +639,8 @@ func (c *EntryController) GetEntryTypesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -640,7 +651,8 @@ func (c *EntryController) GetEntryTypesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -672,7 +684,8 @@ func (c *EntryController) GetEntryActivitiesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -683,7 +696,8 @@ func (c *EntryController) GetEntryActivitiesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -715,7 +729,8 @@ func (c *EntryController) CreateEntryActivityHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -732,7 +747,8 @@ func (c *EntryController) CreateEntryActivityHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -782,7 +798,8 @@ func (c *EntryController) UpdateEntryActivityHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -800,7 +817,8 @@ func (c *EntryController) UpdateEntryActivityHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -861,7 +879,8 @@ func (c *EntryController) DeleteEntryActivityHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -877,7 +896,8 @@ func (c *EntryController) DeleteEntryActivityHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':

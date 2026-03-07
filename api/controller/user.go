@@ -158,7 +158,8 @@ func (c *UserController) GetCurrentUserHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -169,7 +170,8 @@ func (c *UserController) GetCurrentUserHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -215,7 +217,7 @@ func (c *UserController) UpdateCurrentUserPasswordHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
 	//
 	// produces:
 	// - application/json
@@ -267,7 +269,8 @@ func (c *UserController) GetCurrentUserRolesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -278,7 +281,8 @@ func (c *UserController) GetCurrentUserRolesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '412':
@@ -310,7 +314,8 @@ func (c *UserController) GetUsersHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -321,7 +326,8 @@ func (c *UserController) GetUsersHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -372,7 +378,8 @@ func (c *UserController) CreateUserHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -397,7 +404,8 @@ func (c *UserController) CreateUserHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -452,7 +460,8 @@ func (c *UserController) GetUserHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -468,7 +477,8 @@ func (c *UserController) GetUserHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -523,7 +533,8 @@ func (c *UserController) UpdateUserHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -548,7 +559,8 @@ func (c *UserController) UpdateUserHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -614,7 +626,8 @@ func (c *UserController) DeleteUserHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -630,7 +643,8 @@ func (c *UserController) DeleteUserHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -690,7 +704,8 @@ func (c *UserController) UpdateUserPasswordHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -707,7 +722,8 @@ func (c *UserController) UpdateUserPasswordHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -764,7 +780,8 @@ func (c *UserController) GetUserRolesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -780,7 +797,8 @@ func (c *UserController) GetUserRolesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':
@@ -828,7 +846,8 @@ func (c *UserController) UpdateUserRolesHandler() echo.HandlerFunc {
 	// ---
 	//
 	// security:
-	// - basic: []
+	// - Basic: []
+	// - Bearer Token: []
 	//
 	// produces:
 	// - application/json
@@ -847,7 +866,8 @@ func (c *UserController) UpdateUserRolesHandler() echo.HandlerFunc {
 	//   '401':
 	//     description: "__Unauthorized__\n\n
 	//       ⦁ [-101]: Invalid authentication data\n
-	//       ⦁ [-102]: Invalid credentials"
+	//       ⦁ [-102]: Invalid credentials\n
+	//       ⦁ [-104]: Invalid token"
 	//     schema:
 	//       "$ref": "#/definitions/Error"
 	//   '403':

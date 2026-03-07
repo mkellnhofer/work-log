@@ -196,7 +196,7 @@ func (m *SecurityMiddleware) authenticateBearerAuth(ctx context.Context, r *http
 func (m *SecurityMiddleware) getBearerAuthToken(r *http.Request) (string, bool) {
 	authData := m.getAuthenticationData(r)
 	token := strings.TrimPrefix(authData, bearerAuthPrefix)
-	if token == "" {
+	if !model.IsValidTokenValue(token) {
 		return "", false
 	}
 	return token, true

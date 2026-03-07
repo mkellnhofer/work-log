@@ -70,6 +70,10 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 	var sessId string
 	if sessCookie != nil {
 		sessId = sessCookie.Value
+		if !model.IsValidSessionId(sessId) {
+			log.Debug("Invalid session ID was provided in cookie.")
+			sessId = ""
+		}
 	}
 
 	// Try to load session

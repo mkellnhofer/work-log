@@ -27,3 +27,7 @@ func NewToken(userId int, name string) *Token {
 		TruncatedToken: truncatedToken,
 	}
 }
+
+func IsValidTokenValue(tokenValue string) bool {
+	return len(tokenValue) == TokenLength
+}

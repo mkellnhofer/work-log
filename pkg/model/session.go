@@ -39,3 +39,7 @@ func (s *Session) Renew() {
 func (s *Session) GetShortId() string {
 	return createTruncatedString(s.Id, 8)
 }
+
+func IsValidSessionId(sessId string) bool {
+	return len(sessId) == SessionIdLength
+}

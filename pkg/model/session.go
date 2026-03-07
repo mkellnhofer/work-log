@@ -1,12 +1,13 @@
 package model
 
 import (
-	"crypto/rand"
-	"encoding/base64"
-	"io"
 	"time"
 
 	"kellnhofer.com/work-log/pkg/constant"
+)
+
+const (
+	SessionIdLength = 32
 )
 
 // Session stores information about session.
@@ -19,7 +20,7 @@ type Session struct {
 
 // NewSession creates a new Session model.
 func NewSession() *Session {
-	id := newSessionId()
+	id := generateRandomString(SessionIdLength)
 	expAt := now().Add(constant.SessionValidity)
 	return &Session{id, AnonymousUserId, expAt, ""}
 }
@@ -36,21 +37,5 @@ func (s *Session) Renew() {
 
 // GetShortId returns a truncated session ID.
 func (s *Session) GetShortId() string {
-	len := len(s.Id) / 2
-	if len == 0 {
-		return ""
-	}
-	return s.Id[:len] + "..."
-}
-
-// --- Helper functions ---
-
-func newSessionId() string {
-	b := make([]byte, 24)
-	io.ReadFull(rand.Reader, b)
-	return base64.URLEncoding.EncodeToString(b)
-}
-
-func now() time.Time {
-	return time.Now().Truncate(time.Second)
+	return createTruncatedString(s.Id, 8)
 }

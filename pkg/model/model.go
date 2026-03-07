@@ -1,5 +1,11 @@
 package model
 
+import (
+	"time"
+
+	"kellnhofer.com/work-log/pkg/util"
+)
+
 // Sorting defines a sorting direction.
 type Sorting int
 
@@ -41,3 +47,15 @@ const (
 	ValidUserPasswordCharacters = `0-9a-zA-Z!"#$%&'()*+,\-./:;=?@\[\\\]^_{|}~`
 	ValidLabelCharacters        = `0-9a-zA-Z!#\-.@_`
 )
+
+func now() time.Time {
+	return time.Now().Truncate(time.Second)
+}
+
+func generateRandomString(length int) string {
+	return util.GenerateRandomString(length)
+}
+
+func createTruncatedString(str string, length int) string {
+	return util.CreateTruncatedString(str, length)
+}

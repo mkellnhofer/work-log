@@ -2,7 +2,9 @@ package util
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"io"
 )
 
@@ -14,6 +16,14 @@ func GenerateRandomString(length int) string {
 		panic("crypto/rand failed: " + err.Error())
 	}
 	return base64.URLEncoding.EncodeToString(bytes)
+}
+
+// CreateHashedString creates a hashed string using SHA256.
+func CreateHashedString(str string) string {
+	h := sha256.New()
+	h.Write([]byte(str))
+	bytes := h.Sum(nil)
+	return fmt.Sprintf("%x", bytes)
 }
 
 // CreateTruncatedString creates a truncated string of the specified length.

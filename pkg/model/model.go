@@ -34,6 +34,7 @@ const (
 	MaxLengthUserName                 = 100
 	MaxLengthUserUsername             = 100
 	MaxLengthUserPassword             = 100
+	MaxLengthTokenName                = 30
 	MaxLengthEntryTypeDescription     = 50
 	MaxLengthEntryActivityDescription = 50
 	MaxLengthEntryProjectName         = 30
@@ -54,6 +55,10 @@ func now() time.Time {
 
 func generateRandomString(length int) string {
 	return util.GenerateRandomString(length)
+}
+
+func createHashedString(str string) string {
+	return util.CreateHashedString(str)
 }
 
 func createTruncatedString(str string, length int) string {

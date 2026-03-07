@@ -18,6 +18,7 @@ type Initializer struct {
 	db *db.Db
 
 	entryServ *service.EntryService
+	tokenServ *service.TokenService
 	sessServ  *service.SessionService
 	userServ  *service.UserService
 	jobServ   *service.JobService
@@ -77,6 +78,15 @@ func (i *Initializer) GetSessionService() *service.SessionService {
 			i.GetDb().GetSessionRepo())
 	}
 	return i.sessServ
+}
+
+// GetTokenService returns a initialized token service object.
+func (i *Initializer) GetTokenService() *service.TokenService {
+	if i.tokenServ == nil {
+		i.tokenServ = service.NewTokenService(i.GetDb().GetTransactionManager(),
+			i.GetDb().GetTokenRepo())
+	}
+	return i.tokenServ
 }
 
 // GetUserService returns a initialized user service object.

@@ -6,6 +6,8 @@ const (
 	AuthDataInvalid        = -101
 	AuthCredentialsInvalid = -102
 	AuthUserNotActivated   = -103
+	AuthTokenInvalid       = -104
+	AuthTokenNotAllowed    = -105
 
 	// Permission errors
 	PermUnknown             = -200
@@ -72,6 +74,7 @@ const (
 	LogicContractWorkingHoursInvalid   = -410
 	LogicContractVacationDaysInvalid   = -411
 	LogicEntryActivityNotAllowed       = -412
+	LogicTokenNotFound                 = -413
 
 	// System errors
 	SysUnknown             = -500

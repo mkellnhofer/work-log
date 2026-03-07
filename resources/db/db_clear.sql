@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS user_role;
 DROP TABLE IF EXISTS user_contract;
 DROP TABLE IF EXISTS user_setting;
 DROP TABLE IF EXISTS session;
+DROP TABLE IF EXISTS token;
 DROP TABLE IF EXISTS entry_type;
 DROP TABLE IF EXISTS entry_activity;
 DROP TABLE IF EXISTS entry;

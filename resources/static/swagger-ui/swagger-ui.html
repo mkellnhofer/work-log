@@ -45,7 +45,14 @@
         filter: false,
         presets: [
           SwaggerUIBundle.presets.apis
-        ]
+        ],
+        requestInterceptor: function(req) {
+          var auth = req.headers['Authorization'];
+          if (auth && auth !== 'Basic' && !auth.startsWith('Basic ') && !auth.startsWith('Bearer ')) {
+            req.headers['Authorization'] = 'Bearer ' + auth;
+          }
+          return req;
+        }
       });
       window.ui = ui
     }

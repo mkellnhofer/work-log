@@ -107,9 +107,15 @@ func (m *ErrorMiddleware) process(next echo.HandlerFunc, c echo.Context) error {
 func (m *ErrorMiddleware) handleError(r *echo.Response, err error) {
 	switch tErr := err.(type) {
 	case *e.Error:
-		// We can retrieve the status here and write out a specific status code.
+		// Own error type
 		sc := getHttpStatusCode(tErr.Code)
 		er := model.NewError(tErr.Code, tErr.Message)
+		httputil.WriteHttpResponse(r, sc, er)
+	case *echo.HTTPError:
+		// Echo's error type
+		log.Errorf("%s", tErr)
+		sc := tErr.Code
+		er := model.NewError(e.SysUnknown, tErr.Message.(string))
 		httputil.WriteHttpResponse(r, sc, er)
 	default:
 		// Any error types we don't specifically look out for default to serving a HTTP 500

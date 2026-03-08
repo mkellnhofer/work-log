@@ -44,21 +44,21 @@ const (
 	ValPasswordInvalid      = -318
 	ValLabelInvalid         = -319
 	// View validation errors
-	ValStartDateInvalid     = -320
-	ValEndDateInvalid       = -321
-	ValStartTimeInvalid     = -322
-	ValEndTimeInvalid       = -323
-	ValProjectNameTooLong   = -324
-	ValDescriptionTooLong   = -325
-	ValLabelTooShort        = -326
-	ValLabelTooLong         = -327
-	ValQueryInvalid         = -328
-	ValQueryEmpty           = -329
-	ValMonthInvalid         = -330
-	ValPasswordEmpty        = -331
-	ValPasswordTooShort     = -332
-	ValPasswordTooLong      = -333
-	ValPasswordsNotMatching = -334
+	ValStartDateInvalid     = -350
+	ValEndDateInvalid       = -351
+	ValStartTimeInvalid     = -352
+	ValEndTimeInvalid       = -353
+	ValProjectNameTooLong   = -354
+	ValDescriptionTooLong   = -355
+	ValLabelTooShort        = -356
+	ValLabelTooLong         = -357
+	ValQueryInvalid         = -358
+	ValQueryEmpty           = -359
+	ValMonthInvalid         = -360
+	ValPasswordEmpty        = -361
+	ValPasswordTooShort     = -362
+	ValPasswordTooLong      = -363
+	ValPasswordsNotMatching = -364
 
 	// Logic errors
 	LogicUnknown                       = -400

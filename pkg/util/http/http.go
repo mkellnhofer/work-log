@@ -59,9 +59,12 @@ func writeResponse(writer http.ResponseWriter, statusCode int, data any) error {
 		}
 	}
 
-	writer.WriteHeader(statusCode)
 	if body != nil {
 		writer.Header().Set("Content-Type", "application/json")
+	}
+
+	writer.WriteHeader(statusCode)
+	if body != nil {
 		_, wErr := writer.Write(body)
 		if wErr != nil {
 			log.Error("Could not write response body!")

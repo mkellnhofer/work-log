@@ -136,7 +136,6 @@ func (c *TokenController) CreateTokenHandler() echo.HandlerFunc {
 	//
 	// consumes:
 	// - application/json
-	//
 	// produces:
 	// - application/json
 	//

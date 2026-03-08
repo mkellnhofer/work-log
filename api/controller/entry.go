@@ -327,6 +327,8 @@ func (c *EntryController) CreateEntryHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -491,6 +493,8 @@ func (c *EntryController) UpdateEntryHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -732,6 +736,8 @@ func (c *EntryController) CreateEntryActivityHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -801,6 +807,8 @@ func (c *EntryController) UpdateEntryActivityHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//

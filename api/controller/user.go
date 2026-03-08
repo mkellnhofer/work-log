@@ -219,6 +219,8 @@ func (c *UserController) UpdateCurrentUserPasswordHandler() echo.HandlerFunc {
 	// security:
 	// - Basic: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -381,6 +383,8 @@ func (c *UserController) CreateUserHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -536,6 +540,8 @@ func (c *UserController) UpdateUserHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -707,6 +713,8 @@ func (c *UserController) UpdateUserPasswordHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//
@@ -849,6 +857,8 @@ func (c *UserController) UpdateUserRolesHandler() echo.HandlerFunc {
 	// - Basic: []
 	// - Bearer Token: []
 	//
+	// consumes:
+	// - application/json
 	// produces:
 	// - application/json
 	//

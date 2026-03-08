@@ -216,6 +216,6 @@ func createCorsMiddleware() echo.MiddlewareFunc {
 			http.MethodPatch,
 			http.MethodDelete,
 		},
-		AllowHeaders: []string{"Authorization", "Content-Type"},
+		AllowHeaders: []string{"Accept", "Authorization", "Content-Type"},
 	})
 }

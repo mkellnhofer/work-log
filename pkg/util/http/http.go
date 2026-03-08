@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
+	"mime"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -27,6 +28,16 @@ func WriteHttpError(r *echo.Response, statusCode int, error string) error {
 }
 
 func readRequestBody(r *http.Request, data any) error {
+	contentType := r.Header.Get("Content-Type")
+	if contentType != "" {
+		mediaType, _, _ := mime.ParseMediaType(contentType)
+		if mediaType != "application/json" {
+			err := e.NewError(e.ValContentTypeNotSupported, "Content type is not supported.")
+			log.Debug(err.StackTrace())
+			return err
+		}
+	}
+
 	decoder := json.NewDecoder(r.Body)
 	jErr := decoder.Decode(data)
 	if jErr != nil {

@@ -23,26 +23,27 @@ const (
 	PermChangeOwnEntries    = -210
 
 	// General validation erros
-	ValUnknown              = -300
-	ValJsonInvalid          = -301
-	ValPageNumberInvalid    = -302
-	ValIdInvalid            = -303
-	ValFilterInvalid        = -304
-	ValSortInvalid          = -305
-	ValOffsetInvalid        = -306
-	ValLimitInvalid         = -307
-	ValFieldNil             = -308
-	ValNumberNegative       = -309
-	ValNumberNegativeOrZero = -310
-	ValStringEmpty          = -311
-	ValStringTooLong        = -312
-	ValDateInvalid          = -313
-	ValTimestampInvalid     = -314
-	ValArrayEmpty           = -315
-	ValRoleInvalid          = -316
-	ValUsernameInvalid      = -317
-	ValPasswordInvalid      = -318
-	ValLabelInvalid         = -319
+	ValUnknown                 = -300
+	ValJsonInvalid             = -301
+	ValPageNumberInvalid       = -302
+	ValIdInvalid               = -303
+	ValFilterInvalid           = -304
+	ValSortInvalid             = -305
+	ValOffsetInvalid           = -306
+	ValLimitInvalid            = -307
+	ValFieldNil                = -308
+	ValNumberNegative          = -309
+	ValNumberNegativeOrZero    = -310
+	ValStringEmpty             = -311
+	ValStringTooLong           = -312
+	ValDateInvalid             = -313
+	ValTimestampInvalid        = -314
+	ValArrayEmpty              = -315
+	ValRoleInvalid             = -316
+	ValUsernameInvalid         = -317
+	ValPasswordInvalid         = -318
+	ValLabelInvalid            = -319
+	ValContentTypeNotSupported = -320
 	// View validation errors
 	ValStartDateInvalid     = -350
 	ValEndDateInvalid       = -351

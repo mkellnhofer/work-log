@@ -89,8 +89,13 @@ func (m *SessionMiddleware) process(next echo.HandlerFunc, c echo.Context) error
 	if iniSess == nil {
 		iniSess = m.createSession()
 		log.Debugf("New session '%s' was created.", iniSess.GetShortRawId())
-		sessCookie = &http.Cookie{Name: constant.SessionCookieName, Value: iniSess.RawId, Path: "/",
-			HttpOnly: true}
+		sessCookie = &http.Cookie{
+			Name:     constant.SessionCookieName,
+			Value:    iniSess.RawId,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
+		}
 		c.SetCookie(sessCookie)
 	}
 

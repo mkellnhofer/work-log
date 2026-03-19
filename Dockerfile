@@ -1,4 +1,7 @@
-FROM golang:1.25-alpine3.22 AS build
+FROM --platform=$BUILDPLATFORM golang:1.25-alpine3.22 AS build
+
+ARG TARGETOS
+ARG TARGETARCH
 
 RUN apk --no-cache add curl
 
@@ -10,7 +13,7 @@ RUN ./install-tools.sh
 
 RUN SWAGGER_GENERATE_EXTENSION="false" ./go-swagger generate spec -o swagger.json
 
-RUN go build -o work-log cmd/init.go cmd/main.go
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o work-log cmd/init.go cmd/main.go
 
 
 FROM alpine:3.22

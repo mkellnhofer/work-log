@@ -40,7 +40,7 @@ Application data is stored in a database, therefore one of the following databas
 
 ### Docker
 
-The Docker image is available at `ghcr.io/mkellnhofer/work-log:1.6.0`.
+The Docker image is available at `ghcr.io/mkellnhofer/work-log:1.6.1`.
 
 Images are only provided for `linux/amd64`, `linux/arm64` and `linux/armv7`. For other
 architectures you have to build them yourself.
@@ -52,7 +52,7 @@ docker run \
   --name work-log \
   --volume /config/config.ini:/app/config/config.ini \
   --publish 8080:8080 \
-  ghcr.io/mkellnhofer/work-log:1.6.0
+  ghcr.io/mkellnhofer/work-log:1.6.1
 ```
 
 (You can also use [this](docker-compose.yml) example Docker Compose file.)
@@ -66,7 +66,7 @@ build them yourself. See
 [this](https://dave.cheney.net/2015/08/22/cross-compilation-with-go-1-5) blog post for how to cross
 compile Go code.
 
-1. Extract the archive with `unzip work-log-1.6.0.zip -d work-log`
+1. Extract the archive with `unzip work-log-1.6.1.zip -d work-log`
 2. Go to the directory that was just created
 3. Execute `./work-log`
 

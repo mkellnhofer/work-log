@@ -1,0 +1,45 @@
+name: Makefile Build
+
+on:
+  release:
+    types: [created]
+
+env:
+  RELEASE_TAG: ${{ github.event.release.tag_name }}
+
+jobs:
+  build-packages:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install tools
+        run: ./install-tools.sh
+
+      - name: Extract version from release tag
+        run: echo "VERSION=${RELEASE_TAG#v}" >> "$GITHUB_ENV"
+
+      - name: Build amd64
+        run: make build-amd64-linux VERSION=$VERSION
+
+      - name: Build arm
+        run: make build-arm-linux VERSION=$VERSION
+
+      - name: Build arm64
+        run: make build-arm64-linux VERSION=$VERSION
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload $RELEASE_TAG work-log-*.zip

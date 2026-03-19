@@ -19,5 +19,5 @@ GO_SWAGGER_DL_URL="https://github.com/go-swagger/go-swagger/releases/download/v$
 
 echo "Downloading Go-Swagger (${ARCH_ALT}) ..."
 
-curl -L "${GO_SWAGGER_DL_URL}" -o ./go-swagger
-chmod +x ./go-swagger
+curl -L "${GO_SWAGGER_DL_URL}" -o /usr/local/bin/go-swagger
+chmod +x /usr/local/bin/go-swagger

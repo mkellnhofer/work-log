@@ -11,7 +11,7 @@ COPY . ./
 
 RUN ./install-tools.sh
 
-RUN SWAGGER_GENERATE_EXTENSION="false" ./go-swagger generate spec -o swagger.json
+RUN SWAGGER_GENERATE_EXTENSION="false" go-swagger generate spec -o swagger.json
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o work-log cmd/init.go cmd/main.go
 

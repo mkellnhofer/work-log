@@ -6,11 +6,11 @@ DART_SASS_VERSION="1.77.8"
 
 ARCH=$(uname -m)
 
-if [ "$ARCH" == "x86_64" ]; then
+if [ "$ARCH" = "x86_64" ]; then
   GO_SWAGGER_BINARY_NAME="swagger_linux_amd64"
   TEMPL_BUNDLE_NAME="templ_Linux_x86_64.tar.gz"
   DART_SASS_BUNDLE_NAME="dart-sass-${DART_SASS_VERSION}-linux-x64.tar.gz"
-elif [ "$ARCH" == "aarch64" ]; then
+elif [ "$ARCH" = "aarch64" ]; then
   GO_SWAGGER_BINARY_NAME="swagger_linux_arm64"
   TEMPL_BUNDLE_NAME="templ_Linux_arm64.tar.gz"
   DART_SASS_BUNDLE_NAME="dart-sass-${DART_SASS_VERSION}-linux-arm64.tar.gz"

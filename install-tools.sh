@@ -2,11 +2,11 @@
 
 ARCH=$(uname -m)
 
-if [ "$ARCH" == "x86_64" ]; then
+if [ "$ARCH" = "x86_64" ]; then
   ARCH_ALT="amd64"
-elif [ "$ARCH" == "aarch64" ]; then
+elif [ "$ARCH" = "aarch64" ]; then
   ARCH_ALT="arm64"
-elif [ "$ARCH" == "armv7l" ]; then
+elif [ "$ARCH" = "armv7l" ]; then
   ARCH_ALT="arm"
 else
   echo "Unsupported architecture '${ARCH}'. Aborting."
